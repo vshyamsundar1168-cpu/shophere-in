@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShopHere.in – Admin</title>
+<script>
+// #26: If opened as file:// redirect to server automatically
+if(window.location.protocol==='file:'){
+  window.location.href='http://localhost:8080/admin.html';
+}
+</script>
+<link rel="stylesheet" href="style.css">
+<style>
+:root{--p:#f97316;--sec:#1e293b;--b:#e2e8f0;--rd:#ef4444;--g:#22c55e;--m:#64748b}
+#serverAlert{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;align-items:center;justify-content:center}
+#serverAlert.show{display:flex}
+.alert-box{background:#fff;border-radius:16px;padding:40px;max-width:460px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.alert-box h2{font-size:1.3rem;font-weight:800;color:#ef4444;margin-bottom:12px}
+.alert-box p{font-size:.9rem;color:#64748b;margin-bottom:20px;line-height:1.6}
+.alert-box code{background:#f1f5f9;padding:6px 12px;border-radius:6px;font-size:.85rem;display:block;margin:8px 0}
+.admin-wrap{display:flex;min-height:100vh}
+.sidebar{width:230px;background:#1e293b;color:#94a3b8;flex-shrink:0;display:flex;flex-direction:column}
+.sb-brand{padding:20px 20px 16px;font-size:1.1rem;font-weight:800;color:#f97316;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-brand span{color:#fff}
+.sb-nav{padding:10px 0;flex:1;display:flex;flex-direction:column}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;font-size:.84rem;font-weight:500;transition:all .15s;border-left:3px solid transparent}
+.sb-item:hover,.sb-item.active{background:rgba(255,255,255,.07);color:#fff;border-left-color:#f97316}
+.sb-item a{color:inherit;text-decoration:none}
+.sb-bottom{margin-top:auto}
+.main{flex:1;background:#f8fafc;overflow:auto}
+.topbar{background:#fff;border-bottom:1px solid var(--b);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar h2{font-size:1.05rem;font-weight:700}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:24px 28px 0}
+.stat-card{background:#fff;border-radius:12px;padding:18px;border:1px solid var(--b);display:flex;align-items:center;gap:14px}
+.stat-icon{font-size:2rem}
+.stat-val{font-size:1.5rem;font-weight:800}
+.stat-lbl{font-size:.75rem;color:var(--m);margin-top:2px}
+.sec{padding:20px 28px}
+.data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--b)}
+.data-table th{background:#f1f5f9;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#475569;padding:10px 14px;text-align:left;white-space:nowrap}
+.data-table td{padding:10px 14px;font-size:.82rem;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.data-table tr:last-child td{border:none}
+.data-table tr:hover td{background:#fafafa}
+.tab{display:none}.tab.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- SERVER NOT RUNNING ALERT -->
+<div id="serverAlert">
+  <div class="alert-box">
+    <h2>⚠️ Server Not Running</h2>
+    <p>The ShopHere.in server is not running. You must start the server first, then open this page through the browser — not by double-clicking the file.</p>
+    <p><strong>Step 1:</strong> Double-click <code>START_SERVER.bat</code></p>
+    <p><strong>Step 2:</strong> Open your browser and go to:</p>
+    <code>http://localhost:8080/admin.html</code>
+    <button onclick="location.reload()" style="margin-top:20px;padding:12px 28px;background:#f97316;color:#fff;border:none;border-radius:50px;font-size:.9rem;font-weight:700;cursor:pointer">Retry Connection</button>
+  </div>
+</div>
+<div class="admin-wrap">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-brand">Shop<span>Here</span>.in<br><small style="font-size:.65rem;color:#64748b;font-weight:400">Admin Panel</small></div>
+  <div class="sb-nav">
+    <div class="sb-item active" onclick="showTab('dashboard',this)">📊 Dashboard</div>
+    <div class="sb-item" onclick="showTab('products',this)">📦 Products</div>
+    <div class="sb-item" onclick="showTab('addProduct',this)">➕ Add Product</div>
+    <div class="sb-item" onclick="showTab('orders',this)">🛒 Orders</div>
+    <div class="sb-item" onclick="showTab('reviews',this)">⭐ Reviews</div>
+    <div class="sb-item" onclick="showTab('banners',this)">🖼️ Banners</div>
+    <div class="sb-item" onclick="showTab('categories',this)">🗂️ Categories</div>
+    <div class="sb-item" onclick="showTab('settings',this)">⚙️ Store Settings</div>
+    <div class="sb-item sb-bottom"><a href="/" target="_blank">🏠 View Store</a></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <h2 id="tabTitle">Dashboard</h2>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span style="font-size:.8rem;color:var(--m)" id="adminTime"></span>
+      <div style="display:flex;align-items:center;gap:8px;background:#f1f5f9;padding:6px 14px;border-radius:50px">
+        <span style="font-size:1rem">👤</span>
+        <span style="font-size:.82rem;font-weight:700;color:var(--sec)" id="adminUserLabel">Admin</span>
+      </div>
+      <button onclick="adminLogout()" style="padding:7px 16px;background:var(--rd);color:#fff;border:none;border-radius:50px;font-size:.8rem;font-weight:700;cursor:pointer">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div id="tab-dashboard" class="tab active">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon">📦</div><div><div class="stat-val" id="st-p">—</div><div class="stat-lbl">Products</div></div></div>
+      <div class="stat-card"><div class="stat-icon">🛒</div><div><div class="stat-val" id="st-o">—</div><div class="stat-lbl">Orders</div></div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div><div class="stat-val" id="st-r">—</div><div class="stat-lbl">Revenue</div></div></div>
+      <div class="stat-card"><div class="stat-icon">⚠️</div><div><div class="stat-val" id="st-ls">—</div><div class="stat-lbl">Low Stock</div></div></div>
+    </div>
+    <div class="sec">
+      <h3 style="font-size:.95rem;font-weight:700;margin-bottom:14px">Recent Orders</h3>
+      <table class="data-table">
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="recentOrders"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PRODUCTS TAB -->
+  <div id="tab-products" class="tab">
+    <div class="sec">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <input type="text" id="prodSearch" placeholder="Search products…" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;flex:1;min-width:180px" oninput="filterProds()">
+        <select id="prodCatFilter" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" onchange="filterProds()">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Rating</th><th>Badge</th><th>Actions</th></tr></thead>
+          <tbody id="prodBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD PRODUCT TAB -->
+  <div id="tab-addProduct" class="tab">
+    <div class="sec" style="max-width:700px">
+      <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid var(--b)">
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:18px">Add New Product</h3>
+        <div class="form-group"><label>Product Name *</label><input id="ap_name" placeholder="Enter product name"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Brand *</label><input id="ap_brand" placeholder="Enter brand name"></div>
+          <div class="form-group"><label>Category *</label><select id="ap_cat"><option value="">Loading…</option></select></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="ap_desc" placeholder="Product description…"></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Price (₹) *</label><input id="ap_price" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label>Original Price (₹)</label><input id="ap_orig" type="number" placeholder="0" min="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Stock *</label><input id="ap_stock" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label>Badge</label>
+            <select id="ap_badge"><option value="">None</option><option value="new">🆕 New</option><option value="deal">🔥 Deal</option><option value="hot">⚡ Hot</option></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="ap_featured" style="margin-right:6px"> Mark as Featured Product</label>
+        </div>
+        <hr style="margin:18px 0;border-color:var(--b)">
+        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px;color:var(--p)">📸 Media Upload</h4>
+        <div class="form-group">
+          <label>Product Images (JPG, PNG, WebP — max 10MB each)</label>
+          <div class="upload-area" onclick="document.getElementById('ap_images').click()">
+            📷 Click to select images (multiple allowed)
+            <input type="file" id="ap_images" multiple accept="image/*" style="display:none" onchange="previewImages(this,'ap_imgPrev')">
+          </div>
+          <div class="img-preview" id="ap_imgPrev"></div>
+        </div>
+        <div class="form-group">
+          <label>Product Videos (MP4, WebM — max 200MB each)</label>
+          <div class="upload-area" onclick="document.getElementById('ap_videos').click()">
+            🎬 Click to select videos
+            <input type="file" id="ap_videos" multiple accept="video/mp4,video/webm" style="display:none" onchange="previewVideos(this,'ap_vidPrev')">
+          </div>
+          <div id="ap_vidPrev" style="margin-top:8px;font-size:.8rem;color:var(--m)"></div>
+        </div>
+        <div class="form-group">
+          <label>🎵 Audio / Background Music (MP3, WAV, OGG — max 50MB each)</label>
+          <div class="upload-area" onclick="document.getElementById('ap_audios').click()">
+            🎵 Click to select audio files
+            <input type="file" id="ap_audios" multiple accept="audio/*" style="display:none" onchange="previewAudios(this,'ap_audPrev')">
+          </div>
+          <div id="ap_audPrev" style="margin-top:8px;font-size:.8rem;color:var(--m)"></div>
+        </div>
+        <button class="btn btn-primary" onclick="addProduct()" style="margin-top:8px">Save Product</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDERS TAB -->
+  <div id="tab-orders" class="tab">
+    <div class="sec">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <select id="orderStatusFilter" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" onchange="filterOrders(this.value)">
+          <option value="">All Statuses</option>
+          <option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEWS TAB -->
+  <div id="tab-reviews" class="tab">
+    <div class="sec">
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Product</th><th>Reviewer</th><th>Rating</th><th>Review</th><th>Date</th></tr></thead>
+          <tbody id="reviewsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANNERS TAB -->
+  <div id="tab-banners" class="tab">
+    <div class="sec">
+      <div id="bannerList" style="margin-bottom:24px"></div>
+      <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid var(--b);max-width:560px">
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">Add New Banner</h4>
+        <div class="form-group">
+          <label>Background Image (optional)</label>
+          <div class="upload-area" onclick="document.getElementById('bn_img').click()">
+            🖼️ Upload banner image (optional)
+            <input type="file" id="bn_img" accept="image/*" style="display:none" onchange="document.getElementById('bn_imgName').textContent=this.files[0]?.name||''">
+          </div>
+          <span id="bn_imgName" style="font-size:.75rem;color:var(--m)"></span>
+        </div>
+        <div class="form-group"><label>OR Background Gradient CSS</label><input id="bn_grad" placeholder="linear-gradient(135deg,#1e293b,#f97316)"></div>
+        <div class="form-group"><label>Headline *</label><input id="bn_head" placeholder="Enter banner headline"></div>
+        <div class="form-group"><label>Subtitle</label><input id="bn_sub" placeholder="Enter subtitle text"></div>
+        <div class="form-row">
+          <div class="form-group"><label>CTA Button Label</label><input id="bn_cta" placeholder="Shop Now"></div>
+          <div class="form-group"><label>CTA Link URL</label><input id="bn_url" placeholder="https:// or #section"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="addBanner()">Add Banner</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES TAB -->
+  <div id="tab-categories" class="tab">
+    <div class="sec" style="max-width:500px">
+      <div style="display:flex;gap:10px;margin-bottom:18px">
+        <input type="text" id="newCatName" placeholder="New category name" style="flex:1;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+        <button class="btn btn-primary btn-sm" onclick="addCategory()">Add</button>
+      </div>
+      <div id="catList"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-settings" class="tab">
+    <div class="sec" style="max-width:620px">
+      <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid var(--b)">
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:18px">Store Settings</h3>
+        <div class="form-group"><label>Store Name</label><input id="st_name" placeholder="Your store name"></div>
+        <div class="form-group">
+          <label>Store Logo</label>
+          <div class="upload-area" onclick="document.getElementById('st_logo').click()">
+            🏪 Upload logo (PNG, JPG, SVG — max 2MB)
+            <input type="file" id="st_logo" accept="image/*" style="display:none" onchange="previewLogo(this)">
+          </div>
+          <img id="st_logoPrev" src="" alt="" style="max-height:60px;margin-top:8px;display:none;border-radius:8px">
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Primary Brand Color</label>
+            <input type="color" id="st_color" value="#f97316" style="height:42px;border-radius:8px;border:1.5px solid var(--b);padding:4px;width:100%">
+          </div>
+          <div class="form-group"><label>Free Shipping Threshold (₹)</label><input id="st_ship" type="number" placeholder="0" min="0"></div>
+        </div>
+
+        <!-- #24 TEXT COLOR CONTROLS -->
+        <hr style="margin:16px 0;border-color:var(--b)">
+        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px">🎨 Text Colors — Area by Area</h4>
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:4px">
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+            <div class="form-group" style="margin:0">
+              <label>📢 Announcement Bar Text</label>
+              <input type="color" id="st_colorAnnoText" value="#ffffff" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Scrolling bar text</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>📢 Announcement Bar BG</label>
+              <input type="color" id="st_colorAnnoBg" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Scrolling bar background</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>🔝 Top Bar Text</label>
+              <input type="color" id="st_colorTopBarText" value="#ffffff" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Announcement bar</small>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+            <div class="form-group" style="margin:0">
+              <label>🏷️ Product Name Text</label>
+              <input type="color" id="st_colorProdName" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Product card title</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>💰 Product Price Text</label>
+              <input type="color" id="st_colorProdPrice" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Price color</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>🏷️ Product Brand Text</label>
+              <input type="color" id="st_colorProdBrand" value="#64748b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Brand/category label</small>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+            <div class="form-group" style="margin:0">
+              <label>📰 Page Headings</label>
+              <input type="color" id="st_colorHeading" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Section titles (H1–H4)</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>📝 Body / Description Text</label>
+              <input type="color" id="st_colorBody" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">General body text</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>🔗 Links &amp; Buttons</label>
+              <input type="color" id="st_colorLink" value="#f97316" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">CTA buttons &amp; links</small>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div class="form-group" style="margin:0">
+              <label>🦶 Footer Text</label>
+              <input type="color" id="st_colorFooterText" value="#94a3b8" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Footer body text</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>🦶 Footer Heading</label>
+              <input type="color" id="st_colorFooterHead" value="#ffffff" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Footer column titles</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>🏠 Nav Bar Text</label>
+              <input type="color" id="st_colorNavText" value="#94a3b8" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
+              <small style="color:var(--m)">Category nav links</small>
+            </div>
+          </div>
+
+        </div>
+        <button class="btn btn-sec btn-sm" onclick="previewColors()" style="margin-top:8px">👁️ Preview Colors</button>
+
+        <!-- BANNER SIZE CONTROLS — multi-unit -->
+        <hr style="margin:18px 0;border-color:var(--b)">
+        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px">🖼️ Banner Size &amp; Display Settings</h4>
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:4px">
+
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px;align-items:end">
+            <div class="form-group" style="margin:0">
+              <label>Banner Height Value</label>
+              <input type="number" id="st_bannerSizeVal" placeholder="380" min="1" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Unit</label>
+              <select id="st_bannerSizeUnit" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none" onchange="updateBannerPreview()">
+                <option value="px">px (pixels)</option>
+                <option value="in">in (inches)</option>
+                <option value="cm">cm (centimeters)</option>
+                <option value="vh">vh (% of screen height)</option>
+                <option value="%">% (percent)</option>
+              </select>
+            </div>
+          </div>
+          <div id="bannerSizeHint" style="font-size:.78rem;color:var(--m);margin-bottom:12px;background:#e0f2fe;padding:8px 12px;border-radius:6px">
+            📐 Common sizes: 380px = 10cm = 4in = 40vh
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div class="form-group" style="margin:0">
+              <label>Banner Image Fit</label>
+              <select id="st_bannerFit" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+                <option value="cover">Cover — Fills banner, crops if needed (recommended)</option>
+                <option value="contain">Contain — Full image visible, may show gaps</option>
+                <option value="fill">Stretch — Fills exactly, may distort image</option>
+                <option value="none">Original — No scaling, use actual image size</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Banner Text Size</label>
+              <select id="st_bannerTextSize" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+                <option value="xlarge">Extra Large — 3rem (~48px)</option>
+                <option value="large">Large — 2.4rem (~38px) ★ Default</option>
+                <option value="medium">Medium — 1.8rem (~29px)</option>
+                <option value="small">Small — 1.4rem (~22px)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group" style="margin:0">
+              <label>Banner Text Position</label>
+              <select id="st_bannerPos" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+                <option value="center">Center</option>
+                <option value="flex-start">Left</option>
+                <option value="flex-end">Right</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Banner Text Color</label>
+              <input type="color" id="st_bannerTextColor" value="#ffffff" style="height:42px;border-radius:8px;border:1.5px solid var(--b);padding:4px;width:100%">
+            </div>
+          </div>
+
+          <!-- Product Photo / Video Size -->
+          <hr style="margin:14px 0;border-color:var(--b)">
+          <h5 style="font-size:.84rem;font-weight:700;margin-bottom:10px">🛍️ Product Card Sizes</h5>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div class="form-group" style="margin:0">
+              <label>Product Image Height (px)</label>
+              <input type="number" id="st_prodImgHeight" placeholder="200" min="80" max="500" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+              <small style="color:var(--m)">Product card image area</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Product Name Font (px)</label>
+              <input type="number" id="st_prodNameSize" placeholder="14" min="10" max="24" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+              <small style="color:var(--m)">Product title text</small>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Product Price Font (px)</label>
+              <input type="number" id="st_prodPriceSize" placeholder="17" min="10" max="28" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+              <small style="color:var(--m)">Price text size</small>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-sec btn-sm" onclick="previewBannerSize()" style="margin-top:8px">👁️ Preview Banner Size</button>
+        <hr style="margin:16px 0;border-color:var(--b)">
+        <div class="form-group"><label>Announcement Bar Text</label><input id="st_ann" placeholder="e.g. Free shipping on orders above ₹999"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Contact Email</label><input id="st_email" type="email" placeholder="your@email.com"></div>
+          <div class="form-group"><label>Contact Phone</label><input id="st_phone" placeholder="+91-XXXXXXXXXX"></div>
+        </div>
+        <div class="form-group"><label>Footer Text</label><input id="st_footer" placeholder="About your store"></div>
+        <div class="form-group" style="margin-top:18px">
+          <label>📢 Home Page Scrolling Text <small style="color:var(--m);font-weight:400">(use | to separate messages)</small></label>
+          <textarea id="st_scroll" placeholder="Welcome to ShopHere.in | Delivery at your doorstep | Quality products at reasonable price" style="min-height:70px;font-size:.84rem"></textarea>
+          <small style="color:var(--m)">Separate each message with a pipe | symbol</small>
+        </div>
+        <div class="form-group">
+          <label>Contact Address</label><input id="st_addr" placeholder="Your store address, city">
+        </div>
+        <hr style="margin:20px 0;border-color:var(--b)">
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">📋 Terms &amp; Conditions</h4>
+        <div class="form-group">
+          <label>Terms &amp; Conditions <small style="color:var(--m);font-weight:400">(displayed in Terms of Use popup on store)</small></label>
+          <textarea id="st_terms" placeholder="Enter your terms and conditions…" style="min-height:150px;font-size:.84rem"></textarea>
+        </div>
+        <hr style="margin:20px 0;border-color:var(--b)">
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">🔒 Privacy Policy</h4>
+        <div class="form-group">
+          <label>Privacy Policy <small style="color:var(--m);font-weight:400">(displayed in Privacy Policy popup on store)</small></label>
+          <textarea id="st_privacy" placeholder="Enter your privacy policy…" style="min-height:150px;font-size:.84rem"></textarea>
+        </div>
+        <hr style="margin:20px 0;border-color:var(--b)">
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">� Returns &amp; Refund Policy</h4>
+        <div class="form-group">
+          <label>Returns Policy <small style="color:var(--m);font-weight:400">(shows in Returns popup on store)</small></label>
+          <textarea id="st_returns" placeholder="Enter your returns and refund policy…" style="min-height:120px;font-size:.84rem"></textarea>
+        </div>
+        <hr style="margin:20px 0;border-color:var(--b)">
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">❓ FAQ (Frequently Asked Questions)</h4>
+        <div class="form-group">
+          <label>FAQ Content <small style="color:var(--m);font-weight:400">Format: Question on line 1, Answer on line 2, blank line between each FAQ</small></label>
+          <textarea id="st_faq" placeholder="What is your return policy?&#10;We offer 7-day easy returns.&#10;&#10;How long does delivery take?&#10;Delivery in 3-5 business days." style="min-height:180px;font-size:.84rem"></textarea>
+        </div>
+        <hr style="margin:20px 0;border-color:var(--b)">
+
+        <!-- ═══ VISUAL CUSTOMIZER ═══ -->
+        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:14px">🎨 Visual Customizer</h4>
+        <div id="vc_unsaved" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;color:#856404;margin-bottom:12px">⚠️ Unsaved changes — click Save All Settings to apply</div>
+
+        <!-- FONTS -->
+        <details style="background:#f8fafc;border:1px solid var(--b);border-radius:10px;margin-bottom:10px;overflow:hidden">
+          <summary style="padding:13px 16px;font-size:.88rem;font-weight:700;cursor:pointer;user-select:none">🔡 Fonts &amp; Typography</summary>
+          <div style="padding:16px;border-top:1px solid var(--b)">
+            <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;background:#fff;border:1px solid var(--b);border-radius:8px;padding:12px">
+              <div style="flex:1">
+                <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:5px">🌐 Global Font — Apply to All Sections</label>
+                <select id="vc_globalFont" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.85rem;outline:none" onchange="vcPreviewGlobal()"></select>
+                <div id="vc_globalFontPrev" style="margin-top:6px;font-size:.9rem;color:#64748b;min-height:22px">The quick brown fox jumps</div>
+              </div>
+              <button onclick="vcApplyFontToAll()" style="padding:9px 16px;background:var(--sec,#1e293b);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;flex-shrink:0">Apply to All ↓</button>
+            </div>
+            <div id="vc_sectionRows" style="display:grid;gap:10px"></div>
+          </div>
+        </details>
+
+        <!-- PRODUCT CARDS -->
+        <details style="background:#f8fafc;border:1px solid var(--b);border-radius:10px;margin-bottom:10px;overflow:hidden">
+          <summary style="padding:13px 16px;font-size:.88rem;font-weight:700;cursor:pointer;user-select:none">🃏 Product Card Appearance</summary>
+          <div style="padding:16px;border-top:1px solid var(--b)">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+              <div class="form-group" style="margin:0"><label>Image Height (px)</label><input type="number" id="vc_prodImgHeight" min="80" max="600" placeholder="200" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" oninput="vcMarkDirty()"><small style="color:var(--m)">Product card image area</small></div>
+              <div class="form-group" style="margin:0"><label>Name Font Size (px)</label><input type="number" id="vc_prodNameSize" min="10" max="28" placeholder="14" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" oninput="vcMarkDirty()"><small style="color:var(--m)">Product title text</small></div>
+              <div class="form-group" style="margin:0"><label>Price Font Size (px)</label><input type="number" id="vc_prodPriceSize" min="10" max="32" placeholder="17" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" oninput="vcMarkDirty()"><small style="color:var(--m)">Price text size</small></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div class="form-group" style="margin:0"><label>Card Background</label><input type="color" id="vc_prodCardBg" value="#ffffff" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"><small style="color:var(--m)">Product card bg color</small></div>
+              <div class="form-group" style="margin:0"><label>Card Border Radius (px)</label><input type="number" id="vc_prodCardRadius" min="0" max="32" placeholder="12" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" oninput="vcMarkDirty()"><small style="color:var(--m)">Corner roundness (0–32)</small></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+              <div class="form-group" style="margin:0"><label>🆕 "New" Badge Color</label><input type="color" id="vc_badgeNewBg" value="#22c55e" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
+              <div class="form-group" style="margin:0"><label>🔥 "Deal" Badge Color</label><input type="color" id="vc_badgeDealBg" value="#f97316" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
+              <div class="form-group" style="margin:0"><label>⚡ "Hot" Badge Color</label><input type="color" id="vc_badgeHotBg" value="#e11d48" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
+            </div>
+          </div>
+        </details>
+
+        <!-- COLOR THEME -->
+        <details style="background:#f8fafc;border:1px solid var(--b);border-radius:10px;margin-bottom:10px;overflow:hidden">
+          <summary style="padding:13px 16px;font-size:.88rem;font-weight:700;cursor:pointer;user-select:none">🌈 Extended Color Theme</summary>
+          <div style="padding:16px;border-top:1px solid var(--b)">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+              <div class="form-group" style="margin:0"><label>Page Background</label><input type="color" id="vc_colorBg" value="#f8fafc" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"><small style="color:var(--m)">Body background (--bg)</small></div>
+              <div class="form-group" style="margin:0"><label>"Add to Cart" Button BG</label><input type="color" id="vc_colorBtnCart" value="#fff7ed" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"><small style="color:var(--m)">.btn-cart background</small></div>
+              <div class="form-group" style="margin:0"><label>"Buy Now" Button BG</label><input type="color" id="vc_colorBtnBuy" value="#f97316" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"><small style="color:var(--m)">.btn-buy background</small></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group" style="margin:0"><label>Navigation Background</label><input type="color" id="vc_colorNavBg" value="#1e293b" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"><small style="color:var(--m)">.main-nav background</small></div>
+              <div class="form-group" style="margin:0"><label>Footer Background</label><input type="color" id="vc_colorFooterBg" value="#1e293b" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"><small style="color:var(--m)">footer background</small></div>
+            </div>
+          </div>
+        </details>
+
+        <hr style="margin:20px 0;border-color:var(--b)">
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">🔐 Admin Credentials</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label>New Admin Username</label>
+            <input id="st_adminuser" placeholder="Leave blank to keep current username">
+          </div>
+          <div class="form-group">
+            <label>New Admin Password</label>
+            <div style="position:relative;display:flex;align-items:center">
+              <input id="st_adminpass" type="password" placeholder="Leave blank to keep current password" style="width:100%;padding:10px 40px 10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈'" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem">👁️</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:8px" onclick="saveSettings()">💾 Save All Settings</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .main -->
+</div><!-- end .admin-wrap -->
+
+<!-- IMAGE MANAGER MODAL -->
+<div class="overlay" id="imgMgrModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr"><h3 id="imgMgrTitle">Product Images</h3><button class="modal-close" onclick="closeImgMgr()">✕</button></div>
+    <div class="modal-body" id="imgMgrBody"></div>
+  </div>
+</div>
+
+<!-- EDIT PRODUCT MODAL -->
+<div class="overlay" id="editModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr"><h3>Edit Product</h3><button class="modal-close" onclick="closeEdit()">✕</button></div>
+    <div class="modal-body" id="editBody"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const w = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  w.appendChild(el);
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function showTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = {
+    dashboard: 'Dashboard', products: 'Products', addProduct: 'Add Product',
+    orders: 'Orders', reviews: 'Reviews', banners: 'Banners',
+    categories: 'Categories', settings: 'Store Settings'
+  };
+  document.getElementById('tabTitle').textContent = titles[name] || name;
+  if (name === 'dashboard') loadStats();
+  if (name === 'products') loadProducts();
+  if (name === 'addProduct') populateCatDropdown('ap_cat');
+  if (name === 'orders') loadOrders();
+  if (name === 'reviews') loadReviews();
+  if (name === 'banners') loadBanners();
+  if (name === 'categories') loadCategories();
+  if (name === 'settings') loadSettings();
+}
+
+// ── Global categories store ───────────────────────────────────────────────────
+window.allCats = [];
+
+async function loadAllCats() {
+  try {
+    const res = await fetch('/api/categories');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    window.allCats = await res.json();
+    populateCatDropdown('ap_cat');
+    populateCatDropdown('prodCatFilter', true);
+  } catch (e) {
+    toast('❌ Could not load categories: ' + e.message);
+  }
+}
+
+function populateCatDropdown(selectId, includeAll) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const currentVal = sel.value;
+  let html = includeAll ? '<option value="">All Categories</option>' : '';
+  html += window.allCats.map(c => `<option value="${c}">${c}</option>`).join('');
+  sel.innerHTML = html;
+  if (currentVal) sel.value = currentVal;
+}
+</script>
+
+<script>
+// ── Stats / Dashboard ─────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const res = await fetch('/api/stats');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const s = await res.json();
+    document.getElementById('st-p').textContent = s.totalProducts ?? '—';
+    document.getElementById('st-o').textContent = s.totalOrders ?? '—';
+    document.getElementById('st-r').textContent = '₹' + (s.totalRevenue || 0).toLocaleString('en-IN');
+    document.getElementById('st-ls').textContent = s.lowStock ?? '—';
+  } catch (e) {
+    toast('❌ Stats error: ' + e.message);
+  }
+  try {
+    const res2 = await fetch('/api/orders');
+    if (!res2.ok) throw new Error('HTTP ' + res2.status);
+    const orders = await res2.json();
+    document.getElementById('recentOrders').innerHTML = orders.slice(0, 5).map(o => `<tr>
+      <td><strong>${o.id}</strong></td>
+      <td>${o.name || ''}</td>
+      <td>₹${(o.total || 0).toLocaleString('en-IN')}</td>
+      <td><span class="status-badge s-${(o.status || '').toLowerCase()}">${o.status || ''}</span></td>
+      <td>${o.date ? new Date(o.date).toLocaleDateString('en-IN') : ''}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--m);padding:24px">No orders yet</td></tr>';
+  } catch (e) {
+    toast('❌ Recent orders error: ' + e.message);
+  }
+}
+
+// ── Products ──────────────────────────────────────────────────────────────────
+let allProds = [];
+
+async function loadProducts() {
+  try {
+    const res = await fetch('/api/products?limit=500');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    allProds = data.products || data;
+    populateCatDropdown('prodCatFilter', true);
+    renderProdTable(allProds);
+  } catch (e) {
+    toast('❌ Error loading products: ' + e.message);
+  }
+}
+
+function filterProds() {
+  const q = (document.getElementById('prodSearch').value || '').toLowerCase();
+  const cat = document.getElementById('prodCatFilter').value;
+  let list = allProds;
+  if (q) list = list.filter(p => (p.name + ' ' + (p.brand || '')).toLowerCase().includes(q));
+  if (cat) list = list.filter(p => p.category === cat);
+  renderProdTable(list);
+}
+
+function renderProdTable(list) {
+  document.getElementById('prodBody').innerHTML = list.length ? list.map(p => {
+    const img = p.images && p.images.length
+      ? `<img src="${p.images[0].url}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">`
+      : `<span style="font-size:1.6rem">📦</span>`;
+    const stockColor = p.stock === 0 ? 'var(--rd)' : p.stock <= 10 ? '#f97316' : 'var(--g)';
+    return `<tr>
+      <td>#${p.id}</td>
+      <td>${img}</td>
+      <td style="max-width:180px"><strong>${p.name}</strong></td>
+      <td>${p.category || ''}</td>
+      <td>₹${(p.price || 0).toLocaleString('en-IN')}</td>
+      <td style="color:${stockColor};font-weight:700">${p.stock}${p.stock <= 10 && p.stock > 0 ? ' ⚠️' : ''}</td>
+      <td>⭐ ${p.rating || 0}</td>
+      <td>${p.badge ? `<span class="pc-badge ${p.badge}" style="position:static">${p.badge}</span>` : '—'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-sm btn-sec" onclick="openEdit(${p.id})">✏️ Edit</button>
+        <button class="btn btn-sm" style="margin-left:4px;background:#e0f2fe;color:#0369a1;border:none;border-radius:7px;padding:7px 10px;font-size:.74rem;font-weight:700;cursor:pointer" onclick="openImgMgr(${p.id})">🖼️ Images</button>
+        <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteProduct(${p.id})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:32px">No products found</td></tr>';
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  try {
+    const res = await fetch('/api/products/' + id, { method: 'DELETE' });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
+    toast('✅ Product deleted');
+    loadProducts();
+    loadStats();
+  } catch (e) {
+    toast('❌ Delete failed: ' + e.message);
+  }
+}
+</script>
+
+<script>
+// ── Media previews ────────────────────────────────────────────────────────────
+function previewImages(input, previewId) {
+  const prev = document.getElementById(previewId);
+  prev.innerHTML = '';
+  Array.from(input.files).forEach(f => {
+    const r = new FileReader();
+    r.onload = e => {
+      const wrap = document.createElement('div');
+      wrap.style.position = 'relative';
+      wrap.innerHTML = `<img src="${e.target.result}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--b)" alt="">
+        <button style="position:absolute;top:-6px;right:-6px;background:var(--rd);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0" onclick="this.parentNode.remove()">×</button>`;
+      prev.appendChild(wrap);
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function previewVideos(input, previewId) {
+  document.getElementById(previewId).innerHTML = Array.from(input.files)
+    .map(f => `<div>🎬 ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)</div>`).join('');
+}
+
+function previewAudios(input, previewId) {
+  document.getElementById(previewId).innerHTML = Array.from(input.files)
+    .map(f => `<div>🎵 ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)</div>`).join('');
+}
+
+// ── Add Product ───────────────────────────────────────────────────────────────
+async function addProduct() {
+  const name = document.getElementById('ap_name').value.trim();
+  if (!name) { toast('❌ Product name is required'); return; }
+  const price = document.getElementById('ap_price').value;
+  if (!price || parseFloat(price) <= 0) { toast('❌ Please enter a valid price'); return; }
+
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('brand', document.getElementById('ap_brand').value || '');
+  fd.append('category', document.getElementById('ap_cat').value || '');
+  fd.append('description', document.getElementById('ap_desc').value || '');
+  fd.append('price', price);
+  fd.append('originalPrice', document.getElementById('ap_orig').value || price);
+  fd.append('stock', document.getElementById('ap_stock').value || '0');
+  fd.append('badge', document.getElementById('ap_badge').value || '');
+  fd.append('featured', String(document.getElementById('ap_featured').checked));
+  Array.from(document.getElementById('ap_images').files).forEach(f => fd.append('images', f));
+  Array.from(document.getElementById('ap_videos').files).forEach(f => fd.append('videos', f));
+  Array.from(document.getElementById('ap_audios').files).forEach(f => fd.append('audios', f));
+
+  try {
+    const res = await fetch('/api/products', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    if (data.uploadErrors && data.uploadErrors.length) {
+      toast('⚠️ Saved with upload issues: ' + data.uploadErrors[0]);
+    } else {
+      toast('✅ Product saved!');
+    }
+    // Reset form
+    ['ap_name','ap_brand','ap_desc','ap_price','ap_orig','ap_stock'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ap_badge').value = '';
+    document.getElementById('ap_featured').checked = false;
+    document.getElementById('ap_images').value = '';
+    document.getElementById('ap_videos').value = '';
+    document.getElementById('ap_audios').value = '';
+    document.getElementById('ap_imgPrev').innerHTML = '';
+    document.getElementById('ap_vidPrev').innerHTML = '';
+    document.getElementById('ap_audPrev').innerHTML = '';
+  } catch (e) {
+    toast('❌ Error: ' + e.message);
+    console.error(e);
+  }
+}
+</script>
+
+<script>
+// ── Edit Product Modal ────────────────────────────────────────────────────────
+async function openEdit(id) {
+  const p = allProds.find(x => x.id === id);
+  if (!p) { toast('Product not found'); return; }
+  let cats = window.allCats;
+  if (!cats.length) {
+    try {
+      const r = await fetch('/api/categories');
+      cats = await r.json();
+      window.allCats = cats;
+    } catch (e) { cats = [p.category || 'Uncategorised']; }
+  }
+  const catOpts = cats.map(c => `<option${c === p.category ? ' selected' : ''}>${c}</option>`).join('');
+  const currentImgs = p.images && p.images.length
+    ? `<div class="form-group"><label>Current Images</label><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">${p.images.map(img => `<img src="${img.url}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:2px solid var(--b)" alt="">`).join('')}</div></div>` : '';
+
+  document.getElementById('editBody').innerHTML = `
+    <div class="form-group"><label>Name</label><input id="ep_name" value="${p.name}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Brand</label><input id="ep_brand" value="${p.brand || ''}"></div>
+      <div class="form-group"><label>Category</label><select id="ep_cat">${catOpts}</select></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="ep_desc">${p.description || ''}</textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Price (₹)</label><input id="ep_price" type="number" value="${p.price}"></div>
+      <div class="form-group"><label>Original Price (₹)</label><input id="ep_orig" type="number" value="${p.originalPrice || p.price}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Stock</label><input id="ep_stock" type="number" value="${p.stock}"></div>
+      <div class="form-group"><label>Badge</label>
+        <select id="ep_badge">
+          <option value="">None</option>
+          <option value="new"${p.badge === 'new' ? ' selected' : ''}>🆕 New</option>
+          <option value="deal"${p.badge === 'deal' ? ' selected' : ''}>🔥 Deal</option>
+          <option value="hot"${p.badge === 'hot' ? ' selected' : ''}>⚡ Hot</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label><input type="checkbox" id="ep_feat"${p.featured ? ' checked' : ''}> Featured</label></div>
+    ${currentImgs}
+    <div class="form-group"><label>Add More Images</label>
+      <input type="file" id="ep_images" multiple accept="image/*" onchange="previewImages(this,'ep_imgPrev')">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px" id="ep_imgPrev"></div>
+    </div>
+    <div class="form-group"><label>Add More Videos</label>
+      <input type="file" id="ep_videos" multiple accept="video/mp4,video/webm" onchange="previewVideos(this,'ep_vidPrev')">
+      <div id="ep_vidPrev" style="font-size:.8rem;color:var(--m);margin-top:6px"></div>
+    </div>
+    <div class="form-group"><label>Add More Audio / Music</label>
+      <input type="file" id="ep_audios" multiple accept="audio/*" onchange="previewAudios(this,'ep_audPrev')">
+      <div id="ep_audPrev" style="font-size:.8rem;color:var(--m);margin-top:6px"></div>
+    </div>
+    <div style="display:flex;gap:8px;padding-top:16px;border-top:1px solid var(--b);margin-top:8px">
+      <button class="btn btn-primary" onclick="saveEdit(${p.id})">Save Changes</button>
+      <button class="btn btn-sec" onclick="closeEdit()">Cancel</button>
+    </div>`;
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEdit() { document.getElementById('editModal').classList.remove('open'); }
+
+async function saveEdit(id) {
+  const fd = new FormData();
+  fd.append('name', document.getElementById('ep_name').value);
+  fd.append('brand', document.getElementById('ep_brand').value);
+  fd.append('category', document.getElementById('ep_cat').value);
+  fd.append('description', document.getElementById('ep_desc').value);
+  fd.append('price', document.getElementById('ep_price').value);
+  fd.append('originalPrice', document.getElementById('ep_orig').value);
+  fd.append('stock', document.getElementById('ep_stock').value);
+  fd.append('badge', document.getElementById('ep_badge').value);
+  fd.append('featured', String(document.getElementById('ep_feat').checked));
+  Array.from(document.getElementById('ep_images').files).forEach(f => fd.append('images', f));
+  Array.from(document.getElementById('ep_videos').files).forEach(f => fd.append('videos', f));
+  Array.from(document.getElementById('ep_audios').files).forEach(f => fd.append('audios', f));
+  try {
+    const res = await fetch('/api/products/' + id, { method: 'PUT', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ Product updated!');
+    closeEdit();
+    loadProducts();
+  } catch (e) {
+    toast('❌ Error: ' + e.message);
+  }
+}
+</script>
+
+<script>
+// ── Orders ────────────────────────────────────────────────────────────────────
+let allOrders = [];
+
+async function loadOrders() {
+  try {
+    const res = await fetch('/api/orders');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    allOrders = await res.json();
+    const filterVal = document.getElementById('orderStatusFilter').value;
+    filterOrders(filterVal);
+  } catch (e) {
+    toast('❌ Error loading orders: ' + e.message);
+  }
+}
+
+function filterOrders(status) {
+  const list = status ? allOrders.filter(o => o.status === status) : allOrders;
+  document.getElementById('ordersBody').innerHTML = list.length ? list.map(o => `<tr>
+    <td><strong>${o.id}</strong></td>
+    <td>${o.name || ''}</td>
+    <td>${o.phone || ''}</td>
+    <td style="max-width:150px;font-size:.78rem">${[o.address, o.city].filter(Boolean).join(', ')}</td>
+    <td>${(o.items || []).length} item(s)</td>
+    <td>₹${(o.total || 0).toLocaleString('en-IN')}</td>
+    <td style="text-transform:capitalize">${o.payment || ''}</td>
+    <td>
+      <select style="padding:4px 8px;border:1px solid var(--b);border-radius:6px;font-size:.78rem" onchange="updateOrderStatus('${o.id}',this.value)">
+        ${['Processing','Shipped','Delivered','Cancelled'].map(s => `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </td>
+    <td>${o.date ? new Date(o.date).toLocaleDateString('en-IN') : ''}</td>
+  </tr>`).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:32px">No orders found</td></tr>';
+}
+
+async function updateOrderStatus(id, status) {
+  try {
+    const res = await fetch('/api/orders/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
+    toast('✅ Order status updated');
+  } catch (e) {
+    toast('❌ Status update failed: ' + e.message);
+  }
+}
+
+// ── Reviews ───────────────────────────────────────────────────────────────────
+async function loadReviews() {
+  try {
+    const res = await fetch('/api/products?limit=500');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const prods = data.products || data;
+    let rows = [];
+    for (const p of prods) {
+      try {
+        const rr = await fetch('/api/reviews/' + p.id);
+        if (!rr.ok) continue;
+        const revs = await rr.json();
+        revs.forEach(r => rows.push({ ...r, productName: p.name, productId: p.id }));
+      } catch (e) { /* skip product if reviews fail */ }
+    }
+    document.getElementById('reviewsBody').innerHTML = rows.length ? rows.map(r => `<tr>
+      <td>${r.productName}</td>
+      <td>${r.name || 'Anonymous'}</td>
+      <td>${'★'.repeat(r.rating || 0)}${'☆'.repeat(5 - (r.rating || 0))}</td>
+      <td style="max-width:200px;font-size:.8rem">${r.text || ''}</td>
+      <td>${r.date ? new Date(r.date).toLocaleDateString('en-IN') : ''}</td>
+    </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--m);padding:32px">No reviews yet</td></tr>';
+  } catch (e) {
+    toast('❌ Error loading reviews: ' + e.message);
+  }
+}
+</script>
+
+<script>
+// ── Banners ───────────────────────────────────────────────────────────────────
+let allBanners = [];
+
+async function loadBanners() {
+  try {
+    const res = await fetch('/api/banners');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    allBanners = await res.json();
+    document.getElementById('bannerList').innerHTML = allBanners.length
+      ? allBanners.map(b => {
+          const bgStyle = b.bgImage
+            ? `background:url('${b.bgImage}') center/cover no-repeat`
+            : `background:${b.bgGradient || 'linear-gradient(135deg,#1e293b,#f97316)'}`;
+          return `<div style="background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden;margin-bottom:14px">
+            <div style="height:100px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;padding:16px;text-align:center;${bgStyle}">${b.headline || ''}</div>
+            <div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div>
+                <div style="font-size:.84rem;font-weight:600">${b.headline || ''}</div>
+                <div style="font-size:.75rem;color:var(--m)">${b.subtitle || ''} · <a href="${b.ctaUrl || '#'}" style="color:var(--p)">${b.ctaLabel || 'Shop Now'}</a></div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer">
+                  <input type="checkbox"${b.active ? ' checked' : ''} onchange="toggleBanner(${b.id},this.checked)"> Active
+                </label>
+                <button class="btn btn-sm btn-danger" onclick="deleteBanner(${b.id})">🗑️</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('')
+      : '<p style="color:var(--m);font-size:.84rem">No banners yet. Add one below.</p>';
+  } catch (e) {
+    toast('❌ Error loading banners: ' + e.message);
+  }
+}
+
+async function addBanner() {
+  const head = document.getElementById('bn_head').value.trim();
+  if (!head) { toast('❌ Headline is required'); return; }
+  const fd = new FormData();
+  const imgFile = document.getElementById('bn_img').files[0];
+  if (imgFile) fd.append('bgImage', imgFile);
+  fd.append('bgGradient', document.getElementById('bn_grad').value || 'linear-gradient(135deg,#1e293b,#f97316)');
+  fd.append('headline', head);
+  fd.append('subtitle', document.getElementById('bn_sub').value || '');
+  fd.append('ctaLabel', document.getElementById('bn_cta').value || 'Shop Now');
+  fd.append('ctaUrl', document.getElementById('bn_url').value || '#');
+  fd.append('active', 'true');
+  try {
+    const res = await fetch('/api/banners', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ Banner added!');
+    document.getElementById('bn_head').value = '';
+    document.getElementById('bn_sub').value = '';
+    document.getElementById('bn_grad').value = '';
+    document.getElementById('bn_cta').value = '';
+    document.getElementById('bn_url').value = '';
+    document.getElementById('bn_img').value = '';
+    document.getElementById('bn_imgName').textContent = '';
+    loadBanners();
+  } catch (e) {
+    toast('❌ Banner error: ' + e.message);
+  }
+}
+
+async function deleteBanner(id) {
+  if (!confirm('Delete this banner?')) return;
+  try {
+    const res = await fetch('/api/banners/' + id, { method: 'DELETE' });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
+    toast('✅ Banner deleted');
+    loadBanners();
+  } catch (e) {
+    toast('❌ Error: ' + e.message);
+  }
+}
+
+async function toggleBanner(id, active) {
+  try {
+    const res = await fetch('/api/banners/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active })
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
+    toast('✅ Banner updated');
+  } catch (e) {
+    toast('❌ Error: ' + e.message);
+  }
+}
+</script>
+
+<script>
+// ── Categories ────────────────────────────────────────────────────────────────
+async function loadCategories() {
+  try {
+    const [catsRes, prodsRes] = await Promise.all([
+      fetch('/api/categories'),
+      fetch('/api/products?limit=500')
+    ]);
+    if (!catsRes.ok) throw new Error('Categories fetch failed: HTTP ' + catsRes.status);
+    if (!prodsRes.ok) throw new Error('Products fetch failed: HTTP ' + prodsRes.status);
+    const cats = await catsRes.json();
+    const prodsData = await prodsRes.json();
+    const prods = prodsData.products || prodsData;
+    window.allCats = cats;
+    document.getElementById('catList').innerHTML = cats.length
+      ? cats.map((c, i) => {
+          const count = prods.filter(p => p.category === c).length;
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border:1px solid var(--b);border-radius:8px;margin-bottom:8px">
+            <div><strong style="font-size:.88rem">${c}</strong> <span style="font-size:.76rem;color:var(--m)">(${count} product${count !== 1 ? 's' : ''})</span></div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-sm btn-sec" onclick="renameCategory(${i},'${c.replace(/'/g, "\\'")}')">✏️ Rename</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteCategory(${i},'${c.replace(/'/g, "\\'")}')">🗑️</button>
+            </div>
+          </div>`;
+        }).join('')
+      : '<p style="color:var(--m);font-size:.84rem">No categories yet.</p>';
+  } catch (e) {
+    toast('❌ Error loading categories: ' + e.message);
+  }
+}
+
+async function addCategory() {
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name) { toast('❌ Enter a category name'); return; }
+  try {
+    const res = await fetch('/api/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ Category added!');
+    document.getElementById('newCatName').value = '';
+    loadCategories();
+    loadAllCats();
+  } catch (e) {
+    toast('❌ Error: ' + e.message);
+  }
+}
+
+async function renameCategory(idx, oldName) {
+  const newName = prompt(`Rename "${oldName}" to:`, oldName);
+  if (!newName || newName.trim() === oldName) return;
+  try {
+    const res = await fetch('/api/categories/' + idx, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName.trim() })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ Category renamed!');
+    loadCategories();
+    loadAllCats();
+  } catch (e) {
+    toast('❌ Error: ' + e.message);
+  }
+}
+
+async function deleteCategory(idx, name) {
+  if (!confirm(`Delete category "${name}"? Products will be moved to Uncategorised.`)) return;
+  try {
+    const res = await fetch('/api/categories/' + idx, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ Category deleted');
+    loadCategories();
+    loadAllCats();
+  } catch (e) {
+    toast('❌ Error: ' + e.message);
+  }
+}
+</script>
+
+<script>
+// ── Settings ──────────────────────────────────────────────────────────────────
+async function loadSettings() {
+  try {
+    const res = await fetch('/api/settings');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const s = await res.json();
+    if (s.storeName !== undefined) document.getElementById('st_name').value = s.storeName;
+    if (s.primaryColor) document.getElementById('st_color').value = s.primaryColor;
+    if (s.announcementBar !== undefined) document.getElementById('st_ann').value = s.announcementBar;
+    if (s.scrollingText !== undefined) document.getElementById('st_scroll').value = s.scrollingText;
+    if (s.contactEmail !== undefined) document.getElementById('st_email').value = s.contactEmail;
+    if (s.contactPhone !== undefined) document.getElementById('st_phone').value = s.contactPhone;
+    if (s.contactAddress !== undefined) document.getElementById('st_addr').value = s.contactAddress;
+    if (s.freeShippingThreshold !== undefined) document.getElementById('st_ship').value = s.freeShippingThreshold;
+    if (s.footerText !== undefined) document.getElementById('st_footer').value = s.footerText;
+    if (s.termsAndConditions !== undefined) document.getElementById('st_terms').value = s.termsAndConditions;
+    if (s.privacyPolicy !== undefined) document.getElementById('st_privacy').value = s.privacyPolicy;
+    if (s.returnPolicy !== undefined) document.getElementById('st_returns').value = s.returnPolicy;
+    if (s.faqText !== undefined) document.getElementById('st_faq').value = s.faqText;
+    if (s.adminUsername !== undefined) document.getElementById('st_adminuser').value = s.adminUsername;
+    // Text colors — area by area
+    const colorMap = {
+      'st_colorAnnoText':'colorAnnoText','st_colorAnnoBg':'colorAnnoBg',
+      'st_colorTopBarText':'colorTopBarText','st_colorProdName':'colorProdName',
+      'st_colorProdPrice':'colorProdPrice','st_colorProdBrand':'colorProdBrand',
+      'st_colorHeading':'colorHeading','st_colorBody':'colorBody','st_colorLink':'colorLink',
+      'st_colorFooterText':'colorFooterText','st_colorFooterHead':'colorFooterHead',
+      'st_colorNavText':'colorNavText','st_bannerTextColor':'bannerTextColor'
+    };
+    Object.entries(colorMap).forEach(([elId,key])=>{ const el=document.getElementById(elId); if(el&&s[key]) el.value=s[key]; });
+    // Banner settings
+    if (s.bannerSizeVal)  { const el=document.getElementById('st_bannerSizeVal');  if(el) el.value=s.bannerSizeVal; }
+    if (s.bannerSizeUnit) { const el=document.getElementById('st_bannerSizeUnit'); if(el) el.value=s.bannerSizeUnit; }
+    if (s.bannerFit)      { const el=document.getElementById('st_bannerFit');      if(el) el.value=s.bannerFit; }
+    if (s.bannerTextSize) { const el=document.getElementById('st_bannerTextSize'); if(el) el.value=s.bannerTextSize; }
+    if (s.bannerPos)      { const el=document.getElementById('st_bannerPos');      if(el) el.value=s.bannerPos; }
+    if (s.prodImgHeight)  { const el=document.getElementById('st_prodImgHeight');  if(el) el.value=s.prodImgHeight; }
+    if (s.prodNameSize)   { const el=document.getElementById('st_prodNameSize');   if(el) el.value=s.prodNameSize; }
+    if (s.prodPriceSize)  { const el=document.getElementById('st_prodPriceSize');  if(el) el.value=s.prodPriceSize; }
+    if (s.logo) { const img = document.getElementById('st_logoPrev'); img.src = s.logo; img.style.display = 'block'; }
+    vcLoadFromSettings(s);
+  } catch (e) {
+    toast('❌ Error loading settings: ' + e.message);
+  }
+}
+
+function updateBannerPreview(){
+  const val=document.getElementById('st_bannerSizeVal').value||'380';
+  const unit=document.getElementById('st_bannerSizeUnit').value||'px';
+  const hints={'px':'Common: 300px=small, 380px=medium, 500px=large, 600px=extra large',
+    'in':'Common: 3in=small, 4in=medium, 5.5in=large (1 inch = 96px)',
+    'cm':'Common: 8cm=small, 10cm=medium, 14cm=large (1 cm = 37.8px)',
+    'vh':'Common: 30vh=small, 40vh=medium, 55vh=large (relative to screen)',
+    '%':'Percent of parent width (not usually used for height)'};
+  const hint=document.getElementById('bannerSizeHint');
+  if(hint) hint.innerHTML=`📐 Current: <strong>${val}${unit}</strong> | ${hints[unit]||''}`;
+}
+
+function previewBannerSize(){
+  const val=document.getElementById('st_bannerSizeVal').value||'380';
+  const unit=document.getElementById('st_bannerSizeUnit').value||'px';
+  toast(`Banner height set to ${val}${unit} — save settings and reload the store to see changes`);
+}
+
+function previewColors(){
+  toast('Save settings first, then reload the store page to see color changes');
+}
+
+function previewLogo(input) {
+  if (input.files[0]) {
+    const r = new FileReader();
+    r.onload = e => {
+      const img = document.getElementById('st_logoPrev');
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+
+async function saveSettings() {
+  const fd = new FormData();
+  fd.append('storeName',             document.getElementById('st_name').value    || '');
+  fd.append('primaryColor',          document.getElementById('st_color').value   || '#f97316');
+  fd.append('announcementBar',       document.getElementById('st_ann').value     || '');
+  fd.append('scrollingText',         document.getElementById('st_scroll').value  || '');
+  fd.append('contactEmail',          document.getElementById('st_email').value   || '');
+  fd.append('contactPhone',          document.getElementById('st_phone').value   || '');
+  fd.append('contactAddress',        document.getElementById('st_addr').value    || '');
+  fd.append('freeShippingThreshold', document.getElementById('st_ship').value    || '0');
+  fd.append('footerText',            document.getElementById('st_footer').value  || '');
+  fd.append('termsAndConditions',    document.getElementById('st_terms').value   || '');
+  fd.append('privacyPolicy',         document.getElementById('st_privacy').value || '');
+  fd.append('returnPolicy',          document.getElementById('st_returns').value || '');
+  fd.append('faqText',               document.getElementById('st_faq').value     || '');
+  // Area-wise text colors
+  const colorMap = {
+    'colorAnnoText':'st_colorAnnoText','colorAnnoBg':'st_colorAnnoBg',
+    'colorTopBarText':'st_colorTopBarText','colorProdName':'st_colorProdName',
+    'colorProdPrice':'st_colorProdPrice','colorProdBrand':'st_colorProdBrand',
+    'colorHeading':'st_colorHeading','colorBody':'st_colorBody','colorLink':'st_colorLink',
+    'colorFooterText':'st_colorFooterText','colorFooterHead':'st_colorFooterHead',
+    'colorNavText':'st_colorNavText','bannerTextColor':'st_bannerTextColor'
+  };
+  Object.entries(colorMap).forEach(([key,elId])=>{ const el=document.getElementById(elId); if(el) fd.append(key,el.value||''); });
+  // Banner settings
+  const g=id=>{ const el=document.getElementById(id); return el?el.value:''; };
+  fd.append('bannerSizeVal',   g('st_bannerSizeVal')  || '380');
+  fd.append('bannerSizeUnit',  g('st_bannerSizeUnit') || 'px');
+  fd.append('bannerFit',       g('st_bannerFit')      || 'cover');
+  fd.append('bannerTextSize',  g('st_bannerTextSize') || 'large');
+  fd.append('bannerPos',       g('st_bannerPos')      || 'center');
+  fd.append('prodImgHeight',   g('st_prodImgHeight')  || '200');
+  fd.append('prodNameSize',    g('st_prodNameSize')   || '14');
+  fd.append('prodPriceSize',   g('st_prodPriceSize')  || '17');
+  // Visual Customizer fields
+  vcCollectFields(fd);
+  const adminUser = document.getElementById('st_adminuser').value.trim();
+  const adminPass = document.getElementById('st_adminpass').value.trim();
+  if (adminUser) fd.append('adminUsername', adminUser);
+  if (adminPass) fd.append('adminPassword', adminPass);
+  const logoFile = document.getElementById('st_logo').files[0];
+  if (logoFile) fd.append('logo', logoFile);
+  try {
+    const res  = await fetch('/api/settings', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ All settings saved to database!');
+    vcClearDirty();
+    if (data.primaryColor) document.documentElement.style.setProperty('--p', data.primaryColor);
+  } catch (e) {
+    toast('❌ Settings error: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ── Visual Customizer ────────────────────────────────────────────────────────
+const VC_FONTS = ['Inter','Roboto','Open Sans','Lato','Poppins','Montserrat','Raleway','Nunito','Merriweather','Playfair Display'];
+const VC_SECTIONS = [
+  { key:'heading',      label:'Headings (H1–H6)',         css:'h1,h2,h3,h4,h5,h6' },
+  { key:'body',         label:'Body / General Text',       css:'body' },
+  { key:'productName',  label:'Product Card Name',         css:'.pc-name' },
+  { key:'productPrice', label:'Product Card Price',        css:'.pc-price .cur' },
+  { key:'productBrand', label:'Product Card Brand',        css:'.pc-brand' },
+  { key:'navigation',   label:'Navigation Bar Links',      css:'.nav-inner a' },
+  { key:'footer',       label:'Footer Text',               css:'.footer-col' },
+  { key:'announcementBar',label:'Announcement / Marquee Bar',css:'.top-bar,.marquee-bar' },
+];
+
+function vcBuildFontOptions(selectedVal) {
+  return VC_FONTS.map(f =>
+    `<option value="${f}"${f===selectedVal?' selected':''} style="font-family:'${f}',sans-serif">${f}</option>`
+  ).join('');
+}
+
+function vcBuildSectionRows(s) {
+  const container = document.getElementById('vc_sectionRows');
+  if (!container) return;
+  container.innerHTML = VC_SECTIONS.map(sec => {
+    const fKey = 'font_'+sec.key, szKey = 'fontSize_'+sec.key, wKey = 'fontWeight_'+sec.key, cKey = 'textColor_'+sec.key;
+    const fVal = (s && s[fKey]) || '';
+    const szVal = (s && s[szKey]) || '';
+    const wVal = (s && s[wKey]) || '400';
+    const cVal = (s && s[cKey]) || '#1e293b';
+    return `<div style="background:#fff;border:1px solid var(--b);border-radius:8px;padding:12px">
+      <div style="font-size:.78rem;font-weight:700;color:#475569;margin-bottom:8px">${sec.label} <small style="font-weight:400;color:var(--m)">→ ${sec.css}</small></div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;align-items:center">
+        <div>
+          <label style="font-size:.72rem;color:var(--m);display:block;margin-bottom:3px">Font Family</label>
+          <select data-vckey="${fKey}" onchange="vcMarkDirty();vcPreviewSection(this,'prev_${sec.key}')" style="width:100%;padding:7px 9px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+            <option value="">— Default —</option>${vcBuildFontOptions(fVal)}
+          </select>
+          <div id="prev_${sec.key}" style="font-size:.82rem;color:var(--m);margin-top:3px;min-height:18px;font-family:'${fVal||'inherit'}',sans-serif">${fVal?'The quick brown fox':''}</div>
+        </div>
+        <div>
+          <label style="font-size:.72rem;color:var(--m);display:block;margin-bottom:3px">Size (px)</label>
+          <input type="number" data-vckey="${szKey}" value="${szVal}" min="10" max="72" placeholder="—" style="width:100%;padding:7px 9px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none" oninput="vcMarkDirty()">
+        </div>
+        <div>
+          <label style="font-size:.72rem;color:var(--m);display:block;margin-bottom:3px">Weight</label>
+          <select data-vckey="${wKey}" style="width:100%;padding:7px 9px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none" onchange="vcMarkDirty()">
+            <option value="400"${wVal==='400'?' selected':''}>400 Normal</option>
+            <option value="500"${wVal==='500'?' selected':''}>500 Medium</option>
+            <option value="600"${wVal==='600'?' selected':''}>600 Semi-Bold</option>
+            <option value="700"${wVal==='700'?' selected':''}>700 Bold</option>
+            <option value="800"${wVal==='800'?' selected':''}>800 Extra Bold</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.72rem;color:var(--m);display:block;margin-bottom:3px">Text Color</label>
+          <input type="color" data-vckey="${cKey}" value="${cVal}" style="height:36px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px" oninput="vcMarkDirty()">
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Populate global font selector
+  const gf = document.getElementById('vc_globalFont');
+  if (gf) gf.innerHTML = `<option value="">— Choose a font —</option>` + vcBuildFontOptions('');
+}
+
+function vcPreviewSection(sel, prevId) {
+  const f = sel.value;
+  const prev = document.getElementById(prevId);
+  if (!prev) return;
+  prev.style.fontFamily = f ? `'${f}',sans-serif` : '';
+  prev.textContent = f ? 'The quick brown fox jumps' : '';
+  if (f) vcLoadGoogleFont(f);
+}
+
+function vcPreviewGlobal() {
+  const f = document.getElementById('vc_globalFont').value;
+  const prev = document.getElementById('vc_globalFontPrev');
+  if (prev) { prev.style.fontFamily = f ? `'${f}',sans-serif` : ''; prev.textContent = f ? 'The quick brown fox jumps' : 'The quick brown fox jumps'; }
+  if (f) vcLoadGoogleFont(f);
+}
+
+function vcApplyFontToAll() {
+  const f = document.getElementById('vc_globalFont').value;
+  if (!f) { toast('Select a font first'); return; }
+  document.querySelectorAll('[data-vckey^="font_"]').forEach(sel => {
+    sel.value = f;
+    const prevId = 'prev_' + sel.dataset.vckey.replace('font_','');
+    const prev = document.getElementById(prevId);
+    if (prev) { prev.style.fontFamily = `'${f}',sans-serif`; prev.textContent = 'The quick brown fox jumps'; }
+  });
+  vcLoadGoogleFont(f);
+  vcMarkDirty();
+  toast('✅ Font applied to all sections');
+}
+
+function vcLoadGoogleFont(fontName) {
+  const id = 'gf_' + fontName.replace(/\s+/g,'_');
+  if (document.getElementById(id)) return;
+  const link = document.createElement('link');
+  link.id = id; link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}:wght@400;700&display=swap`;
+  document.head.appendChild(link);
+}
+
+function vcMarkDirty() {
+  const el = document.getElementById('vc_unsaved');
+  if (el) el.style.display = 'block';
+}
+
+function vcClearDirty() {
+  const el = document.getElementById('vc_unsaved');
+  if (el) el.style.display = 'none';
+}
+
+function vcCollectFields(fd) {
+  // Section typography fields
+  document.querySelectorAll('[data-vckey]').forEach(el => {
+    const key = el.dataset.vckey;
+    if (el.value !== undefined) fd.append(key, el.value);
+  });
+  // Product card
+  const g = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+  if (g('vc_prodImgHeight'))   fd.append('prodImgHeight',   g('vc_prodImgHeight'));
+  if (g('vc_prodNameSize'))    fd.append('prodNameSize',    g('vc_prodNameSize'));
+  if (g('vc_prodPriceSize'))   fd.append('prodPriceSize',   g('vc_prodPriceSize'));
+  fd.append('prodCardBg',     g('vc_prodCardBg')     || '#ffffff');
+  fd.append('prodCardRadius', g('vc_prodCardRadius') || '12');
+  fd.append('badgeNewBg',     g('vc_badgeNewBg')     || '#22c55e');
+  fd.append('badgeDealBg',    g('vc_badgeDealBg')    || '#f97316');
+  fd.append('badgeHotBg',     g('vc_badgeHotBg')     || '#e11d48');
+  // Color theme
+  fd.append('colorBg',        g('vc_colorBg')        || '#f8fafc');
+  fd.append('colorBtnCart',   g('vc_colorBtnCart')   || '#fff7ed');
+  fd.append('colorBtnBuy',    g('vc_colorBtnBuy')    || '#f97316');
+  fd.append('colorNavBg',     g('vc_colorNavBg')     || '#1e293b');
+  fd.append('colorFooterBg',  g('vc_colorFooterBg')  || '#1e293b');
+}
+
+function vcLoadFromSettings(s) {
+  if (!s) return;
+  const g = id => document.getElementById(id);
+  const set = (id, val) => { const el = g(id); if (el && val !== undefined && val !== '') el.value = val; };
+  // Product card
+  set('vc_prodImgHeight',   s.prodImgHeight);
+  set('vc_prodNameSize',    s.prodNameSize);
+  set('vc_prodPriceSize',   s.prodPriceSize);
+  set('vc_prodCardBg',      s.prodCardBg);
+  set('vc_prodCardRadius',  s.prodCardRadius);
+  set('vc_badgeNewBg',      s.badgeNewBg);
+  set('vc_badgeDealBg',     s.badgeDealBg);
+  set('vc_badgeHotBg',      s.badgeHotBg);
+  // Color theme
+  set('vc_colorBg',         s.colorBg);
+  set('vc_colorBtnCart',    s.colorBtnCart);
+  set('vc_colorBtnBuy',     s.colorBtnBuy);
+  set('vc_colorNavBg',      s.colorNavBg);
+  set('vc_colorFooterBg',   s.colorFooterBg);
+  // Build section rows (passes settings so per-section values are pre-filled)
+  vcBuildSectionRows(s);
+  // Load fonts for any already-saved font selections
+  VC_SECTIONS.forEach(sec => {
+    const f = s['font_'+sec.key];
+    if (f) vcLoadGoogleFont(f);
+  });
+}
+
+// ── Image Manager ─────────────────────────────────────────────────────────────
+let imgMgrProductId = null;
+
+function openImgMgr(prodId) {
+  const p = allProds.find(x => x.id === prodId);
+  if (!p) return;
+  imgMgrProductId = prodId;
+  document.getElementById('imgMgrTitle').textContent = `Images — ${p.name}`;
+  renderImgMgr(p);
+  document.getElementById('imgMgrModal').classList.add('open');
+}
+
+function closeImgMgr() {
+  document.getElementById('imgMgrModal').classList.remove('open');
+  imgMgrProductId = null;
+}
+
+function renderImgMgr(p) {
+  const imgs = p.images || [];
+  const thumbsHtml = imgs.length
+    ? imgs.map((img,i) => `<div style="position:relative;display:inline-block;margin:4px">
+        <img src="${img.url}" style="width:90px;height:90px;object-fit:cover;border-radius:8px;border:2px solid var(--b)" alt="">
+        <button onclick="imgMgrRemove('${img.url}')" style="position:absolute;top:-7px;right:-7px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0" title="Remove">×</button>
+      </div>`).join('')
+    : '<p style="color:var(--m);font-size:.84rem">No images yet.</p>';
+
+  document.getElementById('imgMgrBody').innerHTML = `
+    <div style="margin-bottom:16px">
+      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:10px">Current Images (${imgs.length}/20)</h4>
+      <div id="imgMgrThumbs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">${thumbsHtml}</div>
+    </div>
+    <hr style="margin-bottom:14px;border-color:var(--b)">
+    <h4 style="font-size:.85rem;font-weight:700;margin-bottom:10px">Add New Images</h4>
+    ${imgs.length >= 20
+      ? '<p style="color:#ef4444;font-size:.84rem;font-weight:600">Maximum 20 images reached. Remove some before adding.</p>'
+      : `<input type="file" id="imgMgrUpload" multiple accept="image/jpeg,image/png,image/webp" style="margin-bottom:10px;font-size:.84rem">
+         <small style="display:block;color:var(--m);margin-bottom:12px">JPEG, PNG or WebP — max 10MB each, max ${20-imgs.length} more</small>
+         <div id="imgMgrErr" style="color:#ef4444;font-size:.8rem;margin-bottom:8px"></div>
+         <button onclick="imgMgrUpload()" style="padding:9px 20px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">📤 Upload Images</button>`
+    }`;
+}
+
+async function imgMgrUpload() {
+  const input = document.getElementById('imgMgrUpload');
+  const errEl = document.getElementById('imgMgrErr');
+  if (!input || !input.files.length) { toast('Select at least one image'); return; }
+
+  const p = allProds.find(x => x.id === imgMgrProductId);
+  const curCount = (p && p.images) ? p.images.length : 0;
+  const maxAdd = 20 - curCount;
+  const files = Array.from(input.files).slice(0, maxAdd);
+  const errors = [];
+
+  const fd = new FormData();
+  files.forEach(f => {
+    if (!['image/jpeg','image/png','image/webp'].includes(f.type)) {
+      errors.push(`"${f.name}" — must be JPEG, PNG or WebP`); return;
+    }
+    if (f.size > 10*1024*1024) {
+      errors.push(`"${f.name}" — exceeds 10MB`); return;
+    }
+    fd.append('images', f);
+  });
+
+  if (errors.length) { if (errEl) errEl.innerHTML = errors.join('<br>'); }
+  if (!fd.has('images')) return;
+
+  try {
+    const res = await fetch(`/api/products/${imgMgrProductId}`, { method: 'PUT', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ Images updated');
+    // Refresh local product cache
+    await loadProducts();
+    const updated = allProds.find(x => x.id === imgMgrProductId);
+    if (updated) renderImgMgr(updated);
+  } catch (e) {
+    toast('❌ Upload failed: ' + e.message);
+  }
+}
+
+async function imgMgrRemove(url) {
+  if (!confirm('Remove this image?')) return;
+  try {
+    const res = await fetch(`/api/products/${imgMgrProductId}/media`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ Image removed');
+    await loadProducts();
+    const updated = allProds.find(x => x.id === imgMgrProductId);
+    if (updated) renderImgMgr(updated);
+  } catch (e) {
+    toast('❌ Remove failed: ' + e.message);
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  // First check if server is reachable
+  try {
+    const test = await fetch('/api/stats', { signal: AbortSignal.timeout(4000) });
+    if (!test.ok) throw new Error('Server returned ' + test.status);
+  } catch(e) {
+    // Server not reachable — show alert
+    document.getElementById('serverAlert').classList.add('show');
+    return; // Stop all further loading
+  }
+
+  // Server OK — load everything
+  loadStats();
+  loadAllCats();
+  // Show admin username
+  try {
+    const s = await fetch('/api/settings').then(r=>r.json());
+    const lbl = document.getElementById('adminUserLabel');
+    if(lbl) lbl.textContent = s.adminUsername || 'Admin';
+  } catch(e) {}
+  setInterval(() => {
+    document.getElementById('adminTime').textContent = new Date().toLocaleTimeString('en-IN');
+  }, 1000);
+});
+
+function adminLogout() {
+  if(!confirm('Are you sure you want to logout?')) return;
+  localStorage.removeItem('sh_user');
+  localStorage.removeItem('sh_admin_mode');
+  window.location.href = '/';
+}
+</script>
+</body>
+</html>

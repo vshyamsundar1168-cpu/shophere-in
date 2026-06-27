@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShopHere.in</title>
+<script>if(window.location.protocol==='file:'){window.location.href='http://localhost:8080/';}</script>
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── Scrolling marquee ───────────────── */
+.marquee-bar{background:var(--sec);color:#fff;padding:7px 0;overflow:hidden;white-space:nowrap}
+.marquee-inner{display:inline-block;animation:marquee 28s linear infinite;padding-left:100%}
+.marquee-inner:hover{animation-play-state:paused}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+.marquee-inner span{font-size:.82rem;letter-spacing:.3px;margin-right:60px}
+.marquee-inner span::before{content:'🛍️ '}
+
+/* ── Login modal ─────────────────────── */
+.login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:none;align-items:center;justify-content:center}
+.login-overlay.open{display:flex}
+.login-box{background:#fff;border-radius:16px;padding:36px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.login-box h2{font-size:1.3rem;font-weight:800;margin-bottom:6px;text-align:center}
+.login-box p{font-size:.82rem;color:var(--m);text-align:center;margin-bottom:22px}
+.login-tabs{display:flex;border-bottom:2px solid var(--b);margin-bottom:20px}
+.login-tab{flex:1;padding:10px;text-align:center;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--m);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.login-tab.active{color:var(--p);border-bottom-color:var(--p)}
+
+/* ── Password field with eye toggle ─── */
+.pass-wrap{position:relative;display:flex;align-items:center}
+.pass-wrap input{width:100%;padding-right:42px}
+.pass-eye{position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1.05rem;padding:0;color:var(--m);line-height:1}
+
+/* ── Contact popup ───────────────────── */
+.popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1500;display:none;align-items:center;justify-content:center;padding:16px}
+.popup-overlay.open{display:flex}
+.popup-box{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.popup-hdr{padding:18px 24px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff}
+.popup-hdr h3{font-size:1.05rem;font-weight:700}
+.popup-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--m)}
+.popup-body{padding:20px 24px}
+
+/* ── User avatar ─────────────────────── */
+.user-chip{display:flex;align-items:center;gap:7px;padding:5px 14px;background:#fff7ed;border-radius:50px;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--p);border:1.5px solid var(--p);transition:all .2s}
+.user-chip:hover{background:var(--p);color:#fff}
+
+/* ── Track Order Modal ───────────────── */
+#trackOrderModal .modal{max-width:440px}
+</style>
+</head>
+<body>
+
+<!-- ═══ SCROLLING TEXT BAR ══════════════════════════════════════════════════ -->
+<div class="marquee-bar" id="marqueeBar">
+  <div class="marquee-inner" id="marqueeText">
+    <span>Welcome to ShopHere.in</span>
+    <span>Delivery at your doorstep</span>
+    <span>We maintain quality products with reasonable price</span>
+    <span>Welcome to ShopHere.in</span>
+    <span>Delivery at your doorstep</span>
+    <span>We maintain quality products with reasonable price</span>
+  </div>
+</div>
+
+<!-- ═══ ANNOUNCEMENT BAR ═══════════════════════════════════════════════════ -->
+<div class="top-bar" id="topBar">🎉 Free shipping on orders above ₹999</div>
+
+<!-- ═══ HEADER ══════════════════════════════════════════════════════════════ -->
+<header>
+  <div class="hdr">
+    <!-- #21: logo image + store name text always visible -->
+    <div class="logo" onclick="goHome()">
+      <img id="headerLogo" src="" alt="" style="display:none">
+      <span class="logo-text" id="logoText">Shop<span>Here</span>.in</span>
+    </div>
+    <div class="search-wrap">
+      <select id="searchCat"><option value="all">All</option></select>
+      <input type="text" id="searchInput" placeholder="Search products, brands…"
+        oninput="liveSearch()" onkeydown="if(event.key==='Enter')doSearch()">
+      <button onclick="doSearch()">🔍 Search</button>
+    </div>
+    <div class="hdr-icons">
+      <div class="hdr-icon" onclick="openCart()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span>Cart</span><span class="badge" id="cartBadge" style="display:none">0</span>
+      </div>
+      <div class="hdr-icon" onclick="openWishlist()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <span>Wishlist</span><span class="badge" id="wishBadge" style="display:none">0</span>
+      </div>
+      <div class="hdr-icon" onclick="openOrders()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        <span>Orders</span>
+      </div>
+      <!-- #11: Track Order in header -->
+      <div class="hdr-icon" onclick="openTrackOrder()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8l4 4-4 4M3 12h18"/></svg>
+        <span>Track</span>
+      </div>
+      <div id="authBtn">
+        <button class="btn btn-sm btn-primary" onclick="openLogin()" style="border-radius:50px;padding:8px 18px;font-size:.8rem">Login</button>
+      </div>
+      <div id="userChip" style="display:none">
+        <div class="user-chip" onclick="toggleUserMenu()">
+          <span>👤</span><span id="userName">User</span><span>▾</span>
+        </div>
+        <div id="userMenu" style="display:none;position:absolute;top:100%;right:0;background:#fff;border:1px solid var(--b);border-radius:10px;padding:8px 0;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:300">
+          <div onclick="openOrders()" style="padding:9px 16px;font-size:.83rem;cursor:pointer">📦 My Orders</div>
+          <div onclick="logout()" style="padding:9px 16px;font-size:.83rem;cursor:pointer;color:var(--rd)">🚪 Logout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ NAV ═══════════════════════════════════════════════════════════════ -->
+<nav class="main-nav">
+  <div class="nav-inner" id="mainNav">
+    <a onclick="goHome();setActive(this)" class="active">🏠 Home</a>
+    <a onclick="filterCat('all');setActive(this)">🛍️ All Products</a>
+    <a onclick="filterBadge('deal');setActive(this)">🔥 Deals</a>
+    <a onclick="filterBadge('new');setActive(this)">✨ New Arrivals</a>
+    <a onclick="filterBadge('hot');setActive(this)">⚡ Hot Picks</a>
+  </div>
+</nav>
+
+<!-- ═══ SEARCH RESULTS PANEL ══════════════════════════════════════════════ -->
+<div id="searchPanel" style="display:none;background:#fff;border-bottom:2px solid var(--p)">
+  <div style="max-width:1300px;margin:0 auto;padding:16px 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h3 id="searchTitle" style="font-size:1rem;font-weight:700">Search Results</h3>
+      <button onclick="closeSearch()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--m)">✕</button>
+    </div>
+    <div class="products-grid" id="searchGrid"></div>
+  </div>
+</div>
+
+<!-- ═══ HERO BANNER SLIDER ══════════════════════════════════════════════════ -->
+<div class="hero-slider" id="heroSlider" style="position:relative;overflow:hidden;height:380px">
+  <button class="hero-arrow hero-prev" onclick="heroPrev()" style="position:absolute;top:50%;left:16px;transform:translateY(-50%);background:rgba(0,0,0,.35);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:1.5rem;cursor:pointer;z-index:10">‹</button>
+  <button class="hero-arrow hero-next" onclick="heroNext()" style="position:absolute;top:50%;right:16px;transform:translateY(-50%);background:rgba(0,0,0,.35);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:1.5rem;cursor:pointer;z-index:10">›</button>
+  <div class="hero-dots" id="heroDots" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10"></div>
+</div>
+
+<!-- ═══ HOME SECTIONS ══════════════════════════════════════════════════════ -->
+<div id="homeSections">
+  <!-- CATEGORIES -->
+  <div class="container">
+    <div class="sec-hdr"><h2>Shop by Category</h2></div>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+  <!-- FEATURED -->
+  <div class="container" id="featuredSection">
+    <div class="sec-hdr"><h2>⭐ Featured Products</h2><a onclick="filterCat('all')">View All →</a></div>
+    <div class="h-scroll" id="featuredGrid"></div>
+  </div>
+  <!-- DEALS -->
+  <div class="container" id="dealsSection">
+    <div class="sec-hdr"><h2>🔥 Today's Deals</h2><a onclick="filterBadge('deal')">View All →</a></div>
+    <div class="h-scroll" id="dealsGrid"></div>
+  </div>
+  <!-- NEW ARRIVALS -->
+  <div class="container" id="newSection">
+    <div class="sec-hdr"><h2>✨ New Arrivals</h2><a onclick="filterBadge('new')">View All →</a></div>
+    <div class="h-scroll" id="newGrid"></div>
+  </div>
+</div>
+
+<!-- ═══ PRODUCTS SECTION ═══════════════════════════════════════════════════ -->
+<div class="container" id="productsSection" style="display:none">
+  <div class="shop-layout">
+    <div class="sidebar-filters">
+      <h4>🔽 Filters</h4>
+      <div class="filter-section">
+        <h5>Category</h5>
+        <div id="filterCats"></div>
+      </div>
+      <div class="filter-section">
+        <h5>Price Range (₹)</h5>
+        <div class="price-inputs">
+          <input type="number" id="minPrice" placeholder="Min" onchange="applyFilters()">
+          <input type="number" id="maxPrice" placeholder="Max" onchange="applyFilters()">
+        </div>
+      </div>
+      <div class="filter-section">
+        <h5>Min Rating</h5>
+        <div class="star-btns">
+          <button class="star-btn" onclick="setRating(1)">1★</button>
+          <button class="star-btn" onclick="setRating(2)">2★</button>
+          <button class="star-btn" onclick="setRating(3)">3★</button>
+          <button class="star-btn" onclick="setRating(4)">4★</button>
+        </div>
+      </div>
+      <button class="btn btn-sec btn-sm" style="width:100%;margin-top:8px" onclick="clearFilters()">Clear Filters</button>
+    </div>
+    <div class="shop-main">
+      <div class="sec-hdr">
+        <h2 id="sectionTitle">All Products</h2>
+        <select style="padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none" onchange="setSortAndFilter(this.value)">
+          <option value="">Sort By</option>
+          <option value="price_asc">Price: Low → High</option>
+          <option value="price_desc">Price: High → Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+      <div class="result-count" id="resultCount"></div>
+      <div class="products-grid" id="productsGrid"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONTACT SECTION ════════════════════════════════════════════════════ -->
+<div id="contactSection" style="background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:48px 24px;margin-top:60px">
+  <div style="max-width:1000px;margin:0 auto;text-align:center">
+    <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:10px">📞 Contact Us</h2>
+    <p style="color:#94a3b8;margin-bottom:28px">We're here to help! Reach out to us anytime.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:700px;margin:0 auto 28px" id="contactCards">
+      <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:20px">
+        <div style="font-size:2rem;margin-bottom:8px">📧</div>
+        <div style="font-size:.8rem;color:#94a3b8;margin-bottom:4px">Email</div>
+        <div style="font-weight:700;font-size:.9rem" id="cEmail">support@shophere.in</div>
+      </div>
+      <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:20px">
+        <div style="font-size:2rem;margin-bottom:8px">📱</div>
+        <div style="font-size:.8rem;color:#94a3b8;margin-bottom:4px">Phone</div>
+        <div style="font-weight:700;font-size:.9rem" id="cPhone">+91-XXXXXXXXXX</div>
+      </div>
+      <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:20px">
+        <div style="font-size:2rem;margin-bottom:8px">🏠</div>
+        <div style="font-size:.8rem;color:#94a3b8;margin-bottom:4px">Address</div>
+        <div style="font-weight:700;font-size:.9rem" id="cAddr">India</div>
+      </div>
+    </div>
+    <!-- #10: opens contact popup which uses mailto -->
+    <button onclick="openContactPopup()" class="btn btn-primary">Send Us a Message</button>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-top">
+    <!-- Brand column -->
+    <div class="footer-brand">
+      <div class="footer-logo"><span class="ft">Shop<span>Here</span>.in</span></div>
+      <p id="footerText">Your trusted online shopping destination.</p>
+      <!-- #16: real social URLs -->
+      <div class="social-row">
+        <a href="https://www.facebook.com" target="_blank" rel="noopener" title="Facebook">f</a>
+        <a href="https://www.twitter.com" target="_blank" rel="noopener" title="Twitter">𝕏</a>
+        <a href="https://www.linkedin.com" target="_blank" rel="noopener" title="LinkedIn">in</a>
+        <a href="https://www.youtube.com" target="_blank" rel="noopener" title="YouTube">▶</a>
+      </div>
+    </div>
+
+    <!-- #13 / #18: Shop column — category links + deals/badge links -->
+    <div class="footer-col">
+      <h5>Shop</h5>
+      <!-- #18: populated dynamically by app.js loadCategories() -->
+      <ul id="footerCatLinks">
+        <li><a onclick="filterCat('Electronics');window.scrollTo(0,0)" style="cursor:pointer">Electronics</a></li>
+        <li><a onclick="filterCat('Fashion');window.scrollTo(0,0)" style="cursor:pointer">Fashion</a></li>
+        <li><a onclick="filterCat('Kitchen');window.scrollTo(0,0)" style="cursor:pointer">Kitchen</a></li>
+        <li><a onclick="filterCat('Sports');window.scrollTo(0,0)" style="cursor:pointer">Sports</a></li>
+        <li><a onclick="filterCat('Beauty');window.scrollTo(0,0)" style="cursor:pointer">Beauty</a></li>
+        <!-- #18: filterBadge for deals -->
+        <li><a onclick="filterBadge('deal');window.scrollTo(0,0)" style="cursor:pointer">Today's Deals</a></li>
+      </ul>
+    </div>
+
+    <!-- Help column -->
+    <div class="footer-col">
+      <h5>Help</h5>
+      <ul>
+        <!-- #11: Track Order opens modal -->
+        <li><a onclick="openTrackOrder()" style="cursor:pointer">Track Order</a></li>
+        <!-- #12: Returns opens popup -->
+        <li><a onclick="openReturns()" style="cursor:pointer">Returns</a></li>
+        <!-- #19: FAQ opens popup -->
+        <li><a onclick="openFAQ()" style="cursor:pointer">FAQ</a></li>
+        <li><a onclick="openContactPopup()" style="cursor:pointer">Contact Us</a></li>
+      </ul>
+    </div>
+
+    <!-- Company column -->
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a onclick="openAbout()" style="cursor:pointer">About Us</a></li>
+        <!-- #17: Careers opens popup -->
+        <li><a onclick="openCareers()" style="cursor:pointer">Careers</a></li>
+        <li><a href="#" style="cursor:pointer">Blog</a></li>
+      </ul>
+    </div>
+
+    <!-- Legal column -->
+    <div class="footer-col">
+      <h5>Legal</h5>
+      <ul>
+        <li><a onclick="openTerms()" style="cursor:pointer">Terms of Use</a></li>
+        <li><a onclick="openPrivacy()" style="cursor:pointer">Privacy Policy</a></li>
+        <!-- #12: Returns Policy in legal too -->
+        <li><a onclick="openReturns()" style="cursor:pointer">Returns Policy</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- #15: © 2026 | #14: NO payment icons -->
+  <div class="footer-bottom">
+    <span id="footerCopy">© 2026 ShopHere.in — All rights reserved</span>
+    <div style="display:flex;gap:14px;font-size:.78rem">
+      <a onclick="openTerms()" style="color:#64748b;cursor:pointer;text-decoration:underline">Terms of Use</a>
+      <a onclick="openPrivacy()" style="color:#64748b;cursor:pointer;text-decoration:underline">Privacy Policy</a>
+      <a onclick="openContactPopup()" style="color:#64748b;cursor:pointer;text-decoration:underline">Contact Us</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══ MODALS & DRAWERS ════════════════════════════════════════════════════ -->
+
+<!-- ── LOGIN MODAL (#7 forgot form, #8 eye toggles) ──────────────────────── -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h2>👋 Welcome Back</h2>
+    <p>Login to track orders and get personalised deals</p>
+    <div class="login-tabs">
+      <div class="login-tab active" onclick="switchAuthTab('login',this)">Login</div>
+      <div class="login-tab" onclick="switchAuthTab('register',this)">Register</div>
+    </div>
+
+    <!-- Login form -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label>Phone / Email</label>
+        <input id="l_user" placeholder="Phone number or email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <!-- #8: password eye toggle -->
+        <div class="pass-wrap">
+          <input id="l_pass" type="password" placeholder="Your password">
+          <button class="pass-eye" type="button" onclick="togglePassVis('l_pass',this)" title="Show/hide password">👁️</button>
+        </div>
+      </div>
+      <div id="loginErr" style="color:var(--rd);font-size:.78rem;margin-bottom:8px;display:none"></div>
+      <!-- #7: Forgot password link -->
+      <div style="text-align:right;margin-bottom:10px">
+        <a onclick="showForgot()" style="font-size:.78rem;color:var(--p);cursor:pointer;text-decoration:underline">Forgot Password?</a>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Login →</button>
+      <div style="margin-top:12px;padding:10px;background:#f0fdf4;border-radius:8px;font-size:.75rem;color:#166534;text-align:center;border:1px solid #bbf7d0">
+        🔐 Admin? Enter your admin username &amp; password to go to Admin Panel
+      </div>
+    </div>
+
+    <!-- Register form -->
+    <div id="registerForm" style="display:none">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input id="r_name" placeholder="Your full name">
+      </div>
+      <div class="form-group">
+        <label>Phone / Email</label>
+        <input id="r_user" placeholder="Phone or email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <!-- #8: password eye toggle on register -->
+        <div class="pass-wrap">
+          <input id="r_pass" type="password" placeholder="Create password">
+          <button class="pass-eye" type="button" onclick="togglePassVis('r_pass',this)" title="Show/hide password">👁️</button>
+        </div>
+      </div>
+      <div id="regErr" style="color:var(--rd);font-size:.78rem;margin-bottom:8px;display:none"></div>
+      <button class="btn btn-primary btn-full" onclick="doRegister()">Create Account →</button>
+    </div>
+
+    <!-- #7: Forgot password form -->
+    <div id="forgotForm" style="display:none">
+      <p style="font-size:.82rem;color:var(--m);margin-bottom:14px">Enter your registered email or phone to retrieve your password.</p>
+      <div class="form-group">
+        <label>Email / Phone</label>
+        <input id="f_user" placeholder="Your registered email or phone">
+      </div>
+      <div id="forgotMsg" style="font-size:.8rem;margin-bottom:10px;min-height:18px"></div>
+      <button class="btn btn-primary btn-full" onclick="doForgot()">Retrieve Password</button>
+      <button onclick="switchAuthTab('login',document.querySelector('.login-tab'))" style="width:100%;margin-top:10px;background:none;border:none;color:var(--p);font-size:.82rem;cursor:pointer;text-decoration:underline">← Back to Login</button>
+    </div>
+
+    <button onclick="closeLogin()" style="width:100%;margin-top:12px;background:none;border:none;color:var(--m);font-size:.82rem;cursor:pointer">Close</button>
+  </div>
+</div>
+
+<!-- ── CONTACT POPUP (#10: sends mailto) ─────────────────────────────────── -->
+<div class="popup-overlay" id="contactPopup">
+  <div class="popup-box">
+    <div class="popup-hdr">
+      <h3>📞 Contact Us</h3>
+      <button class="popup-close" onclick="closePopup('contactPopup')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:1.6rem">📧</div>
+          <div style="font-size:.75rem;color:var(--m);margin:4px 0">Email</div>
+          <div style="font-weight:700;font-size:.85rem" id="popEmail">support@shophere.in</div>
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:1.6rem">📱</div>
+          <div style="font-size:.75rem;color:var(--m);margin:4px 0">Phone</div>
+          <div style="font-weight:700;font-size:.85rem" id="popPhone">—</div>
+        </div>
+      </div>
+      <div id="popAddr" style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:20px;font-size:.84rem;text-align:center"></div>
+      <hr style="margin-bottom:18px;border-color:var(--b)">
+      <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">Send us a message</h4>
+      <div class="form-group"><label>Your Name</label><input id="msg_name" placeholder="Your full name"></div>
+      <div class="form-group"><label>Email / Phone</label><input id="msg_contact" placeholder="Email or phone"></div>
+      <div class="form-group"><label>Message</label><textarea id="msg_text" placeholder="How can we help you?" style="min-height:90px"></textarea></div>
+      <!-- #10: opens mailto -->
+      <button class="btn btn-primary btn-full" onclick="sendMessage()">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TERMS OF USE POPUP ─────────────────────────────────────────────────── -->
+<div class="popup-overlay" id="termsPopup">
+  <div class="popup-box" style="max-width:640px">
+    <div class="popup-hdr">
+      <h3>📋 Terms of Use</h3>
+      <button class="popup-close" onclick="closePopup('termsPopup')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div id="termsContent" style="font-size:.88rem;line-height:1.8;color:var(--t);white-space:pre-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRIVACY POLICY POPUP ──────────────────────────────────────────────── -->
+<div class="popup-overlay" id="privacyPopup">
+  <div class="popup-box" style="max-width:640px">
+    <div class="popup-hdr">
+      <h3>🔒 Privacy Policy</h3>
+      <button class="popup-close" onclick="closePopup('privacyPopup')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div id="privacyContent" style="font-size:.88rem;line-height:1.8;color:var(--t);white-space:pre-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RETURNS POPUP (#12) ────────────────────────────────────────────────── -->
+<div class="popup-overlay" id="returnsPopup">
+  <div class="popup-box" style="max-width:640px">
+    <div class="popup-hdr">
+      <h3>🔄 Returns Policy</h3>
+      <button class="popup-close" onclick="closePopup('returnsPopup')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div id="returnContent" style="font-size:.88rem;line-height:1.8;color:var(--t);white-space:pre-wrap">Loading returns policy…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FAQ POPUP (#19) ────────────────────────────────────────────────────── -->
+<div class="popup-overlay" id="faqPopup">
+  <div class="popup-box" style="max-width:640px">
+    <div class="popup-hdr">
+      <h3>❓ Frequently Asked Questions</h3>
+      <button class="popup-close" onclick="closePopup('faqPopup')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div id="faqContent">Loading FAQs…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CAREERS POPUP (#17) ────────────────────────────────────────────────── -->
+<div class="popup-overlay" id="careersPopup">
+  <div class="popup-box" style="max-width:580px">
+    <div class="popup-hdr">
+      <h3>💼 Careers at ShopHere.in</h3>
+      <button class="popup-close" onclick="closePopup('careersPopup')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-size:3rem;margin-bottom:10px">🚀</div>
+        <h3 style="font-weight:800;margin-bottom:6px">Join Our Team!</h3>
+        <p style="color:var(--m);font-size:.88rem">Be part of India's fastest-growing online shopping platform.</p>
+      </div>
+      <div style="background:#f8fafc;border-radius:12px;padding:18px;margin-bottom:16px">
+        <h4 style="font-weight:700;margin-bottom:10px;font-size:.92rem">Open Positions</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
+          <li style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fff;border-radius:8px;border:1px solid var(--b)">
+            <div><div style="font-weight:600;font-size:.88rem">Frontend Developer</div><div style="font-size:.75rem;color:var(--m)">Remote / Hyderabad</div></div>
+            <span style="background:#e0f2fe;color:#0284c7;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:50px">Full-time</span>
+          </li>
+          <li style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fff;border-radius:8px;border:1px solid var(--b)">
+            <div><div style="font-weight:600;font-size:.88rem">Customer Support Executive</div><div style="font-size:.75rem;color:var(--m)">Hyderabad</div></div>
+            <span style="background:#dcfce7;color:#16a34a;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:50px">Part-time</span>
+          </li>
+          <li style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fff;border-radius:8px;border:1px solid var(--b)">
+            <div><div style="font-weight:600;font-size:.88rem">Product Manager</div><div style="font-size:.75rem;color:var(--m)">Remote</div></div>
+            <span style="background:#e0f2fe;color:#0284c7;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:50px">Full-time</span>
+          </li>
+          <li style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fff;border-radius:8px;border:1px solid var(--b)">
+            <div><div style="font-weight:600;font-size:.88rem">Digital Marketing Specialist</div><div style="font-size:.75rem;color:var(--m)">Hyderabad / Remote</div></div>
+            <span style="background:#fef9c3;color:#a16207;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:50px">Contract</span>
+          </li>
+        </ul>
+      </div>
+      <div style="background:#fff7ed;border-radius:12px;padding:16px;border:1px solid #fed7aa">
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:6px">📧 Apply Now</div>
+        <p style="font-size:.83rem;color:var(--m);margin-bottom:8px">Send your resume and a brief cover letter to:</p>
+        <a href="mailto:careers@shophere.in" style="color:var(--p);font-weight:700;font-size:.88rem">careers@shophere.in</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ABOUT US POPUP ─────────────────────────────────────────────────────── -->
+<div class="popup-overlay" id="aboutPopup">
+  <div class="popup-box" style="max-width:580px">
+    <div class="popup-hdr">
+      <h3>🏪 About ShopHere.in</h3>
+      <button class="popup-close" onclick="closePopup('aboutPopup')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:3rem;margin-bottom:8px">🛍️</div>
+        <h3 style="font-weight:800;margin-bottom:8px">ShopHere.in</h3>
+        <p style="color:var(--m);font-size:.88rem">India's trusted online shopping destination</p>
+      </div>
+      <p style="font-size:.88rem;line-height:1.8;color:var(--t);margin-bottom:14px">ShopHere.in is an Indian e-commerce platform offering a wide range of products including Electronics, Fashion, Kitchen appliances, Sports gear, Beauty products, Books, Toys, and much more — all at competitive prices with reliable delivery.</p>
+      <p style="font-size:.88rem;line-height:1.8;color:var(--t)">Our mission is to make quality products accessible to every Indian household with seamless shopping experience, easy returns and exceptional customer service.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── TRACK ORDER MODAL (#11) ────────────────────────────────────────────── -->
+<div class="overlay" id="trackOrderModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-hdr">
+      <h3>📦 Track Your Order</h3>
+      <button class="modal-close" onclick="closeOverlay('trackOrderModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:var(--m);margin-bottom:16px">Enter your Order ID to see the current delivery status.</p>
+      <div class="form-group">
+        <label>Order ID</label>
+        <input id="trackInput" placeholder="e.g. ORD-1234567890" style="text-transform:uppercase"
+          onkeydown="if(event.key==='Enter')trackOrder()">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="trackOrder()">Track Order →</button>
+      <div id="trackResult" style="margin-top:14px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CART DRAWER ────────────────────────────────────────────────────────── -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeCart()"></div>
+<div class="drawer" id="cartDrawer">
+  <div class="drawer-hdr">
+    <h3>🛒 Cart (<span id="cartCount">0</span>)</h3>
+    <button class="modal-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot">
+    <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:12px;font-size:1.05rem">
+      <span>Total</span><span id="cartTotal">₹0.00</span>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="startCheckout()">Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- ── WISHLIST MODAL ─────────────────────────────────────────────────────── -->
+<div class="overlay" id="wishModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr"><h3>❤️ Wishlist</h3><button class="modal-close" onclick="closeOverlay('wishModal')">✕</button></div>
+    <div class="modal-body" id="wishBody"></div>
+  </div>
+</div>
+
+<!-- ── PRODUCT DETAIL MODAL ───────────────────────────────────────────────── -->
+<div class="overlay" id="productModal">
+  <div class="modal modal-xl">
+    <div class="modal-hdr"><h3 id="pmTitle">Product</h3><button class="modal-close" onclick="closeOverlay('productModal')">✕</button></div>
+    <div class="modal-body" id="pmBody"></div>
+  </div>
+</div>
+
+<!-- ── CHECKOUT MODAL ──────────────────────────────────────────────────────── -->
+<div class="overlay" id="checkoutModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr"><h3>🛒 Checkout</h3><button class="modal-close" onclick="closeOverlay('checkoutModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="checkout-steps">
+        <div class="cs-step active" id="cst1"><div class="cs-num">1</div><span>Cart</span></div>
+        <div class="cs-line" id="csl1"></div>
+        <div class="cs-step" id="cst2"><div class="cs-num">2</div><span>Delivery</span></div>
+        <div class="cs-line" id="csl2"></div>
+        <div class="cs-step" id="cst3"><div class="cs-num">3</div><span>Payment</span></div>
+        <div class="cs-line" id="csl3"></div>
+        <div class="cs-step" id="cst4"><div class="cs-num">4</div><span>Done</span></div>
+      </div>
+      <!-- Step 1: Cart review -->
+      <div class="checkout-panel active" id="coP1">
+        <div id="coCartItems"></div>
+        <div style="display:flex;justify-content:space-between;font-weight:800;font-size:1.1rem;margin-top:16px;padding-top:12px;border-top:2px solid var(--b)"><span>Total</span><span id="coTotal">₹0</span></div>
+        <div style="padding:16px 0 0"><button class="btn btn-primary btn-full" onclick="coGoStep(2)">Continue →</button></div>
+      </div>
+      <!-- Step 2: Delivery address -->
+      <div class="checkout-panel" id="coP2">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name *</label><input id="co_name"><div class="form-error" id="er_name"></div></div>
+          <div class="form-group"><label>Phone *</label><input id="co_phone" maxlength="10"><div class="form-error" id="er_phone"></div></div>
+        </div>
+        <div class="form-group"><label>Email</label><input id="co_email" type="email"></div>
+        <div class="form-group"><label>Address *</label><input id="co_addr1"><div class="form-error" id="er_addr1"></div></div>
+        <div class="form-group"><label>Landmark</label><input id="co_addr2"></div>
+        <div class="form-row3">
+          <div class="form-group"><label>City *</label><input id="co_city"><div class="form-error" id="er_city"></div></div>
+          <div class="form-group"><label>State *</label><input id="co_state"><div class="form-error" id="er_state"></div></div>
+          <div class="form-group"><label>PIN *</label><input id="co_pin" maxlength="6"><div class="form-error" id="er_pin"></div></div>
+        </div>
+        <div style="display:flex;gap:8px;padding:16px 0 0">
+          <button class="btn btn-sec" onclick="coGoStep(1)">← Back</button>
+          <button class="btn btn-primary" style="flex:1" onclick="coValidate()">Continue →</button>
+        </div>
+      </div>
+      <!-- Step 3: Payment -->
+      <div class="checkout-panel" id="coP3">
+        <div style="display:grid;gap:10px;margin-bottom:16px">
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'cod')"><input type="radio" name="pay" value="cod" checked style="accent-color:var(--p)"><div><div style="font-weight:700">💵 Cash on Delivery</div><div style="font-size:.78rem;color:var(--m)">Pay when order arrives — Free</div></div></label>
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--p);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'upi')"><input type="radio" name="pay" value="upi" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">📱 UPI <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Google Pay, PhonePe, Paytm, BHIM</div></div></label>
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'card')"><input type="radio" name="pay" value="card" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">💳 Credit / Debit Card <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Visa, Mastercard, RuPay, Amex</div></div></label>
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'netbanking')"><input type="radio" name="pay" value="netbanking" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">🏦 Net Banking <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">SBI, HDFC, ICICI, Axis & 100+ banks</div></div></label>
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'wallet')"><input type="radio" name="pay" value="wallet" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">👛 Wallets <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Paytm, Amazon Pay, Mobikwik</div></div></label>
+        </div>
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.78rem;color:#0369a1;display:flex;align-items:center;gap:8px">
+          🔒 <strong>100% Secure</strong> payments powered by <strong>Razorpay</strong> — PCI DSS Level 1 certified
+        </div>
+        <div id="payDetail"></div>
+        <div style="display:flex;gap:8px;padding:16px 0 0">
+          <button class="btn btn-sec" onclick="coGoStep(2)">← Back</button>
+          <button class="btn btn-primary" style="flex:1" onclick="placeOrder()">Place Order 🎉</button>
+        </div>
+      </div>
+      <!-- Step 4: Confirmation -->
+      <div class="checkout-panel" id="coP4">
+        <div style="text-align:center;padding:32px 0">
+          <div style="font-size:4rem;margin-bottom:12px">🎉</div>
+          <h3 style="font-size:1.3rem;font-weight:800;color:var(--g);margin-bottom:8px">Order Placed!</h3>
+          <p style="color:var(--m);margin-bottom:12px">Order ID: <strong id="coOrderId"></strong></p>
+          <p style="font-size:.85rem;color:var(--m);margin-bottom:20px">Estimated delivery: <strong>3–5 business days</strong></p>
+          <div id="coConfirmItems" style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;font-size:.84rem;text-align:left"></div>
+          <button class="btn btn-primary" onclick="closeOverlay('checkoutModal')">Continue Shopping</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ORDERS MODAL ───────────────────────────────────────────────────────── -->
+<div class="overlay" id="ordersModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr"><h3>📦 My Orders</h3><button class="modal-close" onclick="closeOverlay('ordersModal')">✕</button></div>
+    <div class="modal-body" id="ordersBody"></div>
+  </div>
+</div>
+
+<!-- ── LIGHTBOX ──────────────────────────────────────────────────────────── -->
+<div id="lightbox" style="position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:none;align-items:center;justify-content:center" onclick="document.getElementById('lightbox').style.display='none'">
+  <img id="lightboxImg" src="" style="max-width:92vw;max-height:92vh;object-fit:contain;border-radius:8px">
+  <button onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute;top:18px;right:18px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:1.3rem;cursor:pointer">✕</button>
+</div>
+
+<!-- ── TOAST ─────────────────────────────────────────────────────────────── -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- app.js must be loaded at the very bottom -->
+<script src="app.js"></script>
+</body>
+</html>

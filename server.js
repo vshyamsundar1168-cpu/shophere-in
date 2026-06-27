@@ -1,0 +1,666 @@
+require('dotenv').config();
+'use strict';
+const http = require('http');
+const fs   = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const { connectDB, getDb } = require('./db');
+
+const PORT       = process.env.PORT || 8080;
+const BASE_DIR   = __dirname;
+const UPLOAD_DIR = path.join(BASE_DIR, 'uploads');
+
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+// ── MIME ──────────────────────────────────────────────────────────────────────
+const MIME_MAP = {
+  '.html':'text/html','.css':'text/css','.js':'application/javascript',
+  '.json':'application/json','.png':'image/png','.jpg':'image/jpeg',
+  '.jpeg':'image/jpeg','.gif':'image/gif','.svg':'image/svg+xml',
+  '.ico':'image/x-icon','.webp':'image/webp','.mp4':'video/mp4',
+  '.webm':'video/webm','.mp3':'audio/mpeg','.wav':'audio/wav',
+  '.ogg':'audio/ogg','.woff':'font/woff','.woff2':'font/woff2','.ttf':'font/ttf',
+};
+const EXT_TO_MIME = {
+  '.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png',
+  '.gif':'image/gif','.webp':'image/webp','.svg':'image/svg+xml',
+  '.mp4':'video/mp4','.webm':'video/webm',
+  '.mp3':'audio/mpeg','.wav':'audio/wav','.ogg':'audio/ogg',
+};
+
+// ── Default data ──────────────────────────────────────────────────────────────
+const DEF_SETTINGS = {
+  storeName: 'ShopHere.in', logo: '', primaryColor: '#f97316',
+  announcementBar: 'Free shipping on orders above ₹999',
+  scrollingText: 'Welcome to ShopHere.in 🛍️  |  Delivery at your doorstep 🚚  |  We maintain quality products with reasonable price ✅',
+  contactEmail: '', contactPhone: '', contactAddress: '',
+  freeShippingThreshold: 999, footerText: '',
+  termsAndConditions: 'These are the terms and conditions for ShopHere.in. By using this website you agree to our terms.',
+  privacyPolicy: 'We respect your privacy. Your personal information is kept safe and never shared with third parties.',
+  returnPolicy: '', faqText: '',
+  adminUsername: 'admin', adminPassword: 'admin123',
+  bannerHeight: 380, bannerTextSize: 'large',
+  bodyTextColor: '#1e293b', headingColor: '#1e293b', linkColor: '#f97316'
+};
+
+const DEF_CATS    = ['Electronics','Fashion','Kitchen','Sports','Beauty','Books','Toys','Home'];
+
+const DEF_BANNERS = [
+  { id:1, bgGradient:'linear-gradient(135deg,#1e293b,#f97316)', bgImage:'',
+    headline:'Welcome to ShopHere.in 🛍️', subtitle:"India's favourite online store",
+    ctaLabel:'Shop Now', ctaUrl:'#', active:true },
+];
+
+const DEF_PRODUCTS = [
+  {id:1,name:'Samsung Galaxy S24',brand:'Samsung',category:'Electronics',price:64999,originalPrice:79999,rating:4.5,reviewCount:1240,stock:50,badge:'deal',featured:true,images:[],videos:[],audios:[],description:'Latest Samsung flagship with AI features.'},
+  {id:2,name:'Nike Air Max 270',brand:'Nike',category:'Fashion',price:7999,originalPrice:11999,rating:4.3,reviewCount:856,stock:30,badge:'new',featured:true,images:[],videos:[],audios:[],description:'Comfortable running shoes with air cushion.'},
+  {id:3,name:'Instant Pot Duo 7-in-1',brand:'Instant Pot',category:'Kitchen',price:5499,originalPrice:7999,rating:4.7,reviewCount:2105,stock:20,badge:'hot',featured:false,images:[],videos:[],audios:[],description:'7-in-1 electric pressure cooker.'},
+  {id:4,name:'Sony WH-1000XM5',brand:'Sony',category:'Electronics',price:24999,originalPrice:34999,rating:4.8,reviewCount:3200,stock:15,badge:'deal',featured:true,images:[],videos:[],audios:[],description:'Industry-leading noise cancelling headphones.'},
+  {id:5,name:"Levi's 501 Jeans",brand:"Levi's",category:'Fashion',price:2999,originalPrice:4999,rating:4.2,reviewCount:650,stock:80,badge:'',featured:false,images:[],videos:[],audios:[],description:'Classic straight fit jeans.'},
+  {id:6,name:'Prestige Induction Cooktop',brand:'Prestige',category:'Kitchen',price:2299,originalPrice:3499,rating:4.1,reviewCount:420,stock:40,badge:'new',featured:false,images:[],videos:[],audios:[],description:'Energy efficient induction cooktop.'},
+  {id:7,name:'Apple AirPods Pro 2',brand:'Apple',category:'Electronics',price:21999,originalPrice:26999,rating:4.9,reviewCount:5100,stock:25,badge:'hot',featured:true,images:[],videos:[],audios:[],description:'Active noise cancellation earbuds.'},
+  {id:8,name:'Adidas Ultraboost 23',brand:'Adidas',category:'Sports',price:9999,originalPrice:14999,rating:4.4,reviewCount:780,stock:35,badge:'deal',featured:false,images:[],videos:[],audios:[],description:'High performance running shoes.'},
+  {id:9,name:'Nikon Z50 Camera',brand:'Nikon',category:'Electronics',price:58999,originalPrice:72000,rating:4.6,reviewCount:310,stock:10,badge:'',featured:true,images:[],videos:[],audios:[],description:'Mirrorless camera with 20.9MP sensor.'},
+  {id:10,name:'Bosch Mixer Grinder',brand:'Bosch',category:'Kitchen',price:3799,originalPrice:5200,rating:4.3,reviewCount:890,stock:60,badge:'deal',featured:false,images:[],videos:[],audios:[],description:'Powerful 800W mixer grinder.'},
+  {id:11,name:'Puma Track Jacket',brand:'Puma',category:'Sports',price:1999,originalPrice:3500,rating:4.0,reviewCount:230,stock:45,badge:'new',featured:false,images:[],videos:[],audios:[],description:'Lightweight sports track jacket.'},
+  {id:12,name:'JBL Flip 6 Speaker',brand:'JBL',category:'Electronics',price:8999,originalPrice:12999,rating:4.5,reviewCount:1500,stock:55,badge:'',featured:false,images:[],videos:[],audios:[],description:'Portable waterproof bluetooth speaker.'},
+];
+
+// ── Counters (set by deriveCounters after DB init) ────────────────────────────
+let nextPid = 1;
+let nextOid = 1;
+let nextBid = 1;
+
+// ── Database seeding (runs once when collections are empty) ───────────────────
+async function seedCollections() {
+  const db = getDb();
+  const prodCount = await db.collection('products').countDocuments();
+  if (prodCount === 0) {
+    await db.collection('products').insertMany(DEF_PRODUCTS);
+    console.log('[SEED] products inserted');
+  }
+  const catCount = await db.collection('categories').countDocuments();
+  if (catCount === 0) {
+    await db.collection('categories').insertMany(DEF_CATS.map(name => ({ name })));
+    console.log('[SEED] categories inserted');
+  }
+  const banCount = await db.collection('banners').countDocuments();
+  if (banCount === 0) {
+    await db.collection('banners').insertMany(DEF_BANNERS);
+    console.log('[SEED] banners inserted');
+  }
+  const setCount = await db.collection('settings').countDocuments();
+  if (setCount === 0) {
+    await db.collection('settings').insertOne(DEF_SETTINGS);
+    console.log('[SEED] settings inserted');
+  }
+}
+
+// ── Counter derivation ────────────────────────────────────────────────────────
+async function deriveCounters() {
+  const db = getDb();
+  // nextPid
+  const pidAgg = await db.collection('products').aggregate([
+    { $group: { _id: null, maxId: { $max: '$id' } } }
+  ]).toArray();
+  nextPid = pidAgg.length > 0 ? (pidAgg[0].maxId || 0) + 1 : 1;
+
+  // nextBid
+  const bidAgg = await db.collection('banners').aggregate([
+    { $group: { _id: null, maxId: { $max: '$id' } } }
+  ]).toArray();
+  nextBid = bidAgg.length > 0 ? (bidAgg[0].maxId || 0) + 1 : 1;
+
+  // nextOid — parse numeric suffix from "ORDnnnnnn"
+  const allOrders = await db.collection('orders').find({}, { projection: { id: 1 } }).toArray();
+  const maxONum = allOrders.reduce((m, o) => {
+    const n = parseInt(String(o.id || '').replace(/\D+/g, '') || '0');
+    return Math.max(m, n);
+  }, 0);
+  nextOid = maxONum + 1;
+
+  console.log(`[DB] nextPid:${nextPid} nextOid:${nextOid} nextBid:${nextBid}`);
+}
+
+// ── Multipart parser ──────────────────────────────────────────────────────────
+// Reads entire body then splits on boundary — handles multiple files per field name
+function parseMultipart(req) {
+  return new Promise((resolve) => {
+    const ct = req.headers['content-type'] || '';
+    const bm = ct.match(/boundary=(?:"([^"]+)"|([^\s;]+))/i);
+    if (!bm) return resolve({ fields:{}, files:[] });
+
+    const BOUNDARY = '--' + (bm[1]||bm[2]).trim();
+    const bufs = [];
+    req.on('data', c => bufs.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+    req.on('error', () => resolve({ fields:{}, files:[] }));
+    req.on('end', () => {
+      try {
+        const body   = Buffer.concat(bufs);
+        const fields = {};
+        const files  = [];
+        const bBuf   = Buffer.from(BOUNDARY);
+        const CRLF   = Buffer.from('\r\n');
+        const CRLF2  = Buffer.from('\r\n\r\n');
+
+        // Find all boundary positions
+        const positions = [];
+        let search = 0;
+        while (true) {
+          const pos = body.indexOf(bBuf, search);
+          if (pos === -1) break;
+          positions.push(pos);
+          search = pos + bBuf.length;
+        }
+
+        for (let i = 0; i < positions.length; i++) {
+          const start = positions[i] + bBuf.length;
+          // skip \r\n after boundary
+          let partStart = start;
+          if (body[partStart]===13 && body[partStart+1]===10) partStart += 2;
+          // check for closing --
+          if (body[partStart]===45 && body[partStart+1]===45) break;
+
+          const end = (i+1 < positions.length) ? positions[i+1] : body.length;
+          const part = body.slice(partStart, end);
+
+          // strip trailing \r\n before next boundary
+          const stripped = (part.length>=2 && part[part.length-2]===13 && part[part.length-1]===10)
+            ? part.slice(0,-2) : part;
+
+          const hdrEnd = stripped.indexOf(CRLF2);
+          if (hdrEnd === -1) continue;
+
+          const hdrStr  = stripped.slice(0, hdrEnd).toString('utf8');
+          const content = stripped.slice(hdrEnd + 4);
+
+          const nameM  = hdrStr.match(/name="([^"]+)"/i);
+          const fileM  = hdrStr.match(/filename="([^"]*)"/i);
+          const ctypeM = hdrStr.match(/Content-Type:\s*([^\r\n;]+)/i);
+
+          if (!nameM) continue;
+          const fieldName = nameM[1];
+
+          if (fileM && fileM[1]) {
+            const ext    = path.extname(fileM[1]).toLowerCase();
+            let   mime   = ctypeM ? ctypeM[1].trim() : '';
+            if (!mime || mime === 'application/octet-stream') mime = EXT_TO_MIME[ext] || 'application/octet-stream';
+            files.push({ fieldName, filename: fileM[1], mimeType: mime, data: content });
+          } else {
+            // text field — append if repeated key
+            const val = content.toString('utf8');
+            if (fields[fieldName] !== undefined) {
+              if (!Array.isArray(fields[fieldName])) fields[fieldName] = [fields[fieldName]];
+              fields[fieldName].push(val);
+            } else {
+              fields[fieldName] = val;
+            }
+          }
+        }
+        resolve({ fields, files });
+      } catch(e) {
+        console.error('[MP ERROR]', e.message);
+        resolve({ fields:{}, files:[] });
+      }
+    });
+  });
+}
+
+// ── Upload helper ─────────────────────────────────────────────────────────────
+const MAX = { image:10*1024*1024, video:200*1024*1024, audio:50*1024*1024 };
+
+function mimeKind(m) {
+  if (m.startsWith('image/')) return 'image';
+  if (m.startsWith('video/')) return 'video';
+  if (m.startsWith('audio/')) return 'audio';
+  return null;
+}
+
+function saveFile(file) {
+  const ext  = path.extname(file.filename).toLowerCase() || '.bin';
+  const name = crypto.randomUUID() + ext;
+  fs.writeFileSync(path.join(UPLOAD_DIR, name), file.data);
+  return { url:'/uploads/'+name, type:file.mimeType, name:file.filename };
+}
+
+function processMedia(files) {
+  const images=[], videos=[], audios=[], errors=[];
+  for (const f of files) {
+    if (!f.filename || !f.data || f.data.length === 0) continue;
+    const kind = mimeKind(f.mimeType);
+    if (!kind) { errors.push(`Unsupported type ${f.mimeType} for ${f.filename}`); continue; }
+    if (f.data.length > MAX[kind]) { errors.push(`${f.filename} exceeds ${MAX[kind]/1024/1024}MB limit`); continue; }
+    const s = saveFile(f);
+    if (kind==='image') images.push(s);
+    else if (kind==='video') videos.push(s);
+    else audios.push(s);
+  }
+  return { images, videos, audios, errors };
+}
+
+// ── HTTP helpers ──────────────────────────────────────────────────────────────
+function sendJSON(res, code, data) {
+  const body = JSON.stringify(data);
+  res.writeHead(code, { 'Content-Type':'application/json', 'Access-Control-Allow-Origin':'*' });
+  res.end(body);
+}
+
+function readJSON(req) {
+  return new Promise((resolve, reject) => {
+    let b = '';
+    req.on('data', c => b += c.toString());
+    req.on('end', () => { try { resolve(b ? JSON.parse(b) : {}); } catch(e) { reject(e); } });
+    req.on('error', reject);
+  });
+}
+
+// ── Server ────────────────────────────────────────────────────────────────────
+const server = http.createServer(async (req, res) => {
+  const u  = new URL(req.url, `http://localhost:${PORT}`);
+  const p  = u.pathname;
+  const m  = req.method.toUpperCase();
+  const sp = u.searchParams;
+
+  res.setHeader('Access-Control-Allow-Origin','*');
+  res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers','Content-Type');
+  if (m==='OPTIONS') { res.writeHead(204); return res.end(); }
+
+  try {
+
+    // ── AUTH ──────────────────────────────────────────────────────────────────
+    if (p === '/api/login' && m === 'POST') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const s = await db.collection('settings').findOne({}, { projection: { _id: 0 } }) || {};
+      if (body.username === s.adminUsername && body.password === s.adminPassword) {
+        return sendJSON(res, 200, { success: true, isAdmin: true, message: 'Admin login successful' });
+      }
+      return sendJSON(res, 200, { success: false, isAdmin: false, message: 'Invalid credentials' });
+    }
+
+    // ── SETTINGS ──────────────────────────────────────────────────────────────
+    if (p==='/api/settings' && m==='GET') {
+      const db = getDb();
+      const doc = await db.collection('settings').findOne({}, { projection: { _id: 0 } }) || {};
+      return sendJSON(res, 200, doc);
+    }
+
+    if (p==='/api/settings' && m==='POST') {
+      const ct = (req.headers['content-type']||'').toLowerCase();
+      let fields={}, files=[];
+      if (ct.includes('multipart/form-data')) {
+        const r = await parseMultipart(req);
+        fields=r.fields; files=r.files;
+      } else {
+        fields = await readJSON(req);
+      }
+      const KEYS = ['storeName','primaryColor','announcementBar','scrollingText','contactEmail','contactPhone','contactAddress','freeShippingThreshold','footerText','termsAndConditions','privacyPolicy','returnPolicy','faqText','adminUsername','adminPassword','bannerSizeVal','bannerSizeUnit','bannerFit','bannerTextSize','bannerPos','bannerTextColor','colorAnnoText','colorAnnoBg','colorTopBarText','colorProdName','colorProdPrice','colorProdBrand','colorHeading','colorBody','colorLink','colorFooterText','colorFooterHead','colorNavText','prodImgHeight','prodNameSize','prodPriceSize','prodCardBg','prodCardRadius','badgeNewBg','badgeDealBg','badgeHotBg','colorBg','colorBtnCart','colorBtnBuy','colorNavBg','colorFooterBg','font_heading','font_body','font_productName','font_productPrice','font_productBrand','font_navigation','font_footer','font_announcementBar','fontSize_heading','fontSize_body','fontSize_productName','fontSize_productPrice','fontSize_productBrand','fontSize_navigation','fontSize_footer','fontSize_announcementBar','fontWeight_heading','fontWeight_body','fontWeight_productName','fontWeight_productPrice','fontWeight_productBrand','fontWeight_navigation','fontWeight_footer','fontWeight_announcementBar','textColor_heading','textColor_body','textColor_productName','textColor_productPrice','textColor_productBrand','textColor_navigation','textColor_footer','textColor_announcementBar','visualOverrides'];
+      const $set = {};
+      KEYS.forEach(k => { if (fields[k] !== undefined) $set[k] = fields[k]; });
+      const logo = files.find(f => f.fieldName==='logo' && f.data && f.data.length>0);
+      if (logo) $set.logo = saveFile(logo).url;
+      const db = getDb();
+      const updated = await db.collection('settings').findOneAndUpdate(
+        {},
+        { $set },
+        { upsert: true, returnDocument: 'after', projection: { _id: 0 } }
+      );
+      console.log('[SAVE] settings OK —', updated.storeName);
+      return sendJSON(res, 200, updated);
+    }
+
+    // ── PRODUCTS ──────────────────────────────────────────────────────────────
+    if (p==='/api/products' && m==='GET') {
+      const db = getDb();
+      const cat=sp.get('category'), q=(sp.get('q')||'').toLowerCase();
+      const sort=sp.get('sort'), badge=sp.get('badge');
+      const minP=parseFloat(sp.get('minPrice')||0), maxP=parseFloat(sp.get('maxPrice')||Infinity);
+      const minR=parseFloat(sp.get('minRating')||0), featured=sp.get('featured');
+      const page=parseInt(sp.get('page')||1), limit=parseInt(sp.get('limit')||500);
+      let list = await db.collection('products').find({}, { projection: { _id: 0 } }).toArray();
+      if (cat && cat!=='all') list=list.filter(x=>x.category===cat);
+      if (q) list=list.filter(x=>(x.name+' '+x.brand+' '+x.category+' '+(x.description||'')).toLowerCase().includes(q));
+      if (badge) list=list.filter(x=>x.badge===badge);
+      if (minP>0) list=list.filter(x=>x.price>=minP);
+      if (maxP<Infinity) list=list.filter(x=>x.price<=maxP);
+      if (minR>0) list=list.filter(x=>x.rating>=minR);
+      if (featured==='true') list=list.filter(x=>x.featured);
+      if (sort==='price_asc') list.sort((a,b)=>a.price-b.price);
+      else if (sort==='price_desc') list.sort((a,b)=>b.price-a.price);
+      else if (sort==='rating') list.sort((a,b)=>b.rating-a.rating);
+      const total=list.length, start=(page-1)*limit;
+      return sendJSON(res,200,{products:list.slice(start,start+limit),total,page,pages:Math.ceil(total/limit)});
+    }
+
+    const pm = p.match(/^\/api\/products\/(\d+)$/);
+    if (pm && m==='GET') {
+      const db = getDb();
+      const prod = await db.collection('products').findOne({ id: +pm[1] }, { projection: { _id: 0 } });
+      if(!prod) return sendJSON(res,404,{error:'Not found'});
+      const revDoc = await db.collection('reviews').findOne({ productId: pm[1] });
+      return sendJSON(res,200,{...prod, reviewsList: (revDoc && revDoc.reviews) || []});
+    }
+
+    if (p==='/api/products' && m==='POST') {
+      const {fields,files} = await parseMultipart(req);
+      if (!fields.name || !fields.name.trim()) return sendJSON(res,400,{error:'Product name is required'});
+      const media = processMedia(files);
+      const db = getDb();
+      const cats = await db.collection('categories').find({}, { projection: { _id: 0 } }).toArray();
+      const firstCat = cats.length > 0 ? cats[0].name : 'Electronics';
+      const prod = {
+        id: nextPid++, name:fields.name.trim(), brand:fields.brand||'',
+        category:fields.category||firstCat,
+        description:fields.description||'',
+        price:parseFloat(fields.price)||0,
+        originalPrice:parseFloat(fields.originalPrice)||parseFloat(fields.price)||0,
+        stock:parseInt(fields.stock)||0, badge:fields.badge||'',
+        featured:fields.featured==='true', rating:0, reviewCount:0,
+        images:media.images, videos:media.videos, audios:media.audios,
+      };
+      await db.collection('products').insertOne(prod);
+      const { _id, ...prodOut } = prod;
+      console.log(`[SAVE] product "${prod.name}" — images:${media.images.length} videos:${media.videos.length} audios:${media.audios.length}`);
+      return sendJSON(res,201,{...prodOut, uploadErrors:media.errors});
+    }
+
+    if (pm && m==='PUT') {
+      const db = getDb();
+      const prev = await db.collection('products').findOne({ id: +pm[1] }, { projection: { _id: 0 } });
+      if(!prev) return sendJSON(res,404,{error:'Not found'});
+      const ct=(req.headers['content-type']||'').toLowerCase();
+      let fields={}, files=[];
+      if (ct.includes('multipart')) { const r=await parseMultipart(req); fields=r.fields; files=r.files; }
+      else fields=await readJSON(req);
+      const media=processMedia(files);
+      const updated={
+        name:fields.name||prev.name, brand:fields.brand||prev.brand,
+        category:fields.category||prev.category,
+        description:fields.description!==undefined?fields.description:prev.description,
+        price:fields.price!==undefined?parseFloat(fields.price):prev.price,
+        originalPrice:fields.originalPrice!==undefined?parseFloat(fields.originalPrice):prev.originalPrice,
+        stock:fields.stock!==undefined?parseInt(fields.stock):prev.stock,
+        badge:fields.badge!==undefined?fields.badge:prev.badge,
+        featured:fields.featured!==undefined?(fields.featured==='true'):prev.featured,
+        images:[...(prev.images||[]),...media.images],
+        videos:[...(prev.videos||[]),...media.videos],
+        audios:[...(prev.audios||[]),...media.audios],
+      };
+      const result = await db.collection('products').findOneAndUpdate(
+        { id: +pm[1] },
+        { $set: updated },
+        { returnDocument: 'after', projection: { _id: 0 } }
+      );
+      return sendJSON(res,200,{...result, uploadErrors:media.errors});
+    }
+
+    if (pm && m==='DELETE') {
+      const db = getDb();
+      await db.collection('products').deleteOne({ id: +pm[1] });
+      return sendJSON(res,200,{deleted:true});
+    }
+
+    // remove single media
+    const pmd=p.match(/^\/api\/products\/(\d+)\/media$/);
+    if(pmd && m==='DELETE'){
+      const body=await readJSON(req);
+      const db = getDb();
+      const prod = await db.collection('products').findOne({ id: +pmd[1] });
+      if(!prod) return sendJSON(res,404,{error:'Not found'});
+      const result = await db.collection('products').findOneAndUpdate(
+        { id: +pmd[1] },
+        { $pull: { images: { url: body.url }, videos: { url: body.url }, audios: { url: body.url } } },
+        { returnDocument: 'after', projection: { _id: 0 } }
+      );
+      return sendJSON(res,200,result);
+    }
+
+    // ── RAZORPAY ─────────────────────────────────────────────────────────────
+    const RAZORPAY_KEY_ID     = process.env.RAZORPAY_KEY_ID     || '';
+    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
+
+    // Create Razorpay order
+    if (p==='/api/razorpay/order' && m==='POST') {
+      const body = await readJSON(req);
+      const amountPaise = Math.round((body.amount||0) * 100); // convert ₹ to paise
+      const authStr = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
+      const payload = JSON.stringify({
+        amount: amountPaise, currency: 'INR',
+        receipt: 'rcpt_' + Date.now(),
+        notes: { storeName: 'ShopHere.in' }
+      });
+      // Call Razorpay API using built-in https
+      const https = require('https');
+      const rzpResult = await new Promise((resolve, reject) => {
+        const req2 = https.request({
+          hostname: 'api.razorpay.com', port: 443, method: 'POST',
+          path: '/v1/orders',
+          headers: { 'Content-Type':'application/json', 'Authorization':'Basic '+authStr, 'Content-Length':Buffer.byteLength(payload) }
+        }, (res2) => {
+          let data = '';
+          res2.on('data', c => data += c);
+          res2.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { reject(e); } });
+        });
+        req2.on('error', reject);
+        req2.write(payload);
+        req2.end();
+      });
+      if (rzpResult.error) return sendJSON(res, 400, { error: rzpResult.error.description || 'Razorpay error' });
+      return sendJSON(res, 200, { orderId: rzpResult.id, amount: amountPaise, currency: 'INR', keyId: RAZORPAY_KEY_ID });
+    }
+
+    // Verify Razorpay payment signature
+    if (p==='/api/razorpay/verify' && m==='POST') {
+      const body = await readJSON(req);
+      const crypto = require('crypto');
+      const text = body.razorpay_order_id + '|' + body.razorpay_payment_id;
+      const expectedSig = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET).update(text).digest('hex');
+      if (expectedSig !== body.razorpay_signature) {
+        return sendJSON(res, 400, { success: false, error: 'Payment verification failed' });
+      }
+      return sendJSON(res, 200, { success: true, paymentId: body.razorpay_payment_id });
+    }
+
+    // ── ORDERS ────────────────────────────────────────────────────────────────
+    if (p==='/api/orders' && m==='GET') {
+      const db = getDb();
+      const filter = {};
+      const st=sp.get('status');
+      if(st && st!=='all') filter.status = st;
+      const list = await db.collection('orders').find(filter, { projection: { _id: 0 } }).sort({ date: -1 }).toArray();
+      return sendJSON(res,200,list);
+    }
+    if (p==='/api/orders' && m==='POST') {
+      const body=await readJSON(req);
+      const db = getDb();
+      // Decrement stock for each item
+      for(const item of (body.items||[])){
+        const pr = await db.collection('products').findOne({ id: item.id });
+        if(pr) {
+          const newStock = Math.max(0, pr.stock - (item.qty||1));
+          await db.collection('products').updateOne({ id: item.id }, { $set: { stock: newStock } });
+        }
+      }
+      const order={id:'ORD'+String(nextOid++).padStart(6,'0'),items:body.items||[],
+        total:body.total||0,name:body.name||'',phone:body.phone||'',email:body.email||'',
+        address:body.address||'',city:body.city||'',state:body.state||'',
+        pin:body.pin||'',payment:body.payment||'cod',paymentDetail:body.paymentDetail||'',
+        status:'Processing',date:new Date().toISOString()};
+      await db.collection('orders').insertOne(order);
+      const { _id, ...orderOut } = order;
+      return sendJSON(res,201,orderOut);
+    }
+    const om=p.match(/^\/api\/orders\/(\w+)$/);
+    if(om && m==='PUT'){
+      const body=await readJSON(req);
+      const db = getDb();
+      const result = await db.collection('orders').findOneAndUpdate(
+        { id: om[1] },
+        { $set: body },
+        { returnDocument: 'after', projection: { _id: 0 } }
+      );
+      if(!result) return sendJSON(res,404,{error:'Not found'});
+      return sendJSON(res,200,result);
+    }
+
+    // ── REVIEWS ───────────────────────────────────────────────────────────────
+    const rm=p.match(/^\/api\/reviews\/(\d+)$/);
+    if(rm && m==='GET') {
+      const db = getDb();
+      const doc = await db.collection('reviews').findOne({ productId: rm[1] });
+      return sendJSON(res,200,(doc && doc.reviews) || []);
+    }
+    if(rm && m==='POST'){
+      const body=await readJSON(req);
+      const pid=rm[1];
+      if(!body.name||!body.text) return sendJSON(res,400,{error:'Name and text required'});
+      const rev={id:Date.now(),name:body.name,rating:Math.min(5,Math.max(1,parseInt(body.rating)||5)),text:body.text,date:new Date().toISOString()};
+      const db = getDb();
+      const revResult = await db.collection('reviews').findOneAndUpdate(
+        { productId: pid },
+        { $push: { reviews: { $each: [rev], $position: 0 } } },
+        { upsert: true, returnDocument: 'after' }
+      );
+      const allRevs = (revResult && revResult.reviews) || [rev];
+      const newRating = Math.round((allRevs.reduce((s,r)=>s+r.rating,0)/allRevs.length)*10)/10;
+      const newCount = allRevs.length;
+      await db.collection('products').updateOne({ id: +pid }, { $set: { rating: newRating, reviewCount: newCount } });
+      return sendJSON(res,201,rev);
+    }
+
+    // ── BANNERS ───────────────────────────────────────────────────────────────
+    if(p==='/api/banners' && m==='GET') {
+      const db = getDb();
+      const list = await db.collection('banners').find({}, { projection: { _id: 0 } }).toArray();
+      return sendJSON(res,200,list);
+    }
+    if(p==='/api/banners' && m==='POST'){
+      const ct=(req.headers['content-type']||'').toLowerCase();
+      let fields={},files=[];
+      if(ct.includes('multipart')){const r=await parseMultipart(req);fields=r.fields;files=r.files;}
+      else fields=await readJSON(req);
+      const banner={id:nextBid++,bgGradient:fields.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)',bgImage:'',
+        headline:fields.headline||'',subtitle:fields.subtitle||'',ctaLabel:fields.ctaLabel||'Shop Now',ctaUrl:fields.ctaUrl||'#',active:fields.active!=='false'};
+      const bg=files.find(f=>f.fieldName==='bgImage'&&f.data&&f.data.length>0);
+      if(bg) banner.bgImage=saveFile(bg).url;
+      const db = getDb();
+      await db.collection('banners').insertOne(banner);
+      const { _id, ...bannerOut } = banner;
+      return sendJSON(res,201,bannerOut);
+    }
+    const bm2=p.match(/^\/api\/banners\/(\d+)$/);
+    if(bm2&&m==='PUT'){
+      const body=await readJSON(req);
+      const db = getDb();
+      const result = await db.collection('banners').findOneAndUpdate(
+        { id: +bm2[1] },
+        { $set: body },
+        { returnDocument: 'after', projection: { _id: 0 } }
+      );
+      return sendJSON(res,200,result||{});
+    }
+    if(bm2&&m==='DELETE'){
+      const db = getDb();
+      await db.collection('banners').deleteOne({ id: +bm2[1] });
+      return sendJSON(res,200,{deleted:true});
+    }
+
+    // ── CATEGORIES ────────────────────────────────────────────────────────────
+    if(p==='/api/categories'&&m==='GET') {
+      const db = getDb();
+      const docs = await db.collection('categories').find({}, { projection: { _id: 0 } }).toArray();
+      return sendJSON(res,200,docs.map(d=>d.name));
+    }
+    if(p==='/api/categories'&&m==='POST'){
+      const{name}=await readJSON(req);const n=(name||'').trim();
+      if(!n) return sendJSON(res,400,{error:'Name required'});
+      const db = getDb();
+      const existing = await db.collection('categories').findOne({ name: { $regex: new RegExp('^'+n+'$','i') } });
+      if(existing) return sendJSON(res,409,{error:'Already exists'});
+      await db.collection('categories').insertOne({ name: n });
+      return sendJSON(res,201,{name:n});
+    }
+    const cm=p.match(/^\/api\/categories\/(\d+)$/);
+    if(cm&&m==='PUT'){
+      const body=await readJSON(req);
+      const i=+cm[1];
+      const nn=(body.name||'').trim();
+      if(!nn) return sendJSON(res,400,{error:'Invalid'});
+      const db = getDb();
+      const allCats = await db.collection('categories').find({}, { projection: { _id: 0 } }).toArray();
+      const old = allCats[i] && allCats[i].name;
+      if(!old) return sendJSON(res,400,{error:'Invalid'});
+      const dup = allCats.find((c,j)=>j!==i&&c.name.toLowerCase()===nn.toLowerCase());
+      if(dup) return sendJSON(res,409,{error:'Already exists'});
+      await db.collection('categories').updateOne({ name: old }, { $set: { name: nn } });
+      await db.collection('products').updateMany({ category: old }, { $set: { category: nn } });
+      return sendJSON(res,200,{name:nn});
+    }
+    if(cm&&m==='DELETE'){
+      const i=+cm[1];
+      const db = getDb();
+      const allCats = await db.collection('categories').find({}, { projection: { _id: 0 } }).toArray();
+      const nm = allCats[i] && allCats[i].name;
+      if(!nm) return sendJSON(res,404,{error:'Not found'});
+      const uncatExists = await db.collection('categories').findOne({ name: 'Uncategorised' });
+      if(!uncatExists) await db.collection('categories').insertOne({ name: 'Uncategorised' });
+      await db.collection('products').updateMany({ category: nm }, { $set: { category: 'Uncategorised' } });
+      await db.collection('categories').deleteOne({ name: nm });
+      return sendJSON(res,200,{deleted:true});
+    }
+
+    // ── STATS ─────────────────────────────────────────────────────────────────
+    if(p==='/api/stats'&&m==='GET') {
+      const db = getDb();
+      const [totalProducts, totalOrders, revAgg, lowStock, processing] = await Promise.all([
+        db.collection('products').countDocuments(),
+        db.collection('orders').countDocuments(),
+        db.collection('orders').aggregate([{ $group: { _id: null, sum: { $sum: '$total' } } }]).toArray(),
+        db.collection('products').countDocuments({ stock: { $gt: 0, $lte: 10 } }),
+        db.collection('orders').countDocuments({ status: 'Processing' }),
+      ]);
+      return sendJSON(res,200,{
+        totalProducts, totalOrders,
+        totalRevenue: revAgg.length > 0 ? revAgg[0].sum : 0,
+        lowStock, processing
+      });
+    }
+
+    // ── UPLOADED FILES ────────────────────────────────────────────────────────
+    if(p.startsWith('/uploads/')){
+      const fn=decodeURIComponent(p.slice(9));
+      const fp=path.join(UPLOAD_DIR,fn);
+      if(!fs.existsSync(fp)){res.writeHead(404);return res.end('Not found');}
+      const ext=path.extname(fn).toLowerCase();
+      res.writeHead(200,{'Content-Type':MIME_MAP[ext]||'application/octet-stream','Cache-Control':'public,max-age=86400'});
+      return fs.createReadStream(fp).pipe(res);
+    }
+
+    // ── STATIC HTML/CSS/JS ────────────────────────────────────────────────────
+    let fp = p==='/' ? '/index.html' : p;
+    fp = path.join(BASE_DIR, fp);
+    fs.readFile(fp,(err,data)=>{
+      if(err){res.writeHead(404,{'Content-Type':'text/html'});return res.end('<h1>404 Not Found</h1>');}
+      const ext=path.extname(fp).toLowerCase();
+      res.writeHead(200,{'Content-Type':MIME_MAP[ext]||'text/plain'});
+      res.end(data);
+    });
+
+  } catch(err) {
+    console.error('[ERR]', err.stack);
+    sendJSON(res,500,{error:'Server error: '+err.message});
+  }
+});
+
+async function startServer() {
+  await connectDB();
+  await seedCollections();
+  await deriveCounters();
+  server.listen(PORT, () => {
+    console.log(`\n  ✅  ShopHere.in  →  http://localhost:${PORT}`);
+    console.log(`  ⚙️   Admin Panel  →  http://localhost:${PORT}/admin.html\n`);
+  });
+}
+
+startServer();

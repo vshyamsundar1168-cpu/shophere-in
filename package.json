@@ -1,0 +1,23 @@
+{
+  "name": "shophere-in",
+  "version": "1.0.0",
+  "description": "ShopHere.in E-Commerce Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mongodb": "^6.21.0"
+  },
+  "keywords": [
+    "ecommerce",
+    "shophere",
+    "india"
+  ],
+  "author": "ShopHere.in",
+  "license": "ISC"
+}
