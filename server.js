@@ -610,6 +610,91 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res,200,{deleted:true});
     }
 
+    // ── DISCOUNTS ─────────────────────────────────────────────────────────────
+    if(p==='/api/discounts' && m==='GET') {
+      const db = getDb();
+      const docs = await db.collection('discounts').find({}).sort({ createdAt: -1 }).toArray();
+      return sendJSON(res, 200, docs.map(({_id,...d})=>({...d, id:_id.toString(), _id:_id.toString()})));
+    }
+    if(p==='/api/discounts' && m==='POST') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const exists = await db.collection('discounts').findOne({ code: body.code });
+      if (exists) return sendJSON(res, 409, { error: 'Code already exists' });
+      const doc = { ...body, usedCount: 0, createdAt: new Date().toISOString() };
+      const result = await db.collection('discounts').insertOne(doc);
+      return sendJSON(res, 201, { ...doc, id: result.insertedId.toString() });
+    }
+    if(p==='/api/discounts/validate' && m==='POST') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const d = await db.collection('discounts').findOne({ code: (body.code||'').toUpperCase() });
+      if (!d) return sendJSON(res, 404, { error: 'Invalid coupon code' });
+      if (!d.active) return sendJSON(res, 400, { error: 'This coupon is inactive' });
+      if (d.expiry && new Date(d.expiry) < new Date()) return sendJSON(res, 400, { error: 'Coupon has expired' });
+      if (d.maxUses > 0 && d.usedCount >= d.maxUses) return sendJSON(res, 400, { error: 'Coupon usage limit reached' });
+      if (d.minOrder > 0 && (body.orderTotal||0) < d.minOrder) return sendJSON(res, 400, { error: `Min order ₹${d.minOrder} required` });
+      return sendJSON(res, 200, { valid: true, type: d.type, value: d.value, code: d.code });
+    }
+    const discid = p.match(/^\/api\/discounts\/([a-f0-9]{24})$/);
+    if(discid && m==='PUT') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const { ObjectId } = require('mongodb');
+      try { await db.collection('discounts').updateOne({ _id: new ObjectId(discid[1]) }, { $set: body }); return sendJSON(res, 200, { ok:true }); }
+      catch(e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+    if(discid && m==='DELETE') {
+      const db = getDb();
+      const { ObjectId } = require('mongodb');
+      try { await db.collection('discounts').deleteOne({ _id: new ObjectId(discid[1]) }); return sendJSON(res, 200, { deleted:true }); }
+      catch(e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+
+    // ── PAGE BLOCKS (Page Builder) ────────────────────────────────────────────
+    if(p==='/api/pageblocks' && m==='GET') {
+      const db = getDb();
+      const blocks = await db.collection('pageblocks').find({}).sort({ order:1 }).toArray();
+      return sendJSON(res, 200, blocks.map(({_id,...b})=>({...b, id:_id.toString()})));
+    }
+    if(p==='/api/pageblocks' && m==='POST') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const count = await db.collection('pageblocks').countDocuments();
+      const doc = { ...body, order: count, visible: body.visible !== false, createdAt: new Date().toISOString() };
+      const result = await db.collection('pageblocks').insertOne(doc);
+      return sendJSON(res, 201, { ...doc, id: result.insertedId.toString() });
+    }
+    const pbm = p.match(/^\/api\/pageblocks\/reorder$/);
+    if(pbm && m==='POST') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const { ObjectId } = require('mongodb');
+      for(let i=0; i<(body.ids||[]).length; i++) {
+        try { await db.collection('pageblocks').updateOne({ _id: new ObjectId(body.ids[i]) }, { $set: { order: i } }); } catch(e) {}
+      }
+      return sendJSON(res, 200, { ok:true });
+    }
+    const pbid = p.match(/^\/api\/pageblocks\/([a-f0-9]{24})$/);
+    if(pbid && m==='PUT') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const { ObjectId } = require('mongodb');
+      try {
+        const { id, _id, ...upd } = body;
+        await db.collection('pageblocks').updateOne({ _id: new ObjectId(pbid[1]) }, { $set: upd });
+        return sendJSON(res, 200, { ok:true });
+      } catch(e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+    if(pbid && m==='DELETE') {
+      const db = getDb();
+      const { ObjectId } = require('mongodb');
+      try {
+        await db.collection('pageblocks').deleteOne({ _id: new ObjectId(pbid[1]) });
+        return sendJSON(res, 200, { deleted:true });
+      } catch(e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+
     // ── STATS ─────────────────────────────────────────────────────────────────
     if(p==='/api/stats'&&m==='GET') {
       const db = getDb();

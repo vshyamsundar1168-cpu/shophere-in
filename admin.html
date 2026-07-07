@@ -71,6 +71,9 @@ if(window.location.protocol==='file:'){
     <div class="sb-item" onclick="showTab('banners',this)">🖼️ Banners</div>
     <div class="sb-item" onclick="showTab('categories',this)">🗂️ Categories</div>
     <div class="sb-item" onclick="showTab('settings',this)">⚙️ Store Settings</div>
+    <div class="sb-item" onclick="showTab('pagebuilder',this)">🏗️ Page Builder</div>
+    <div class="sb-item" onclick="showTab('inventory',this)">📊 Inventory</div>
+    <div class="sb-item" onclick="showTab('discounts',this)">🏷️ Discounts</div>
     <div class="sb-item sb-bottom"><a href="/" target="_blank">🏠 View Store</a></div>
   </div>
 </div>
@@ -551,6 +554,190 @@ if(window.location.protocol==='file:'){
 </div><!-- end .main -->
 </div><!-- end .admin-wrap -->
 
+<!-- PAGE BUILDER TAB (injected into .main by showTab) -->
+<div id="tab-pagebuilder" class="tab" style="display:none">
+  <div class="sec">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🏗️ Page Builder</h3>
+        <p style="font-size:.8rem;color:var(--m)">Add, edit or delete any content block on your store pages. Changes are instant.</p>
+      </div>
+      <button onclick="pbOpenAdd()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Add New Block</button>
+    </div>
+
+    <!-- Filter by page -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="pb-page-btn active" onclick="pbFilterPage('all',this)">All Pages</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('home',this)">🏠 Home</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('header',this)">🔝 Header</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('footer',this)">🦶 Footer</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('products',this)">📦 Products</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('custom',this)">✨ Custom</button>
+    </div>
+
+    <div id="pbBlocksList" style="display:grid;gap:12px"></div>
+  </div>
+</div>
+
+<style>
+.pb-page-btn{padding:6px 14px;border:1.5px solid #e2e8f0;border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;cursor:pointer;color:#475569;transition:all .2s}
+.pb-page-btn.active,.pb-page-btn:hover{background:#f97316;color:#fff;border-color:#f97316}
+.pb-block-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;display:flex;gap:0;align-items:stretch}
+.pb-block-preview{width:120px;min-height:80px;flex-shrink:0;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-size:2.5rem;border-right:1px solid #e2e8f0}
+.pb-block-info{flex:1;padding:12px 16px}
+.pb-block-actions{display:flex;flex-direction:column;gap:6px;padding:10px;border-left:1px solid #e2e8f0;justify-content:center}
+</style>
+
+<!-- Add/Edit Block Modal -->
+<div class="overlay" id="pbModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr"><h3 id="pbModalTitle">Add Content Block</h3><button class="modal-close" onclick="closePbModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row" style="margin-bottom:14px">
+        <div class="form-group" style="margin:0">
+          <label>Page / Location</label>
+          <select id="pb_page" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="home">🏠 Home Page</option>
+            <option value="header">🔝 Header Area</option>
+            <option value="footer">🦶 Footer Area</option>
+            <option value="products">📦 Products Section</option>
+            <option value="custom">✨ Custom Section</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Block Type</label>
+          <select id="pb_type" onchange="pbTypeChanged()" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="text">📝 Text / HTML</option>
+            <option value="heading">🔤 Heading</option>
+            <option value="image">🖼️ Image</option>
+            <option value="video">🎬 Video</option>
+            <option value="audio">🎵 Audio</option>
+            <option value="button">🔘 Button / Link</option>
+            <option value="divider">➖ Divider</option>
+            <option value="spacer">⬜ Spacer</option>
+            <option value="html">🧩 Custom HTML</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Block Title / Label (admin only)</label>
+        <input id="pb_title" placeholder="e.g. Home Banner Text">
+      </div>
+
+      <!-- Dynamic fields based on type -->
+      <div id="pb_fields"></div>
+
+      <!-- Style overrides -->
+      <details style="margin-top:14px;background:#f8fafc;border:1px solid var(--b);border-radius:8px;overflow:hidden">
+        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none">🎨 Style Options (optional)</summary>
+        <div style="padding:14px;border-top:1px solid var(--b);display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="form-group" style="margin:0"><label>Text Color</label><input type="color" id="pb_textColor" value="#1e293b" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>
+          <div class="form-group" style="margin:0"><label>Background</label><input type="color" id="pb_bgColor" value="#ffffff" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>
+          <div class="form-group" style="margin:0"><label>Font Size (px)</label><input type="number" id="pb_fontSize" placeholder="16" min="8" max="120" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+          <div class="form-group" style="margin:0"><label>Padding</label><input id="pb_padding" placeholder="10px 20px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+          <div class="form-group" style="margin:0"><label>Border Radius</label><input id="pb_radius" placeholder="8px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+          <div class="form-group" style="margin:0"><label>Text Align</label>
+            <select id="pb_align" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+              <option value="">Default</option><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option>
+            </select>
+          </div>
+        </div>
+      </details>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="pbSaveBlock()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Block</button>
+        <button onclick="closePbModal()" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;font-size:.84rem;cursor:pointer">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INVENTORY TAB -->
+<div id="tab-inventory" class="tab" style="display:none">
+  <div class="sec">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">📊 Inventory Management</h3>
+        <p style="font-size:.8rem;color:var(--m)">Update stock levels, bulk price changes, and view low stock alerts.</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="invSaveAll()" style="padding:9px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">💾 Save All Changes</button>
+        <button onclick="loadInventory()" style="padding:9px 16px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">🔄 Refresh</button>
+      </div>
+    </div>
+    <!-- Low stock alert -->
+    <div id="invLowStockAlert" style="display:none;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.84rem;color:#9a3412"></div>
+    <!-- Bulk actions -->
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <span style="font-size:.8rem;font-weight:700;color:#475569">Bulk Update:</span>
+      <select id="invBulkCat" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.82rem;outline:none">
+        <option value="">All Categories</option>
+      </select>
+      <input type="number" id="invBulkPrice" placeholder="New Price (₹)" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.82rem;outline:none;width:140px">
+      <input type="number" id="invBulkStock" placeholder="Set Stock Qty" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.82rem;outline:none;width:140px">
+      <button onclick="invBulkUpdate()" style="padding:7px 14px;background:#3b82f6;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer">Apply to Selected</button>
+      <label style="font-size:.78rem;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="invSelectAll" onchange="invToggleAll(this)"> Select All</label>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table" id="invTable">
+        <thead><tr>
+          <th><input type="checkbox" onchange="invToggleAll(this)"></th>
+          <th>Product</th><th>Category</th><th>Price (₹)</th><th>Orig Price (₹)</th><th>Stock</th><th>Status</th>
+        </tr></thead>
+        <tbody id="invBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DISCOUNTS TAB -->
+<div id="tab-discounts" class="tab" style="display:none">
+  <div class="sec">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🏷️ Discount Codes</h3>
+        <p style="font-size:.8rem;color:var(--m)">Create coupon codes that customers can use at checkout for discounts.</p>
+      </div>
+      <button onclick="discOpenAdd()" style="padding:9px 16px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Create Discount</button>
+    </div>
+    <div id="discList" style="display:grid;gap:10px"></div>
+  </div>
+</div>
+
+<!-- DISCOUNT ADD/EDIT MODAL -->
+<div class="overlay" id="discModal">
+  <div class="modal">
+    <div class="modal-hdr"><h3 id="discModalTitle">Create Discount Code</h3><button class="modal-close" onclick="closeDiscModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Coupon Code (e.g. SAVE10)</label><input id="disc_code" placeholder="e.g. DIWALI20" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Discount Type</label>
+          <select id="disc_type" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+            <option value="percent">% Percentage off</option>
+            <option value="flat">₹ Flat amount off</option>
+            <option value="freeship">🚚 Free Shipping</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Discount Value</label><input id="disc_value" type="number" placeholder="e.g. 10 for 10% or ₹10"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Min Order Amount (₹)</label><input id="disc_minorder" type="number" placeholder="0 = no minimum"></div>
+        <div class="form-group"><label>Max Uses (0 = unlimited)</label><input id="disc_maxuses" type="number" placeholder="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Start Date (optional)</label><input id="disc_start" type="date"></div>
+        <div class="form-group"><label>Expiry Date (optional)</label><input id="disc_expiry" type="date"></div>
+      </div>
+      <div class="form-group"><label><input type="checkbox" id="disc_active" checked style="margin-right:6px"> Active (customers can use this code)</label></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="discSave()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save</button>
+        <button onclick="closeDiscModal()" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;font-size:.84rem;cursor:pointer">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- IMAGE MANAGER MODAL -->
 <div class="overlay" id="imgMgrModal">
   <div class="modal modal-lg">
@@ -583,6 +770,13 @@ function toast(msg) {
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
 function showTab(name, el) {
+  // Move page builder tab and modal into .main if needed
+  const mainEl = document.querySelector('.main');
+  ['tab-pagebuilder','tab-inventory','tab-discounts','pbModal','discModal'].forEach(id => {
+    const el2 = document.getElementById(id);
+    if (el2 && el2.parentElement !== mainEl && el2.parentElement !== document.body) mainEl.appendChild(el2);
+  });
+
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.querySelectorAll('.sb-item').forEach(n => n.classList.remove('active'));
@@ -590,7 +784,8 @@ function showTab(name, el) {
   const titles = {
     dashboard: 'Dashboard', products: 'Products', addProduct: 'Add Product',
     orders: 'Orders', reviews: 'Reviews', banners: 'Banners',
-    categories: 'Categories', settings: 'Store Settings'
+    categories: 'Categories', settings: 'Store Settings', pagebuilder: 'Page Builder',
+    inventory: 'Inventory', discounts: 'Discounts'
   };
   document.getElementById('tabTitle').textContent = titles[name] || name;
   if (name === 'dashboard') loadStats();
@@ -601,6 +796,9 @@ function showTab(name, el) {
   if (name === 'banners') loadBanners();
   if (name === 'categories') loadCategories();
   if (name === 'settings') loadSettings();
+  if (name === 'pagebuilder') pbLoadBlocks();
+  if (name === 'inventory')   loadInventory();
+  if (name === 'discounts')   loadDiscounts();
 }
 
 // ── Global categories store ───────────────────────────────────────────────────
@@ -1279,6 +1477,223 @@ async function saveSettings() {
   }
 }
 
+// ── Page Builder ──────────────────────────────────────────────────────────────
+let pbBlocks = [];
+let pbEditId = null;
+let pbCurrentPage = 'all';
+
+async function pbLoadBlocks() {
+  try {
+    const res = await fetch('/api/pageblocks');
+    pbBlocks = await res.json();
+    pbRender();
+  } catch(e) { toast('❌ Could not load page blocks: ' + e.message); }
+}
+
+function pbRender() {
+  const list = document.getElementById('pbBlocksList');
+  if (!list) return;
+  const filtered = pbCurrentPage === 'all' ? pbBlocks : pbBlocks.filter(b => b.page === pbCurrentPage);
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m)"><div style="font-size:3rem;margin-bottom:10px">🏗️</div><p>No blocks yet. Click "+ Add New Block" to get started.</p></div>';
+    return;
+  }
+  list.innerHTML = filtered.map(b => {
+    const icons = {text:'📝',heading:'🔤',image:'🖼️',video:'🎬',audio:'🎵',button:'🔘',divider:'➖',spacer:'⬜',html:'🧩'};
+    const preview = b.type === 'image' && b.content ? `<img src="${b.content}" style="width:100%;height:100%;object-fit:cover">` : (icons[b.type]||'📝');
+    return `<div class="pb-block-card">
+      <div class="pb-block-preview">${preview}</div>
+      <div class="pb-block-info">
+        <div style="font-size:.85rem;font-weight:700;margin-bottom:4px">${b.title || 'Untitled Block'}</div>
+        <div style="font-size:.75rem;color:var(--m);margin-bottom:6px">Type: ${b.type} | Page: ${b.page}</div>
+        <div style="font-size:.78rem;color:#475569;overflow:hidden;max-height:36px;text-overflow:ellipsis">${b.type==='image'?'[Image]':b.type==='video'?'[Video]':b.type==='audio'?'[Audio]':(b.content||'').substring(0,80)}</div>
+        <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.78rem;cursor:pointer">
+          <input type="checkbox" ${b.visible!==false?'checked':''} onchange="pbToggleVisible('${b._id||b.id}',this.checked)" style="accent-color:var(--p)"> Visible on store
+        </label>
+      </div>
+      <div class="pb-block-actions">
+        <button onclick="pbOpenEdit('${b._id||b.id}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">✏️ Edit</button>
+        <button onclick="pbDelete('${b._id||b.id}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">🗑️ Delete</button>
+        <button onclick="pbMoveUp('${b._id||b.id}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬆</button>
+        <button onclick="pbMoveDown('${b._id||b.id}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬇</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pbFilterPage(page, btn) {
+  pbCurrentPage = page;
+  document.querySelectorAll('.pb-page-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  pbRender();
+}
+
+function pbTypeChanged() {
+  const type = document.getElementById('pb_type').value;
+  const fields = document.getElementById('pb_fields');
+  if (type === 'text' || type === 'heading') {
+    fields.innerHTML = `<div class="form-group"><label>${type==='heading'?'Heading Text':'Text Content (HTML allowed)'}</label><textarea id="pb_content" style="min-height:${type==='heading'?'60px':'120px'};font-size:.84rem" placeholder="${type==='heading'?'Enter heading...':'Enter text or HTML...'}">${fields._val||''}</textarea></div>`;
+  } else if (type === 'image') {
+    fields.innerHTML = `<div class="form-group"><label>Image URL</label><input id="pb_content" placeholder="/uploads/... or https://..." value="${fields._val||''}"><small style="color:var(--m)">Or upload below</small></div>
+    <div class="form-group"><label>Alt Text</label><input id="pb_alt" placeholder="Image description"></div>
+    <div class="form-group"><label>Upload Image</label><input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadImg(this)"></div>
+    <div class="form-group"><label>Link URL (optional)</label><input id="pb_link" placeholder="https://..."></div>`;
+  } else if (type === 'video') {
+    fields.innerHTML = `<div class="form-group"><label>Video URL or /uploads/... path</label><input id="pb_content" placeholder="/uploads/video.mp4 or https://youtube.com/..." value="${fields._val||''}"></div>
+    <div class="form-group"><label>Upload Video</label><input type="file" id="pb_vidfile" accept="video/mp4,video/webm" onchange="pbUploadVideo(this)"></div>
+    <div class="form-group"><label>Caption (optional)</label><input id="pb_alt" placeholder="Video caption"></div>`;
+  } else if (type === 'audio') {
+    fields.innerHTML = `<div class="form-group"><label>Audio URL or /uploads/... path</label><input id="pb_content" placeholder="/uploads/audio.mp3" value="${fields._val||''}"></div>
+    <div class="form-group"><label>Upload Audio</label><input type="file" id="pb_audfile" accept="audio/*" onchange="pbUploadAudio(this)"></div>
+    <div class="form-group"><label>Caption (optional)</label><input id="pb_alt" placeholder="Audio title"></div>`;
+  } else if (type === 'button') {
+    fields.innerHTML = `<div class="form-group"><label>Button Label</label><input id="pb_content" placeholder="Click Here" value="${fields._val||''}"></div>
+    <div class="form-group"><label>Button Link URL</label><input id="pb_link" placeholder="https://... or /products"></div>
+    <div class="form-group"><label>Button Color</label><input type="color" id="pb_btnColor" value="#f97316" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>`;
+  } else if (type === 'html') {
+    fields.innerHTML = `<div class="form-group"><label>Custom HTML Code</label><textarea id="pb_content" style="min-height:150px;font-family:monospace;font-size:.82rem" placeholder="&lt;div&gt;Your HTML here&lt;/div&gt;">${fields._val||''}</textarea></div>`;
+  } else if (type === 'divider') {
+    fields.innerHTML = `<div class="form-group"><label>Divider Style</label><select id="pb_content" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="solid">Solid Line</option><option value="dashed">Dashed Line</option><option value="dotted">Dotted Line</option></select></div>`;
+  } else if (type === 'spacer') {
+    fields.innerHTML = `<div class="form-group"><label>Height (px)</label><input type="number" id="pb_content" placeholder="40" value="${fields._val||'40'}" min="4" max="400"></div>`;
+  }
+}
+
+function pbOpenAdd() {
+  pbEditId = null;
+  document.getElementById('pbModalTitle').textContent = 'Add Content Block';
+  document.getElementById('pb_title').value = '';
+  document.getElementById('pb_page').value = pbCurrentPage === 'all' ? 'home' : pbCurrentPage;
+  document.getElementById('pb_type').value = 'text';
+  document.getElementById('pb_fields')._val = '';
+  pbTypeChanged();
+  document.getElementById('pb_textColor').value = '#1e293b';
+  document.getElementById('pb_bgColor').value = '#ffffff';
+  document.getElementById('pb_fontSize').value = '';
+  document.getElementById('pb_padding').value = '';
+  document.getElementById('pb_radius').value = '';
+  document.getElementById('pb_align').value = '';
+  document.getElementById('pbModal').classList.add('open');
+}
+
+function pbOpenEdit(id) {
+  const b = pbBlocks.find(x => (x._id||x.id) === id);
+  if (!b) return;
+  pbEditId = id;
+  document.getElementById('pbModalTitle').textContent = 'Edit Content Block';
+  document.getElementById('pb_title').value = b.title || '';
+  document.getElementById('pb_page').value = b.page || 'home';
+  document.getElementById('pb_type').value = b.type || 'text';
+  document.getElementById('pb_fields')._val = b.content || '';
+  pbTypeChanged();
+  // Fill content after type change
+  setTimeout(() => {
+    const c = document.getElementById('pb_content');
+    if (c) c.value = b.content || '';
+    const a = document.getElementById('pb_alt'); if (a) a.value = b.alt || '';
+    const l = document.getElementById('pb_link'); if (l) l.value = b.link || '';
+    const bc = document.getElementById('pb_btnColor'); if (bc && b.btnColor) bc.value = b.btnColor;
+  }, 50);
+  if (b.style) {
+    document.getElementById('pb_textColor').value = b.style.color || '#1e293b';
+    document.getElementById('pb_bgColor').value = b.style.background || '#ffffff';
+    document.getElementById('pb_fontSize').value = b.style.fontSize ? parseInt(b.style.fontSize) : '';
+    document.getElementById('pb_padding').value = b.style.padding || '';
+    document.getElementById('pb_radius').value = b.style.borderRadius || '';
+    document.getElementById('pb_align').value = b.style.textAlign || '';
+  }
+  document.getElementById('pbModal').classList.add('open');
+}
+
+function closePbModal() { document.getElementById('pbModal').classList.remove('open'); }
+
+async function pbSaveBlock() {
+  const title = document.getElementById('pb_title').value.trim() || 'Untitled Block';
+  const page  = document.getElementById('pb_page').value;
+  const type  = document.getElementById('pb_type').value;
+  const contentEl = document.getElementById('pb_content');
+  const content = contentEl ? (contentEl.tagName==='TEXTAREA'?contentEl.value:contentEl.value) : '';
+  const alt   = (document.getElementById('pb_alt')||{}).value || '';
+  const link  = (document.getElementById('pb_link')||{}).value || '';
+  const btnColor = (document.getElementById('pb_btnColor')||{}).value || '';
+  const style = {
+    color: document.getElementById('pb_textColor').value || '',
+    background: document.getElementById('pb_bgColor').value || '',
+    fontSize: document.getElementById('pb_fontSize').value ? document.getElementById('pb_fontSize').value+'px' : '',
+    padding: document.getElementById('pb_padding').value || '',
+    borderRadius: document.getElementById('pb_radius').value || '',
+    textAlign: document.getElementById('pb_align').value || ''
+  };
+  const block = { title, page, type, content, alt, link, btnColor, style, visible: true };
+
+  try {
+    if (pbEditId) {
+      await fetch('/api/pageblocks/'+pbEditId, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(block) });
+      toast('✅ Block updated');
+    } else {
+      await fetch('/api/pageblocks', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(block) });
+      toast('✅ Block added');
+    }
+    closePbModal();
+    pbLoadBlocks();
+  } catch(e) { toast('❌ Save failed: ' + e.message); }
+}
+
+async function pbDelete(id) {
+  if (!confirm('Delete this block?')) return;
+  try {
+    await fetch('/api/pageblocks/'+id, { method:'DELETE' });
+    toast('✅ Block deleted');
+    pbLoadBlocks();
+  } catch(e) { toast('❌ Delete failed'); }
+}
+
+async function pbToggleVisible(id, visible) {
+  try {
+    await fetch('/api/pageblocks/'+id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ visible }) });
+    toast(visible ? '✅ Block visible on store' : '🙈 Block hidden from store');
+    pbLoadBlocks();
+  } catch(e) {}
+}
+
+async function pbMoveUp(id) {
+  const idx = pbBlocks.findIndex(b => (b._id||b.id) === id);
+  if (idx <= 0) return;
+  [pbBlocks[idx-1], pbBlocks[idx]] = [pbBlocks[idx], pbBlocks[idx-1]];
+  await pbSaveOrder(); pbRender();
+}
+async function pbMoveDown(id) {
+  const idx = pbBlocks.findIndex(b => (b._id||b.id) === id);
+  if (idx < 0 || idx >= pbBlocks.length-1) return;
+  [pbBlocks[idx], pbBlocks[idx+1]] = [pbBlocks[idx+1], pbBlocks[idx]];
+  await pbSaveOrder(); pbRender();
+}
+async function pbSaveOrder() {
+  try { await fetch('/api/pageblocks/reorder', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ids: pbBlocks.map(b=>b._id||b.id) }) }); } catch(e) {}
+}
+
+async function pbUploadImg(input) {
+  const file = input.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append('images', file);
+  try {
+    const res = await fetch('/api/products/999999', { method:'PUT', body: fd });
+    toast('⚠️ Use /uploads path directly');
+  } catch(e) {}
+  // Use settings logo upload as temp upload
+  const fd2 = new FormData(); fd2.append('logo', file);
+  try {
+    const r = await fetch('/api/settings', { method:'POST', body: fd2 });
+    const d = await r.json();
+    if (d.logo) { const c = document.getElementById('pb_content'); if(c) c.value = d.logo; toast('✅ Image uploaded'); }
+  } catch(e) { toast('❌ Upload failed'); }
+}
+async function pbUploadVideo(input) {
+  toast('ℹ️ For video, upload via Products then copy the /uploads/... URL here');
+}
+async function pbUploadAudio(input) {
+  toast('ℹ️ For audio, upload via Products then copy the /uploads/... URL here');
+}
+
 // ── Visual Customizer ────────────────────────────────────────────────────────
 const VC_FONTS = ['Inter','Roboto','Open Sans','Lato','Poppins','Montserrat','Raleway','Nunito','Merriweather','Playfair Display'];
 const VC_SECTIONS = [
@@ -1576,6 +1991,221 @@ function adminLogout() {
   localStorage.removeItem('sh_user');
   localStorage.removeItem('sh_admin_mode');
   window.location.href = '/';
+}
+</script>
+
+<script>
+// ── Inventory ─────────────────────────────────────────────────────────────────
+let invProds = [];
+
+async function loadInventory() {
+  try {
+    const res = await fetch('/api/products?limit=500');
+    const data = await res.json();
+    invProds = data.products || data;
+    populateCatDropdown('invBulkCat', true);
+    renderInventory();
+    showLowStockAlert();
+  } catch(e) { toast('❌ Inventory load failed: ' + e.message); }
+}
+
+function showLowStockAlert() {
+  const low = invProds.filter(p => p.stock > 0 && p.stock <= 10);
+  const out = invProds.filter(p => p.stock === 0);
+  const el = document.getElementById('invLowStockAlert');
+  if (!el) return;
+  if (low.length || out.length) {
+    el.style.display = 'block';
+    el.innerHTML = `⚠️ <strong>Stock Alert:</strong> ${out.length} product(s) <strong>out of stock</strong>, ${low.length} product(s) <strong>low stock (≤10)</strong>. Update below.`;
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function renderInventory() {
+  const body = document.getElementById('invBody');
+  if (!body) return;
+  body.innerHTML = invProds.map(p => {
+    const stockColor = p.stock === 0 ? '#ef4444' : p.stock <= 10 ? '#f97316' : '#22c55e';
+    const badge = p.stock === 0 ? '<span style="background:#fef2f2;color:#ef4444;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">Out of Stock</span>'
+                : p.stock <= 10 ? '<span style="background:#fff7ed;color:#f97316;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">Low Stock</span>'
+                : '<span style="background:#f0fdf4;color:#22c55e;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">In Stock</span>';
+    return `<tr>
+      <td><input type="checkbox" class="inv-check" data-id="${p.id}"></td>
+      <td><strong style="font-size:.82rem">${p.name}</strong></td>
+      <td><span style="font-size:.78rem;color:var(--m)">${p.category}</span></td>
+      <td><input type="number" class="inv-price" data-id="${p.id}" value="${p.price}" min="0" style="width:90px;padding:5px 8px;border:1.5px solid var(--b);border-radius:6px;font-size:.82rem;outline:none"></td>
+      <td><input type="number" class="inv-orig" data-id="${p.id}" value="${p.originalPrice||p.price}" min="0" style="width:90px;padding:5px 8px;border:1.5px solid var(--b);border-radius:6px;font-size:.82rem;outline:none"></td>
+      <td><input type="number" class="inv-stock" data-id="${p.id}" value="${p.stock}" min="0" style="width:80px;padding:5px 8px;border:1.5px solid #${p.stock===0?'fecaca':p.stock<=10?'fed7aa':'bbf7d0'};border-radius:6px;font-size:.82rem;outline:none;color:${stockColor}"></td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+function invToggleAll(cb) {
+  document.querySelectorAll('.inv-check').forEach(c => c.checked = cb.checked);
+}
+
+async function invSaveAll() {
+  const rows = document.querySelectorAll('#invBody tr');
+  const updates = [];
+  rows.forEach(row => {
+    const cb = row.querySelector('.inv-check');
+    const id = cb ? parseInt(cb.dataset.id) : null;
+    if (!id) return;
+    const price = parseFloat(row.querySelector('.inv-price').value) || 0;
+    const orig  = parseFloat(row.querySelector('.inv-orig').value)  || price;
+    const stock = parseInt(row.querySelector('.inv-stock').value)   || 0;
+    updates.push({ id, price, originalPrice: orig, stock });
+  });
+  let saved = 0;
+  for (const u of updates) {
+    try {
+      await fetch('/api/products/' + u.id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(u) });
+      saved++;
+    } catch(e) {}
+  }
+  toast(`✅ Saved ${saved} products`);
+  loadInventory();
+  loadStats();
+}
+
+async function invBulkUpdate() {
+  const cat     = document.getElementById('invBulkCat').value;
+  const price   = document.getElementById('invBulkPrice').value;
+  const stock   = document.getElementById('invBulkStock').value;
+  const checked = Array.from(document.querySelectorAll('.inv-check:checked')).map(c => parseInt(c.dataset.id));
+
+  let targets = invProds;
+  if (checked.length) targets = invProds.filter(p => checked.includes(p.id));
+  else if (cat) targets = invProds.filter(p => p.category === cat);
+
+  if (!price && !stock) { toast('Enter a price or stock value to update'); return; }
+  if (!confirm(`Update ${targets.length} products?`)) return;
+
+  let saved = 0;
+  for (const p of targets) {
+    const body = {};
+    if (price) { body.price = parseFloat(price); }
+    if (stock) { body.stock = parseInt(stock); }
+    try {
+      await fetch('/api/products/' + p.id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      saved++;
+    } catch(e) {}
+  }
+  toast(`✅ Updated ${saved} products`);
+  document.getElementById('invBulkPrice').value = '';
+  document.getElementById('invBulkStock').value = '';
+  loadInventory();
+}
+
+// ── Discounts ─────────────────────────────────────────────────────────────────
+let allDiscounts = [];
+let editDiscId   = null;
+
+async function loadDiscounts() {
+  try {
+    const res = await fetch('/api/discounts');
+    allDiscounts = await res.json();
+    renderDiscounts();
+  } catch(e) { toast('❌ Discounts load failed'); }
+}
+
+function renderDiscounts() {
+  const el = document.getElementById('discList');
+  if (!el) return;
+  if (!allDiscounts.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m)"><div style="font-size:3rem;margin-bottom:10px">🏷️</div><p>No discount codes yet. Create one to offer deals to customers.</p></div>';
+    return;
+  }
+  el.innerHTML = allDiscounts.map(d => {
+    const now = new Date();
+    const expired = d.expiry && new Date(d.expiry) < now;
+    const typeLabel = d.type === 'percent' ? `${d.value}% off` : d.type === 'flat' ? `₹${d.value} off` : 'Free Shipping';
+    const statusBg = !d.active ? '#f1f5f9' : expired ? '#fef2f2' : '#f0fdf4';
+    const statusColor = !d.active ? '#64748b' : expired ? '#ef4444' : '#22c55e';
+    const statusText = !d.active ? 'Inactive' : expired ? 'Expired' : 'Active';
+    return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="background:#fff7ed;border:2px dashed #f97316;border-radius:8px;padding:8px 16px;font-size:1rem;font-weight:800;color:#f97316;letter-spacing:2px">${d.code}</div>
+        <div>
+          <div style="font-size:.85rem;font-weight:700">${typeLabel}</div>
+          <div style="font-size:.75rem;color:var(--m)">
+            ${d.minOrder ? `Min ₹${d.minOrder} | ` : ''}
+            Uses: ${d.usedCount||0}${d.maxUses?'/'+d.maxUses:''}
+            ${d.expiry ? ` | Expires: ${new Date(d.expiry).toLocaleDateString('en-IN')}` : ''}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="background:${statusBg};color:${statusColor};padding:4px 12px;border-radius:50px;font-size:.75rem;font-weight:700">${statusText}</span>
+        <button onclick="discEdit('${d._id||d.id}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">✏️ Edit</button>
+        <button onclick="discDelete('${d._id||d.id}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function discOpenAdd() {
+  editDiscId = null;
+  document.getElementById('discModalTitle').textContent = 'Create Discount Code';
+  ['disc_code','disc_value','disc_minorder','disc_maxuses','disc_start','disc_expiry'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('disc_type').value = 'percent';
+  document.getElementById('disc_active').checked = true;
+  document.getElementById('discModal').classList.add('open');
+}
+
+function discEdit(id) {
+  const d = allDiscounts.find(x => (x._id||x.id) === id);
+  if (!d) return;
+  editDiscId = id;
+  document.getElementById('discModalTitle').textContent = 'Edit Discount Code';
+  document.getElementById('disc_code').value = d.code || '';
+  document.getElementById('disc_type').value = d.type || 'percent';
+  document.getElementById('disc_value').value = d.value || '';
+  document.getElementById('disc_minorder').value = d.minOrder || '';
+  document.getElementById('disc_maxuses').value = d.maxUses || '';
+  document.getElementById('disc_start').value = d.startDate ? d.startDate.substring(0,10) : '';
+  document.getElementById('disc_expiry').value = d.expiry ? d.expiry.substring(0,10) : '';
+  document.getElementById('disc_active').checked = d.active !== false;
+  document.getElementById('discModal').classList.add('open');
+}
+
+function closeDiscModal() { document.getElementById('discModal').classList.remove('open'); }
+
+async function discSave() {
+  const code = document.getElementById('disc_code').value.trim().toUpperCase();
+  if (!code) { toast('Enter a coupon code'); return; }
+  const disc = {
+    code,
+    type:     document.getElementById('disc_type').value,
+    value:    parseFloat(document.getElementById('disc_value').value) || 0,
+    minOrder: parseFloat(document.getElementById('disc_minorder').value) || 0,
+    maxUses:  parseInt(document.getElementById('disc_maxuses').value)  || 0,
+    startDate:document.getElementById('disc_start').value || null,
+    expiry:   document.getElementById('disc_expiry').value || null,
+    active:   document.getElementById('disc_active').checked
+  };
+  try {
+    if (editDiscId) {
+      await fetch('/api/discounts/'+editDiscId, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(disc) });
+      toast('✅ Discount updated');
+    } else {
+      await fetch('/api/discounts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(disc) });
+      toast('✅ Discount created');
+    }
+    closeDiscModal();
+    loadDiscounts();
+  } catch(e) { toast('❌ Save failed: ' + e.message); }
+}
+
+async function discDelete(id) {
+  if (!confirm('Delete this discount code?')) return;
+  try {
+    await fetch('/api/discounts/'+id, { method:'DELETE' });
+    toast('✅ Deleted');
+    loadDiscounts();
+  } catch(e) { toast('❌ Delete failed'); }
 }
 </script>
 </body>
