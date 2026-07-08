@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1e293b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>ShopHere.in – Admin</title>
 <script>
 // #26: If opened as file:// redirect to server automatically
@@ -551,10 +554,7 @@ if(window.location.protocol==='file:'){
     </div>
   </div>
 
-</div><!-- end .main -->
-</div><!-- end .admin-wrap -->
-
-<!-- PAGE BUILDER TAB (injected into .main by showTab) -->
+<!-- PAGE BUILDER TAB -->
 <div id="tab-pagebuilder" class="tab">
   <div class="sec">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
@@ -738,6 +738,9 @@ if(window.location.protocol==='file:'){
   </div>
 </div>
 
+</div><!-- end .main -->
+</div><!-- end .admin-wrap -->
+
 <!-- IMAGE MANAGER MODAL -->
 <div class="overlay" id="imgMgrModal">
   <div class="modal modal-lg">
@@ -770,12 +773,6 @@ function toast(msg) {
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
 function showTab(name, el) {
-  // Move page builder tab and modal into .main if needed
-  const mainEl = document.querySelector('.main');
-  ['tab-pagebuilder','tab-inventory','tab-discounts','pbModal','discModal'].forEach(id => {
-    const el2 = document.getElementById(id);
-    if (el2 && el2.parentElement !== mainEl && el2.parentElement !== document.body) mainEl.appendChild(el2);
-  });
 
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');

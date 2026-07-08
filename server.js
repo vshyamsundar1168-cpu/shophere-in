@@ -255,7 +255,17 @@ function readJSON(req) {
 }
 
 // ── Server ────────────────────────────────────────────────────────────────────
+const CUSTOM_DOMAIN = process.env.CUSTOM_DOMAIN || 'shophere.in';
+
 const server = http.createServer(async (req, res) => {
+  // Redirect onrender.com URLs to the real domain on both desktop and mobile
+  const host = (req.headers.host || '').toLowerCase().split(':')[0];
+  if (host && host.endsWith('.onrender.com')) {
+    const target = 'https://' + CUSTOM_DOMAIN + req.url;
+    res.writeHead(301, { Location: target });
+    return res.end();
+  }
+
   const u  = new URL(req.url, `http://localhost:${PORT}`);
   const p  = u.pathname;
   const m  = req.method.toUpperCase();

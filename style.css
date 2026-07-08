@@ -26,7 +26,7 @@ header{background:#fff;border-bottom:1px solid var(--b);position:sticky;top:0;z-
 .badge{position:absolute;top:-4px;right:-4px;background:var(--rd);color:#fff;font-size:.6rem;font-weight:800;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center}
 /* NAV */
 .main-nav{background:var(--sec)}
-.nav-inner{max-width:1300px;margin:0 auto;padding:0 24px;display:flex;overflow-x:auto;gap:2px;scrollbar-width:none}
+.nav-inner{max-width:1300px;margin:0 auto;padding:0 24px;display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .nav-inner::-webkit-scrollbar{display:none}
 .nav-inner a{color:#94a3b8;font-size:.83rem;font-weight:500;padding:10px 14px;white-space:nowrap;border-bottom:3px solid transparent;transition:color .2s,border-color .2s;cursor:pointer}
 .nav-inner a:hover,.nav-inner a.active{color:#fff;border-bottom-color:var(--p)}
@@ -50,7 +50,7 @@ header{background:#fff;border-bottom:1px solid var(--b);position:sticky;top:0;z-
 .sec-hdr h2::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:4px;background:var(--p);border-radius:4px}
 .sec-hdr a{font-size:.83rem;font-weight:600;color:var(--p);cursor:pointer}
 /* CATEGORY CARDS */
-.cat-grid{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.cat-grid{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .cat-grid::-webkit-scrollbar{display:none}
 .cat-card{flex-shrink:0;width:90px;text-align:center;cursor:pointer;transition:transform .2s}
 .cat-card:hover{transform:translateY(-4px)}
@@ -58,13 +58,12 @@ header{background:#fff;border-bottom:1px solid var(--b);position:sticky;top:0;z-
 .cat-card:hover .cat-icon{border-color:var(--p)}
 .cat-card span{font-size:.75rem;font-weight:600;color:var(--t)}
 /* HORIZONTAL SCROLL PRODUCTS */
-.h-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
+.h-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
 /* PRODUCT GRID */
 .products-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
 /* PRODUCT CARD */
 .product-card{background:var(--card);border-radius:var(--r);overflow:hidden;border:1px solid var(--b);position:relative;transition:transform .2s,box-shadow .2s;flex-shrink:0;width:200px}
-.products-grid .product-card{width:auto}
-.product-card:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.products-grid .product-card{width:auto}.product-card:hover{transform:translateY(-4px);box-shadow:var(--sh)}
 .pc-badge{position:absolute;top:10px;left:10px;padding:3px 9px;border-radius:50px;font-size:.68rem;font-weight:800;z-index:2;background:#ef4444;color:#fff;text-transform:uppercase}
 .pc-badge.new{background:#22c55e}.pc-badge.deal{background:var(--p)}.pc-badge.hot{background:#e11d48}
 .pc-wish{position:absolute;top:10px;right:10px;background:#fff;border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1);z-index:2;transition:background .2s;padding:0}
@@ -225,5 +224,77 @@ footer{background:var(--sec);color:#94a3b8;margin-top:60px}
 /* RESPONSIVE */
 @media(max-width:1100px){.products-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:900px){.products-grid{grid-template-columns:repeat(3,1fr)}.shop-layout{flex-direction:column}.sidebar-filters{width:100%;position:static}.footer-top{grid-template-columns:1fr 1fr 1fr}}
-@media(max-width:640px){.hdr{gap:8px}.logo{order:1}.hdr-icons{order:2;margin-left:auto}.search-wrap{order:3;width:100%;max-width:none}.products-grid{grid-template-columns:repeat(2,1fr)}.footer-top{grid-template-columns:1fr 1fr}.hero-slider{height:260px}.hero-slide h1{font-size:1.4rem}.cs-line{width:20px}}
-@media(max-width:480px){.modal{max-width:100%;border-radius:16px 16px 0 0}.overlay{align-items:flex-end;padding:0}.drawer{width:100vw}.form-row,.form-row3{grid-template-columns:1fr}}
+
+/* ── 640px (small tablets / large phones) ── */
+@media(max-width:640px){
+  /* Header layout */
+  .hdr{gap:8px;padding:8px 12px}
+  .logo{order:1}
+  .hdr-icons{order:2;margin-left:auto;gap:8px}
+  .search-wrap{order:3;width:100%;max-width:none}
+  /* Hide icon labels on small screens to save space */
+  .hdr-icon span:not(.badge){display:none}
+  .hdr-icon svg{width:24px;height:24px}
+  /* Search bar: hide category dropdown on mobile */
+  .search-wrap select{display:none}
+  .search-wrap{border-radius:50px}
+  /* Products */
+  .products-grid{grid-template-columns:repeat(2,1fr)}
+  /* Footer */
+  .footer-top{grid-template-columns:1fr 1fr}
+  /* Hero */
+  .hero-slider{height:220px}
+  .hero-slide h1{font-size:1.3rem}
+  .hero-slide p{font-size:.85rem;margin-bottom:14px}
+  /* Checkout steps */
+  .cs-line{width:20px}
+  /* Contact section 3-col → 1-col */
+  #contactCards{grid-template-columns:1fr !important}
+  /* Section headers */
+  .sec-hdr h2{font-size:1.1rem}
+  /* Container padding */
+  .container{padding:16px 12px}
+}
+
+/* ── 480px (phones) ── */
+@media(max-width:480px){
+  /* Modals slide up from bottom */
+  .modal{max-width:100%;border-radius:16px 16px 0 0}
+  .overlay{align-items:flex-end;padding:0}
+  /* Full-width drawer */
+  .drawer{width:100vw}
+  /* Form rows stack */
+  .form-row,.form-row3{grid-template-columns:1fr}
+  /* Login box padding */
+  .login-box{padding:24px 18px;border-radius:16px 16px 0 0;max-height:92vh;overflow-y:auto}
+  .login-overlay{align-items:flex-end}
+  /* Popup boxes */
+  .popup-box{border-radius:16px 16px 0 0;max-height:92vh}
+  .popup-overlay{align-items:flex-end;padding:0}
+  /* Hero */
+  .hero-slider{height:180px}
+  .hero-slide{padding:16px}
+  .hero-slide h1{font-size:1.1rem;margin-bottom:6px}
+  .hero-slide p{display:none}
+  .hero-arrow{width:34px;height:34px;font-size:1.1rem}
+  /* Product card buttons */
+  .btn-cart,.btn-buy{font-size:.7rem;padding:6px 3px}
+  /* Footer single column */
+  .footer-top{grid-template-columns:1fr}
+  /* Top bar smaller */
+  .top-bar{font-size:.7rem;padding:5px 12px}
+  /* Marquee smaller */
+  .marquee-inner span{font-size:.74rem;margin-right:40px}
+  /* Nav inner smaller font */
+  .nav-inner a{font-size:.76rem;padding:9px 10px}
+  /* Category cards */
+  .cat-icon{width:58px;height:58px;font-size:1.6rem}
+  .cat-card{width:72px}
+  .cat-card span{font-size:.68rem}
+  /* Section header */
+  .sec-hdr h2{font-size:1rem}
+  /* hdr-icons gap tighter */
+  .hdr-icons{gap:6px}
+  /* h-scroll cards slightly smaller */
+  .h-scroll .product-card{width:160px}
+}
