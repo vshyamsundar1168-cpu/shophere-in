@@ -567,7 +567,7 @@ if(window.location.protocol==='file:'){
           </div>
         </div>
         <div id="cloudinaryStatus" style="font-size:.78rem;padding:8px 12px;border-radius:7px;display:none"></div>
-        <button onclick="testCloudinary()" style="padding:7px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:4px">🔌 Test Connection</button>
+        <button id="btnTestCloudinary" style="padding:7px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:4px">🔌 Test Connection</button>
 
         <hr style="margin:16px 0;border-color:var(--b)">
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">🧩 Chrome Extension — Push to Store</h4>
@@ -2916,35 +2916,42 @@ async function testCloudinary() {
   const cloudName = document.getElementById('st_cloudName').value.trim();
   const preset    = document.getElementById('st_uploadPreset').value.trim();
   const statusEl  = document.getElementById('cloudinaryStatus');
+
   if (!cloudName || !preset) {
-    statusEl.style.display = 'block';
-    statusEl.style.background = '#fef2f2'; statusEl.style.color = '#991b1b';
-    statusEl.textContent = '❌ Enter both Cloud Name and Upload Preset first';
+    statusEl.style.cssText = 'display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600';
+    statusEl.textContent = '❌ Enter both Cloud Name and Upload Preset first, then click Save All Settings';
     return;
   }
-  statusEl.style.display = 'block';
-  statusEl.style.background = '#eff6ff'; statusEl.style.color = '#1d4ed8';
-  statusEl.textContent = '🔄 Testing Cloudinary connection…';
-  // Save first then test
-  await saveSettings();
-  // Try a tiny test upload — 1x1 transparent PNG
-  const b64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+  statusEl.style.cssText = 'display:block;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600';
+  statusEl.textContent = '🔄 Saving settings and testing Cloudinary…';
+
+  // Save settings first so server picks up the new values
+  try { await saveSettings(); } catch(e) {}
+
+  // Test directly from browser using a 1×1 pixel base64 PNG
   try {
     const fd = new FormData();
-    fd.append('file', b64);
+    fd.append('file', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAABjE+ibYAAAAASUVORK5CYII=');
     fd.append('upload_preset', preset);
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: fd });
-    const d = await res.json();
-    if (d.secure_url) {
-      statusEl.style.background = '#f0fdf4'; statusEl.style.color = '#166534';
-      statusEl.textContent = '✅ Cloudinary connected! Images will now be stored permanently at: ' + d.secure_url.split('/upload/')[0];
+    fd.append('folder', 'shophere_test');
+
+    const res  = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST', body: fd
+    });
+    const data = await res.json();
+
+    if (data.secure_url) {
+      statusEl.style.cssText = 'display:block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600';
+      statusEl.innerHTML = '✅ Cloudinary connected! Your Cloud: <strong>' + cloudName + '</strong>. All new images will now be stored permanently.';
     } else {
-      statusEl.style.background = '#fef2f2'; statusEl.style.color = '#991b1b';
-      statusEl.textContent = '❌ Cloudinary error: ' + (d.error && d.error.message || 'Check your Cloud Name and Upload Preset');
+      const msg = (data.error && data.error.message) || JSON.stringify(data);
+      statusEl.style.cssText = 'display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600';
+      statusEl.innerHTML = '❌ Cloudinary error: <strong>' + msg + '</strong><br>Check: 1) Cloud Name is correct 2) Upload preset is set to <strong>Unsigned</strong>';
     }
   } catch(e) {
-    statusEl.style.background = '#fef2f2'; statusEl.style.color = '#991b1b';
-    statusEl.textContent = '❌ Test failed: ' + e.message;
+    statusEl.style.cssText = 'display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600';
+    statusEl.textContent = '❌ Network error: ' + e.message;
   }
 }
 
@@ -2996,6 +3003,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadStats();
   loadAllCats();
   if (typeof loadCustomCols === 'function') loadCustomCols();
+
+  // Wire up buttons that have late-defined handlers
+  const btnCloud = document.getElementById('btnTestCloudinary');
+  if (btnCloud) btnCloud.addEventListener('click', testCloudinary);
   // Show admin username
   try {
     const s = await fetch('/api/settings').then(r=>r.json());
