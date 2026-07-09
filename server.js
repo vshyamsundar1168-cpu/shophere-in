@@ -206,6 +206,125 @@ function parseMultipart(req) {
   });
 }
 
+// ── Cloudinary ────────────────────────────────────────────────────────────────
+// Uses Cloudinary's unsigned upload API — no SDK needed, pure HTTPS POST.
+// Set CLOUDINARY_CLOUD_NAME + CLOUDINARY_UPLOAD_PRESET in Render env vars.
+// Free tier: 25GB storage, 25GB bandwidth/month — plenty for a store.
+
+const CLOUDINARY_CLOUD_NAME   = process.env.CLOUDINARY_CLOUD_NAME   || '';
+const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'shophere_uploads';
+
+// Live config — updated from DB settings at startup and on settings save
+let _cloudName   = CLOUDINARY_CLOUD_NAME;
+let _uploadPreset = CLOUDINARY_UPLOAD_PRESET;
+
+async function loadCloudinaryConfig() {
+  try {
+    const db = getDb();
+    const s  = await db.collection('settings').findOne({}, { projection: { cloudName:1, uploadPreset:1 } }) || {};
+    if (s.cloudName)   _cloudName    = s.cloudName;
+    if (s.uploadPreset) _uploadPreset = s.uploadPreset;
+    if (_cloudName) console.log('[CLOUDINARY] configured — cloud:', _cloudName, 'preset:', _uploadPreset);
+    else console.log('[CLOUDINARY] not configured — images saved locally');
+  } catch(e) {}
+}
+
+async function uploadToCloudinary(fileData, mimeType, filename) {
+  if (!_cloudName) return null; // Cloudinary not configured — fall back to local
+
+  return new Promise((resolve) => {
+    try {
+      const boundary = '----CloudinaryBoundary' + crypto.randomUUID().replace(/-/g,'');
+      const ext      = path.extname(filename).toLowerCase() || '.jpg';
+      const chunks   = [];
+
+      chunks.push(Buffer.from(
+        `--${boundary}\r\n` +
+        `Content-Disposition: form-data; name="file"; filename="upload${ext}"\r\n` +
+        `Content-Type: ${mimeType}\r\n\r\n`
+      ));
+      chunks.push(fileData);
+      chunks.push(Buffer.from('\r\n'));
+
+      chunks.push(Buffer.from(
+        `--${boundary}\r\n` +
+        `Content-Disposition: form-data; name="upload_preset"\r\n\r\n` +
+        `${_uploadPreset}\r\n`
+      ));
+
+      chunks.push(Buffer.from(
+        `--${boundary}\r\n` +
+        `Content-Disposition: form-data; name="folder"\r\n\r\n` +
+        `shophere\r\n`
+      ));
+
+      chunks.push(Buffer.from(`--${boundary}--\r\n`));
+
+      const body    = Buffer.concat(chunks);
+      const https   = require('https');
+      const options = {
+        hostname: 'api.cloudinary.com',
+        port:     443,
+        path:     `/v1_1/${_cloudName}/image/upload`,
+        method:   'POST',
+        headers:  {
+          'Content-Type':   `multipart/form-data; boundary=${boundary}`,
+          'Content-Length': body.length,
+        },
+      };
+
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', c => data += c);
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            if (json.secure_url) resolve(json.secure_url);
+            else { console.error('[CLOUDINARY] upload failed:', json.error); resolve(null); }
+          } catch(e) { resolve(null); }
+        });
+      });
+      req.on('error', (e) => { console.error('[CLOUDINARY] request error:', e.message); resolve(null); });
+      req.write(body);
+      req.end();
+    } catch(e) {
+      console.error('[CLOUDINARY] unexpected error:', e.message);
+      resolve(null);
+    }
+  });
+}
+
+// Fetch a supplier image URL and re-upload to Cloudinary
+// Solves hotlink blocking from supplier sites
+async function mirrorImageToCloudinary(imageUrl) {
+  if (!CLOUDINARY_CLOUD_NAME || !imageUrl || !imageUrl.startsWith('http')) return imageUrl;
+  if (imageUrl.includes('cloudinary.com')) return imageUrl; // already on Cloudinary
+
+  return new Promise((resolve) => {
+    try {
+      const https  = require('https');
+      const http2  = require('http');
+      const client = imageUrl.startsWith('https') ? https : http2;
+
+      const req = client.get(imageUrl, { headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': imageUrl } }, (res) => {
+        if (res.statusCode !== 200) { resolve(imageUrl); return; }
+        const chunks = [];
+        res.on('data', c => chunks.push(c));
+        res.on('end', async () => {
+          const data     = Buffer.concat(chunks);
+          const mimeType = res.headers['content-type'] || 'image/jpeg';
+          const ext      = mimeType.includes('png') ? '.png' : mimeType.includes('gif') ? '.gif' : '.jpg';
+          const cloudUrl = await uploadToCloudinary(data, mimeType, 'supplier' + ext);
+          resolve(cloudUrl || imageUrl); // fall back to original if upload fails
+        });
+        res.on('error', () => resolve(imageUrl));
+      });
+      req.on('error', () => resolve(imageUrl));
+      req.setTimeout(15000, () => { req.destroy(); resolve(imageUrl); });
+    } catch(e) { resolve(imageUrl); }
+  });
+}
+
 // ── Upload helper ─────────────────────────────────────────────────────────────
 const MAX = { image:10*1024*1024, video:200*1024*1024, audio:50*1024*1024 };
 
@@ -223,13 +342,24 @@ function saveFile(file) {
   return { url:'/uploads/'+name, type:file.mimeType, name:file.filename };
 }
 
-function processMedia(files) {
+async function processMedia(files) {
   const images=[], videos=[], audios=[], errors=[];
   for (const f of files) {
     if (!f.filename || !f.data || f.data.length === 0) continue;
     const kind = mimeKind(f.mimeType);
     if (!kind) { errors.push(`Unsupported type ${f.mimeType} for ${f.filename}`); continue; }
     if (f.data.length > MAX[kind]) { errors.push(`${f.filename} exceeds ${MAX[kind]/1024/1024}MB limit`); continue; }
+
+    if (kind === 'image' && _cloudName) {
+      // Upload images to Cloudinary for permanent storage
+      const cloudUrl = await uploadToCloudinary(f.data, f.mimeType, f.filename);
+      if (cloudUrl) {
+        images.push({ url: cloudUrl, type: f.mimeType, name: f.filename });
+        console.log('[CLOUDINARY] uploaded:', cloudUrl);
+        continue;
+      }
+    }
+    // Fallback: save locally (videos, audio, or if Cloudinary not configured)
     const s = saveFile(f);
     if (kind==='image') images.push(s);
     else if (kind==='video') videos.push(s);
@@ -305,11 +435,14 @@ const server = http.createServer(async (req, res) => {
       } else {
         fields = await readJSON(req);
       }
-      const KEYS = ['storeName','primaryColor','announcementBar','scrollingText','contactEmail','contactPhone','contactAddress','freeShippingThreshold','footerText','termsAndConditions','privacyPolicy','returnPolicy','faqText','adminUsername','adminPassword','pushToken','bannerSizeVal','bannerSizeUnit','bannerFit','bannerTextSize','bannerPos','bannerTextColor','colorAnnoText','colorAnnoBg','colorTopBarText','colorProdName','colorProdPrice','colorProdBrand','colorHeading','colorBody','colorLink','colorFooterText','colorFooterHead','colorNavText','prodImgHeight','prodNameSize','prodPriceSize','prodCardBg','prodCardRadius','badgeNewBg','badgeDealBg','badgeHotBg','colorBg','colorBtnCart','colorBtnBuy','colorNavBg','colorFooterBg','font_heading','font_body','font_productName','font_productPrice','font_productBrand','font_navigation','font_footer','font_announcementBar','fontSize_heading','fontSize_body','fontSize_productName','fontSize_productPrice','fontSize_productBrand','fontSize_navigation','fontSize_footer','fontSize_announcementBar','fontWeight_heading','fontWeight_body','fontWeight_productName','fontWeight_productPrice','fontWeight_productBrand','fontWeight_navigation','fontWeight_footer','fontWeight_announcementBar','textColor_heading','textColor_body','textColor_productName','textColor_productPrice','textColor_productBrand','textColor_navigation','textColor_footer','textColor_announcementBar','visualOverrides'];
+      const KEYS = ['storeName','primaryColor','announcementBar','scrollingText','contactEmail','contactPhone','contactAddress','freeShippingThreshold','footerText','termsAndConditions','privacyPolicy','returnPolicy','faqText','adminUsername','adminPassword','pushToken','cloudName','uploadPreset','bannerSizeVal','bannerSizeUnit','bannerFit','bannerTextSize','bannerPos','bannerTextColor','colorAnnoText','colorAnnoBg','colorTopBarText','colorProdName','colorProdPrice','colorProdBrand','colorHeading','colorBody','colorLink','colorFooterText','colorFooterHead','colorNavText','prodImgHeight','prodNameSize','prodPriceSize','prodCardBg','prodCardRadius','badgeNewBg','badgeDealBg','badgeHotBg','colorBg','colorBtnCart','colorBtnBuy','colorNavBg','colorFooterBg','font_heading','font_body','font_productName','font_productPrice','font_productBrand','font_navigation','font_footer','font_announcementBar','fontSize_heading','fontSize_body','fontSize_productName','fontSize_productPrice','fontSize_productBrand','fontSize_navigation','fontSize_footer','fontSize_announcementBar','fontWeight_heading','fontWeight_body','fontWeight_productName','fontWeight_productPrice','fontWeight_productBrand','fontWeight_navigation','fontWeight_footer','fontWeight_announcementBar','textColor_heading','textColor_body','textColor_productName','textColor_productPrice','textColor_productBrand','textColor_navigation','textColor_footer','textColor_announcementBar','visualOverrides'];
       const $set = {};
       KEYS.forEach(k => { if (fields[k] !== undefined) $set[k] = fields[k]; });
       const logo = files.find(f => f.fieldName==='logo' && f.data && f.data.length>0);
-      if (logo) $set.logo = saveFile(logo).url;
+      if (logo) {
+        const cloudUrl = _cloudName ? await uploadToCloudinary(logo.data, logo.mimeType, logo.filename) : null;
+        $set.logo = cloudUrl || saveFile(logo).url;
+      }
       const db = getDb();
       const updated = await db.collection('settings').findOneAndUpdate(
         {},
@@ -317,6 +450,8 @@ const server = http.createServer(async (req, res) => {
         { upsert: true, returnDocument: 'after', projection: { _id: 0 } }
       );
       console.log('[SAVE] settings OK —', updated.storeName);
+      // Reload Cloudinary config if updated
+      if ($set.cloudName || $set.uploadPreset) await loadCloudinaryConfig();
       return sendJSON(res, 200, updated);
     }
 
@@ -355,7 +490,7 @@ const server = http.createServer(async (req, res) => {
     if (p==='/api/products' && m==='POST') {
       const {fields,files} = await parseMultipart(req);
       if (!fields.name || !fields.name.trim()) return sendJSON(res,400,{error:'Product name is required'});
-      const media = processMedia(files);
+      const media = await processMedia(files);
       const db = getDb();
       const cats = await db.collection('categories').find({}, { projection: { _id: 0 } }).toArray();
       const firstCat = cats.length > 0 ? cats[0].name : 'Electronics';
@@ -383,7 +518,7 @@ const server = http.createServer(async (req, res) => {
       let fields={}, files=[];
       if (ct.includes('multipart')) { const r=await parseMultipart(req); fields=r.fields; files=r.files; }
       else fields=await readJSON(req);
-      const media=processMedia(files);
+      const media = await processMedia(files);
       // Merge custom fields if present
       let mergedCustomFields = prev.customFields || {};
       if (fields.customFields) {
@@ -562,7 +697,10 @@ const server = http.createServer(async (req, res) => {
       const banner={id:nextBid++,bgGradient:fields.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)',bgImage:'',
         headline:fields.headline||'',subtitle:fields.subtitle||'',ctaLabel:fields.ctaLabel||'Shop Now',ctaUrl:fields.ctaUrl||'#',active:fields.active!=='false'};
       const bg=files.find(f=>f.fieldName==='bgImage'&&f.data&&f.data.length>0);
-      if(bg) banner.bgImage=saveFile(bg).url;
+      if(bg) {
+        const cloudUrl = _cloudName ? await uploadToCloudinary(bg.data, bg.mimeType, bg.filename) : null;
+        banner.bgImage = cloudUrl || saveFile(bg).url;
+      }
       const db = getDb();
       await db.collection('banners').insertOne(banner);
       const { _id, ...bannerOut } = banner;
@@ -693,9 +831,13 @@ const server = http.createServer(async (req, res) => {
       const catExists = await db.collection('categories').findOne({ name: cat });
       if (!catExists) await db.collection('categories').insertOne({ name: cat });
 
-      // Build images array from URLs
+      // Build images array from URLs — mirror through Cloudinary to avoid hotlink blocking
       const imageUrls = Array.isArray(body.imageUrls) ? body.imageUrls : [];
-      const images    = imageUrls.map(url => ({ url, type: 'image/jpeg', name: 'pushed' }));
+      const images = [];
+      for (const url of imageUrls.slice(0, 5)) {
+        const finalUrl = await mirrorImageToCloudinary(url);
+        images.push({ url: finalUrl, type: 'image/jpeg', name: 'pushed' });
+      }
 
       const prod = {
         id:            nextPid++,
@@ -761,10 +903,14 @@ const server = http.createServer(async (req, res) => {
           }
         }
 
-        // Build images array from URL string (comma-separated or single)
+        // Build images array from URL string — mirror through Cloudinary
         const imageUrls = (row.imageUrl || row.image || row.images || '')
           .split(/[,|;]+/).map(s => s.trim()).filter(Boolean);
-        const images = imageUrls.map(url => ({ url, type: 'image/jpeg', name: 'imported' }));
+        const images = [];
+        for (const imgUrl of imageUrls.slice(0, 3)) {
+          const finalUrl = await mirrorImageToCloudinary(imgUrl);
+          images.push({ url: finalUrl, type: 'image/jpeg', name: 'imported' });
+        }
 
         const prod = {
           id: nextPid++,
@@ -986,6 +1132,7 @@ async function startServer() {
   await connectDB();
   await seedCollections();
   await deriveCounters();
+  await loadCloudinaryConfig();
   server.listen(PORT, () => {
     console.log(`\n  ✅  ShopHere.in  →  http://localhost:${PORT}`);
     console.log(`  ⚙️   Admin Panel  →  http://localhost:${PORT}/admin.html\n`);

@@ -554,6 +554,22 @@ if(window.location.protocol==='file:'){
         </div>
 
         <hr style="margin:16px 0;border-color:var(--b)">
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">☁️ Cloudinary Image Storage <small style="font-weight:400;color:var(--m)">(recommended — images survive redeployments)</small></h4>
+        <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Without Cloudinary, uploaded images are lost on every Render redeploy. Sign up free at <a href="https://cloudinary.com" target="_blank" style="color:var(--p)">cloudinary.com</a> → Dashboard → copy your Cloud Name → Settings → Upload → Add upload preset (set to Unsigned).</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cloudinary Cloud Name</label>
+            <input id="st_cloudName" placeholder="e.g. dxxxxxx (from Cloudinary dashboard)">
+          </div>
+          <div class="form-group">
+            <label>Upload Preset Name</label>
+            <input id="st_uploadPreset" placeholder="e.g. shophere_uploads (must be Unsigned)">
+          </div>
+        </div>
+        <div id="cloudinaryStatus" style="font-size:.78rem;padding:8px 12px;border-radius:7px;display:none"></div>
+        <button onclick="testCloudinary()" style="padding:7px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:4px">🔌 Test Connection</button>
+
+        <hr style="margin:16px 0;border-color:var(--b)">
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">🧩 Chrome Extension — Push to Store</h4>
         <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Set a Push Token to secure your extension. Copy this token into the extension settings so only you can push products.</p>
         <div class="form-row">
@@ -1797,6 +1813,8 @@ async function loadSettings() {
     if (s.faqText !== undefined) document.getElementById('st_faq').value = s.faqText;
     if (s.adminUsername !== undefined) document.getElementById('st_adminuser').value = s.adminUsername;
     if (s.pushToken !== undefined) { const el = document.getElementById('st_pushtoken'); if(el) el.value = s.pushToken; }
+    if (s.cloudName !== undefined) { const el = document.getElementById('st_cloudName'); if(el) el.value = s.cloudName; }
+    if (s.uploadPreset !== undefined) { const el = document.getElementById('st_uploadPreset'); if(el) el.value = s.uploadPreset; }
     // Text colors — area by area
     const colorMap = {
       'st_colorAnnoText':'colorAnnoText','st_colorAnnoBg':'colorAnnoBg',
@@ -1900,6 +1918,10 @@ async function saveSettings() {
   if (adminPass) fd.append('adminPassword', adminPass);
   const pushTok = document.getElementById('st_pushtoken').value.trim();
   if (pushTok) fd.append('pushToken', pushTok);
+  const cloudName = document.getElementById('st_cloudName').value.trim();
+  const uploadPreset = document.getElementById('st_uploadPreset').value.trim();
+  if (cloudName) fd.append('cloudName', cloudName);
+  if (uploadPreset) fd.append('uploadPreset', uploadPreset);
   const logoFile = document.getElementById('st_logo').files[0];
   if (logoFile) fd.append('logo', logoFile);
   try {
@@ -2888,6 +2910,42 @@ function impDownloadTemplate(supplier) {
   a.download = 'shophere_import_' + supplier + '.csv';
   a.click();
   toast('📄 Template downloaded — fill in your products then upload below');
+}
+
+async function testCloudinary() {
+  const cloudName = document.getElementById('st_cloudName').value.trim();
+  const preset    = document.getElementById('st_uploadPreset').value.trim();
+  const statusEl  = document.getElementById('cloudinaryStatus');
+  if (!cloudName || !preset) {
+    statusEl.style.display = 'block';
+    statusEl.style.background = '#fef2f2'; statusEl.style.color = '#991b1b';
+    statusEl.textContent = '❌ Enter both Cloud Name and Upload Preset first';
+    return;
+  }
+  statusEl.style.display = 'block';
+  statusEl.style.background = '#eff6ff'; statusEl.style.color = '#1d4ed8';
+  statusEl.textContent = '🔄 Testing Cloudinary connection…';
+  // Save first then test
+  await saveSettings();
+  // Try a tiny test upload — 1x1 transparent PNG
+  const b64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+  try {
+    const fd = new FormData();
+    fd.append('file', b64);
+    fd.append('upload_preset', preset);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: fd });
+    const d = await res.json();
+    if (d.secure_url) {
+      statusEl.style.background = '#f0fdf4'; statusEl.style.color = '#166534';
+      statusEl.textContent = '✅ Cloudinary connected! Images will now be stored permanently at: ' + d.secure_url.split('/upload/')[0];
+    } else {
+      statusEl.style.background = '#fef2f2'; statusEl.style.color = '#991b1b';
+      statusEl.textContent = '❌ Cloudinary error: ' + (d.error && d.error.message || 'Check your Cloud Name and Upload Preset');
+    }
+  } catch(e) {
+    statusEl.style.background = '#fef2f2'; statusEl.style.color = '#991b1b';
+    statusEl.textContent = '❌ Test failed: ' + e.message;
+  }
 }
 
 async function loadPushedProducts() {
