@@ -1256,6 +1256,32 @@ async function loadCustomCols() {
   } catch(e) { allCustomCols = []; }
 }
 
+// vcCollectFields stub — real implementation in later script block
+// Defined early so saveSettings() can call it safely
+function vcCollectFields(fd) {
+  // Collect section typography fields
+  document.querySelectorAll('[data-vckey]').forEach(function(el) {
+    var key = el.dataset.vckey;
+    if (el.value !== undefined) fd.append(key, el.value);
+  });
+  // Product card fields
+  function gv(id) { var e = document.getElementById(id); return e ? e.value : ''; }
+  if (gv('vc_prodImgHeight'))   fd.append('prodImgHeight',   gv('vc_prodImgHeight'));
+  if (gv('vc_prodNameSize'))    fd.append('prodNameSize',    gv('vc_prodNameSize'));
+  if (gv('vc_prodPriceSize'))   fd.append('prodPriceSize',   gv('vc_prodPriceSize'));
+  fd.append('prodCardBg',     gv('vc_prodCardBg')     || '#ffffff');
+  fd.append('prodCardRadius', gv('vc_prodCardRadius') || '12');
+  fd.append('badgeNewBg',     gv('vc_badgeNewBg')     || '#22c55e');
+  fd.append('badgeDealBg',    gv('vc_badgeDealBg')    || '#f97316');
+  fd.append('badgeHotBg',     gv('vc_badgeHotBg')     || '#e11d48');
+  // Color theme
+  fd.append('colorBg',        gv('vc_colorBg')        || '#f8fafc');
+  fd.append('colorBtnCart',   gv('vc_colorBtnCart')   || '#fff7ed');
+  fd.append('colorBtnBuy',    gv('vc_colorBtnBuy')    || '#f97316');
+  fd.append('colorNavBg',     gv('vc_colorNavBg')     || '#1e293b');
+  fd.append('colorFooterBg',  gv('vc_colorFooterBg')  || '#1e293b');
+}
+
 async function testCloudinary() {
   var cloudName = (document.getElementById('st_cloudName') || {}).value || '';
   var preset    = (document.getElementById('st_uploadPreset') || {}).value || '';
