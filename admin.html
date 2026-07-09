@@ -1256,7 +1256,62 @@ async function loadCustomCols() {
   } catch(e) { allCustomCols = []; }
 }
 
-// vcCollectFields stub — real implementation in later script block
+// saveSettings stub — ensures button works even if page hasn't fully parsed yet
+// The real saveSettings is defined later and overwrites this stub
+async function saveSettings() {
+  // If the real saveSettings isn't loaded yet, wait briefly and retry
+  if (typeof vcClearDirty !== 'function') {
+    await new Promise(r => setTimeout(r, 500));
+  }
+  const fd = new FormData();
+  const gv = id => { const e = document.getElementById(id); return e ? (e.value || '') : ''; };
+  ['storeName','st_name','primaryColor','st_color','announcementBar','st_ann',
+   'scrollingText','st_scroll','contactEmail','st_email','contactPhone','st_phone',
+   'contactAddress','st_addr','freeShippingThreshold','st_ship','footerText','st_footer',
+   'termsAndConditions','st_terms','privacyPolicy','st_privacy','returnPolicy','st_returns',
+   'faqText','st_faq'].forEach((k,i,a) => { if (i%2===0) fd.append(k, gv(a[i+1])||''); });
+  // Colors
+  [['colorAnnoText','st_colorAnnoText'],['colorAnnoBg','st_colorAnnoBg'],
+   ['colorTopBarText','st_colorTopBarText'],['colorProdName','st_colorProdName'],
+   ['colorProdPrice','st_colorProdPrice'],['colorProdBrand','st_colorProdBrand'],
+   ['colorHeading','st_colorHeading'],['colorBody','st_colorBody'],['colorLink','st_colorLink'],
+   ['colorFooterText','st_colorFooterText'],['colorFooterHead','st_colorFooterHead'],
+   ['colorNavText','st_colorNavText'],['bannerTextColor','st_bannerTextColor']
+  ].forEach(([k,id])=>{ const el=document.getElementById(id); if(el) fd.append(k,el.value||''); });
+  // Banner & product sizes
+  [['bannerSizeVal','st_bannerSizeVal','380'],['bannerSizeUnit','st_bannerSizeUnit','px'],
+   ['bannerFit','st_bannerFit','cover'],['bannerTextSize','st_bannerTextSize','large'],
+   ['bannerPos','st_bannerPos','center'],['prodImgHeight','st_prodImgHeight','200'],
+   ['prodNameSize','st_prodNameSize','14'],['prodPriceSize','st_prodPriceSize','17']
+  ].forEach(([k,id,def])=>fd.append(k, gv(id)||def));
+  // Visual customizer
+  vcCollectFields(fd);
+  // Credentials & tokens
+  const adminUser = gv('st_adminuser').trim();
+  const adminPass = gv('st_adminpass').trim();
+  if (adminUser) fd.append('adminUsername', adminUser);
+  if (adminPass) fd.append('adminPassword', adminPass);
+  const pushTok = gv('st_pushtoken').trim();
+  if (pushTok) fd.append('pushToken', pushTok);
+  const cloudName = gv('st_cloudName').trim();
+  const uploadPreset = gv('st_uploadPreset').trim();
+  if (cloudName) fd.append('cloudName', cloudName);
+  if (uploadPreset) fd.append('uploadPreset', uploadPreset);
+  // Logo
+  const logoInput = document.getElementById('st_logo');
+  if (logoInput && logoInput.files[0]) fd.append('logo', logoInput.files[0]);
+  try {
+    const res  = await fetch('/api/settings', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('All settings saved!');
+    if (typeof vcClearDirty === 'function') vcClearDirty();
+    if (data.primaryColor) document.documentElement.style.setProperty('--p', data.primaryColor);
+  } catch(e) {
+    toast('Settings error: ' + e.message);
+    console.error('[saveSettings]', e);
+  }
+}
 // Defined early so saveSettings() can call it safely
 function vcCollectFields(fd) {
   // Collect section typography fields
