@@ -1255,6 +1255,40 @@ async function loadCustomCols() {
     window.allCustomCols = allCustomCols = await res.json();
   } catch(e) { allCustomCols = []; }
 }
+
+async function testCloudinary() {
+  var cloudName = (document.getElementById('st_cloudName') || {}).value || '';
+  var preset    = (document.getElementById('st_uploadPreset') || {}).value || '';
+  var statusEl  = document.getElementById('cloudinaryStatus');
+  cloudName = cloudName.trim(); preset = preset.trim();
+
+  if (!statusEl) { alert('Please open Store Settings tab first'); return; }
+  if (!cloudName || !preset) {
+    statusEl.style.cssText = 'display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
+    statusEl.textContent = 'Enter both Cloud Name and Upload Preset first';
+    return;
+  }
+  statusEl.style.cssText = 'display:block;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
+  statusEl.textContent = 'Testing Cloudinary connection...';
+
+  try {
+    var fd = new FormData();
+    fd.append('file', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAABjE+ibYAAAAASUVORK5CYII=');
+    fd.append('upload_preset', preset);
+    var res2 = await fetch('https://api.cloudinary.com/v1_1/' + cloudName + '/image/upload', { method: 'POST', body: fd });
+    var data = await res2.json();
+    if (data.secure_url) {
+      statusEl.style.cssText = 'display:block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
+      statusEl.textContent = 'Connected! Cloud: ' + cloudName + '. Now click Save All Settings to activate.';
+    } else {
+      statusEl.style.cssText = 'display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
+      statusEl.textContent = 'Error: ' + ((data.error && data.error.message) || JSON.stringify(data).substring(0,120));
+    }
+  } catch(e) {
+    statusEl.style.cssText = 'display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
+    statusEl.textContent = 'Network error: ' + e.message;
+  }
+}
 </script>
 
 <script>
@@ -2913,46 +2947,6 @@ function impDownloadTemplate(supplier) {
   a.download = 'shophere_import_' + supplier + '.csv';
   a.click();
   toast('📄 Template downloaded — fill in your products then upload below');
-}
-
-async function testCloudinary() {
-  const cloudName = document.getElementById('st_cloudName').value.trim();
-  const preset    = document.getElementById('st_uploadPreset').value.trim();
-  const statusEl  = document.getElementById('cloudinaryStatus');
-
-  if (!cloudName || !preset) {
-    statusEl.style.cssText = 'display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
-    statusEl.textContent = 'Enter both Cloud Name and Upload Preset first';
-    return;
-  }
-
-  statusEl.style.cssText = 'display:block;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
-  statusEl.textContent = 'Testing Cloudinary connection...';
-
-  try {
-    const fd = new FormData();
-    fd.append('file', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAABjE+ibYAAAAASUVORK5CYII=');
-    fd.append('upload_preset', preset);
-    fd.append('folder', 'shophere_test');
-
-    const res  = await fetch('https://api.cloudinary.com/v1_1/' + cloudName + '/image/upload', {
-      method: 'POST',
-      body: fd
-    });
-    const data = await res.json();
-
-    if (data.secure_url) {
-      statusEl.style.cssText = 'display:block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
-      statusEl.textContent = 'Connected! Cloud: ' + cloudName + '. Click Save All Settings to activate.';
-    } else {
-      const msg = (data.error && data.error.message) || JSON.stringify(data).substring(0, 100);
-      statusEl.style.cssText = 'display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
-      statusEl.textContent = 'Cloudinary error: ' + msg;
-    }
-  } catch(e) {
-    statusEl.style.cssText = 'display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;font-size:.78rem;font-weight:600;margin-top:8px';
-    statusEl.textContent = 'Network error: ' + e.message;
-  }
 }
 
 async function loadPushedProducts() {
