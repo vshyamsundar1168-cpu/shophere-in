@@ -702,6 +702,7 @@ if(window.location.protocol==='file:'){
         <p style="font-size:.8rem;color:var(--m)">Update stock levels, bulk price changes, and view low stock alerts.</p>
       </div>
       <div style="display:flex;gap:8px">
+        <button onclick="repairImages()" style="padding:9px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">🔧 Repair Images</button>
         <button onclick="invSaveAll()" style="padding:9px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">💾 Save All Changes</button>
         <button onclick="loadInventory()" style="padding:9px 16px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">🔄 Refresh</button>
       </div>
@@ -1254,6 +1255,36 @@ async function loadCustomCols() {
     var res = await fetch('/api/customcolumns');
     window.allCustomCols = allCustomCols = await res.json();
   } catch(e) { allCustomCols = []; }
+}
+
+async function repairImages() {
+  if (!confirm('This will scan all products and re-upload broken/supplier images to Cloudinary.\n\nThis may take 1-5 minutes depending on number of products.\n\nContinue?')) return;
+
+  const btn = document.querySelector('button[onclick="repairImages()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Repairing...'; }
+  toast('Repairing images... this may take a few minutes');
+
+  try {
+    const res  = await fetch('/api/repair-images', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Server error');
+
+    const msg = 'Repair complete!\n' +
+      data.fixed + ' products updated\n' +
+      data.skipped + ' already OK\n' +
+      (data.failed ? data.failed + ' failed' : '');
+    alert(msg);
+    toast('Image repair complete — ' + data.fixed + ' products updated');
+
+    // Reload inventory and products
+    if (typeof loadInventory === 'function') loadInventory();
+    if (typeof loadProducts === 'function') loadProducts();
+  } catch(e) {
+    toast('Repair error: ' + e.message);
+    alert('Error: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔧 Repair Images'; }
+  }
 }
 
 // saveSettings stub — ensures button works even if page hasn't fully parsed yet

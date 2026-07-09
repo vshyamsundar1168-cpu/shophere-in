@@ -808,6 +808,65 @@ const server = http.createServer(async (req, res) => {
       catch(e) { return sendJSON(res, 400, { error: e.message }); }
     }
 
+    // ── REPAIR IMAGES — re-mirror broken URLs through Cloudinary ────────────────
+    // POST /api/repair-images — fixes all products with /uploads/ or supplier URLs
+    if (p === '/api/repair-images' && m === 'POST') {
+      const db   = getDb();
+      const all  = await db.collection('products').find({}, { projection: { id:1, name:1, images:1 } }).toArray();
+      let fixed = 0, skipped = 0, failed = 0;
+      const results = [];
+
+      for (const prod of all) {
+        if (!prod.images || !prod.images.length) { skipped++; continue; }
+
+        // Check if any image needs fixing
+        const needsFix = prod.images.some(img =>
+          img.url && (
+            img.url.startsWith('/uploads/') ||   // local Render path — gone after redeploy
+            (!img.url.includes('cloudinary.com') && img.url.startsWith('http')) // external supplier URL
+          )
+        );
+        if (!needsFix) { skipped++; continue; }
+
+        const newImages = [];
+        for (const img of prod.images) {
+          if (!img.url) { newImages.push(img); continue; }
+
+          // Already on Cloudinary — keep as is
+          if (img.url.includes('cloudinary.com')) { newImages.push(img); continue; }
+
+          // Local /uploads/ path — image is gone, remove it
+          if (img.url.startsWith('/uploads/')) {
+            console.log(`[REPAIR] removing dead local URL: ${img.url}`);
+            continue; // skip — can't recover
+          }
+
+          // External URL — try to mirror to Cloudinary
+          try {
+            const cloudUrl = await mirrorImageToCloudinary(img.url);
+            if (cloudUrl && cloudUrl !== img.url) {
+              newImages.push({ ...img, url: cloudUrl });
+              console.log(`[REPAIR] mirrored: ${img.url} → ${cloudUrl}`);
+            } else {
+              newImages.push(img); // keep original if mirror failed
+            }
+          } catch(e) {
+            newImages.push(img);
+          }
+        }
+
+        await db.collection('products').updateOne(
+          { _id: prod._id },
+          { $set: { images: newImages } }
+        );
+        fixed++;
+        results.push({ id: prod.id, name: prod.name, imageCount: newImages.length });
+      }
+
+      console.log(`[REPAIR] done — fixed:${fixed} skipped:${skipped} failed:${failed}`);
+      return sendJSON(res, 200, { fixed, skipped, failed, results: results.slice(0, 50) });
+    }
+
     // ── PUSH PRODUCT (from Chrome extension) ─────────────────────────────────
     if (p === '/api/push-product' && m === 'POST') {
       const body = await readJSON(req);
