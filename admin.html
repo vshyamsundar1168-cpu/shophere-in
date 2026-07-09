@@ -79,6 +79,7 @@ if(window.location.protocol==='file:'){
     <div class="sb-item" onclick="showTab('discounts',this)">🏷️ Discounts</div>
     <div class="sb-item" onclick="showTab('customcols',this)">🗃️ Custom Columns</div>
     <div class="sb-item" onclick="showTab('import',this)">📥 Supplier Import</div>
+    <div class="sb-item" onclick="showTab('extension',this)">🧩 Push Extension</div>
     <div class="sb-item sb-bottom"><a href="/" target="_blank">🏠 View Store</a></div>
   </div>
 </div>
@@ -551,6 +552,24 @@ if(window.location.protocol==='file:'){
             </div>
           </div>
         </div>
+
+        <hr style="margin:16px 0;border-color:var(--b)">
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">🧩 Chrome Extension — Push to Store</h4>
+        <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Set a Push Token to secure your extension. Copy this token into the extension settings so only you can push products.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Push Token <small style="color:var(--m);font-weight:400">(any secret word/phrase you choose)</small></label>
+            <div style="position:relative;display:flex;align-items:center">
+              <input id="st_pushtoken" type="password" placeholder="e.g. mysecret123" style="width:100%;padding:10px 40px 10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈'" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem">👁️</button>
+            </div>
+          </div>
+          <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end">
+            <button onclick="showTab('extension',document.querySelector('.sb-item[onclick*=extension]'))" style="padding:9px 14px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">
+              🧩 Install Extension →
+            </button>
+          </div>
+        </div>
         <button class="btn btn-primary" style="margin-top:8px" onclick="saveSettings()">💾 Save All Settings</button>
       </div>
     </div>
@@ -815,6 +834,124 @@ if(window.location.protocol==='file:'){
   </div>
 </div>
 
+<!-- PUSH EXTENSION TAB -->
+<div id="tab-extension" class="tab">
+  <div class="sec">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🧩 Push to ShopHere.in — Chrome Extension</h3>
+        <p style="font-size:.8rem;color:var(--m)">Browse any supplier website and push products directly to your store with one click. Works on DropshipIndia, CJ Dropshipping, Hubbazaar, AliExpress, Amazon, Flipkart and any other product page.</p>
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px">✨ How it works</h4>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:2rem;margin-bottom:8px">🔌</div>
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">1. Install Extension</div>
+          <div style="font-size:.75rem;color:var(--m)">Load the extension folder into Chrome in Developer mode</div>
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:2rem;margin-bottom:8px">⚙️</div>
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">2. Configure Once</div>
+          <div style="font-size:.75rem;color:var(--m)">Enter your store URL and push token in the extension popup</div>
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:2rem;margin-bottom:8px">🛍️</div>
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">3. Browse Supplier</div>
+          <div style="font-size:.75rem;color:var(--m)">Open any product page on any supplier website</div>
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:2rem;margin-bottom:8px">🚀</div>
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">4. Push to Store</div>
+          <div style="font-size:.75rem;color:var(--m)">Click the extension icon, set markup, click Push — done!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1: Set push token -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="background:#f97316;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">1</div>
+        <h4 style="font-size:.88rem;font-weight:700">Set a Push Token (security key)</h4>
+      </div>
+      <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Go to <strong>Store Settings → Chrome Extension section</strong> → set a Push Token (any secret word). This prevents unauthorized pushes to your store.</p>
+      <button onclick="showTab('settings', document.querySelector('.sb-item[onclick*=settings]'))" style="padding:9px 18px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">
+        ⚙️ Go to Settings → Set Push Token
+      </button>
+    </div>
+
+    <!-- Step 2: Install extension -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="background:#f97316;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">2</div>
+        <h4 style="font-size:.88rem;font-weight:700">Install the Extension in Chrome</h4>
+      </div>
+      <ol style="font-size:.82rem;color:#475569;line-height:2;padding-left:20px">
+        <li>Open <strong>Chrome</strong> browser on your computer</li>
+        <li>Go to <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px">chrome://extensions</code> in the address bar</li>
+        <li>Turn on <strong>Developer mode</strong> (toggle in top-right corner)</li>
+        <li>Click <strong>"Load unpacked"</strong> button</li>
+        <li>Navigate to your project folder: <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px">Kiro 1 → extension</code></li>
+        <li>Select the <strong>extension</strong> folder and click OK</li>
+        <li>The <strong>"Push to ShopHere.in"</strong> extension icon will appear in Chrome toolbar</li>
+      </ol>
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:.78rem;color:#166534">
+        💡 <strong>Extension folder location:</strong> <code style="background:#dcfce7;padding:1px 6px;border-radius:4px">C:\Users\Yadadri Manufacturer\Desktop\Kiro 1\extension</code>
+      </div>
+    </div>
+
+    <!-- Step 3: Configure extension -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="background:#f97316;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">3</div>
+        <h4 style="font-size:.88rem;font-weight:700">Configure Extension — Store URL &amp; Token</h4>
+      </div>
+      <ol style="font-size:.82rem;color:#475569;line-height:2;padding-left:20px">
+        <li>Click the <strong>"Push to ShopHere.in"</strong> extension icon in Chrome toolbar</li>
+        <li>Click the <strong>⚙️ Settings</strong> icon in the popup</li>
+        <li>Enter your <strong>Store URL:</strong> <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px">https://shophere.in</code></li>
+        <li>Enter your <strong>Push Token</strong> (same one you set in Step 1)</li>
+        <li>Click <strong>Save &amp; Connect</strong> — it will test the connection</li>
+      </ol>
+    </div>
+
+    <!-- Step 4: Use it -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="background:#22c55e;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">4</div>
+        <h4 style="font-size:.88rem;font-weight:700">Browse Any Supplier &amp; Push Products</h4>
+      </div>
+      <ol style="font-size:.82rem;color:#475569;line-height:2;padding-left:20px">
+        <li>Go to any supplier website — DropshipIndia, CJ Dropshipping, Hubbazaar, AliExpress, Amazon, Flipkart etc.</li>
+        <li>Open a <strong>specific product page</strong> (not category or home page)</li>
+        <li>Click the <strong>🧩 Push to ShopHere.in</strong> extension icon</li>
+        <li>It auto-scrapes: product name, price, images, description</li>
+        <li>Set your <strong>Markup %</strong> — your selling price is calculated automatically</li>
+        <li>Edit name, category, stock as needed</li>
+        <li>Click <strong>🚀 Push to ShopHere.in</strong> — product is added instantly!</li>
+      </ol>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:.78rem;color:#1d4ed8">
+        ✅ <strong>Supported suppliers:</strong> DropshipIndia · CJ Dropshipping · Hubbazaar · AliExpress · Amazon.in · Flipkart · Any Shopify store · Any WooCommerce store · <em>and any other product page on the web</em>
+      </div>
+    </div>
+
+    <!-- Pushed products list -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <h4 style="font-size:.88rem;font-weight:700">📦 Recently Pushed Products</h4>
+        <button onclick="loadPushedProducts()" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer">🔄 Refresh</button>
+      </div>
+      <div id="pushedProductsList" style="overflow-x:auto">
+        <p style="font-size:.8rem;color:var(--m)">Click Refresh to see products pushed via the extension.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- SUPPLIER IMPORT TAB -->
 <div id="tab-import" class="tab">
   <div class="sec">
@@ -1026,7 +1163,7 @@ function showTab(name, el) {
     dashboard: 'Dashboard', products: 'Products', addProduct: 'Add Product',
     orders: 'Orders', reviews: 'Reviews', banners: 'Banners',
     categories: 'Categories', settings: 'Store Settings', pagebuilder: 'Page Builder',
-    inventory: 'Inventory', discounts: 'Discounts', customcols: 'Custom Columns', import: 'Supplier Import'
+    inventory: 'Inventory', discounts: 'Discounts', customcols: 'Custom Columns', import: 'Supplier Import', extension: 'Push Extension'
   };
   document.getElementById('tabTitle').textContent = titles[name] || name;
   if (name === 'dashboard') loadStats();
@@ -1042,6 +1179,7 @@ function showTab(name, el) {
   if (name === 'discounts')   loadDiscounts();
   if (name === 'customcols')  loadCustomCols();
   if (name === 'import')      initImportTab();
+  if (name === 'extension')   {} // static page, no init needed
 }
 
 // ── Global categories store ───────────────────────────────────────────────────
@@ -1627,6 +1765,7 @@ async function loadSettings() {
     if (s.returnPolicy !== undefined) document.getElementById('st_returns').value = s.returnPolicy;
     if (s.faqText !== undefined) document.getElementById('st_faq').value = s.faqText;
     if (s.adminUsername !== undefined) document.getElementById('st_adminuser').value = s.adminUsername;
+    if (s.pushToken !== undefined) { const el = document.getElementById('st_pushtoken'); if(el) el.value = s.pushToken; }
     // Text colors — area by area
     const colorMap = {
       'st_colorAnnoText':'colorAnnoText','st_colorAnnoBg':'colorAnnoBg',
@@ -1728,6 +1867,8 @@ async function saveSettings() {
   const adminPass = document.getElementById('st_adminpass').value.trim();
   if (adminUser) fd.append('adminUsername', adminUser);
   if (adminPass) fd.append('adminPassword', adminPass);
+  const pushTok = document.getElementById('st_pushtoken').value.trim();
+  if (pushTok) fd.append('pushToken', pushTok);
   const logoFile = document.getElementById('st_logo').files[0];
   if (logoFile) fd.append('logo', logoFile);
   try {
@@ -2716,6 +2857,39 @@ function impDownloadTemplate(supplier) {
   a.download = 'shophere_import_' + supplier + '.csv';
   a.click();
   toast('📄 Template downloaded — fill in your products then upload below');
+}
+
+async function loadPushedProducts() {
+  try {
+    const res  = await fetch('/api/products?limit=500');
+    const data = await res.json();
+    const prods = (data.products || data).filter(p => p.importMethod === 'extension');
+    const el = document.getElementById('pushedProductsList');
+    if (!el) return;
+    if (!prods.length) {
+      el.innerHTML = '<p style="font-size:.8rem;color:var(--m)">No products pushed via extension yet. Install the extension and push your first product!</p>';
+      return;
+    }
+    el.innerHTML = `<table class="data-table">
+      <thead><tr><th>Image</th><th>Name</th><th>Source Site</th><th>Supplier Price</th><th>Your Price</th><th>Stock</th><th>Date</th></tr></thead>
+      <tbody>${prods.slice(0,20).map(p => {
+        const img = p.images && p.images.length
+          ? `<img src="${p.images[0].url}" style="width:40px;height:40px;object-fit:cover;border-radius:6px">`
+          : '📦';
+        return `<tr>
+          <td>${img}</td>
+          <td style="font-size:.82rem"><strong>${p.name}</strong></td>
+          <td style="font-size:.78rem;color:var(--m)">${p.supplier||'—'}</td>
+          <td style="font-size:.82rem">₹${(p.supplierPrice||0).toLocaleString('en-IN')}</td>
+          <td style="font-size:.82rem;font-weight:700;color:#22c55e">₹${(p.price||0).toLocaleString('en-IN')}</td>
+          <td style="font-size:.78rem">${p.stock}</td>
+          <td style="font-size:.75rem;color:var(--m)">${p.importedAt ? new Date(p.importedAt).toLocaleDateString('en-IN') : '—'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  } catch(e) {
+    toast('❌ Could not load pushed products: ' + e.message);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

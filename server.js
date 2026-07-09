@@ -305,7 +305,7 @@ const server = http.createServer(async (req, res) => {
       } else {
         fields = await readJSON(req);
       }
-      const KEYS = ['storeName','primaryColor','announcementBar','scrollingText','contactEmail','contactPhone','contactAddress','freeShippingThreshold','footerText','termsAndConditions','privacyPolicy','returnPolicy','faqText','adminUsername','adminPassword','bannerSizeVal','bannerSizeUnit','bannerFit','bannerTextSize','bannerPos','bannerTextColor','colorAnnoText','colorAnnoBg','colorTopBarText','colorProdName','colorProdPrice','colorProdBrand','colorHeading','colorBody','colorLink','colorFooterText','colorFooterHead','colorNavText','prodImgHeight','prodNameSize','prodPriceSize','prodCardBg','prodCardRadius','badgeNewBg','badgeDealBg','badgeHotBg','colorBg','colorBtnCart','colorBtnBuy','colorNavBg','colorFooterBg','font_heading','font_body','font_productName','font_productPrice','font_productBrand','font_navigation','font_footer','font_announcementBar','fontSize_heading','fontSize_body','fontSize_productName','fontSize_productPrice','fontSize_productBrand','fontSize_navigation','fontSize_footer','fontSize_announcementBar','fontWeight_heading','fontWeight_body','fontWeight_productName','fontWeight_productPrice','fontWeight_productBrand','fontWeight_navigation','fontWeight_footer','fontWeight_announcementBar','textColor_heading','textColor_body','textColor_productName','textColor_productPrice','textColor_productBrand','textColor_navigation','textColor_footer','textColor_announcementBar','visualOverrides'];
+      const KEYS = ['storeName','primaryColor','announcementBar','scrollingText','contactEmail','contactPhone','contactAddress','freeShippingThreshold','footerText','termsAndConditions','privacyPolicy','returnPolicy','faqText','adminUsername','adminPassword','pushToken','bannerSizeVal','bannerSizeUnit','bannerFit','bannerTextSize','bannerPos','bannerTextColor','colorAnnoText','colorAnnoBg','colorTopBarText','colorProdName','colorProdPrice','colorProdBrand','colorHeading','colorBody','colorLink','colorFooterText','colorFooterHead','colorNavText','prodImgHeight','prodNameSize','prodPriceSize','prodCardBg','prodCardRadius','badgeNewBg','badgeDealBg','badgeHotBg','colorBg','colorBtnCart','colorBtnBuy','colorNavBg','colorFooterBg','font_heading','font_body','font_productName','font_productPrice','font_productBrand','font_navigation','font_footer','font_announcementBar','fontSize_heading','fontSize_body','fontSize_productName','fontSize_productPrice','fontSize_productBrand','fontSize_navigation','fontSize_footer','fontSize_announcementBar','fontWeight_heading','fontWeight_body','fontWeight_productName','fontWeight_productPrice','fontWeight_productBrand','fontWeight_navigation','fontWeight_footer','fontWeight_announcementBar','textColor_heading','textColor_body','textColor_productName','textColor_productPrice','textColor_productBrand','textColor_navigation','textColor_footer','textColor_announcementBar','visualOverrides'];
       const $set = {};
       KEYS.forEach(k => { if (fields[k] !== undefined) $set[k] = fields[k]; });
       const logo = files.find(f => f.fieldName==='logo' && f.data && f.data.length>0);
@@ -668,6 +668,63 @@ const server = http.createServer(async (req, res) => {
       const { ObjectId } = require('mongodb');
       try { await db.collection('discounts').deleteOne({ _id: new ObjectId(discid[1]) }); return sendJSON(res, 200, { deleted:true }); }
       catch(e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+
+    // ── PUSH PRODUCT (from Chrome extension) ─────────────────────────────────
+    if (p === '/api/push-product' && m === 'POST') {
+      const body = await readJSON(req);
+
+      // Token check — if a push token is configured in settings, verify it
+      const db      = getDb();
+      const settings = await db.collection('settings').findOne({}, { projection: { pushToken: 1 } }) || {};
+      if (settings.pushToken && settings.pushToken.trim()) {
+        if (body.pushToken !== settings.pushToken) {
+          return sendJSON(res, 401, { error: 'Invalid push token. Check your extension settings.' });
+        }
+      }
+
+      const name = (body.name || '').trim();
+      if (!name)  return sendJSON(res, 400, { error: 'Product name is required' });
+      const price = parseFloat(body.price) || 0;
+      if (!price) return sendJSON(res, 400, { error: 'Price is required' });
+
+      // Auto-create category if new
+      const cat = (body.category || 'Imported').trim();
+      const catExists = await db.collection('categories').findOne({ name: cat });
+      if (!catExists) await db.collection('categories').insertOne({ name: cat });
+
+      // Build images array from URLs
+      const imageUrls = Array.isArray(body.imageUrls) ? body.imageUrls : [];
+      const images    = imageUrls.map(url => ({ url, type: 'image/jpeg', name: 'pushed' }));
+
+      const prod = {
+        id:            nextPid++,
+        name,
+        brand:         (body.brand || '').trim() || 'Unknown',
+        category:      cat,
+        description:   (body.description || '').trim(),
+        price,
+        originalPrice: parseFloat(body.originalPrice) || Math.ceil(price * 1.3),
+        stock:         parseInt(body.stock) || 10,
+        badge:         (body.badge || '').toLowerCase().trim(),
+        featured:      false,
+        rating:        0,
+        reviewCount:   0,
+        images,
+        videos:        [],
+        audios:        [],
+        supplier:      (body.sourceSite || '').trim(),
+        supplierPrice: parseFloat(body.supplierPrice) || 0,
+        sourceUrl:     (body.sourceUrl || '').trim(),
+        sku:           (body.sku || '').trim(),
+        importedAt:    new Date().toISOString(),
+        importMethod:  'extension',
+      };
+
+      await db.collection('products').insertOne(prod);
+      const { _id, ...prodOut } = prod;
+      console.log(`[PUSH] "${prod.name}" from ${prod.supplier} — id:${prod.id}`);
+      return sendJSON(res, 201, prodOut);
     }
 
     // ── SUPPLIER IMPORT ───────────────────────────────────────────────────────
