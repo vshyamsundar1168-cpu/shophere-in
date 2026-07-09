@@ -1209,6 +1209,36 @@ function populateCatDropdown(selectId, includeAll) {
 </script>
 
 <script>
+// ── Custom Columns stubs — real implementations loaded later in this file ─────
+// These ensure renderProdTable and renderInventory never crash with "not defined"
+// even though the full CC code lives in a later <script> block.
+var allCustomCols = [];
+function ccForTable(context) {
+  return (window.allCustomCols || []).filter(function(c) {
+    var s = Array.isArray(c.showIn) ? c.showIn : [c.showIn || 'inventory'];
+    return s.includes(context) || s.includes('both');
+  });
+}
+function ccRenderInput(col, value) {
+  var v = (value !== undefined && value !== null) ? value : '';
+  var s = 'width:100px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none';
+  if (col.type === 'select') {
+    var opts = '<option value="">—</option>' + (col.options||[]).map(function(o){return '<option'+(o===v?' selected':'')+'>'+o+'</option>';}).join('');
+    return '<select class="cc-field" data-key="'+col.key+'" style="'+s+'">'+opts+'</select>';
+  }
+  if (col.type === 'number') return '<input type="number" class="cc-field" data-key="'+col.key+'" value="'+v+'" style="'+s+'">';
+  if (col.type === 'date')   return '<input type="date"   class="cc-field" data-key="'+col.key+'" value="'+v+'" style="width:120px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none">';
+  return '<input type="text" class="cc-field" data-key="'+col.key+'" value="'+v+'" placeholder="—" style="'+s+'">';
+}
+async function loadCustomCols() {
+  try {
+    var res = await fetch('/api/customcolumns');
+    window.allCustomCols = allCustomCols = await res.json();
+  } catch(e) { allCustomCols = []; }
+}
+</script>
+
+<script>
 // ── Stats / Dashboard ─────────────────────────────────────────────────────────
 async function loadStats() {
   try {
