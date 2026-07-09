@@ -297,7 +297,7 @@ async function uploadToCloudinary(fileData, mimeType, filename) {
 // Fetch a supplier image URL and re-upload to Cloudinary
 // Solves hotlink blocking from supplier sites
 async function mirrorImageToCloudinary(imageUrl) {
-  if (!CLOUDINARY_CLOUD_NAME || !imageUrl || !imageUrl.startsWith('http')) return imageUrl;
+  if (!_cloudName || !imageUrl || !imageUrl.startsWith('http')) return imageUrl;
   if (imageUrl.includes('cloudinary.com')) return imageUrl; // already on Cloudinary
 
   return new Promise((resolve) => {
@@ -306,21 +306,24 @@ async function mirrorImageToCloudinary(imageUrl) {
       const http2  = require('http');
       const client = imageUrl.startsWith('https') ? https : http2;
 
-      const req = client.get(imageUrl, { headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': imageUrl } }, (res) => {
+      const req = client.get(imageUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Referer': new URL(imageUrl).origin },
+        timeout: 15000
+      }, (res) => {
         if (res.statusCode !== 200) { resolve(imageUrl); return; }
         const chunks = [];
         res.on('data', c => chunks.push(c));
         res.on('end', async () => {
           const data     = Buffer.concat(chunks);
-          const mimeType = res.headers['content-type'] || 'image/jpeg';
-          const ext      = mimeType.includes('png') ? '.png' : mimeType.includes('gif') ? '.gif' : '.jpg';
+          const mimeType = (res.headers['content-type'] || 'image/jpeg').split(';')[0].trim();
+          const ext      = mimeType.includes('png') ? '.png' : mimeType.includes('gif') ? '.gif' : mimeType.includes('webp') ? '.webp' : '.jpg';
           const cloudUrl = await uploadToCloudinary(data, mimeType, 'supplier' + ext);
-          resolve(cloudUrl || imageUrl); // fall back to original if upload fails
+          resolve(cloudUrl || imageUrl);
         });
         res.on('error', () => resolve(imageUrl));
       });
       req.on('error', () => resolve(imageUrl));
-      req.setTimeout(15000, () => { req.destroy(); resolve(imageUrl); });
+      req.on('timeout', () => { req.destroy(); resolve(imageUrl); });
     } catch(e) { resolve(imageUrl); }
   });
 }
@@ -809,62 +812,51 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ── REPAIR IMAGES — re-mirror broken URLs through Cloudinary ────────────────
-    // POST /api/repair-images — fixes all products with /uploads/ or supplier URLs
     if (p === '/api/repair-images' && m === 'POST') {
       const db   = getDb();
       const all  = await db.collection('products').find({}, { projection: { id:1, name:1, images:1 } }).toArray();
-      let fixed = 0, skipped = 0, failed = 0;
+      let fixed = 0, skipped = 0;
       const results = [];
 
       for (const prod of all) {
         if (!prod.images || !prod.images.length) { skipped++; continue; }
 
-        // Check if any image needs fixing
         const needsFix = prod.images.some(img =>
-          img.url && (
-            img.url.startsWith('/uploads/') ||   // local Render path — gone after redeploy
-            (!img.url.includes('cloudinary.com') && img.url.startsWith('http')) // external supplier URL
-          )
+          img.url && !img.url.includes('cloudinary.com') && img.url.startsWith('http')
         );
         if (!needsFix) { skipped++; continue; }
 
         const newImages = [];
         for (const img of prod.images) {
-          if (!img.url) { newImages.push(img); continue; }
-
-          // Already on Cloudinary — keep as is
+          if (!img.url) continue;
+          // Already on Cloudinary — keep
           if (img.url.includes('cloudinary.com')) { newImages.push(img); continue; }
-
-          // Local /uploads/ path — image is gone, remove it
-          if (img.url.startsWith('/uploads/')) {
-            console.log(`[REPAIR] removing dead local URL: ${img.url}`);
-            continue; // skip — can't recover
-          }
-
-          // External URL — try to mirror to Cloudinary
+          // Dead local /uploads/ path — skip but DON'T remove (can't recover anyway)
+          if (img.url.startsWith('/uploads/')) { continue; }
+          // External URL — try mirror, ALWAYS keep original if mirror fails
           try {
             const cloudUrl = await mirrorImageToCloudinary(img.url);
-            if (cloudUrl && cloudUrl !== img.url) {
-              newImages.push({ ...img, url: cloudUrl });
-              console.log(`[REPAIR] mirrored: ${img.url} → ${cloudUrl}`);
-            } else {
-              newImages.push(img); // keep original if mirror failed
-            }
+            newImages.push({ ...img, url: cloudUrl }); // cloudUrl is always set (falls back to original)
           } catch(e) {
-            newImages.push(img);
+            newImages.push(img); // keep original on any error
           }
         }
 
-        await db.collection('products').updateOne(
-          { _id: prod._id },
-          { $set: { images: newImages } }
-        );
-        fixed++;
-        results.push({ id: prod.id, name: prod.name, imageCount: newImages.length });
+        // Only update if we actually changed something
+        if (JSON.stringify(newImages) !== JSON.stringify(prod.images)) {
+          await db.collection('products').updateOne(
+            { _id: prod._id },
+            { $set: { images: newImages } }
+          );
+          fixed++;
+          results.push({ id: prod.id, name: prod.name, imageCount: newImages.length });
+        } else {
+          skipped++;
+        }
       }
 
-      console.log(`[REPAIR] done — fixed:${fixed} skipped:${skipped} failed:${failed}`);
-      return sendJSON(res, 200, { fixed, skipped, failed, results: results.slice(0, 50) });
+      console.log(`[REPAIR] done — fixed:${fixed} skipped:${skipped}`);
+      return sendJSON(res, 200, { fixed, skipped, results: results.slice(0, 50) });
     }
 
     // ── PUSH PRODUCT (from Chrome extension) ─────────────────────────────────
