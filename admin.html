@@ -77,6 +77,7 @@ if(window.location.protocol==='file:'){
     <div class="sb-item" onclick="showTab('pagebuilder',this)">🏗️ Page Builder</div>
     <div class="sb-item" onclick="showTab('inventory',this)">📊 Inventory</div>
     <div class="sb-item" onclick="showTab('discounts',this)">🏷️ Discounts</div>
+    <div class="sb-item" onclick="showTab('customcols',this)">🗃️ Custom Columns</div>
     <div class="sb-item sb-bottom"><a href="/" target="_blank">🏠 View Store</a></div>
   </div>
 </div>
@@ -738,6 +739,81 @@ if(window.location.protocol==='file:'){
   </div>
 </div>
 
+<!-- CUSTOM COLUMNS TAB -->
+<div id="tab-customcols" class="tab">
+  <div class="sec">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🗃️ Custom Columns</h3>
+        <p style="font-size:.8rem;color:var(--m)">Add extra data fields (SKU, Supplier, Location, HSN Code, etc.) that appear as columns in Inventory and Products tables. Data is saved per product.</p>
+      </div>
+      <button onclick="ccOpenAdd()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Add New Column</button>
+    </div>
+
+    <!-- Column list -->
+    <div id="ccList" style="display:grid;gap:10px;margin-bottom:28px"></div>
+
+    <!-- Quick preview of where columns appear -->
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px">
+      <h4 style="font-size:.84rem;font-weight:700;margin-bottom:10px;color:#475569">📌 How it works</h4>
+      <ul style="font-size:.8rem;color:#64748b;line-height:1.8;padding-left:18px">
+        <li>Create a column once — it appears for <strong>all products</strong> in the chosen table(s).</li>
+        <li>Go to <strong>Inventory</strong> tab to fill in values for each product inline.</li>
+        <li>Go to <strong>Products</strong> tab to see the columns alongside standard product data.</li>
+        <li>Column types: <strong>Text</strong>, <strong>Number</strong>, <strong>Dropdown</strong>, <strong>Date</strong>.</li>
+        <li>Deleting a column removes its data from all products permanently.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT COLUMN MODAL -->
+<div class="overlay" id="ccModal">
+  <div class="modal">
+    <div class="modal-hdr"><h3 id="ccModalTitle">Add Custom Column</h3><button class="modal-close" onclick="closeCcModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Column Label <small style="color:var(--m);font-weight:400">(shown as table header)</small></label>
+        <input id="cc_label" placeholder="e.g. SKU, Supplier, Warehouse, HSN Code" oninput="ccAutoKey()">
+      </div>
+      <div class="form-group">
+        <label>Field Key <small style="color:var(--m);font-weight:400">(auto-generated, lowercase, no spaces)</small></label>
+        <input id="cc_key" placeholder="e.g. sku, supplier, hsn_code" style="font-family:monospace;font-size:.84rem">
+        <small style="color:var(--m)">Used internally to store data. Cannot be changed after saving.</small>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Field Type</label>
+          <select id="cc_type" onchange="ccTypeChanged()" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+            <option value="text">📝 Text</option>
+            <option value="number">🔢 Number</option>
+            <option value="select">📋 Dropdown</option>
+            <option value="date">📅 Date</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Show In</label>
+          <select id="cc_showin" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
+            <option value="inventory">📊 Inventory only</option>
+            <option value="products">📦 Products only</option>
+            <option value="both">✅ Both tables</option>
+          </select>
+        </div>
+      </div>
+      <div id="cc_optionsGroup" style="display:none">
+        <div class="form-group">
+          <label>Dropdown Options <small style="color:var(--m);font-weight:400">(one per line)</small></label>
+          <textarea id="cc_options" placeholder="Option 1&#10;Option 2&#10;Option 3" style="min-height:90px;font-size:.84rem"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="ccSave()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Column</button>
+        <button onclick="closeCcModal()" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;font-size:.84rem;cursor:pointer">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- end .main -->
 </div><!-- end .admin-wrap -->
 
@@ -782,7 +858,7 @@ function showTab(name, el) {
     dashboard: 'Dashboard', products: 'Products', addProduct: 'Add Product',
     orders: 'Orders', reviews: 'Reviews', banners: 'Banners',
     categories: 'Categories', settings: 'Store Settings', pagebuilder: 'Page Builder',
-    inventory: 'Inventory', discounts: 'Discounts'
+    inventory: 'Inventory', discounts: 'Discounts', customcols: 'Custom Columns'
   };
   document.getElementById('tabTitle').textContent = titles[name] || name;
   if (name === 'dashboard') loadStats();
@@ -796,6 +872,7 @@ function showTab(name, el) {
   if (name === 'pagebuilder') pbLoadBlocks();
   if (name === 'inventory')   loadInventory();
   if (name === 'discounts')   loadDiscounts();
+  if (name === 'customcols')  loadCustomCols();
 }
 
 // ── Global categories store ───────────────────────────────────────────────────
@@ -859,9 +936,12 @@ let allProds = [];
 
 async function loadProducts() {
   try {
-    const res = await fetch('/api/products?limit=500');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+    const [prodRes] = await Promise.all([
+      fetch('/api/products?limit=500'),
+      loadCustomCols()
+    ]);
+    if (!prodRes.ok) throw new Error('HTTP ' + prodRes.status);
+    const data = await prodRes.json();
     allProds = data.products || data;
     populateCatDropdown('prodCatFilter', true);
     renderProdTable(allProds);
@@ -880,11 +960,30 @@ function filterProds() {
 }
 
 function renderProdTable(list) {
+  // Update Products table header with custom cols
+  const prodCols = ccForTable('products');
+  const prodThead = document.querySelector('#tab-products .data-table thead tr');
+  if (prodThead) {
+    prodThead.querySelectorAll('[data-cc]').forEach(th => th.remove());
+    const actionsTh = prodThead.querySelector('th:last-child');
+    prodCols.forEach(c => {
+      const th = document.createElement('th');
+      th.setAttribute('data-cc', c.key);
+      th.textContent = c.label;
+      prodThead.insertBefore(th, actionsTh);
+    });
+  }
+
   document.getElementById('prodBody').innerHTML = list.length ? list.map(p => {
     const img = p.images && p.images.length
       ? `<img src="${p.images[0].url}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">`
       : `<span style="font-size:1.6rem">📦</span>`;
     const stockColor = p.stock === 0 ? 'var(--rd)' : p.stock <= 10 ? '#f97316' : 'var(--g)';
+    const cf = p.customFields || {};
+    const customCells = prodCols.map(c => {
+      const v = cf[c.key] !== undefined && cf[c.key] !== '' ? cf[c.key] : '<span style="color:#cbd5e1">—</span>';
+      return `<td style="font-size:.8rem">${v}</td>`;
+    }).join('');
     return `<tr>
       <td>#${p.id}</td>
       <td>${img}</td>
@@ -894,13 +993,14 @@ function renderProdTable(list) {
       <td style="color:${stockColor};font-weight:700">${p.stock}${p.stock <= 10 && p.stock > 0 ? ' ⚠️' : ''}</td>
       <td>⭐ ${p.rating || 0}</td>
       <td>${p.badge ? `<span class="pc-badge ${p.badge}" style="position:static">${p.badge}</span>` : '—'}</td>
+      ${customCells}
       <td style="white-space:nowrap">
         <button class="btn btn-sm btn-sec" onclick="openEdit(${p.id})">✏️ Edit</button>
         <button class="btn btn-sm" style="margin-left:4px;background:#e0f2fe;color:#0369a1;border:none;border-radius:7px;padding:7px 10px;font-size:.74rem;font-weight:700;cursor:pointer" onclick="openImgMgr(${p.id})">🖼️ Images</button>
         <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteProduct(${p.id})">🗑️</button>
       </td>
     </tr>`;
-  }).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:32px">No products found</td></tr>';
+  }).join('') : '<tr><td colspan="20" style="text-align:center;color:var(--m);padding:32px">No products found</td></tr>';
 }
 
 async function deleteProduct(id) {
@@ -1957,7 +2057,190 @@ async function imgMgrRemove(url) {
   }
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// ── Custom Columns ────────────────────────────────────────────────────────────
+let allCustomCols = [];
+let ccEditId = null;
+
+async function loadCustomCols() {
+  try {
+    const res = await fetch('/api/customcolumns');
+    allCustomCols = await res.json();
+    renderCustomCols();
+  } catch(e) { toast('❌ Could not load custom columns: ' + e.message); }
+}
+
+function renderCustomCols() {
+  const el = document.getElementById('ccList');
+  if (!el) return;
+  if (!allCustomCols.length) {
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--m);background:#fff;border:1px solid #e2e8f0;border-radius:12px">
+      <div style="font-size:3rem;margin-bottom:10px">🗃️</div>
+      <p style="font-weight:600;margin-bottom:6px">No custom columns yet</p>
+      <p style="font-size:.8rem">Add columns like SKU, Supplier, Warehouse Location, HSN Code, Reorder Level, etc.</p>
+    </div>`;
+    return;
+  }
+  const typeIcon = { text:'📝', number:'🔢', select:'📋', date:'📅' };
+  const showLabel = { inventory:'📊 Inventory', products:'📦 Products', both:'✅ Both' };
+  el.innerHTML = allCustomCols.map((c, i) => `
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="background:#f1f5f9;border-radius:8px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">${typeIcon[c.type]||'📝'}</div>
+        <div>
+          <div style="font-size:.9rem;font-weight:700">${c.label}</div>
+          <div style="font-size:.75rem;color:var(--m);margin-top:2px">
+            Key: <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;font-size:.75rem">${c.key}</code>
+            &nbsp;·&nbsp; Type: <strong>${c.type}</strong>
+            &nbsp;·&nbsp; Shows in: <strong>${showLabel[Array.isArray(c.showIn) ? c.showIn.join(',') : c.showIn] || c.showIn}</strong>
+            ${c.type === 'select' && c.options && c.options.length ? `&nbsp;·&nbsp; Options: ${c.options.slice(0,4).join(', ')}${c.options.length>4?'…':''}` : ''}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${i > 0 ? `<button onclick="ccMoveUp('${c.id}')" title="Move up" style="padding:5px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬆</button>` : ''}
+        ${i < allCustomCols.length-1 ? `<button onclick="ccMoveDown('${c.id}')" title="Move down" style="padding:5px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬇</button>` : ''}
+        <button onclick="ccOpenEdit('${c.id}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">✏️ Edit</button>
+        <button onclick="ccDelete('${c.id}','${c.label.replace(/'/g,"\\'")}','${c.key}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">🗑️ Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+function ccAutoKey() {
+  if (ccEditId) return; // don't overwrite key on edit
+  const label = document.getElementById('cc_label').value || '';
+  document.getElementById('cc_key').value = label.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+}
+
+function ccTypeChanged() {
+  const t = document.getElementById('cc_type').value;
+  document.getElementById('cc_optionsGroup').style.display = t === 'select' ? 'block' : 'none';
+}
+
+function ccOpenAdd() {
+  ccEditId = null;
+  document.getElementById('ccModalTitle').textContent = 'Add Custom Column';
+  document.getElementById('cc_label').value = '';
+  document.getElementById('cc_key').value = '';
+  document.getElementById('cc_type').value = 'text';
+  document.getElementById('cc_showin').value = 'inventory';
+  document.getElementById('cc_options').value = '';
+  document.getElementById('cc_optionsGroup').style.display = 'none';
+  document.getElementById('cc_key').removeAttribute('readonly');
+  document.getElementById('ccModal').classList.add('open');
+}
+
+function ccOpenEdit(id) {
+  const c = allCustomCols.find(x => x.id === id);
+  if (!c) return;
+  ccEditId = id;
+  document.getElementById('ccModalTitle').textContent = 'Edit Custom Column';
+  document.getElementById('cc_label').value = c.label;
+  document.getElementById('cc_key').value = c.key;
+  document.getElementById('cc_key').setAttribute('readonly', 'readonly'); // key locked after creation
+  document.getElementById('cc_type').value = c.type || 'text';
+  const showVal = Array.isArray(c.showIn) ? (c.showIn.includes('inventory') && c.showIn.includes('products') ? 'both' : c.showIn[0]) : (c.showIn || 'inventory');
+  document.getElementById('cc_showin').value = showVal;
+  document.getElementById('cc_options').value = (c.options || []).join('\n');
+  ccTypeChanged();
+  document.getElementById('ccModal').classList.add('open');
+}
+
+function closeCcModal() { document.getElementById('ccModal').classList.remove('open'); }
+
+async function ccSave() {
+  const label = document.getElementById('cc_label').value.trim();
+  if (!label) { toast('Enter a column label'); return; }
+  const key = document.getElementById('cc_key').value.trim();
+  if (!key) { toast('Key is required'); return; }
+  const type = document.getElementById('cc_type').value;
+  const showInVal = document.getElementById('cc_showin').value;
+  const showIn = showInVal === 'both' ? ['inventory','products'] : [showInVal];
+  const options = type === 'select'
+    ? document.getElementById('cc_options').value.split('\n').map(s=>s.trim()).filter(Boolean)
+    : [];
+
+  const payload = { label, key, type, showIn, options };
+
+  try {
+    if (ccEditId) {
+      const res = await fetch('/api/customcolumns/' + ccEditId, {
+        method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
+      toast('✅ Column updated');
+    } else {
+      // Check for duplicate key
+      if (allCustomCols.find(c => c.key === key)) { toast('❌ A column with that key already exists'); return; }
+      const res = await fetch('/api/customcolumns', {
+        method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
+      toast('✅ Column added — go to Inventory to fill in values');
+    }
+    closeCcModal();
+    await loadCustomCols();
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+async function ccDelete(id, label, key) {
+  if (!confirm(`Delete column "${label}"?\n\nThis will permanently remove the "${key}" data from ALL products.`)) return;
+  try {
+    const res = await fetch('/api/customcolumns/' + id, { method: 'DELETE' });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
+    toast('✅ Column deleted');
+    await loadCustomCols();
+    // Refresh tables if open
+    if (invProds.length) renderInventory();
+    if (allProds.length) renderProdTable(allProds);
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+async function ccMoveUp(id) {
+  const idx = allCustomCols.findIndex(c => c.id === id);
+  if (idx <= 0) return;
+  [allCustomCols[idx-1], allCustomCols[idx]] = [allCustomCols[idx], allCustomCols[idx-1]];
+  await ccSaveOrder(); renderCustomCols();
+}
+async function ccMoveDown(id) {
+  const idx = allCustomCols.findIndex(c => c.id === id);
+  if (idx < 0 || idx >= allCustomCols.length - 1) return;
+  [allCustomCols[idx], allCustomCols[idx+1]] = [allCustomCols[idx+1], allCustomCols[idx]];
+  await ccSaveOrder(); renderCustomCols();
+}
+async function ccSaveOrder() {
+  try {
+    await fetch('/api/customcolumns/reorder', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ ids: allCustomCols.map(c => c.id) })
+    });
+  } catch(e) {}
+}
+
+// Helper: get custom cols for a specific table context
+function ccForTable(context) {
+  return allCustomCols.filter(c => {
+    const s = Array.isArray(c.showIn) ? c.showIn : [c.showIn];
+    return s.includes(context) || s.includes('both');
+  });
+}
+
+// Render an inline input for a custom field value
+function ccRenderInput(col, value, extraStyle) {
+  const v = value !== undefined && value !== null ? value : '';
+  const s = extraStyle || 'width:100px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none';
+  if (col.type === 'select') {
+    const opts = (col.options || []).map(o => `<option${o===v?' selected':''}>${o}</option>`).join('');
+    return `<select class="cc-field" data-key="${col.key}" data-colid="${col.id}" style="${s}">\n<option value="">—</option>${opts}</select>`;
+  }
+  if (col.type === 'number') {
+    return `<input type="number" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" style="${s}">`;
+  }
+  if (col.type === 'date') {
+    return `<input type="date" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" style="width:120px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none">`;
+  }
+  return `<input type="text" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" placeholder="—" style="${s}">`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // First check if server is reachable
   try {
@@ -1972,6 +2255,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Server OK — load everything
   loadStats();
   loadAllCats();
+  loadCustomCols();
   // Show admin username
   try {
     const s = await fetch('/api/settings').then(r=>r.json());
@@ -1997,8 +2281,11 @@ let invProds = [];
 
 async function loadInventory() {
   try {
-    const res = await fetch('/api/products?limit=500');
-    const data = await res.json();
+    const [prodRes] = await Promise.all([
+      fetch('/api/products?limit=500'),
+      loadCustomCols()
+    ]);
+    const data = await prodRes.json();
     invProds = data.products || data;
     populateCatDropdown('invBulkCat', true);
     renderInventory();
@@ -2022,11 +2309,32 @@ function showLowStockAlert() {
 function renderInventory() {
   const body = document.getElementById('invBody');
   if (!body) return;
+
+  // Get custom cols for inventory context
+  const invCols = ccForTable('inventory');
+
+  // Update table header to include custom cols
+  const thead = document.querySelector('#invTable thead tr');
+  if (thead) {
+    // Remove old custom col headers (data-cc attribute)
+    thead.querySelectorAll('[data-cc]').forEach(th => th.remove());
+    // Add new ones before Status column
+    const statusTh = thead.querySelector('th:last-child');
+    invCols.forEach(c => {
+      const th = document.createElement('th');
+      th.setAttribute('data-cc', c.key);
+      th.textContent = c.label;
+      thead.insertBefore(th, statusTh);
+    });
+  }
+
   body.innerHTML = invProds.map(p => {
     const stockColor = p.stock === 0 ? '#ef4444' : p.stock <= 10 ? '#f97316' : '#22c55e';
     const badge = p.stock === 0 ? '<span style="background:#fef2f2;color:#ef4444;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">Out of Stock</span>'
                 : p.stock <= 10 ? '<span style="background:#fff7ed;color:#f97316;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">Low Stock</span>'
                 : '<span style="background:#f0fdf4;color:#22c55e;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">In Stock</span>';
+    const cf = p.customFields || {};
+    const customCells = invCols.map(c => `<td>${ccRenderInput(c, cf[c.key])}</td>`).join('');
     return `<tr>
       <td><input type="checkbox" class="inv-check" data-id="${p.id}"></td>
       <td><strong style="font-size:.82rem">${p.name}</strong></td>
@@ -2034,6 +2342,7 @@ function renderInventory() {
       <td><input type="number" class="inv-price" data-id="${p.id}" value="${p.price}" min="0" style="width:90px;padding:5px 8px;border:1.5px solid var(--b);border-radius:6px;font-size:.82rem;outline:none"></td>
       <td><input type="number" class="inv-orig" data-id="${p.id}" value="${p.originalPrice||p.price}" min="0" style="width:90px;padding:5px 8px;border:1.5px solid var(--b);border-radius:6px;font-size:.82rem;outline:none"></td>
       <td><input type="number" class="inv-stock" data-id="${p.id}" value="${p.stock}" min="0" style="width:80px;padding:5px 8px;border:1.5px solid #${p.stock===0?'fecaca':p.stock<=10?'fed7aa':'bbf7d0'};border-radius:6px;font-size:.82rem;outline:none;color:${stockColor}"></td>
+      ${customCells}
       <td>${badge}</td>
     </tr>`;
   }).join('');
@@ -2053,12 +2362,27 @@ async function invSaveAll() {
     const price = parseFloat(row.querySelector('.inv-price').value) || 0;
     const orig  = parseFloat(row.querySelector('.inv-orig').value)  || price;
     const stock = parseInt(row.querySelector('.inv-stock').value)   || 0;
-    updates.push({ id, price, originalPrice: orig, stock });
+    // Collect custom field values
+    const customFields = {};
+    row.querySelectorAll('.cc-field').forEach(el => {
+      customFields[el.dataset.key] = el.value;
+    });
+    updates.push({ id, price, originalPrice: orig, stock, customFields });
   });
   let saved = 0;
   for (const u of updates) {
     try {
-      await fetch('/api/products/' + u.id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(u) });
+      const { customFields, ...rest } = u;
+      // Save standard fields
+      await fetch('/api/products/' + u.id, {
+        method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(rest)
+      });
+      // Save custom fields if any
+      if (Object.keys(customFields).length) {
+        await fetch('/api/products/' + u.id + '/customfields', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(customFields)
+        });
+      }
       saved++;
     } catch(e) {}
   }

@@ -384,6 +384,14 @@ const server = http.createServer(async (req, res) => {
       if (ct.includes('multipart')) { const r=await parseMultipart(req); fields=r.fields; files=r.files; }
       else fields=await readJSON(req);
       const media=processMedia(files);
+      // Merge custom fields if present
+      let mergedCustomFields = prev.customFields || {};
+      if (fields.customFields) {
+        try {
+          const cf = typeof fields.customFields === 'string' ? JSON.parse(fields.customFields) : fields.customFields;
+          mergedCustomFields = { ...mergedCustomFields, ...cf };
+        } catch(e) {}
+      }
       const updated={
         name:fields.name||prev.name, brand:fields.brand||prev.brand,
         category:fields.category||prev.category,
@@ -396,6 +404,7 @@ const server = http.createServer(async (req, res) => {
         images:[...(prev.images||[]),...media.images],
         videos:[...(prev.videos||[]),...media.videos],
         audios:[...(prev.audios||[]),...media.audios],
+        customFields: mergedCustomFields,
       };
       const result = await db.collection('products').findOneAndUpdate(
         { id: +pm[1] },
@@ -659,6 +668,80 @@ const server = http.createServer(async (req, res) => {
       const { ObjectId } = require('mongodb');
       try { await db.collection('discounts').deleteOne({ _id: new ObjectId(discid[1]) }); return sendJSON(res, 200, { deleted:true }); }
       catch(e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+
+    // ── CUSTOM COLUMNS ────────────────────────────────────────────────────────
+    // GET all column definitions
+    if (p === '/api/customcolumns' && m === 'GET') {
+      const db = getDb();
+      const cols = await db.collection('customcolumns').find({}).sort({ order: 1 }).toArray();
+      return sendJSON(res, 200, cols.map(({ _id, ...c }) => ({ ...c, id: _id.toString() })));
+    }
+    // POST create a new column definition
+    if (p === '/api/customcolumns' && m === 'POST') {
+      const body = await readJSON(req);
+      if (!body.label || !body.label.trim()) return sendJSON(res, 400, { error: 'Column label is required' });
+      const db = getDb();
+      const count = await db.collection('customcolumns').countDocuments();
+      const doc = {
+        label: body.label.trim(),
+        key: body.key || body.label.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
+        type: body.type || 'text',           // text | number | select | date
+        options: body.options || [],          // for select type
+        showIn: body.showIn || ['inventory'], // inventory | products | both
+        order: count,
+        createdAt: new Date().toISOString()
+      };
+      const result = await db.collection('customcolumns').insertOne(doc);
+      return sendJSON(res, 201, { ...doc, id: result.insertedId.toString() });
+    }
+    const ccid = p.match(/^\/api\/customcolumns\/([a-f0-9]{24})$/);
+    // PUT update column definition
+    if (ccid && m === 'PUT') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const { ObjectId } = require('mongodb');
+      try {
+        const { id, _id, ...upd } = body;
+        await db.collection('customcolumns').updateOne({ _id: new ObjectId(ccid[1]) }, { $set: upd });
+        return sendJSON(res, 200, { ok: true });
+      } catch (e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+    // DELETE column definition
+    if (ccid && m === 'DELETE') {
+      const db = getDb();
+      const { ObjectId } = require('mongodb');
+      try {
+        const col = await db.collection('customcolumns').findOne({ _id: new ObjectId(ccid[1]) });
+        if (col) {
+          // Remove this field from all products
+          await db.collection('products').updateMany({}, { $unset: { [`customFields.${col.key}`]: '' } });
+        }
+        await db.collection('customcolumns').deleteOne({ _id: new ObjectId(ccid[1]) });
+        return sendJSON(res, 200, { deleted: true });
+      } catch (e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+    // POST /api/customcolumns/reorder
+    if (p === '/api/customcolumns/reorder' && m === 'POST') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const { ObjectId } = require('mongodb');
+      for (let i = 0; i < (body.ids || []).length; i++) {
+        try { await db.collection('customcolumns').updateOne({ _id: new ObjectId(body.ids[i]) }, { $set: { order: i } }); } catch (e) {}
+      }
+      return sendJSON(res, 200, { ok: true });
+    }
+    // POST /api/products/:id/customfields — save custom field values for a product
+    const cfm = p.match(/^\/api\/products\/(\d+)\/customfields$/);
+    if (cfm && m === 'POST') {
+      const body = await readJSON(req);
+      const db = getDb();
+      const set = {};
+      for (const [k, v] of Object.entries(body)) {
+        set[`customFields.${k}`] = v;
+      }
+      await db.collection('products').updateOne({ id: +cfm[1] }, { $set: set });
+      return sendJSON(res, 200, { ok: true });
     }
 
     // ── PAGE BLOCKS (Page Builder) ────────────────────────────────────────────
