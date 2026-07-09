@@ -194,23 +194,45 @@ async function pushProduct() {
 
 // ── Setup save ────────────────────────────────────────────────────────────────
 async function saveSetup() {
-  const url   = document.getElementById('setup_url').value.trim().replace(/\/$/, '');
+  let url = document.getElementById('setup_url').value.trim().replace(/\/$/, '');
   const token = document.getElementById('setup_token').value.trim();
 
   if (!url) { showStatus('setup_status', 'error', 'Enter your store URL'); return; }
 
-  showStatus('setup_status', 'info', '🔄 Testing connection…');
+  // Auto-fix common mistakes
+  if (!url.startsWith('http')) url = 'https://' + url;
+  url = url.replace('/admin.html', '').replace('/admin', '');
+  document.getElementById('setup_url').value = url;
+
+  showStatus('setup_status', 'info', 'Testing connection…');
 
   try {
-    const res = await fetch(url + '/api/stats');
-    if (!res.ok) throw new Error('Could not reach store (HTTP ' + res.status + ')');
+    const res = await fetch(url + '/api/stats', { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) throw new Error('Store returned error ' + res.status);
     await chrome.storage.sync.set({ storeUrl: url, pushToken: token });
     storeUrl  = url;
     pushToken = token;
-    showStatus('setup_status', 'success', '✅ Connected! Redirecting…');
-    setTimeout(() => initPopup(), 1200);
+    showStatus('setup_status', 'success', '✅ Connected successfully!');
+    setTimeout(() => initPopup(), 1000);
   } catch(e) {
-    showStatus('setup_status', 'error', '❌ ' + e.message + '. Check the URL and try again.');
+    // Try the onrender.com URL as fallback if shophere.in fails
+    if (url.includes('shophere.in') && !url.includes('onrender')) {
+      showStatus('setup_status', 'info', 'Trying Render URL…');
+      try {
+        const fallback = 'https://shophere-in.onrender.com';
+        const res2 = await fetch(fallback + '/api/stats', { signal: AbortSignal.timeout(10000) });
+        if (res2.ok) {
+          await chrome.storage.sync.set({ storeUrl: fallback, pushToken: token });
+          storeUrl  = fallback;
+          pushToken = token;
+          showStatus('setup_status', 'success', '✅ Connected via Render URL!');
+          document.getElementById('setup_url').value = fallback;
+          setTimeout(() => initPopup(), 1000);
+          return;
+        }
+      } catch(e2) {}
+    }
+    showStatus('setup_status', 'error', '❌ Cannot reach store: ' + e.message + '. Make sure your store is running and the URL is correct (e.g. https://shophere.in)');
   }
 }
 
