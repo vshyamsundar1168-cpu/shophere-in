@@ -3004,9 +3004,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadAllCats();
   if (typeof loadCustomCols === 'function') loadCustomCols();
 
-  // Wire up buttons that have late-defined handlers
-  const btnCloud = document.getElementById('btnTestCloudinary');
-  if (btnCloud) btnCloud.addEventListener('click', testCloudinary);
+  // Wire up buttons that have late-defined handlers (use delegation so lazy tabs work)
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'btnTestCloudinary') testCloudinary();
+  });
   // Show admin username
   try {
     const s = await fetch('/api/settings').then(r=>r.json());
