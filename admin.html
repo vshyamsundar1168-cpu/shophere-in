@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#1e293b">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>ShopHere.in – Admin</title>
 <script>
 // #26: If opened as file:// redirect to server automatically
@@ -567,7 +570,7 @@ if(window.location.protocol==='file:'){
           </div>
         </div>
         <div id="cloudinaryStatus" style="font-size:.78rem;padding:8px 12px;border-radius:7px;display:none"></div>
-        <button id="btnTestCloudinary" style="padding:7px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:4px">🔌 Test Connection</button>
+        <button id="btnTestCloudinary" style="padding:7px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:4px" onclick="if(typeof testCloudinary==='function')testCloudinary();else alert('Page not fully loaded, please wait 2 seconds and try again')">🔌 Test Connection</button>
 
         <hr style="margin:16px 0;border-color:var(--b)">
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">🧩 Chrome Extension — Push to Store</h4>
