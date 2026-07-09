@@ -670,6 +670,100 @@ const server = http.createServer(async (req, res) => {
       catch(e) { return sendJSON(res, 400, { error: e.message }); }
     }
 
+    // ── SUPPLIER IMPORT ───────────────────────────────────────────────────────
+    // POST /api/import/products — bulk insert products from parsed CSV rows
+    if (p === '/api/import/products' && m === 'POST') {
+      const body = await readJSON(req);
+      const rows = body.products;
+      if (!Array.isArray(rows) || rows.length === 0)
+        return sendJSON(res, 400, { error: 'No products provided' });
+
+      const db = getDb();
+      const cats = await db.collection('categories').find({}, { projection: { _id: 0 } }).toArray();
+      const catNames = cats.map(c => c.name);
+
+      const imported = [];
+      const skipped  = [];
+      const newCats  = new Set();
+
+      for (const row of rows) {
+        const name = (row.name || '').trim();
+        if (!name) { skipped.push({ row, reason: 'Missing name' }); continue; }
+
+        const price = parseFloat(row.price) || 0;
+        if (price <= 0) { skipped.push({ row, reason: 'Invalid price' }); continue; }
+
+        // Auto-create category if new
+        const cat = (row.category || 'Imported').trim();
+        if (!catNames.includes(cat)) {
+          const exists = await db.collection('categories').findOne({ name: cat });
+          if (!exists) {
+            await db.collection('categories').insertOne({ name: cat });
+            catNames.push(cat);
+            newCats.add(cat);
+          }
+        }
+
+        // Build images array from URL string (comma-separated or single)
+        const imageUrls = (row.imageUrl || row.image || row.images || '')
+          .split(/[,|;]+/).map(s => s.trim()).filter(Boolean);
+        const images = imageUrls.map(url => ({ url, type: 'image/jpeg', name: 'imported' }));
+
+        const prod = {
+          id: nextPid++,
+          name,
+          brand:         (row.brand || row.Brand || '').trim() || 'Unknown',
+          category:      cat,
+          description:   (row.description || row.desc || '').trim(),
+          price,
+          originalPrice: parseFloat(row.originalPrice || row.mrp || row.comparePrice || price) || price,
+          stock:         parseInt(row.stock || row.qty || row.quantity || 0) || 0,
+          badge:         (row.badge || '').toLowerCase().trim(),
+          featured:      String(row.featured || '').toLowerCase() === 'true',
+          rating:        parseFloat(row.rating || 0) || 0,
+          reviewCount:   0,
+          images,
+          videos:        [],
+          audios:        [],
+          supplier:      (row.supplier || body.supplierName || '').trim(),
+          supplierSku:   (row.sku || row.supplierSku || row.SKU || '').trim(),
+          importedAt:    new Date().toISOString(),
+        };
+
+        await db.collection('products').insertOne(prod);
+        const { _id, ...prodOut } = prod;
+        imported.push(prodOut);
+      }
+
+      console.log(`[IMPORT] ${imported.length} imported, ${skipped.length} skipped, ${newCats.size} new categories`);
+      return sendJSON(res, 200, {
+        imported: imported.length,
+        skipped:  skipped.length,
+        newCategories: [...newCats],
+        skippedRows: skipped.slice(0, 20),
+      });
+    }
+
+    // GET /api/import/template/:supplier — download CSV template
+    const tplm = p.match(/^\/api\/import\/template\/(\w+)$/);
+    if (tplm && m === 'GET') {
+      const tpl = tplm[1];
+      const templates = {
+        generic:        'name,brand,category,price,originalPrice,stock,description,imageUrl,badge,sku\nSample Product,Brand Name,Electronics,999,1499,50,Product description here,https://example.com/image.jpg,new,SKU001',
+        dropshipindia:  'Product Name,Brand,Category,Selling Price,MRP,Stock Qty,Description,Image URL,SKU\nSample Product,Brand,Category,999,1499,50,Description,https://example.com/image.jpg,SKU001',
+        cjdropshipping: 'productNameEn,categoryName,sellPrice,suggestPrice,variants_stock,description,productImage,sku\nSample Product,Electronics,999,1499,50,Description,https://example.com/image.jpg,CJ001',
+        hubbazaar:      'Title,Vendor,Product Type,Variant Price,Compare At Price,Variant Inventory Qty,Body (HTML),Image Src,Tags\nSample Product,Brand,Electronics,999,1499,50,Description,https://example.com/image.jpg,new',
+        shopify:        'Title,Vendor,Product Category,Variant Price,Compare At Price,Variant Inventory Qty,Body (HTML),Image Src,Tags,Variant SKU\nSample Product,Brand,Electronics,999,1499,50,Description,https://example.com/image.jpg,new,SKU001',
+        woocommerce:    'Name,Regular price,Sale price,Stock,Short description,Images,Categories,SKU,Brands\nSample Product,1499,999,50,Description,https://example.com/image.jpg,Electronics,SKU001,Brand',
+      };
+      const csv = templates[tpl] || templates.generic;
+      res.writeHead(200, {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="shophere_import_${tpl}.csv"`,
+      });
+      return res.end(csv);
+    }
+
     // ── CUSTOM COLUMNS ────────────────────────────────────────────────────────
     // GET all column definitions
     if (p === '/api/customcolumns' && m === 'GET') {

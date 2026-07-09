@@ -78,6 +78,7 @@ if(window.location.protocol==='file:'){
     <div class="sb-item" onclick="showTab('inventory',this)">📊 Inventory</div>
     <div class="sb-item" onclick="showTab('discounts',this)">🏷️ Discounts</div>
     <div class="sb-item" onclick="showTab('customcols',this)">🗃️ Custom Columns</div>
+    <div class="sb-item" onclick="showTab('import',this)">📥 Supplier Import</div>
     <div class="sb-item sb-bottom"><a href="/" target="_blank">🏠 View Store</a></div>
   </div>
 </div>
@@ -814,6 +815,173 @@ if(window.location.protocol==='file:'){
   </div>
 </div>
 
+<!-- SUPPLIER IMPORT TAB -->
+<div id="tab-import" class="tab">
+  <div class="sec">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">📥 Supplier Import</h3>
+        <p style="font-size:.8rem;color:var(--m)">Import products from any supplier (DropshipIndia, CJ Dropshipping, Hubbazaar, Shopify, WooCommerce, or any custom CSV/Excel).</p>
+      </div>
+    </div>
+
+    <!-- Step 1: Choose supplier & download template -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="background:#f97316;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">1</div>
+        <h4 style="font-size:.88rem;font-weight:700">Choose Supplier &amp; Download Template</h4>
+      </div>
+      <p style="font-size:.8rem;color:var(--m);margin-bottom:14px">Select your supplier to download a CSV template in the right format. Export your supplier catalog in this format, then upload below.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+        <button onclick="impDownloadTemplate('generic')"      class="imp-tpl-btn">📄 Generic (any supplier)</button>
+        <button onclick="impDownloadTemplate('dropshipindia')" class="imp-tpl-btn">🇮🇳 DropshipIndia</button>
+        <button onclick="impDownloadTemplate('cjdropshipping')" class="imp-tpl-btn">🌐 CJ Dropshipping</button>
+        <button onclick="impDownloadTemplate('hubbazaar')"    class="imp-tpl-btn">🛒 Hubbazaar</button>
+        <button onclick="impDownloadTemplate('shopify')"      class="imp-tpl-btn">🟢 Shopify Export</button>
+        <button onclick="impDownloadTemplate('woocommerce')"  class="imp-tpl-btn">🔵 WooCommerce Export</button>
+      </div>
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:.78rem;color:#166534">
+        💡 <strong>Tip:</strong> Export your supplier catalog as CSV/Excel → open in Excel or Google Sheets → save as CSV → upload below. The column mapper handles any column names.
+      </div>
+    </div>
+
+    <!-- Step 2: Supplier name & upload -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="background:#f97316;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">2</div>
+        <h4 style="font-size:.88rem;font-weight:700">Upload CSV / Excel File</h4>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="form-group" style="margin:0">
+          <label>Supplier Name <small style="color:var(--m);font-weight:400">(for your records)</small></label>
+          <input id="imp_supplierName" placeholder="e.g. DropshipIndia, CJ Dropshipping, My Supplier" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Default Category <small style="color:var(--m);font-weight:400">(if CSV has no category column)</small></label>
+          <select id="imp_defCat" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">
+            <option value="Imported">Imported</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="form-group" style="margin:0">
+          <label>Price Markup % <small style="color:var(--m);font-weight:400">(applied on top of supplier price)</small></label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" id="imp_markup" value="30" min="0" max="500" style="width:90px;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">
+            <span style="font-size:.82rem;color:var(--m)">% — e.g. supplier price ₹100 → your price ₹130</span>
+          </div>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Default Stock (if not in CSV)</label>
+          <input type="number" id="imp_defStock" value="10" min="0" style="width:90px;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">
+        </div>
+      </div>
+      <div id="imp_dropzone" onclick="document.getElementById('imp_fileInput').click()"
+        style="border:2px dashed #cbd5e1;border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc"
+        ondragover="impDragOver(event)" ondragleave="impDragLeave(event)" ondrop="impDrop(event)">
+        <div style="font-size:2.5rem;margin-bottom:8px">📂</div>
+        <div style="font-size:.9rem;font-weight:700;color:#475569;margin-bottom:4px">Click to upload or drag &amp; drop</div>
+        <div style="font-size:.78rem;color:var(--m)">Supports CSV (.csv) and Excel (.xlsx, .xls) — max 5MB</div>
+        <input type="file" id="imp_fileInput" accept=".csv,.xlsx,.xls,text/csv" style="display:none" onchange="impFileSelected(this)">
+      </div>
+      <div id="imp_fileInfo" style="display:none;margin-top:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:.82rem;color:#166534"></div>
+    </div>
+
+    <!-- Step 3: Column mapper -->
+    <div id="imp_mapperSection" style="display:none;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="background:#f97316;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">3</div>
+        <h4 style="font-size:.88rem;font-weight:700">Map Columns</h4>
+        <span style="font-size:.78rem;color:var(--m)">Tell us which CSV column maps to which product field. Auto-detected where possible.</span>
+      </div>
+      <div id="imp_mapperGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px"></div>
+      <button onclick="impApplyMapping()" style="padding:10px 24px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:.86rem;font-weight:700;cursor:pointer">
+        👁️ Preview Products →
+      </button>
+    </div>
+
+    <!-- Step 4: Preview -->
+    <div id="imp_previewSection" style="display:none;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="background:#f97316;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">4</div>
+          <h4 style="font-size:.88rem;font-weight:700">Preview &amp; Import</h4>
+        </div>
+        <div id="imp_previewStats" style="font-size:.82rem;color:#475569"></div>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="imp_previewSearch" placeholder="Search products…" oninput="impFilterPreview()" style="padding:7px 11px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none;flex:1;min-width:160px">
+        <label style="font-size:.78rem;display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap">
+          <input type="checkbox" id="imp_selectAllPrev" onchange="impToggleAllPreview(this)"> Select All
+        </label>
+        <span id="imp_selectedCount" style="font-size:.78rem;color:var(--m)">0 selected</span>
+      </div>
+
+      <div style="overflow-x:auto;margin-bottom:16px">
+        <table class="data-table" id="imp_previewTable">
+          <thead>
+            <tr>
+              <th><input type="checkbox" onchange="impToggleAllPreview(this)"></th>
+              <th>Image</th><th>Name</th><th>Brand</th><th>Category</th>
+              <th>Supplier Price</th><th>Your Price (after markup)</th><th>MRP</th>
+              <th>Stock</th><th>SKU</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="imp_previewBody"></tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button onclick="impStartImport()" id="imp_importBtn" style="padding:11px 28px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer">
+          📥 Import Selected Products
+        </button>
+        <button onclick="impReset()" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;font-weight:600;cursor:pointer">
+          🔄 Start Over
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress / Result -->
+    <div id="imp_progressSection" style="display:none;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px">⏳ Importing…</h4>
+      <div style="background:#f1f5f9;border-radius:8px;height:18px;overflow:hidden;margin-bottom:10px">
+        <div id="imp_progressBar" style="height:100%;background:#22c55e;width:0%;transition:width .3s;border-radius:8px"></div>
+      </div>
+      <div id="imp_progressText" style="font-size:.82rem;color:#475569"></div>
+    </div>
+
+    <div id="imp_resultSection" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px">
+      <h4 style="font-size:.88rem;font-weight:700;color:#166534;margin-bottom:10px">✅ Import Complete!</h4>
+      <div id="imp_resultBody" style="font-size:.84rem;color:#166534"></div>
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <button onclick="showTab('products',document.querySelector('.sb-item:nth-child(2)'))" style="padding:9px 18px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">
+          📦 View Products
+        </button>
+        <button onclick="showTab('inventory',document.querySelector('.sb-item:nth-child(10)'))" style="padding:9px 18px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">
+          📊 View Inventory
+        </button>
+        <button onclick="impReset()" style="padding:9px 18px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;font-weight:600;cursor:pointer">
+          📥 Import More
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.imp-tpl-btn{padding:7px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:20px;font-size:.78rem;font-weight:600;cursor:pointer;color:#475569;transition:all .2s}
+.imp-tpl-btn:hover{background:#f97316;color:#fff;border-color:#f97316}
+.imp-map-row{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px}
+.imp-map-row label{font-size:.74rem;font-weight:700;color:#475569;display:block;margin-bottom:5px}
+.imp-map-row select{width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none;background:#fff}
+.imp-map-hint{font-size:.7rem;color:#94a3b8;margin-top:3px}
+</style>
+
 </div><!-- end .main -->
 </div><!-- end .admin-wrap -->
 
@@ -858,7 +1026,7 @@ function showTab(name, el) {
     dashboard: 'Dashboard', products: 'Products', addProduct: 'Add Product',
     orders: 'Orders', reviews: 'Reviews', banners: 'Banners',
     categories: 'Categories', settings: 'Store Settings', pagebuilder: 'Page Builder',
-    inventory: 'Inventory', discounts: 'Discounts', customcols: 'Custom Columns'
+    inventory: 'Inventory', discounts: 'Discounts', customcols: 'Custom Columns', import: 'Supplier Import'
   };
   document.getElementById('tabTitle').textContent = titles[name] || name;
   if (name === 'dashboard') loadStats();
@@ -873,6 +1041,7 @@ function showTab(name, el) {
   if (name === 'inventory')   loadInventory();
   if (name === 'discounts')   loadDiscounts();
   if (name === 'customcols')  loadCustomCols();
+  if (name === 'import')      initImportTab();
 }
 
 // ── Global categories store ───────────────────────────────────────────────────
@@ -2239,6 +2408,314 @@ function ccRenderInput(col, value, extraStyle) {
     return `<input type="date" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" style="width:120px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none">`;
   }
   return `<input type="text" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" placeholder="—" style="${s}">`;
+}
+
+  return `<input type="text" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" placeholder="—" style="${s}">`;
+}
+
+// ── Supplier Import ───────────────────────────────────────────────────────────
+// State
+let impRawRows    = [];
+let impHeaders    = [];
+let impMappedRows = [];
+let impFiltered   = [];
+
+const IMP_FIELDS = [
+  { key:'name',          label:'Product Name *',      required:true  },
+  { key:'brand',         label:'Brand',               required:false },
+  { key:'category',      label:'Category',            required:false },
+  { key:'price',         label:'Supplier Price *',    required:true  },
+  { key:'originalPrice', label:'MRP / Compare Price', required:false },
+  { key:'stock',         label:'Stock / Quantity',    required:false },
+  { key:'description',   label:'Description',         required:false },
+  { key:'imageUrl',      label:'Image URL',           required:false },
+  { key:'sku',           label:'SKU / Item Code',     required:false },
+  { key:'badge',         label:'Badge (new/deal/hot)',required:false },
+];
+
+const IMP_AUTO = {
+  name:          ['name','title','product name','product','item','item name','productname','productnameEn','product_name','Title'],
+  brand:         ['brand','vendor','manufacturer','Vendor'],
+  category:      ['category','type','product type','Product Type','categoryName','department'],
+  price:         ['price','selling price','sale price','cost','sellPrice','Variant Price','sale_price','Selling Price'],
+  originalPrice: ['original price','mrp','compare price','compare at price','retail price','regular price','suggestPrice','comparePrice','Compare At Price','Regular price'],
+  stock:         ['stock','qty','quantity','inventory','units','Variant Inventory Qty','variants_stock'],
+  description:   ['description','desc','body','details','body (html)','Body (HTML)','short description'],
+  imageUrl:      ['image','image url','imageurl','photo','picture','img','image src','Image Src','productImage','Images','image_url'],
+  sku:           ['sku','item code','product code','article','Variant SKU','SKU'],
+  badge:         ['badge','tag','tags','Tags','label'],
+};
+
+function impAutoDetect(headers) {
+  const mapping = {};
+  IMP_FIELDS.forEach(f => {
+    const aliases = IMP_AUTO[f.key] || [];
+    const match = headers.find(h => aliases.some(a => a.toLowerCase() === h.toLowerCase().trim()));
+    mapping[f.key] = match || '';
+  });
+  return mapping;
+}
+
+function initImportTab() {
+  populateCatDropdown('imp_defCat', false);
+}
+
+function impDragOver(e) {
+  e.preventDefault();
+  document.getElementById('imp_dropzone').style.borderColor = '#f97316';
+  document.getElementById('imp_dropzone').style.background  = '#fff7ed';
+}
+function impDragLeave(e) {
+  document.getElementById('imp_dropzone').style.borderColor = '#cbd5e1';
+  document.getElementById('imp_dropzone').style.background  = '#f8fafc';
+}
+function impDrop(e) {
+  e.preventDefault();
+  impDragLeave(e);
+  const file = e.dataTransfer.files[0];
+  if (file) impProcessFile(file);
+}
+function impFileSelected(input) {
+  if (input.files[0]) impProcessFile(input.files[0]);
+}
+
+function impProcessFile(file) {
+  if (file.size > 5 * 1024 * 1024) { toast('File too large — max 5MB'); return; }
+  const ext = file.name.split('.').pop().toLowerCase();
+  const info = document.getElementById('imp_fileInfo');
+  info.style.display = 'block';
+  info.innerHTML = `📄 <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB) — reading…`;
+  const reader = new FileReader();
+  if (ext === 'csv' || ext === 'txt') {
+    reader.onload = e => impParseCSV(e.target.result, file.name);
+    reader.readAsText(file);
+  } else if (ext === 'xlsx' || ext === 'xls') {
+    toast('💡 Excel detected — please save as CSV (.csv) in Excel/Google Sheets and re-upload. CSV works perfectly.');
+    info.innerHTML = '⚠️ Please save your Excel file as CSV and upload the .csv file.';
+  } else {
+    toast('Unsupported file. Use .csv');
+  }
+}
+
+function impParseCSV(text, filename) {
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l => l.trim());
+  if (lines.length < 2) { toast('CSV needs at least a header row and one data row'); return; }
+
+  function parseRow(line) {
+    const cols = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    cols.push(cur.trim());
+    return cols;
+  }
+
+  impHeaders = parseRow(lines[0]).map(h => h.replace(/^["']|["']$/g,'').trim());
+  impRawRows = lines.slice(1).map(line => {
+    const vals = parseRow(line);
+    const obj = {};
+    impHeaders.forEach((h, i) => obj[h] = (vals[i] || '').replace(/^["']|["']$/g,'').trim());
+    return obj;
+  }).filter(r => Object.values(r).some(v => v));
+
+  const info = document.getElementById('imp_fileInfo');
+  info.innerHTML = `✅ <strong>${filename}</strong> — <strong>${impRawRows.length} rows</strong>, ${impHeaders.length} columns detected`;
+  impCurrentMapping = impAutoDetect(impHeaders);
+  impBuildMapper();
+}
+
+let impCurrentMapping = {};
+
+function impBuildMapper() {
+  const grid = document.getElementById('imp_mapperGrid');
+  grid.innerHTML = IMP_FIELDS.map(f => {
+    const opts = ['<option value="">— Skip —</option>',
+      ...impHeaders.map(h => `<option value="${h}"${impCurrentMapping[f.key]===h?' selected':''}>${h}</option>`)
+    ].join('');
+    const hint = impCurrentMapping[f.key]
+      ? `<div class="imp-map-hint">✅ Auto: "${impCurrentMapping[f.key]}"</div>`
+      : `<div class="imp-map-hint" style="color:#f97316">⚠️ Not detected — pick manually</div>`;
+    return `<div class="imp-map-row">
+      <label>${f.label}${f.required?' <span style="color:#ef4444">*</span>':''}</label>
+      <select onchange="impCurrentMapping['${f.key}']=this.value">${opts}</select>
+      ${hint}
+    </div>`;
+  }).join('');
+
+  document.getElementById('imp_mapperSection').style.display  = 'block';
+  document.getElementById('imp_previewSection').style.display = 'none';
+  document.getElementById('imp_resultSection').style.display  = 'none';
+  document.getElementById('imp_mapperSection').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function impApplyMapping() {
+  const markup   = parseFloat(document.getElementById('imp_markup').value) || 0;
+  const defStock = parseInt(document.getElementById('imp_defStock').value)  || 10;
+  const defCat   = document.getElementById('imp_defCat').value || 'Imported';
+  const mp       = impCurrentMapping;
+
+  if (!mp.name)  { toast('Map the Product Name column first');  return; }
+  if (!mp.price) { toast('Map the Supplier Price column first'); return; }
+
+  impMappedRows = impRawRows.map((row, idx) => {
+    const supplierPrice = parseFloat(row[mp.price] || '0') || 0;
+    const yourPrice     = supplierPrice > 0 ? Math.ceil(supplierPrice * (1 + markup / 100)) : 0;
+    const mrp           = parseFloat(row[mp.originalPrice] || '0') || Math.ceil(yourPrice * 1.3);
+    const stock         = parseInt(row[mp.stock] || '')   || defStock;
+    return {
+      _idx: idx, _selected: true,
+      name:          (row[mp.name]          || '').trim(),
+      brand:         (row[mp.brand]         || '').trim(),
+      category:      (row[mp.category]      || defCat).trim() || defCat,
+      supplierPrice,
+      price:         yourPrice,
+      originalPrice: mrp,
+      stock,
+      description:   (row[mp.description]   || '').trim(),
+      imageUrl:      (row[mp.imageUrl]       || '').trim(),
+      sku:           (row[mp.sku]            || '').trim(),
+      badge:         (row[mp.badge]          || '').toLowerCase().trim(),
+      _valid:        !!(row[mp.name] || '').trim() && yourPrice > 0,
+    };
+  });
+
+  impFiltered = [...impMappedRows];
+  impRenderPreview();
+  document.getElementById('imp_previewSection').style.display = 'block';
+  document.getElementById('imp_previewSection').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function impFilterPreview() {
+  const q = (document.getElementById('imp_previewSearch').value || '').toLowerCase();
+  impFiltered = q
+    ? impMappedRows.filter(r => (r.name+r.brand+r.category+r.sku).toLowerCase().includes(q))
+    : [...impMappedRows];
+  impRenderPreview();
+}
+
+function impToggleAllPreview(cb) {
+  impMappedRows.forEach(r => r._selected = cb.checked);
+  impFiltered   .forEach(r => r._selected = cb.checked);
+  impRenderPreview();
+  impUpdateSelectedCount();
+}
+
+function impUpdateSelectedCount() {
+  const n  = impMappedRows.filter(r => r._selected).length;
+  const el = document.getElementById('imp_selectedCount');
+  if (el) el.textContent = `${n} of ${impMappedRows.length} selected`;
+}
+
+function impRenderPreview() {
+  const valid   = impFiltered.filter(r => r._valid).length;
+  const invalid = impFiltered.filter(r => !r._valid).length;
+  document.getElementById('imp_previewStats').innerHTML =
+    `<span style="color:#22c55e;font-weight:700">${valid} valid</span>` +
+    (invalid ? ` &nbsp;·&nbsp; <span style="color:#ef4444;font-weight:700">${invalid} invalid (skipped)</span>` : '');
+
+  document.getElementById('imp_previewBody').innerHTML = impFiltered.map((r, i) => {
+    const img = r.imageUrl
+      ? `<img src="${r.imageUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0" onerror="this.style.display='none'" alt="">`
+      : '<span style="font-size:1.4rem">📦</span>';
+    const status = r._valid
+      ? '<span style="background:#f0fdf4;color:#22c55e;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">✅ Ready</span>'
+      : '<span style="background:#fef2f2;color:#ef4444;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">❌ Skip</span>';
+    return `<tr style="opacity:${r._valid?1:.5}">
+      <td><input type="checkbox" ${r._selected&&r._valid?'checked':''} ${!r._valid?'disabled':''}
+        onchange="impMappedRows[${r._idx}]._selected=this.checked;impFiltered[${i}]._selected=this.checked;impUpdateSelectedCount()"></td>
+      <td>${img}</td>
+      <td style="max-width:180px;font-size:.82rem"><strong>${r.name||'—'}</strong></td>
+      <td style="font-size:.78rem">${r.brand||'—'}</td>
+      <td style="font-size:.78rem">${r.category}</td>
+      <td style="font-size:.82rem">₹${r.supplierPrice.toLocaleString('en-IN')}</td>
+      <td style="font-size:.82rem;font-weight:700;color:#22c55e">₹${r.price.toLocaleString('en-IN')}</td>
+      <td style="font-size:.78rem;color:var(--m)">₹${r.originalPrice.toLocaleString('en-IN')}</td>
+      <td style="font-size:.78rem">${r.stock}</td>
+      <td style="font-size:.75rem;color:var(--m)">${r.sku||'—'}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--m)">No products match</td></tr>';
+
+  impUpdateSelectedCount();
+}
+
+async function impStartImport() {
+  const selected = impMappedRows.filter(r => r._selected && r._valid);
+  if (!selected.length) { toast('No valid products selected'); return; }
+  const supplierName = document.getElementById('imp_supplierName').value.trim();
+  if (!supplierName)  { toast('Enter the Supplier Name in Step 2'); return; }
+
+  document.getElementById('imp_previewSection').style.display  = 'none';
+  document.getElementById('imp_progressSection').style.display = 'block';
+
+  const BATCH = 50;
+  let imported = 0, skipped = 0;
+  const newCats = new Set();
+
+  for (let i = 0; i < selected.length; i += BATCH) {
+    const batch = selected.slice(i, i + BATCH).map(r => ({
+      name: r.name, brand: r.brand, category: r.category,
+      price: r.price, originalPrice: r.originalPrice, stock: r.stock,
+      description: r.description, imageUrl: r.imageUrl,
+      sku: r.sku, badge: r.badge, supplier: supplierName,
+    }));
+
+    const pct = Math.round((i / selected.length) * 100);
+    document.getElementById('imp_progressBar').style.width  = pct + '%';
+    document.getElementById('imp_progressText').textContent =
+      `Importing ${Math.min(i + BATCH, selected.length)} of ${selected.length} products…`;
+
+    try {
+      const res  = await fetch('/api/import/products', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ products: batch, supplierName }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Server error');
+      imported += data.imported || 0;
+      skipped  += data.skipped  || 0;
+      (data.newCategories || []).forEach(c => newCats.add(c));
+    } catch(e) { toast('Batch error: ' + e.message); }
+  }
+
+  document.getElementById('imp_progressBar').style.width   = '100%';
+  document.getElementById('imp_progressSection').style.display = 'none';
+  document.getElementById('imp_resultSection').style.display   = 'block';
+  document.getElementById('imp_resultBody').innerHTML = `
+    <p>🎉 <strong>${imported}</strong> products imported from <strong>${supplierName}</strong></p>
+    ${skipped ? `<p>⚠️ ${skipped} rows skipped (missing name or price)</p>` : ''}
+    ${newCats.size ? `<p>📁 New categories created: <strong>${[...newCats].join(', ')}</strong></p>` : ''}
+    <p style="margin-top:8px;color:#475569">Products are now in Inventory and the Products tab.</p>`;
+
+  await loadAllCats();
+  toast(`✅ ${imported} products imported from ${supplierName}!`);
+}
+
+function impReset() {
+  impRawRows = []; impHeaders = []; impMappedRows = []; impFiltered = [];
+  impCurrentMapping = {};
+  document.getElementById('imp_fileInput').value = '';
+  document.getElementById('imp_fileInfo').style.display      = 'none';
+  document.getElementById('imp_mapperSection').style.display  = 'none';
+  document.getElementById('imp_previewSection').style.display = 'none';
+  document.getElementById('imp_progressSection').style.display= 'none';
+  document.getElementById('imp_resultSection').style.display  = 'none';
+  document.getElementById('imp_supplierName').value  = '';
+  document.getElementById('imp_markup').value        = '30';
+  const dz = document.getElementById('imp_dropzone');
+  dz.style.borderColor = '#cbd5e1';
+  dz.style.background  = '#f8fafc';
+}
+
+function impDownloadTemplate(supplier) {
+  const a = document.createElement('a');
+  a.href = '/api/import/template/' + supplier;
+  a.download = 'shophere_import_' + supplier + '.csv';
+  a.click();
+  toast('📄 Template downloaded — fill in your products then upload below');
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
