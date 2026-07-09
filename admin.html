@@ -1243,10 +1243,11 @@ let allProds = [];
 
 async function loadProducts() {
   try {
-    const [prodRes] = await Promise.all([
-      fetch('/api/products?limit=500'),
-      loadCustomCols()
-    ]);
+    // Load custom cols if available, don't block products if not ready
+    if (typeof loadCustomCols === 'function') {
+      try { await loadCustomCols(); } catch(e) {}
+    }
+    const prodRes = await fetch('/api/products?limit=500');
     if (!prodRes.ok) throw new Error('HTTP ' + prodRes.status);
     const data = await prodRes.json();
     allProds = data.products || data;
@@ -2906,7 +2907,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Server OK — load everything
   loadStats();
   loadAllCats();
-  loadCustomCols();
+  if (typeof loadCustomCols === 'function') loadCustomCols();
   // Show admin username
   try {
     const s = await fetch('/api/settings').then(r=>r.json());
@@ -2932,10 +2933,11 @@ let invProds = [];
 
 async function loadInventory() {
   try {
-    const [prodRes] = await Promise.all([
-      fetch('/api/products?limit=500'),
-      loadCustomCols()
-    ]);
+    // Load custom cols if available
+    if (typeof loadCustomCols === 'function') {
+      try { await loadCustomCols(); } catch(e) {}
+    }
+    const prodRes = await fetch('/api/products?limit=500');
     const data = await prodRes.json();
     invProds = data.products || data;
     populateCatDropdown('invBulkCat', true);
