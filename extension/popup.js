@@ -206,34 +206,35 @@ async function saveSetup() {
 
   showStatus('setup_status', 'info', 'Testing connection…');
 
-  try {
-    const res = await fetch(url + '/api/stats', { signal: AbortSignal.timeout(8000) });
-    if (!res.ok) throw new Error('Store returned error ' + res.status);
-    await chrome.storage.sync.set({ storeUrl: url, pushToken: token });
-    storeUrl  = url;
-    pushToken = token;
-    showStatus('setup_status', 'success', '✅ Connected successfully!');
-    setTimeout(() => initPopup(), 1000);
-  } catch(e) {
-    // Try the onrender.com URL as fallback if shophere.in fails
-    if (url.includes('shophere.in') && !url.includes('onrender')) {
-      showStatus('setup_status', 'info', 'Trying Render URL…');
-      try {
-        const fallback = 'https://shophere-in.onrender.com';
-        const res2 = await fetch(fallback + '/api/stats', { signal: AbortSignal.timeout(10000) });
-        if (res2.ok) {
-          await chrome.storage.sync.set({ storeUrl: fallback, pushToken: token });
-          storeUrl  = fallback;
-          pushToken = token;
-          showStatus('setup_status', 'success', '✅ Connected via Render URL!');
-          document.getElementById('setup_url').value = fallback;
-          setTimeout(() => initPopup(), 1000);
-          return;
-        }
-      } catch(e2) {}
-    }
-    showStatus('setup_status', 'error', '❌ Cannot reach store: ' + e.message + '. Make sure your store is running and the URL is correct (e.g. https://shophere.in)');
+  // Always try both URLs — direct Render first (faster, no redirect)
+  const urlsToTry = [url];
+  if (url.includes('shophere.in') && !url.includes('onrender')) {
+    urlsToTry.push('https://shophere-in.onrender.com');
   }
+  if (url.includes('onrender') && !urlsToTry.includes('https://shophere.in')) {
+    urlsToTry.push('https://shophere.in');
+  }
+
+  let connectedUrl = null;
+  for (const tryUrl of urlsToTry) {
+    try {
+      showStatus('setup_status', 'info', 'Trying ' + tryUrl + '…');
+      const res = await fetch(tryUrl + '/api/stats', { signal: AbortSignal.timeout(15000) });
+      if (res.ok) { connectedUrl = tryUrl; break; }
+    } catch(e) { /* try next */ }
+  }
+
+  if (!connectedUrl) {
+    showStatus('setup_status', 'error', '❌ Cannot reach store. Your Render free server may be sleeping — wait 60 seconds and try again. URL tried: ' + urlsToTry.join(', '));
+    return;
+  }
+
+  await chrome.storage.sync.set({ storeUrl: connectedUrl, pushToken: token });
+  storeUrl  = connectedUrl;
+  pushToken = token;
+  document.getElementById('setup_url').value = connectedUrl;
+  showStatus('setup_status', 'success', '✅ Connected to ' + connectedUrl);
+  setTimeout(() => initPopup(), 1000);
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
