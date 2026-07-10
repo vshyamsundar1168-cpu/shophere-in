@@ -530,7 +530,15 @@ const server = http.createServer(async (req, res) => {
           mergedCustomFields = { ...mergedCustomFields, ...cf };
         } catch(e) {}
       }
-      const updated={
+
+        // If images array passed directly in JSON body (reorder / transfer), use it as-is
+        let finalImages;
+        if (!ct.includes('multipart') && Array.isArray(fields.images)) {
+          finalImages = fields.images; // full replacement
+        } else {
+          finalImages = [...(prev.images||[]),...media.images];
+        }
+        const updated={
         name:fields.name||prev.name, brand:fields.brand||prev.brand,
         category:fields.category||prev.category,
         description:fields.description!==undefined?fields.description:prev.description,
@@ -539,7 +547,7 @@ const server = http.createServer(async (req, res) => {
         stock:fields.stock!==undefined?parseInt(fields.stock):prev.stock,
         badge:fields.badge!==undefined?fields.badge:prev.badge,
         featured:fields.featured!==undefined?(fields.featured==='true'):prev.featured,
-        images:[...(prev.images||[]),...media.images],
+        images: finalImages,
         videos:[...(prev.videos||[]),...media.videos],
         audios:[...(prev.audios||[]),...media.audios],
         customFields: mergedCustomFields,
