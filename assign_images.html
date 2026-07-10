@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ShopHere.in — Assign Images to Products</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:#f1f5f9;color:#1e293b}
+.top{background:#1e293b;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.top h1{font-size:1rem;font-weight:700}
+.top small{color:#94a3b8;font-size:.75rem}
+.btn-save{padding:9px 22px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer}
+.btn-save:hover{background:#16a34a}
+.layout{display:grid;grid-template-columns:1fr 340px;gap:0;min-height:calc(100vh - 56px)}
+
+/* Left — all images */
+.images-panel{padding:16px;overflow-y:auto}
+.images-panel h2{font-size:.82rem;font-weight:700;color:#475569;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.img-grid{display:flex;flex-wrap:wrap;gap:8px}
+.img-thumb{
+  width:90px;height:90px;border-radius:8px;object-fit:cover;
+  cursor:grab;border:3px solid transparent;transition:all .15s;
+  background:#e2e8f0;
+}
+.img-thumb:hover{border-color:#f97316;transform:scale(1.05)}
+.img-thumb.selected{border-color:#22c55e;box-shadow:0 0 0 3px #bbf7d0}
+.img-thumb.assigned{opacity:.4;filter:grayscale(60%)}
+.img-thumb.assigned:hover{opacity:1;filter:none}
+
+/* Right — products list */
+.products-panel{background:#fff;border-left:1px solid #e2e8f0;overflow-y:auto;max-height:calc(100vh - 56px)}
+.prod-item{padding:10px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .1s}
+.prod-item:hover{background:#f8fafc}
+.prod-item.drop-target{background:#eff6ff;border-left:3px solid #3b82f6}
+.prod-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.prod-name{font-size:.78rem;font-weight:700;color:#1e293b;line-height:1.3}
+.prod-cat{font-size:.68rem;color:#94a3b8}
+.prod-imgs{display:flex;flex-wrap:wrap;gap:4px;min-height:36px;padding:4px;background:#f8fafc;border-radius:6px;border:1.5px dashed #e2e8f0}
+.prod-img-wrap{position:relative;display:inline-block}
+.prod-img-wrap img{width:50px;height:50px;object-fit:cover;border-radius:5px;display:block}
+.prod-img-wrap .del{
+  position:absolute;top:-5px;right:-5px;
+  background:#ef4444;color:#fff;border:none;border-radius:50%;
+  width:16px;height:16px;font-size:.6rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0;line-height:1
+}
+.prod-empty{font-size:.72rem;color:#94a3b8;padding:4px 6px}
+.assign-btn{
+  margin-top:5px;width:100%;padding:5px;
+  background:#f97316;color:#fff;border:none;border-radius:6px;
+  font-size:.72rem;font-weight:700;cursor:pointer
+}
+.assign-btn:hover{background:#ea6c0a}
+
+/* Info bar */
+.info{background:#fef9c3;border-bottom:1px solid #fde68a;padding:10px 16px;font-size:.78rem;color:#92400e}
+.selected-info{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:8px 20px;border-radius:50px;font-size:.8rem;font-weight:600;display:none;z-index:200}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div>
+    <h1>🖼️ ShopHere.in — Assign Images to Products</h1>
+    <small>Click an image → then click "Assign to this product" on any product</small>
+  </div>
+  <button class="btn-save" onclick="saveAll()">💾 Save All to Store</button>
+</div>
+
+<div class="info">
+  <strong>How to use:</strong>
+  1️⃣ Click an image on the left to select it (green border) &nbsp;·&nbsp;
+  2️⃣ Click <strong>"+ Assign to this product"</strong> on the right product &nbsp;·&nbsp;
+  3️⃣ Remove wrong images with the ❌ button &nbsp;·&nbsp;
+  4️⃣ Click <strong>💾 Save All to Store</strong> when done
+</div>
+
+<div class="layout">
+  <!-- All 85 images -->
+  <div class="images-panel">
+    <h2>All 85 Images from Cloudinary — click to select</h2>
+    <div class="img-grid" id="imgGrid"></div>
+  </div>
+
+  <!-- Products list -->
+  <div class="products-panel" id="productsList"></div>
+</div>
+
+<div class="selected-info" id="selectedInfo"></div>
+
+<script>
+// ── All 85 Cloudinary URLs ────────────────────────────────────────────────────
+const ALL_IMAGES = ["https://res.cloudinary.com/wzaxevft/image/upload/v1783617452/shophere/vtvhs55am3pbxo1alqzc.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617453/shophere/cgoaorw3vjrgf0gzivpz.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617454/shophere/amzv178w2icpbc0cyych.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617456/shophere/ajjhg1uvorb4vsxnhrxz.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617456/shophere/hmn9fg4mdutn8allmigv.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617457/shophere/awf1mzdvvuqyldmhvptb.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617458/shophere/mwue9bbydzeqfvgirc1c.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617460/shophere/mr4dlqal5gwovakvtxtv.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617461/shophere/t2kbqk7bayormuubgvni.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617462/shophere/hzignoyfeod6spam2ngn.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617463/shophere/q5agf0ny8nj2qw0ey7hw.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617464/shophere/p01tlwx0rabbuae9pzq2.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617466/shophere/mgp3ntugqvxo7qq0p0ut.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617467/shophere/zcm34t2zajcgqcs1pnfv.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617468/shophere/rhz9nhwjemm94mzjsqt3.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617469/shophere/oinjxklftqwhnow6olve.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617471/shophere/cgdy4amks0p8kb9u1lwb.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617472/shophere/tyholqchno26ppriwnry.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617474/shophere/gjtfquggtohsr7vihlmb.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617475/shophere/ersvy2bhlfidcuytotn8.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617476/shophere/vvdmpjt0xzsyosjvxwzj.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617478/shophere/pxmd4grlljmczz22whyq.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617479/shophere/of9uw8rmf8hfyzausuqy.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617480/shophere/xandaydrse7sngqufqcb.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617481/shophere/fhgjvyy5qdwcqu6hag5i.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617481/shophere/yqktd1edcloc69mctpjm.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617483/shophere/wddwjtpmieunc8vcnenb.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617484/shophere/soozkufgf8a6al2093id.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617486/shophere/csiduhuck8wjavtcvkso.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617488/shophere/eyew5nqmysywn8q1jyu4.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617489/shophere/kdzqxva3wkf1glqttflo.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617491/shophere/r54cndwhudne1icrxilc.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617491/shophere/xytvxinahfdblb9lnggt.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617492/shophere/nbwzr4ouqypyei4cci36.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617493/shophere/jdnluedmlbfu6mrmokgf.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617495/shophere/joaegwsl1lse1wmaq4eb.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617495/shophere/pwptu535tttncr0o9f4j.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617496/shophere/xxzjtazw1ne7xxjlkaxn.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617498/shophere/hzf8gzcmo6escojxnmm6.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617499/shophere/lazg9wk4fjamohl9vleg.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617500/shophere/vn7wcrktmsclycvq7ljs.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617501/shophere/pva7btyah9id3cg9r7zg.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617502/shophere/kpvizo3h5bbnwxfyehmm.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617503/shophere/x889i7ymfv9h84rnpoab.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617505/shophere/wixmxgogxqi2c3ovhv2p.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617506/shophere/wtr1z6elcjzzsxwvpnt9.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617508/shophere/vvrtpsstabogglsf0uj0.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617509/shophere/dqcdjvutspf7ex7ujzhm.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617510/shophere/pbq6x614sjwsdglb2ch3.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617511/shophere/ult3zdzssqvtrykluaim.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617512/shophere/plvdu5stcjp1e7j70ujr.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617513/shophere/pthccdnef487tgh7v7ss.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617514/shophere/m79bdqjabwfg5hqygcfy.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617515/shophere/hbzzccdxnsgb2w5dfxgo.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617517/shophere/llfmdzy5g1bdua0wcvbu.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617518/shophere/cxnsj9ttds2uhsntbv16.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617519/shophere/yxqjdj2pnpnnra88t9tl.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617520/shophere/f0cy8ziwpfnq8lr7ksfm.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617522/shophere/kdde4loc8ayh2ux2rsou.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617523/shophere/pbgj6i4pwudutr5hewwt.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617523/shophere/tcbmttfwzw9jawznzicp.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617524/shophere/pmzzelrp1ndihltcs6fj.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617526/shophere/b9grreogkgluwmrsjrwf.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617526/shophere/tcxf3xsdplvpsgbbylij.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617528/shophere/bn2lfbnntgv94dsa3bfm.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617529/shophere/drhhysvdojwa1tefhyw5.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617530/shophere/fdh8ut5hfzanoivtcswv.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617531/shophere/dqwgisyxroyozabwv2ep.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617532/shophere/sslvpalfqbik3ejnflzz.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617533/shophere/uhvyhebirqmj2leupa0p.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617534/shophere/ne1pod3waoxppfjcop2w.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617535/shophere/lb5sdnpi4q09iyy5cyyb.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617537/shophere/pfby8qvekwlclkorjb5y.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617538/shophere/ieucamzs9jgqunjlqjss.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617539/shophere/p3xjaxa0phcgv04klsz0.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617540/shophere/alv3nabgedt3ge9mnryi.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617541/shophere/pr4pvo3ybv5gpqv0tb6v.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617542/shophere/qvxjv95opf8zfia60wl4.png","https://res.cloudinary.com/wzaxevft/image/upload/v1783617544/shophere/sfdqd9rqdwknj2b53m3m.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617545/shophere/hzsbqjexqszjmtmlc2qm.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617547/shophere/itzvmg7dvnvkwzhccvdc.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617548/shophere/lonozszyrdlyc3at4qvk.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617549/shophere/fqn0vejzatkfhvjvmiuz.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617549/shophere/zkod1s1sf00rikmmvgoh.jpg","https://res.cloudinary.com/wzaxevft/image/upload/v1783617550/shophere/wrj1o6vsa5ipxg6fbooz.png"];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let products = [];
+let selectedImg = null;
+const STORE = 'https://shophere.in';
+
+// ── Load products ─────────────────────────────────────────────────────────────
+async function init() {
+  const res  = await fetch(STORE + '/api/products?limit=100');
+  const data = await res.json();
+  products   = (data.products || data).sort((a, b) => a.id - b.id);
+  // Make images mutable copies
+  products.forEach(p => { p._images = (p.images || []).map(i => ({...i})); });
+  render();
+}
+
+// ── Render all images ─────────────────────────────────────────────────────────
+function render() {
+  // Collect all assigned URLs
+  const assigned = new Set(products.flatMap(p => p._images.map(i => i.url)));
+
+  // Image grid
+  document.getElementById('imgGrid').innerHTML = ALL_IMAGES.map((url, idx) => {
+    const isAssigned = assigned.has(url);
+    const isSel      = selectedImg === url;
+    return `<img src="${url}" class="img-thumb${isAssigned?' assigned':''}${isSel?' selected':''}"
+      title="${isAssigned ? '✅ Assigned' : 'Not assigned — click to select'}"
+      onclick="selectImg('${url}')" onerror="this.style.opacity='.2'" loading="lazy">`;
+  }).join('');
+
+  // Products list
+  document.getElementById('productsList').innerHTML = products.map(p => {
+    const imgs = p._images.map((img, i) => `
+      <div class="prod-img-wrap">
+        <img src="${img.url}" onerror="this.style.opacity='.1'" loading="lazy">
+        <button class="del" onclick="removeImg(${p.id}, '${img.url}')" title="Remove">×</button>
+      </div>`).join('');
+    return `<div class="prod-item" id="prod-${p.id}">
+      <div class="prod-header">
+        <div>
+          <div class="prod-name">#${p.id} ${p.name}</div>
+          <div class="prod-cat">${p.category} · ${p._images.length} image${p._images.length!==1?'s':''}</div>
+        </div>
+      </div>
+      <div class="prod-imgs">${imgs || '<span class="prod-empty">No images yet</span>'}</div>
+      <button class="assign-btn" onclick="assignTo(${p.id})">+ Assign selected image to this product</button>
+    </div>`;
+  }).join('');
+}
+
+function selectImg(url) {
+  selectedImg = (selectedImg === url) ? null : url;
+  const info  = document.getElementById('selectedInfo');
+  if (selectedImg) {
+    info.style.display = 'block';
+    info.textContent   = '✅ Image selected — now click a product to assign it';
+  } else {
+    info.style.display = 'none';
+  }
+  render();
+}
+
+function assignTo(prodId) {
+  if (!selectedImg) { alert('Click an image on the left first to select it'); return; }
+  const prod = products.find(p => p.id === prodId);
+  if (!prod) return;
+  // Avoid duplicates
+  if (prod._images.some(i => i.url === selectedImg)) {
+    alert('This image is already assigned to this product'); return;
+  }
+  prod._images.push({ url: selectedImg, type: selectedImg.endsWith('.png') ? 'image/png' : 'image/jpeg', name: 'assigned' });
+  render();
+}
+
+function removeImg(prodId, url) {
+  const prod = products.find(p => p.id === prodId);
+  if (!prod) return;
+  prod._images = prod._images.filter(i => i.url !== url);
+  render();
+}
+
+async function saveAll() {
+  if (!confirm(`Save all image assignments to shophere.in?\n\nThis will update all ${products.length} products on your live store.`)) return;
+
+  const btn = document.querySelector('.btn-save');
+  btn.disabled    = true;
+  btn.textContent = '⏳ Saving…';
+
+  let saved = 0, failed = 0;
+  for (const prod of products) {
+    try {
+      const res = await fetch(STORE + '/api/products/' + prod.id, {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ images: prod._images })
+      });
+      if (res.ok) saved++;
+      else failed++;
+    } catch(e) { failed++; }
+    btn.textContent = `⏳ Saving… ${saved}/${products.length}`;
+  }
+
+  btn.disabled    = false;
+  btn.textContent = '💾 Save All to Store';
+  alert(`✅ Done!\n${saved} products saved${failed ? '\n⚠️ ' + failed + ' failed' : ''}\n\nHard refresh shophere.in to see the changes.`);
+}
+
+init();
+</script>
+</body>
+</html>
