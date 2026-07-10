@@ -2731,8 +2731,8 @@ async function imgMgrRemove(url) {
 }
 
 // ── Custom Columns ────────────────────────────────────────────────────────────
-let allCustomCols = [];
-let ccEditId = null;
+var allCustomCols = [];
+var ccEditId = null;
 
 async function loadCustomCols() {
   try {
@@ -2911,9 +2911,6 @@ function ccRenderInput(col, value, extraStyle) {
   if (col.type === 'date') {
     return `<input type="date" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" style="width:120px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none">`;
   }
-  return `<input type="text" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" placeholder="—" style="${s}">`;
-}
-
   return `<input type="text" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" placeholder="—" style="${s}">`;
 }
 
