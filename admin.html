@@ -1446,10 +1446,8 @@ let allProds = [];
 
 async function loadProducts() {
   try {
-    // Load custom cols if available, don't block products if not ready
-    if (typeof loadCustomCols === 'function') {
-      try { await loadCustomCols(); } catch(e) {}
-    }
+    // Always load custom cols first and wait — ensures allCustomCols is populated
+    try { await loadCustomCols(); } catch(e) {}
     const prodRes = await fetch('/api/products?limit=500');
     if (!prodRes.ok) throw new Error('HTTP ' + prodRes.status);
     const data = await prodRes.json();
@@ -2737,7 +2735,8 @@ var ccEditId = null;
 async function loadCustomCols() {
   try {
     const res = await fetch('/api/customcolumns');
-    allCustomCols = window.allCustomCols = await res.json();
+    const data = await res.json();
+    allCustomCols = window.allCustomCols = data;
     renderCustomCols();
   } catch(e) { toast('❌ Could not load custom columns: ' + e.message); }
 }
@@ -2891,7 +2890,8 @@ async function ccSaveOrder() {
 
 // Helper: get custom cols for a specific table context
 function ccForTable(context) {
-  return allCustomCols.filter(c => {
+  const cols = window.allCustomCols || allCustomCols || [];
+  return cols.filter(c => {
     const s = Array.isArray(c.showIn) ? c.showIn : [c.showIn || ''];
     return s.includes(context) || s.includes('both') || s.includes('both-tables');
   });
