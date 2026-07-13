@@ -1490,8 +1490,19 @@ function renderProdTable(list) {
     const stockColor = p.stock === 0 ? 'var(--rd)' : p.stock <= 10 ? '#f97316' : 'var(--g)';
     const cf = p.customFields || {};
     const customCells = prodCols.map(c => {
-      const v = cf[c.key] !== undefined && cf[c.key] !== '' ? cf[c.key] : '<span style="color:#cbd5e1">—</span>';
-      return `<td style="font-size:.8rem">${v}</td>`;
+      const val = cf[c.key] !== undefined && cf[c.key] !== '' ? cf[c.key] : '';
+      let inputEl = '';
+      if (c.type === 'select') {
+        const opts = `<option value="">—</option>` + (c.options||[]).map(o => `<option${o===val?' selected':''}>${o}</option>`).join('');
+        inputEl = `<select class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" onchange="saveProdCf(${p.id},'${c.key}',this.value)" style="padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none;max-width:110px">${opts}</select>`;
+      } else if (c.type === 'number') {
+        inputEl = `<input type="number" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="width:90px;padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
+      } else if (c.type === 'date') {
+        inputEl = `<input type="date" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
+      } else {
+        inputEl = `<input type="text" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" placeholder="—" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="width:100px;padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
+      }
+      return `<td>${inputEl}</td>`;
     }).join('');
     return `<tr>
       <td>#${p.id}</td>
@@ -1510,6 +1521,22 @@ function renderProdTable(list) {
       </td>
     </tr>`;
   }).join('') : '<tr><td colspan="20" style="text-align:center;color:var(--m);padding:32px">No products found</td></tr>';
+}
+
+// Save a single custom field value for a product (called on blur/change in Products table)
+async function saveProdCf(prodId, key, value) {
+  try {
+    await fetch('/api/products/' + prodId + '/customfields', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [key]: value })
+    });
+    // Update local cache silently
+    const p = allProds.find(x => x.id === prodId);
+    if (p) { if (!p.customFields) p.customFields = {}; p.customFields[key] = value; }
+  } catch(e) {
+    toast('❌ Save failed: ' + e.message);
+  }
 }
 
 async function deleteProduct(id) {
@@ -1618,6 +1645,30 @@ async function openEdit(id) {
   const currentImgs = p.images && p.images.length
     ? `<div class="form-group"><label>Current Images</label><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">${p.images.map(img => `<img src="${img.url}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:2px solid var(--b)" alt="">`).join('')}</div></div>` : '';
 
+  // Build custom column fields for edit modal
+  const cf = p.customFields || {};
+  const allCols = window.allCustomCols || [];
+  const customFieldsHtml = allCols.length ? `
+    <hr style="margin:14px 0;border-color:var(--b)">
+    <h4 style="font-size:.85rem;font-weight:700;margin-bottom:10px;color:#475569">🗃️ Custom Fields</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${allCols.map(col => {
+        const val = cf[col.key] !== undefined ? cf[col.key] : '';
+        let input = '';
+        if (col.type === 'select') {
+          const opts = `<option value="">—</option>` + (col.options||[]).map(o => `<option${o===val?' selected':''}>${o}</option>`).join('');
+          input = `<select id="ep_cf_${col.key}" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">${opts}</select>`;
+        } else if (col.type === 'number') {
+          input = `<input type="number" id="ep_cf_${col.key}" value="${val}" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">`;
+        } else if (col.type === 'date') {
+          input = `<input type="date" id="ep_cf_${col.key}" value="${val}" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">`;
+        } else {
+          input = `<input type="text" id="ep_cf_${col.key}" value="${val}" placeholder="Enter ${col.label}" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">`;
+        }
+        return `<div class="form-group" style="margin:0"><label style="font-size:.75rem;font-weight:600;color:#64748b;display:block;margin-bottom:4px">${col.label}</label>${input}</div>`;
+      }).join('')}
+    </div>` : '';
+
   document.getElementById('editBody').innerHTML = `
     <div class="form-group"><label>Name</label><input id="ep_name" value="${p.name}"></div>
     <div class="form-row">
@@ -1654,6 +1705,7 @@ async function openEdit(id) {
       <input type="file" id="ep_audios" multiple accept="audio/*" onchange="previewAudios(this,'ep_audPrev')">
       <div id="ep_audPrev" style="font-size:.8rem;color:var(--m);margin-top:6px"></div>
     </div>
+    ${customFieldsHtml}
     <div style="display:flex;gap:8px;padding-top:16px;border-top:1px solid var(--b);margin-top:8px">
       <button class="btn btn-primary" onclick="saveEdit(${p.id})">Save Changes</button>
       <button class="btn btn-sec" onclick="closeEdit()">Cancel</button>
@@ -1681,6 +1733,18 @@ async function saveEdit(id) {
     const res = await fetch('/api/products/' + id, { method: 'PUT', body: fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    // Save custom fields
+    const customFields = {};
+    (window.allCustomCols || []).forEach(col => {
+      const el = document.getElementById('ep_cf_' + col.key);
+      if (el) customFields[col.key] = el.value;
+    });
+    if (Object.keys(customFields).length) {
+      await fetch('/api/products/' + id + '/customfields', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(customFields)
+      });
+    }
     toast('✅ Product updated!');
     closeEdit();
     loadProducts();
