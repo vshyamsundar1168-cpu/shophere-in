@@ -1235,8 +1235,8 @@ function populateCatDropdown(selectId, includeAll) {
 var allCustomCols = [];
 function ccForTable(context) {
   return (window.allCustomCols || []).filter(function(c) {
-    var s = Array.isArray(c.showIn) ? c.showIn : [c.showIn || 'inventory'];
-    return s.includes(context) || s.includes('both');
+    var s = Array.isArray(c.showIn) ? c.showIn : [c.showIn || ''];
+    return s.includes(context) || s.includes('both') || s.includes('both-tables');
   });
 }
 function ccRenderInput(col, value) {
@@ -2892,8 +2892,8 @@ async function ccSaveOrder() {
 // Helper: get custom cols for a specific table context
 function ccForTable(context) {
   return allCustomCols.filter(c => {
-    const s = Array.isArray(c.showIn) ? c.showIn : [c.showIn];
-    return s.includes(context) || s.includes('both');
+    const s = Array.isArray(c.showIn) ? c.showIn : [c.showIn || ''];
+    return s.includes(context) || s.includes('both') || s.includes('both-tables');
   });
 }
 
