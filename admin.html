@@ -2737,7 +2737,7 @@ var ccEditId = null;
 async function loadCustomCols() {
   try {
     const res = await fetch('/api/customcolumns');
-    allCustomCols = await res.json();
+    allCustomCols = window.allCustomCols = await res.json();
     renderCustomCols();
   } catch(e) { toast('❌ Could not load custom columns: ' + e.message); }
 }
