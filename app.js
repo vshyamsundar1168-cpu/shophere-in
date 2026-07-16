@@ -878,8 +878,6 @@ async function loadPageBlocks(){
         'width':            s.width,
         'min-height':       s.minHeight,
       }).filter(([,v])=>v).map(([k,v])=>`${k}:${v}`).join(';');
-        s.minHeight        ? `min-height:${s.minHeight}` : '',
-      ].filter(Boolean).join(';');
 
       const animClass = s.animation ? ` ${s.animation}` : '';
 
