@@ -821,63 +821,174 @@ async function loadPageBlocks(){
     const blocks = await fetch('/api/pageblocks').then(r=>r.json());
     const visible = blocks.filter(b=>b.visible!==false);
 
-    // Render blocks into their zones
-    const zones = {
-      'home':   ['pb-zone-home-top','pb-zone-home-bottom'],
-      'header': ['pb-zone-header'],
-      'footer': ['pb-zone-footer'],
-      'products':['pb-zone-products'],
-      'custom': ['pb-zone-custom']
-    };
+    // Inject animation keyframes once
+    if(!document.getElementById('pb-anim-styles')){
+      const st=document.createElement('style');
+      st.id='pb-anim-styles';
+      st.textContent=`
+        @keyframes pb-fade-in{from{opacity:0}to{opacity:1}}
+        @keyframes pb-slide-up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+        @keyframes pb-slide-down{from{transform:translateY(-24px);opacity:0}to{transform:none;opacity:1}}
+        @keyframes pb-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        @keyframes pb-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+        @keyframes pb-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+        @keyframes pb-marquee{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+        .pb-fade-in{animation:pb-fade-in .7s ease forwards}
+        .pb-slide-up{animation:pb-slide-up .6s ease forwards}
+        .pb-slide-down{animation:pb-slide-down .6s ease forwards}
+        .pb-bounce{animation:pb-bounce 1.2s ease infinite}
+        .pb-pulse{animation:pb-pulse 2s ease infinite}
+        .pb-shake{animation:pb-shake .4s ease infinite}
+        .pb-floating-block{position:fixed;z-index:9990}
+        .pb-sticky-block{position:sticky;z-index:100;top:0}
+      `;
+      document.head.appendChild(st);
+    }
 
-    // Clear all zones
+    // Clear all inline zones
     document.querySelectorAll('.pb-zone').forEach(z=>z.innerHTML='');
+    // Remove existing floating/fixed blocks
+    document.querySelectorAll('.pb-floating-block,.pb-dynamic-top').forEach(e=>e.remove());
 
     visible.forEach(b=>{
-      const zoneId = b.page==='home' ? 'pb-zone-home-bottom' :
-                     b.page==='header' ? 'pb-zone-header' :
-                     b.page==='footer' ? 'pb-zone-footer' :
-                     b.page==='products' ? 'pb-zone-products' : 'pb-zone-custom';
-      const zone = document.getElementById(zoneId);
-      if(!zone) return;
+      const s = b.style || {};
 
-      const style = b.style || {};
+      // Build full CSS string from style object
       const styleStr = [
-        style.color ? `color:${style.color}` : '',
-        style.background && style.background!=='#ffffff' ? `background:${style.background}` : '',
-        style.fontSize ? `font-size:${style.fontSize}` : '',
-        style.padding ? `padding:${style.padding}` : '',
-        style.borderRadius ? `border-radius:${style.borderRadius}` : '',
-        style.textAlign ? `text-align:${style.textAlign}` : ''
+        s.color            ? `color:${s.color}` : '',
+        s.background && s.background!=='#ffffff' ? `background:${s.background}` : '',
+        s.backgroundImage  ? `background-image:${s.backgroundImage};background-size:${s.backgroundSize||'cover'};background-position:center` : '',
+        s.fontSize         ? `font-size:${s.fontSize}` : '',
+        s.fontWeight       ? `font-weight:${s.fontWeight}` : '',
+        s.textAlign        ? `text-align:${s.textAlign}` : '',
+        s.lineHeight       ? `line-height:${s.lineHeight}` : '',
+        s.padding          ? `padding:${s.padding}` : '',
+        s.margin           ? `margin:${s.margin}` : '',
+        s.borderRadius     ? `border-radius:${s.borderRadius}` : '',
+        s.borderWidth && s.borderStyle ? `border:${s.borderWidth} ${s.borderStyle} ${s.borderColor||'#e2e8f0'}` : '',
+        s.boxShadow        ? `box-shadow:${s.boxShadow}` : '',
+        s.opacity          ? `opacity:${s.opacity}` : '',
+        s.width            ? `width:${s.width}` : '',
+        s.minHeight        ? `min-height:${s.minHeight}` : '',
       ].filter(Boolean).join(';');
 
+      const animClass = s.animation ? ` ${s.animation}` : '';
+
+      // Build block HTML
       let html = '';
       if(b.type==='text'){
-        html=`<div style="${styleStr}">${b.content||''}</div>`;
+        html=`<div class="${animClass.trim()}" style="${styleStr}">${b.content||''}</div>`;
       } else if(b.type==='heading'){
-        html=`<h2 style="font-size:1.4rem;font-weight:800;padding:16px 24px;${styleStr}">${b.content||''}</h2>`;
-      } else if(b.type==='image'){
-        const img=`<img src="${b.content||''}" alt="${b.alt||''}" style="max-width:100%;border-radius:${style.borderRadius||'0'};display:block">`;
-        html=`<div style="padding:${style.padding||'0'};${styleStr}">${b.link?`<a href="${b.link}">${img}</a>`:img}</div>`;
+        html=`<h2 class="${animClass.trim()}" style="font-weight:800;${styleStr}">${b.content||''}</h2>`;
+      } else if(b.type==='image'||b.type==='image-link'){
+        const imgS=`max-width:100%;display:block;${s.borderRadius?'border-radius:'+s.borderRadius:''}${s.width?';width:'+s.width:''}`;
+        const img=`<img src="${b.content||''}" alt="${b.alt||''}" style="${imgS}" loading="lazy" onerror="this.style.display='none'">`;
+        const inner=b.link?`<a href="${b.link}" target="${b.target||'_self'}" title="${b.alt||''}">${img}</a>`:img;
+        html=`<div class="${animClass.trim()}" style="${styleStr}">${inner}</div>`;
       } else if(b.type==='video'){
-        html=`<div style="padding:16px 24px;${styleStr}"><video src="${b.content||''}" controls style="width:100%;border-radius:8px;max-height:400px"></video>${b.alt?`<p style="font-size:.82rem;color:var(--m);margin-top:6px">${b.alt}</p>`:''}</div>`;
+        html=`<div class="${animClass.trim()}" style="${styleStr}"><video src="${b.content||''}" controls style="width:100%;border-radius:${s.borderRadius||'8px'};max-height:400px"></video>${b.alt?`<p style="font-size:.82rem;color:var(--m);margin-top:6px">${b.alt}</p>`:''}</div>`;
       } else if(b.type==='audio'){
-        html=`<div style="padding:12px 24px;${styleStr}">${b.alt?`<p style="font-size:.84rem;font-weight:600;margin-bottom:6px">${b.alt}</p>`:''}<audio src="${b.content||''}" controls style="width:100%"></audio></div>`;
+        html=`<div class="${animClass.trim()}" style="${styleStr}">${b.alt?`<p style="font-size:.84rem;font-weight:600;margin-bottom:6px">${b.alt}</p>`:''}<audio src="${b.content||''}" controls style="width:100%"></audio></div>`;
       } else if(b.type==='button'){
-        const btnStyle=`background:${b.btnColor||'var(--p)'};color:#fff;padding:12px 28px;border:none;border-radius:50px;font-size:.9rem;font-weight:700;cursor:pointer;display:inline-block;text-decoration:none;${styleStr}`;
-        html=`<div style="padding:16px 24px;text-align:${style.textAlign||'center'}"><a href="${b.link||'#'}" style="${btnStyle}">${b.content||'Click Here'}</a></div>`;
+        const btnS=`background:${b.btnColor||s.background||'var(--p)'};color:${s.color||'#fff'};padding:${s.padding||'12px 28px'};border:none;border-radius:${s.borderRadius||'50px'};font-size:${s.fontSize||'.9rem'};font-weight:700;cursor:pointer;display:inline-block;text-decoration:none`;
+        html=`<div class="${animClass.trim()}" style="text-align:${s.textAlign||'center'};${styleStr}"><a href="${b.link||'#'}" style="${btnS}">${b.content||'Click Here'}</a></div>`;
+      } else if(b.type==='marquee'){
+        const speed={'slow':'20s','normal':'12s','fast':'6s'}[b.alt||'normal']||'12s';
+        const parts=(b.content||'').split('|').map(t=>t.trim()).filter(Boolean).join(' &nbsp;•&nbsp; ');
+        html=`<div style="overflow:hidden;${styleStr}"><div style="white-space:nowrap;display:inline-block;animation:pb-marquee ${speed} linear infinite">${parts}&nbsp;&nbsp;&nbsp;&nbsp;${parts}</div></div>`;
+      } else if(b.type==='countdown'){
+        const endDate=b.content;
+        const endedMsg=b.link||'Offer ended!';
+        const label=b.alt||'Sale ends in:';
+        const cdId='pb-cd-'+b.id;
+        html=`<div class="${animClass.trim()}" style="${styleStr};text-align:${s.textAlign||'center'}">
+          <div style="font-weight:600;margin-bottom:8px">${label}</div>
+          <div id="${cdId}" style="display:flex;gap:8px;justify-content:${s.textAlign==='left'?'flex-start':s.textAlign==='right'?'flex-end':'center'}">
+            <span class="pb-cd-h" style="background:${s.background||'#1e293b'};color:${s.color||'#fff'};padding:8px 14px;border-radius:8px;font-size:1.4rem;font-weight:800;min-width:52px;text-align:center">--</span>
+            <span style="font-size:1.4rem;font-weight:800;line-height:2.2">:</span>
+            <span class="pb-cd-m" style="background:${s.background||'#1e293b'};color:${s.color||'#fff'};padding:8px 14px;border-radius:8px;font-size:1.4rem;font-weight:800;min-width:52px;text-align:center">--</span>
+            <span style="font-size:1.4rem;font-weight:800;line-height:2.2">:</span>
+            <span class="pb-cd-s" style="background:${s.background||'#1e293b'};color:${s.color||'#fff'};padding:8px 14px;border-radius:8px;font-size:1.4rem;font-weight:800;min-width:52px;text-align:center">--</span>
+          </div>
+          <small style="color:var(--m);font-size:.72rem">Hours : Minutes : Seconds</small>
+        </div>`;
+        // Start countdown timer after render
+        setTimeout(()=>{
+          const el=document.getElementById(cdId);
+          if(!el||!endDate) return;
+          const tick=()=>{
+            const diff=new Date(endDate)-new Date();
+            if(diff<=0){el.innerHTML=`<span style="color:#ef4444;font-weight:700">${endedMsg}</span>`;return;}
+            const h=Math.floor(diff/3600000);
+            const m=Math.floor((diff%3600000)/60000);
+            const s2=Math.floor((diff%60000)/1000);
+            const pad=n=>String(n).padStart(2,'0');
+            el.querySelector('.pb-cd-h').textContent=pad(h);
+            el.querySelector('.pb-cd-m').textContent=pad(m);
+            el.querySelector('.pb-cd-s').textContent=pad(s2);
+          };
+          tick();
+          setInterval(tick,1000);
+        },100);
+      } else if(b.type==='notice'){
+        const colors={info:['#eff6ff','#1d4ed8','#bfdbfe'],success:['#f0fdf4','#166534','#bbf7d0'],warning:['#fff7ed','#c2410c','#fed7aa'],error:['#fef2f2','#991b1b','#fecaca'],promo:['#faf5ff','#7c3aed','#e9d5ff']};
+        const [bg,tc,bc]=colors[b.alt||'info']||colors.info;
+        const icon=b.link||'';
+        html=`<div class="${animClass.trim()}" style="background:${s.background||bg};color:${s.color||tc};border:1.5px solid ${s.borderColor||bc};border-radius:${s.borderRadius||'8px'};padding:${s.padding||'12px 16px'};${styleStr}">${icon?icon+' ':''}<strong>${b.content||''}</strong></div>`;
       } else if(b.type==='divider'){
-        const ds=b.content||'solid';
-        html=`<div style="padding:${style.padding||'8px 24px'}"><hr style="border:none;border-top:2px ${ds} ${style.color||'var(--b)'}"></div>`;
+        html=`<div style="${styleStr}"><hr style="border:none;border-top:${s.borderWidth||'2px'} ${b.content||'solid'} ${s.borderColor||s.color||'var(--b)'}"></div>`;
       } else if(b.type==='spacer'){
         html=`<div style="height:${b.content||'40'}px"></div>`;
       } else if(b.type==='html'){
-        html=`<div style="${styleStr}">${b.content||''}</div>`;
+        html=`<div class="${animClass.trim()}" style="${styleStr}">${b.content||''}</div>`;
       }
 
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = html;
-      zone.appendChild(wrapper);
+      if(!html) return;
+
+      // Determine positioning & zone
+      const isFixed  = s.position==='fixed';
+      const isSticky = s.position==='sticky';
+
+      if(isFixed || b.page==='floating'){
+        // Floating/fixed — inject directly into body
+        const wrap=document.createElement('div');
+        wrap.className='pb-floating-block';
+        wrap.style.cssText=`position:fixed;z-index:${s.zIndex||9990};top:${s.top||'auto'};right:${s.right||'20px'};bottom:${(!s.top||s.top==='auto')?'20px':'auto'}`;
+        wrap.innerHTML=html;
+        document.body.appendChild(wrap);
+        return;
+      }
+
+      if(b.page==='top'){
+        const wrap=document.createElement('div');
+        wrap.className='pb-dynamic-top';
+        if(isSticky) wrap.style.cssText=`position:sticky;top:0;z-index:${s.zIndex||100}`;
+        wrap.innerHTML=html;
+        const header=document.querySelector('header,.main-header,.top-bar,.announcement-bar,nav');
+        if(header) document.body.insertBefore(wrap,header);
+        else document.body.insertBefore(wrap,document.body.firstChild);
+        return;
+      }
+
+      // Standard zones
+      const zoneMap={
+        'home':'pb-zone-home-bottom',
+        'header':'pb-zone-header',
+        'footer':'pb-zone-footer',
+        'products':'pb-zone-products',
+        'between':'pb-zone-between',
+        'sidebar':'pb-zone-sidebar',
+        'custom':'pb-zone-custom'
+      };
+      const zoneId=zoneMap[b.page]||'pb-zone-custom';
+      const zone=document.getElementById(zoneId);
+      if(!zone) return;
+
+      const wrap=document.createElement('div');
+      if(isSticky) wrap.style.cssText=`position:sticky;top:0;z-index:${s.zIndex||100}`;
+      wrap.innerHTML=html;
+      zone.appendChild(wrap);
     });
   }catch(e){console.warn('Page blocks failed',e.message);}
 }
+

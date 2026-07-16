@@ -607,11 +607,15 @@ if(window.location.protocol==='file:'){
 
     <!-- Filter by page -->
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      <button class="pb-page-btn active" onclick="pbFilterPage('all',this)">All Pages</button>
+      <button class="pb-page-btn active" onclick="pbFilterPage('all',this)">All</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('top',this)">⬆️ Top</button>
       <button class="pb-page-btn" onclick="pbFilterPage('home',this)">🏠 Home</button>
       <button class="pb-page-btn" onclick="pbFilterPage('header',this)">🔝 Header</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('footer',this)">🦶 Footer</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('between',this)">↕️ Between</button>
       <button class="pb-page-btn" onclick="pbFilterPage('products',this)">📦 Products</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('footer',this)">🦶 Footer</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('floating',this)">📌 Floating</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('sidebar',this)">📎 Sidebar</button>
       <button class="pb-page-btn" onclick="pbFilterPage('custom',this)">✨ Custom</button>
     </div>
 
@@ -639,8 +643,12 @@ if(window.location.protocol==='file:'){
           <select id="pb_page" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
             <option value="home">🏠 Home Page</option>
             <option value="header">🔝 Header Area</option>
+            <option value="top">⬆️ Top of Page (above header)</option>
             <option value="footer">🦶 Footer Area</option>
             <option value="products">📦 Products Section</option>
+            <option value="between">↕️ Between Sections</option>
+            <option value="floating">📌 Floating / Popup Ad</option>
+            <option value="sidebar">📎 Sidebar</option>
             <option value="custom">✨ Custom Section</option>
           </select>
         </div>
@@ -650,9 +658,13 @@ if(window.location.protocol==='file:'){
             <option value="text">📝 Text / HTML</option>
             <option value="heading">🔤 Heading</option>
             <option value="image">🖼️ Image</option>
+            <option value="image-link">🔗 Image + Link (Ad Banner)</option>
             <option value="video">🎬 Video</option>
             <option value="audio">🎵 Audio</option>
             <option value="button">🔘 Button / Link</option>
+            <option value="marquee">📢 Scrolling Marquee Text</option>
+            <option value="countdown">⏳ Countdown Timer</option>
+            <option value="notice">📣 Notice / Alert Box</option>
             <option value="divider">➖ Divider</option>
             <option value="spacer">⬜ Spacer</option>
             <option value="html">🧩 Custom HTML</option>
@@ -668,20 +680,99 @@ if(window.location.protocol==='file:'){
       <!-- Dynamic fields based on type -->
       <div id="pb_fields"></div>
 
-      <!-- Style overrides -->
-      <details style="margin-top:14px;background:#f8fafc;border:1px solid var(--b);border-radius:8px;overflow:hidden">
-        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none">🎨 Style Options (optional)</summary>
-        <div style="padding:14px;border-top:1px solid var(--b);display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-          <div class="form-group" style="margin:0"><label>Text Color</label><input type="color" id="pb_textColor" value="#1e293b" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>
-          <div class="form-group" style="margin:0"><label>Background</label><input type="color" id="pb_bgColor" value="#ffffff" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>
-          <div class="form-group" style="margin:0"><label>Font Size (px)</label><input type="number" id="pb_fontSize" placeholder="16" min="8" max="120" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
-          <div class="form-group" style="margin:0"><label>Padding</label><input id="pb_padding" placeholder="10px 20px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
-          <div class="form-group" style="margin:0"><label>Border Radius</label><input id="pb_radius" placeholder="8px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
-          <div class="form-group" style="margin:0"><label>Text Align</label>
-            <select id="pb_align" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
-              <option value="">Default</option><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option>
-            </select>
+      <!-- Rich Style Editor -->
+      <details open style="margin-top:14px;background:#f8fafc;border:1px solid var(--b);border-radius:8px;overflow:hidden">
+        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none">🎨 Style &amp; Layout (click to expand)</summary>
+        <div style="padding:14px;border-top:1px solid var(--b)">
+
+          <!-- Row 1: Colors -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-group" style="margin:0"><label>Text Color</label><input type="color" id="pb_textColor" value="#1e293b" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>
+            <div class="form-group" style="margin:0"><label>Background Color</label><input type="color" id="pb_bgColor" value="#ffffff" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>
+            <div class="form-group" style="margin:0"><label>Border Color</label><input type="color" id="pb_borderColor" value="#e2e8f0" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>
           </div>
+
+          <!-- Row 2: Typography -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-group" style="margin:0"><label>Font Size (px)</label><input type="number" id="pb_fontSize" placeholder="16" min="8" max="120" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Font Weight</label>
+              <select id="pb_fontWeight" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+                <option value="">Default</option><option value="400">Normal</option><option value="600">Semi-Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0"><label>Text Align</label>
+              <select id="pb_align" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+                <option value="">Default</option><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option><option value="justify">Justify</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0"><label>Line Height</label><input type="number" id="pb_lineHeight" placeholder="1.5" min="1" max="4" step="0.1" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+          </div>
+
+          <!-- Row 3: Sizing -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-group" style="margin:0"><label>Width</label><input id="pb_width" placeholder="100% or 400px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Min Height</label><input id="pb_minHeight" placeholder="auto or 200px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Padding</label><input id="pb_padding" placeholder="10px 20px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Margin</label><input id="pb_margin" placeholder="0px or 10px auto" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+          </div>
+
+          <!-- Row 4: Border & Shadow -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-group" style="margin:0"><label>Border Radius</label><input id="pb_radius" placeholder="8px or 50%" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Border Width</label><input id="pb_borderWidth" placeholder="0px or 2px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Border Style</label>
+              <select id="pb_borderStyle" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+                <option value="">None</option><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option><option value="double">Double</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0"><label>Box Shadow</label><input id="pb_shadow" placeholder="0 2px 8px rgba(0,0,0,.1)" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+          </div>
+
+          <!-- Row 5: Effects -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-group" style="margin:0"><label>Opacity (0–1)</label><input type="number" id="pb_opacity" placeholder="1" min="0" max="1" step="0.1" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Bg Image URL</label><input id="pb_bgImage" placeholder="https://... or /uploads/..." style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Bg Size</label>
+              <select id="pb_bgSize" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+                <option value="">Default</option><option value="cover">Cover</option><option value="contain">Contain</option><option value="auto">Auto</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0"><label>Animation</label>
+              <select id="pb_animation" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+                <option value="">None</option>
+                <option value="pb-fade-in">Fade In</option>
+                <option value="pb-slide-up">Slide Up</option>
+                <option value="pb-slide-down">Slide Down</option>
+                <option value="pb-bounce">Bounce</option>
+                <option value="pb-pulse">Pulse</option>
+                <option value="pb-shake">Shake</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 6: Positioning (for floating/sticky) -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+            <div class="form-group" style="margin:0"><label>Position Type</label>
+              <select id="pb_position" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+                <option value="">Normal (inline)</option>
+                <option value="fixed">Fixed (always visible)</option>
+                <option value="sticky">Sticky (sticks on scroll)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0"><label>Position: Top</label><input id="pb_posTop" placeholder="auto or 20px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Position: Right</label><input id="pb_posRight" placeholder="auto or 20px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Z-Index</label><input type="number" id="pb_zIndex" placeholder="1 or 999" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- Live Preview -->
+      <details style="margin-top:10px;background:#1e293b;border-radius:8px;overflow:hidden">
+        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none;color:#fff">👁️ Live Preview</summary>
+        <div style="padding:14px;border-top:1px solid rgba(255,255,255,.1)">
+          <button onclick="pbPreview()" style="padding:7px 16px;background:#f97316;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:10px">🔄 Refresh Preview</button>
+          <div id="pb_preview" style="background:#fff;border-radius:8px;padding:16px;min-height:60px"></div>
         </div>
       </details>
 
@@ -2217,6 +2308,12 @@ function pbTypeChanged() {
     <div class="form-group"><label>Alt Text</label><input id="pb_alt" placeholder="Image description"></div>
     <div class="form-group"><label>Upload Image</label><input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadImg(this)"></div>
     <div class="form-group"><label>Link URL (optional)</label><input id="pb_link" placeholder="https://..."></div>`;
+  } else if (type === 'image-link') {
+    fields.innerHTML = `<div class="form-group"><label>Ad Image URL *</label><input id="pb_content" placeholder="https://... or /uploads/..." value="${fields._val||''}"></div>
+    <div class="form-group"><label>Upload Ad Image</label><input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadImg(this)"></div>
+    <div class="form-group"><label>Click Link URL *</label><input id="pb_link" placeholder="https://example.com or /products"></div>
+    <div class="form-group"><label>Alt / Tooltip Text</label><input id="pb_alt" placeholder="Click to shop now!"></div>
+    <div class="form-group"><label>Open in</label><select id="pb_target" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="_self">Same Tab</option><option value="_blank">New Tab</option></select></div>`;
   } else if (type === 'video') {
     fields.innerHTML = `<div class="form-group"><label>Video URL or /uploads/... path</label><input id="pb_content" placeholder="/uploads/video.mp4 or https://youtube.com/..." value="${fields._val||''}"></div>
     <div class="form-group"><label>Upload Video</label><input type="file" id="pb_vidfile" accept="video/mp4,video/webm" onchange="pbUploadVideo(this)"></div>
@@ -2229,6 +2326,17 @@ function pbTypeChanged() {
     fields.innerHTML = `<div class="form-group"><label>Button Label</label><input id="pb_content" placeholder="Click Here" value="${fields._val||''}"></div>
     <div class="form-group"><label>Button Link URL</label><input id="pb_link" placeholder="https://... or /products"></div>
     <div class="form-group"><label>Button Color</label><input type="color" id="pb_btnColor" value="#f97316" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>`;
+  } else if (type === 'marquee') {
+    fields.innerHTML = `<div class="form-group"><label>Scrolling Text (use | to separate messages)</label><input id="pb_content" placeholder="Sale now on! | Free shipping above ₹999 | New arrivals every week" value="${fields._val||''}"></div>
+    <div class="form-group"><label>Scroll Speed</label><select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>`;
+  } else if (type === 'countdown') {
+    fields.innerHTML = `<div class="form-group"><label>Countdown Label (e.g. "Sale ends in:")</label><input id="pb_alt" placeholder="Sale ends in:" value="${fields._alt||'Sale ends in:'}"></div>
+    <div class="form-group"><label>End Date &amp; Time</label><input type="datetime-local" id="pb_content" value="${fields._val||''}"></div>
+    <div class="form-group"><label>Message after countdown ends</label><input id="pb_link" placeholder="Sale ended!" value="${fields._link||''}"></div>`;
+  } else if (type === 'notice') {
+    fields.innerHTML = `<div class="form-group"><label>Notice Text</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Important notice for your customers…">${fields._val||''}</textarea></div>
+    <div class="form-group"><label>Notice Style</label><select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="info">ℹ️ Info (Blue)</option><option value="success">✅ Success (Green)</option><option value="warning">⚠️ Warning (Orange)</option><option value="error">❌ Alert (Red)</option><option value="promo">🎉 Promo (Purple)</option></select></div>
+    <div class="form-group"><label>Icon / Emoji (optional)</label><input id="pb_link" placeholder="🎁 or 🚨" value="${fields._link||''}"></div>`;
   } else if (type === 'html') {
     fields.innerHTML = `<div class="form-group"><label>Custom HTML Code</label><textarea id="pb_content" style="min-height:150px;font-family:monospace;font-size:.82rem" placeholder="&lt;div&gt;Your HTML here&lt;/div&gt;">${fields._val||''}</textarea></div>`;
   } else if (type === 'divider') {
@@ -2246,12 +2354,31 @@ function pbOpenAdd() {
   document.getElementById('pb_type').value = 'text';
   document.getElementById('pb_fields')._val = '';
   pbTypeChanged();
+  // Reset all style fields
   document.getElementById('pb_textColor').value = '#1e293b';
   document.getElementById('pb_bgColor').value = '#ffffff';
+  document.getElementById('pb_borderColor').value = '#e2e8f0';
   document.getElementById('pb_fontSize').value = '';
-  document.getElementById('pb_padding').value = '';
-  document.getElementById('pb_radius').value = '';
+  document.getElementById('pb_fontWeight').value = '';
   document.getElementById('pb_align').value = '';
+  document.getElementById('pb_lineHeight').value = '';
+  document.getElementById('pb_width').value = '';
+  document.getElementById('pb_minHeight').value = '';
+  document.getElementById('pb_padding').value = '';
+  document.getElementById('pb_margin').value = '';
+  document.getElementById('pb_radius').value = '';
+  document.getElementById('pb_borderWidth').value = '';
+  document.getElementById('pb_borderStyle').value = '';
+  document.getElementById('pb_shadow').value = '';
+  document.getElementById('pb_opacity').value = '';
+  document.getElementById('pb_bgImage').value = '';
+  document.getElementById('pb_bgSize').value = '';
+  document.getElementById('pb_animation').value = '';
+  document.getElementById('pb_position').value = '';
+  document.getElementById('pb_posTop').value = '';
+  document.getElementById('pb_posRight').value = '';
+  document.getElementById('pb_zIndex').value = '';
+  document.getElementById('pb_preview').innerHTML = '';
   document.getElementById('pbModal').classList.add('open');
 }
 
@@ -2274,12 +2401,31 @@ function pbOpenEdit(id) {
     const bc = document.getElementById('pb_btnColor'); if (bc && b.btnColor) bc.value = b.btnColor;
   }, 50);
   if (b.style) {
-    document.getElementById('pb_textColor').value = b.style.color || '#1e293b';
-    document.getElementById('pb_bgColor').value = b.style.background || '#ffffff';
-    document.getElementById('pb_fontSize').value = b.style.fontSize ? parseInt(b.style.fontSize) : '';
-    document.getElementById('pb_padding').value = b.style.padding || '';
-    document.getElementById('pb_radius').value = b.style.borderRadius || '';
-    document.getElementById('pb_align').value = b.style.textAlign || '';
+    const s = b.style;
+    const gv = id => { const e = document.getElementById(id); if(e) e.value = s[id.replace('pb_','')] || s[id] || ''; };
+    document.getElementById('pb_textColor').value = s.color || '#1e293b';
+    document.getElementById('pb_bgColor').value = s.background || '#ffffff';
+    document.getElementById('pb_borderColor').value = s.borderColor || '#e2e8f0';
+    document.getElementById('pb_fontSize').value = s.fontSize ? parseInt(s.fontSize) : '';
+    document.getElementById('pb_fontWeight').value = s.fontWeight || '';
+    document.getElementById('pb_align').value = s.textAlign || '';
+    document.getElementById('pb_lineHeight').value = s.lineHeight || '';
+    document.getElementById('pb_width').value = s.width || '';
+    document.getElementById('pb_minHeight').value = s.minHeight || '';
+    document.getElementById('pb_padding').value = s.padding || '';
+    document.getElementById('pb_margin').value = s.margin || '';
+    document.getElementById('pb_radius').value = s.borderRadius || '';
+    document.getElementById('pb_borderWidth').value = s.borderWidth || '';
+    document.getElementById('pb_borderStyle').value = s.borderStyle || '';
+    document.getElementById('pb_shadow').value = s.boxShadow || '';
+    document.getElementById('pb_opacity').value = s.opacity || '';
+    document.getElementById('pb_bgImage').value = s.backgroundImage ? s.backgroundImage.replace(/url\(['"]?|['"]?\)/g,'') : '';
+    document.getElementById('pb_bgSize').value = s.backgroundSize || '';
+    document.getElementById('pb_animation').value = s.animation || '';
+    document.getElementById('pb_position').value = s.position || '';
+    document.getElementById('pb_posTop').value = s.top || '';
+    document.getElementById('pb_posRight').value = s.right || '';
+    document.getElementById('pb_zIndex').value = s.zIndex || '';
   }
   document.getElementById('pbModal').classList.add('open');
 }
@@ -2291,19 +2437,44 @@ async function pbSaveBlock() {
   const page  = document.getElementById('pb_page').value;
   const type  = document.getElementById('pb_type').value;
   const contentEl = document.getElementById('pb_content');
-  const content = contentEl ? (contentEl.tagName==='TEXTAREA'?contentEl.value:contentEl.value) : '';
-  const alt   = (document.getElementById('pb_alt')||{}).value || '';
-  const link  = (document.getElementById('pb_link')||{}).value || '';
-  const btnColor = (document.getElementById('pb_btnColor')||{}).value || '';
+  const content = contentEl ? contentEl.value : '';
+  const alt     = (document.getElementById('pb_alt')    ||{}).value || '';
+  const link    = (document.getElementById('pb_link')   ||{}).value || '';
+  const target  = (document.getElementById('pb_target') ||{}).value || '_self';
+  const btnColor= (document.getElementById('pb_btnColor')||{}).value || '';
+
+  // Collect full style object
+  const gv = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const bgImg = gv('pb_bgImage');
   const style = {
-    color: document.getElementById('pb_textColor').value || '',
-    background: document.getElementById('pb_bgColor').value || '',
-    fontSize: document.getElementById('pb_fontSize').value ? document.getElementById('pb_fontSize').value+'px' : '',
-    padding: document.getElementById('pb_padding').value || '',
-    borderRadius: document.getElementById('pb_radius').value || '',
-    textAlign: document.getElementById('pb_align').value || ''
+    color:           gv('pb_textColor'),
+    background:      gv('pb_bgColor'),
+    borderColor:     gv('pb_borderColor'),
+    fontSize:        gv('pb_fontSize')    ? gv('pb_fontSize')+'px'    : '',
+    fontWeight:      gv('pb_fontWeight'),
+    textAlign:       gv('pb_align'),
+    lineHeight:      gv('pb_lineHeight'),
+    width:           gv('pb_width'),
+    minHeight:       gv('pb_minHeight'),
+    padding:         gv('pb_padding'),
+    margin:          gv('pb_margin'),
+    borderRadius:    gv('pb_radius'),
+    borderWidth:     gv('pb_borderWidth'),
+    borderStyle:     gv('pb_borderStyle'),
+    boxShadow:       gv('pb_shadow'),
+    opacity:         gv('pb_opacity'),
+    backgroundImage: bgImg ? `url('${bgImg}')` : '',
+    backgroundSize:  gv('pb_bgSize'),
+    animation:       gv('pb_animation'),
+    position:        gv('pb_position'),
+    top:             gv('pb_posTop'),
+    right:           gv('pb_posRight'),
+    zIndex:          gv('pb_zIndex'),
   };
-  const block = { title, page, type, content, alt, link, btnColor, style, visible: true };
+  // Remove empty keys
+  Object.keys(style).forEach(k => { if (!style[k]) delete style[k]; });
+
+  const block = { title, page, type, content, alt, link, target, btnColor, style, visible: true };
 
   try {
     if (pbEditId) {
@@ -2316,6 +2487,69 @@ async function pbSaveBlock() {
     closePbModal();
     pbLoadBlocks();
   } catch(e) { toast('❌ Save failed: ' + e.message); }
+}
+
+// Live preview of block in the modal
+function pbPreview() {
+  const type    = document.getElementById('pb_type').value;
+  const contentEl = document.getElementById('pb_content');
+  const content = contentEl ? contentEl.value : '';
+  const alt     = (document.getElementById('pb_alt')  ||{}).value || '';
+  const link    = (document.getElementById('pb_link') ||{}).value || '';
+  const gv = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const bgImg   = gv('pb_bgImage');
+
+  const style = [
+    gv('pb_textColor')   ? `color:${gv('pb_textColor')}` : '',
+    gv('pb_bgColor') && gv('pb_bgColor') !== '#ffffff' ? `background:${gv('pb_bgColor')}` : '',
+    gv('pb_fontSize')    ? `font-size:${gv('pb_fontSize')}px` : '',
+    gv('pb_fontWeight')  ? `font-weight:${gv('pb_fontWeight')}` : '',
+    gv('pb_align')       ? `text-align:${gv('pb_align')}` : '',
+    gv('pb_padding')     ? `padding:${gv('pb_padding')}` : 'padding:12px',
+    gv('pb_margin')      ? `margin:${gv('pb_margin')}` : '',
+    gv('pb_radius')      ? `border-radius:${gv('pb_radius')}` : '',
+    gv('pb_shadow')      ? `box-shadow:${gv('pb_shadow')}` : '',
+    gv('pb_width')       ? `width:${gv('pb_width')}` : '',
+    gv('pb_minHeight')   ? `min-height:${gv('pb_minHeight')}` : '',
+    gv('pb_opacity')     ? `opacity:${gv('pb_opacity')}` : '',
+    bgImg                ? `background-image:url('${bgImg}');background-size:${gv('pb_bgSize')||'cover'}` : '',
+    gv('pb_borderWidth') && gv('pb_borderStyle') ? `border:${gv('pb_borderWidth')} ${gv('pb_borderStyle')} ${gv('pb_borderColor')||'#e2e8f0'}` : '',
+  ].filter(Boolean).join(';');
+
+  const anim = gv('pb_animation');
+  const animClass = anim ? ` class="${anim}"` : '';
+
+  let html = '';
+  if (type === 'text') {
+    html = `<div${animClass} style="${style}">${content || '<em style="color:#94a3b8">Your text here…</em>'}</div>`;
+  } else if (type === 'heading') {
+    html = `<h2${animClass} style="${style};font-weight:700">${content || 'Heading Text'}</h2>`;
+  } else if (type === 'image' || type === 'image-link') {
+    const imgStyle = `max-width:100%;border-radius:${gv('pb_radius')||'8px'};display:block;${gv('pb_width')?'width:'+gv('pb_width'):''}`;
+    const img = `<img src="${content||''}" style="${imgStyle}" alt="${alt}" onerror="this.style.display='none'">`;
+    html = link ? `<a href="${link}" target="_blank" style="display:block">${img}</a>` : img;
+  } else if (type === 'button') {
+    html = `<a href="${link||'#'}" style="display:inline-block;padding:${gv('pb_padding')||'10px 24px'};background:${gv('pb_bgColor')||'#f97316'};color:${gv('pb_textColor')||'#fff'};border-radius:${gv('pb_radius')||'8px'};font-weight:700;text-decoration:none;font-size:${gv('pb_fontSize')||'16'}px${animClass?';animation:'+anim+' 1s infinite':''}">${content||'Button'}</a>`;
+  } else if (type === 'marquee') {
+    html = `<div style="overflow:hidden;white-space:nowrap;${style}"><span style="display:inline-block;animation:pb-marquee 12s linear infinite">${(content||'').split('|').join(' &nbsp;&nbsp;•&nbsp;&nbsp; ')}</span></div>`;
+  } else if (type === 'countdown') {
+    html = `<div style="${style};text-align:center"><div style="font-size:.9rem;font-weight:600;margin-bottom:6px">${alt||'Sale ends in:'}</div><div style="display:flex;gap:10px;justify-content:center"><span style="background:#1e293b;color:#fff;padding:8px 14px;border-radius:8px;font-size:1.4rem;font-weight:800">00</span><span style="font-size:1.4rem;font-weight:800;line-height:2.2">:</span><span style="background:#1e293b;color:#fff;padding:8px 14px;border-radius:8px;font-size:1.4rem;font-weight:800">00</span><span style="font-size:1.4rem;font-weight:800;line-height:2.2">:</span><span style="background:#1e293b;color:#fff;padding:8px 14px;border-radius:8px;font-size:1.4rem;font-weight:800">00</span></div><small style="color:var(--m)">HH : MM : SS</small></div>`;
+  } else if (type === 'notice') {
+    const colors = {info:'#eff6ff:#1d4ed8:#bfdbfe',success:'#f0fdf4:#166534:#bbf7d0',warning:'#fff7ed:#c2410c:#fed7aa',error:'#fef2f2:#991b1b:#fecaca',promo:'#faf5ff:#7c3aed:#e9d5ff'};
+    const [bg,tc,bc] = (colors[alt||'info']||colors.info).split(':');
+    html = `<div style="background:${bg};color:${tc};border:1px solid ${bc};border-radius:${gv('pb_radius')||'8px'};padding:${gv('pb_padding')||'12px 16px'};${style}">${link?link+' ':''}<strong>${content||'Notice text here'}</strong></div>`;
+  } else if (type === 'divider') {
+    html = `<hr style="border:none;border-top:2px ${content||'solid'} ${gv('pb_borderColor')||'#e2e8f0'};${style}">`;
+  } else if (type === 'spacer') {
+    html = `<div style="height:${content||40}px;background:repeating-linear-gradient(45deg,#f8fafc 0,#f8fafc 10px,#e2e8f0 10px,#e2e8f0 11px);display:flex;align-items:center;justify-content:center"><span style="font-size:.72rem;color:#94a3b8">Spacer: ${content||40}px</span></div>`;
+  } else if (type === 'html') {
+    html = content || '<em style="color:#94a3b8">Custom HTML preview…</em>';
+  } else {
+    html = `<div style="${style}">${content||'Block preview'}</div>`;
+  }
+
+  const prev = document.getElementById('pb_preview');
+  if (prev) prev.innerHTML = `<style>@keyframes pb-fade-in{from{opacity:0}to{opacity:1}}@keyframes pb-slide-up{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}@keyframes pb-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}@keyframes pb-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}@keyframes pb-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}@keyframes pb-marquee{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}</style>${html}`;
 }
 
 async function pbDelete(id) {
