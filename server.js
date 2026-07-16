@@ -391,11 +391,11 @@ function readJSON(req) {
 const CUSTOM_DOMAIN = process.env.CUSTOM_DOMAIN || 'shophere.in';
 
 const server = http.createServer(async (req, res) => {
-  // Redirect onrender.com URLs to the real domain on both desktop and mobile
+  // Redirect any onrender.com URL to the real domain — use 302 so browsers don't cache
   const host = (req.headers.host || '').toLowerCase().split(':')[0];
-  if (host && host.endsWith('.onrender.com')) {
+  if (host && (host.endsWith('.onrender.com') || host === 'shophere-in-1.onrender.com' || host === 'shophere-in.onrender.com')) {
     const target = 'https://' + CUSTOM_DOMAIN + req.url;
-    res.writeHead(301, { Location: target });
+    res.writeHead(302, { 'Location': target, 'Cache-Control': 'no-store, no-cache, must-revalidate' });
     return res.end();
   }
 
@@ -1104,7 +1104,10 @@ const server = http.createServer(async (req, res) => {
     if(p==='/api/pageblocks' && m==='GET') {
       const db = getDb();
       const blocks = await db.collection('pageblocks').find({}).sort({ order:1 }).toArray();
-      return sendJSON(res, 200, blocks.map(({_id,...b})=>({...b, id:_id.toString()})));
+      const body = JSON.stringify(blocks.map(({_id,...b})=>({...b, id:_id.toString()})));
+      // No-cache so store always gets fresh blocks after admin changes
+      res.writeHead(200, { 'Content-Type':'application/json', 'Access-Control-Allow-Origin':'*', 'Cache-Control':'no-store,no-cache,must-revalidate', 'Pragma':'no-cache' });
+      return res.end(body);
     }
     if(p==='/api/pageblocks' && m==='POST') {
       const body = await readJSON(req);

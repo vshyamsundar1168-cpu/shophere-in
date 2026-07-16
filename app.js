@@ -809,6 +809,11 @@ document.addEventListener('DOMContentLoaded',async()=>{
   await loadBanners();
   await loadProducts();
   loadPageBlocks();
+
+  // Re-fetch page blocks when user returns to this tab (after admin changes)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') loadPageBlocks();
+  });
 });
 
 
@@ -853,22 +858,26 @@ async function loadPageBlocks(){
     visible.forEach(b=>{
       const s = b.style || {};
 
-      // Build full CSS string from style object
-      const styleStr = [
-        s.color            ? `color:${s.color}` : '',
-        s.background && s.background!=='#ffffff' ? `background:${s.background}` : '',
-        s.backgroundImage  ? `background-image:${s.backgroundImage};background-size:${s.backgroundSize||'cover'};background-position:center` : '',
-        s.fontSize         ? `font-size:${s.fontSize}` : '',
-        s.fontWeight       ? `font-weight:${s.fontWeight}` : '',
-        s.textAlign        ? `text-align:${s.textAlign}` : '',
-        s.lineHeight       ? `line-height:${s.lineHeight}` : '',
-        s.padding          ? `padding:${s.padding}` : '',
-        s.margin           ? `margin:${s.margin}` : '',
-        s.borderRadius     ? `border-radius:${s.borderRadius}` : '',
-        s.borderWidth && s.borderStyle ? `border:${s.borderWidth} ${s.borderStyle} ${s.borderColor||'#e2e8f0'}` : '',
-        s.boxShadow        ? `box-shadow:${s.boxShadow}` : '',
-        s.opacity          ? `opacity:${s.opacity}` : '',
-        s.width            ? `width:${s.width}` : '',
+      // Build full CSS string from style object — apply ALL non-empty values
+      const styleStr = Object.entries({
+        'color':            s.color,
+        'background':       s.background,
+        'background-image': s.backgroundImage,
+        'background-size':  s.backgroundImage ? (s.backgroundSize||'cover') : null,
+        'background-position': s.backgroundImage ? 'center' : null,
+        'font-size':        s.fontSize,
+        'font-weight':      s.fontWeight,
+        'text-align':       s.textAlign,
+        'line-height':      s.lineHeight,
+        'padding':          s.padding,
+        'margin':           s.margin,
+        'border-radius':    s.borderRadius,
+        'border':           s.borderWidth && s.borderStyle ? `${s.borderWidth} ${s.borderStyle} ${s.borderColor||'#e2e8f0'}` : null,
+        'box-shadow':       s.boxShadow,
+        'opacity':          s.opacity,
+        'width':            s.width,
+        'min-height':       s.minHeight,
+      }).filter(([,v])=>v).map(([k,v])=>`${k}:${v}`).join(';');
         s.minHeight        ? `min-height:${s.minHeight}` : '',
       ].filter(Boolean).join(';');
 
