@@ -888,9 +888,11 @@ async function loadPageBlocks(){
       } else if(b.type==='heading'){
         html=`<h2 class="${animClass.trim()}" style="font-weight:800;${styleStr}">${b.content||''}</h2>`;
       } else if(b.type==='image'||b.type==='image-link'){
-        const imgS=`max-width:100%;display:block;${s.borderRadius?'border-radius:'+s.borderRadius:''}${s.width?';width:'+s.width:''}`;
+        const imgW = s.width || '100%';
+        const imgH = s.minHeight ? `height:${s.minHeight};object-fit:cover;` : '';
+        const imgS=`width:${imgW};max-width:100%;display:block;${imgH}${s.borderRadius?';border-radius:'+s.borderRadius:''}`;
         const img=`<img src="${b.content||''}" alt="${b.alt||''}" style="${imgS}" loading="lazy" onerror="this.style.display='none'">`;
-        const inner=b.link?`<a href="${b.link}" target="${b.target||'_self'}" title="${b.alt||''}">${img}</a>`:img;
+        const inner=b.link?`<a href="${b.link}" target="${b.target||'_self'}" title="${b.alt||''}" style="display:block">${img}</a>`:img;
         html=`<div class="${animClass.trim()}" style="${styleStr}">${inner}</div>`;
       } else if(b.type==='video'){
         html=`<div class="${animClass.trim()}" style="${styleStr}"><video src="${b.content||''}" controls style="width:100%;border-radius:${s.borderRadius||'8px'};max-height:400px"></video>${b.alt?`<p style="font-size:.82rem;color:var(--m);margin-top:6px">${b.alt}</p>`:''}</div>`;
