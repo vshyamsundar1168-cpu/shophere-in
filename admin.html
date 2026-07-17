@@ -2445,23 +2445,24 @@ async function pbSaveBlock() {
   const target  = (document.getElementById('pb_target') ||{}).value || '_self';
   const btnColor= (document.getElementById('pb_btnColor')||{}).value || '';
 
-  // Collect full style object
+  // Collect full style object — auto-add px units where needed
   const gv = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const addPx = v => v ? (isNaN(v) ? v : v + 'px') : '';
   const bgImg = gv('pb_bgImage');
   const style = {
     color:           gv('pb_textColor'),
     background:      gv('pb_bgColor'),
     borderColor:     gv('pb_borderColor'),
-    fontSize:        gv('pb_fontSize')    ? gv('pb_fontSize')+'px'    : '',
+    fontSize:        addPx(gv('pb_fontSize')),
     fontWeight:      gv('pb_fontWeight'),
     textAlign:       gv('pb_align'),
     lineHeight:      gv('pb_lineHeight'),
-    width:           gv('pb_width'),
-    minHeight:       gv('pb_minHeight'),
+    width:           addPx(gv('pb_width')),
+    minHeight:       addPx(gv('pb_minHeight')),
     padding:         gv('pb_padding'),
     margin:          gv('pb_margin'),
-    borderRadius:    gv('pb_radius'),
-    borderWidth:     gv('pb_borderWidth'),
+    borderRadius:    addPx(gv('pb_radius')),
+    borderWidth:     addPx(gv('pb_borderWidth')),
     borderStyle:     gv('pb_borderStyle'),
     boxShadow:       gv('pb_shadow'),
     opacity:         gv('pb_opacity'),
@@ -2469,8 +2470,8 @@ async function pbSaveBlock() {
     backgroundSize:  gv('pb_bgSize'),
     animation:       gv('pb_animation'),
     position:        gv('pb_position'),
-    top:             gv('pb_posTop'),
-    right:           gv('pb_posRight'),
+    top:             addPx(gv('pb_posTop')),
+    right:           addPx(gv('pb_posRight')),
     zIndex:          gv('pb_zIndex'),
   };
   // Remove empty keys
