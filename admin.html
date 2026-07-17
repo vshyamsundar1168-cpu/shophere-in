@@ -2589,18 +2589,19 @@ async function pbSaveOrder() {
 
 async function pbUploadImg(input) {
   const file = input.files[0]; if (!file) return;
-  const fd = new FormData(); fd.append('images', file);
+  toast('⏳ Uploading image...');
+  const fd = new FormData();
+  fd.append('image', file);
   try {
-    const res = await fetch('/api/products/999999', { method:'PUT', body: fd });
-    toast('⚠️ Use /uploads path directly');
-  } catch(e) {}
-  // Use settings logo upload as temp upload
-  const fd2 = new FormData(); fd2.append('logo', file);
-  try {
-    const r = await fetch('/api/settings', { method:'POST', body: fd2 });
+    const r = await fetch('/api/pageblocks/upload', { method:'POST', body: fd });
     const d = await r.json();
-    if (d.logo) { const c = document.getElementById('pb_content'); if(c) c.value = d.logo; toast('✅ Image uploaded'); }
-  } catch(e) { toast('❌ Upload failed'); }
+    if (!r.ok) throw new Error(d.error || 'Upload failed');
+    if (d.url) {
+      const c = document.getElementById('pb_content');
+      if(c) c.value = d.url;
+      toast('✅ Image uploaded — URL filled in above');
+    }
+  } catch(e) { toast('❌ Upload failed: ' + e.message); }
 }
 async function pbUploadVideo(input) {
   toast('ℹ️ For video, upload via Products then copy the /uploads/... URL here');

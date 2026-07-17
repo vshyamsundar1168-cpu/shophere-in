@@ -1100,6 +1100,22 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
+    // ── PAGE BLOCK IMAGE UPLOAD ───────────────────────────────────────────────
+    // POST /api/pageblocks/upload — upload an image for use in a page block
+    if (p === '/api/pageblocks/upload' && m === 'POST') {
+      const {files} = await parseMultipart(req);
+      const imgFile = files.find(f => f.fieldName === 'image' && f.data && f.data.length > 0);
+      if (!imgFile) return sendJSON(res, 400, { error: 'No image provided' });
+      let url = '';
+      if (_cloudName) {
+        const cloudUrl = await uploadToCloudinary(imgFile.data, imgFile.mimeType, imgFile.filename);
+        url = cloudUrl || saveFile(imgFile).url;
+      } else {
+        url = saveFile(imgFile).url;
+      }
+      return sendJSON(res, 200, { url });
+    }
+
     // ── PAGE BLOCKS (Page Builder) ────────────────────────────────────────────
     if(p==='/api/pageblocks' && m==='GET') {
       const db = getDb();
