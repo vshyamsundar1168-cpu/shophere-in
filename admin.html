@@ -2269,8 +2269,10 @@ function pbRender() {
     return;
   }
   list.innerHTML = filtered.map(b => {
-    const icons = {text:'📝',heading:'🔤',image:'🖼️',video:'🎬',audio:'🎵',button:'🔘',divider:'➖',spacer:'⬜',html:'🧩'};
-    const preview = b.type === 'image' && b.content ? `<img src="${b.content}" style="width:100%;height:100%;object-fit:cover">` : (icons[b.type]||'📝');
+    const icons = {text:'📝',heading:'🔤',image:'🖼️','image-link':'🔗',video:'🎬',audio:'🎵',button:'🔘',marquee:'📢',countdown:'⏳',notice:'📣',divider:'➖',spacer:'⬜',html:'🧩'};
+    const preview = (b.type === 'image' || b.type === 'image-link') && b.content
+      ? `<img src="${b.content}" style="width:100%;height:100%;object-fit:cover">`
+      : (icons[b.type]||'📝');
     return `<div class="pb-block-card">
       <div class="pb-block-preview">${preview}</div>
       <div class="pb-block-info">
