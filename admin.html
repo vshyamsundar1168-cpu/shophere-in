@@ -657,8 +657,10 @@ if(window.location.protocol==='file:'){
           <select id="pb_type" onchange="pbTypeChanged()" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
             <option value="text">📝 Text / HTML</option>
             <option value="heading">🔤 Heading</option>
-            <option value="image">🖼️ Image</option>
+            <option value="image">🖼️ Single Image</option>
             <option value="image-link">🔗 Image + Link (Ad Banner)</option>
+            <option value="gallery">🖼️🖼️ Gallery (Multiple Images)</option>
+            <option value="columns">⬛⬛ Side-by-Side Columns</option>
             <option value="video">🎬 Video</option>
             <option value="audio">🎵 Audio</option>
             <option value="button">🔘 Button / Link</option>
@@ -2257,6 +2259,7 @@ async function pbLoadBlocks() {
     const res = await fetch('/api/pageblocks');
     pbBlocks = await res.json();
     pbRender();
+    setTimeout(pbRenderWithDrag, 150);
   } catch(e) { toast('❌ Could not load page blocks: ' + e.message); }
 }
 
@@ -2269,16 +2272,18 @@ function pbRender() {
     return;
   }
   list.innerHTML = filtered.map(b => {
-    const icons = {text:'📝',heading:'🔤',image:'🖼️','image-link':'🔗',video:'🎬',audio:'🎵',button:'🔘',marquee:'📢',countdown:'⏳',notice:'📣',divider:'➖',spacer:'⬜',html:'🧩'};
+    const icons = {text:'📝',heading:'🔤',image:'🖼️','image-link':'🔗',gallery:'🖼️🖼️',columns:'⬛⬛',video:'🎬',audio:'🎵',button:'🔘',marquee:'📢',countdown:'⏳',notice:'📣',divider:'➖',spacer:'⬜',html:'🧩'};
     const preview = (b.type === 'image' || b.type === 'image-link') && b.content
       ? `<img src="${b.content}" style="width:100%;height:100%;object-fit:cover">`
-      : (icons[b.type]||'📝');
-    return `<div class="pb-block-card">
+      : b.type === 'gallery' && b.content
+        ? (() => { const urls = b.content.split('\n').filter(Boolean); return urls.length ? `<img src="${urls[0]}" style="width:100%;height:100%;object-fit:cover">` : '🖼️🖼️'; })()
+        : (icons[b.type]||'📝');
+    return `<div class="pb-block-card" data-id="${b._id||b.id}">
       <div class="pb-block-preview">${preview}</div>
       <div class="pb-block-info">
         <div style="font-size:.85rem;font-weight:700;margin-bottom:4px">${b.title || 'Untitled Block'}</div>
         <div style="font-size:.75rem;color:var(--m);margin-bottom:6px">Type: ${b.type} | Page: ${b.page}</div>
-        <div style="font-size:.78rem;color:#475569;overflow:hidden;max-height:36px;text-overflow:ellipsis">${b.type==='image'?'[Image]':b.type==='video'?'[Video]':b.type==='audio'?'[Audio]':(b.content||'').substring(0,80)}</div>
+        <div style="font-size:.78rem;color:#475569;overflow:hidden;max-height:36px;text-overflow:ellipsis">${b.type==='image'||b.type==='image-link'?'[Image]':b.type==='gallery'?'[Gallery: '+(b.content||'').split('\n').filter(Boolean).length+' images]':b.type==='columns'?'[Columns layout]':b.type==='video'?'[Video]':b.type==='audio'?'[Audio]':(b.content||'').substring(0,80)}</div>
         <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.78rem;cursor:pointer">
           <input type="checkbox" ${b.visible!==false?'checked':''} onchange="pbToggleVisible('${b._id||b.id}',this.checked)" style="accent-color:var(--p)"> Visible on store
         </label>
@@ -2339,6 +2344,54 @@ function pbTypeChanged() {
     fields.innerHTML = `<div class="form-group"><label>Notice Text</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Important notice for your customers…">${fields._val||''}</textarea></div>
     <div class="form-group"><label>Notice Style</label><select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="info">ℹ️ Info (Blue)</option><option value="success">✅ Success (Green)</option><option value="warning">⚠️ Warning (Orange)</option><option value="error">❌ Alert (Red)</option><option value="promo">🎉 Promo (Purple)</option></select></div>
     <div class="form-group"><label>Icon / Emoji (optional)</label><input id="pb_link" placeholder="🎁 or 🚨" value="${fields._link||''}"></div>`;
+  } else if (type === 'gallery') {
+    fields.innerHTML = `
+    <div class="form-group">
+      <label>Upload Multiple Images (select all at once)</label>
+      <input type="file" id="pb_gallery_files" multiple accept="image/jpeg,image/png,image/webp" onchange="pbGalleryPreview(this)" style="margin-bottom:8px;width:100%">
+      <small style="color:var(--m);display:block;margin-bottom:8px">Select 2–12 images at once. They display side by side on your store.</small>
+    </div>
+    <div id="pb_gallery_preview" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;min-height:20px"></div>
+    <div class="form-group">
+      <label>Or paste image URLs (one per line)</label>
+      <textarea id="pb_content" style="min-height:80px;font-size:.82rem;font-family:monospace" placeholder="https://image1.jpg&#10;https://image2.jpg&#10;https://image3.jpg">${fields._val||''}</textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group" style="margin:0">
+        <label>Layout</label>
+        <select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+          <option value="row">→ Row (side by side)</option>
+          <option value="grid2">⬛⬛ 2 per row</option>
+          <option value="grid3">⬛⬛⬛ 3 per row</option>
+          <option value="grid4">4 per row</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>Image Height (px)</label>
+        <input id="pb_link" type="text" placeholder="200px" value="${fields._link||'200px'}" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+      </div>
+    </div>`;
+  } else if (type === 'columns') {
+    const savedCols = (() => { try { return JSON.parse(fields._val||'[]'); } catch(e) { return []; } })();
+    fields.innerHTML = `
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.78rem;color:#1d4ed8">
+      💡 Creates a <strong>side-by-side columns</strong> layout. Each column can contain text, images, HTML.
+    </div>
+    <div class="form-group">
+      <label>Number of Columns</label>
+      <select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+        <option value="2"${(fields._alt||'2')==='2'?' selected':''}>2 Columns (50%/50%)</option>
+        <option value="3"${fields._alt==='3'?' selected':''}>3 Columns (33%/33%/33%)</option>
+        <option value="4"${fields._alt==='4'?' selected':''}>4 Columns</option>
+        <option value="2-1"${fields._alt==='2-1'?' selected':''}>Wide + Narrow (66%/33%)</option>
+        <option value="1-2"${fields._alt==='1-2'?' selected':''}>Narrow + Wide (33%/66%)</option>
+      </select>
+    </div>
+    <div id="pb_col_wrap" style="display:grid;gap:10px">
+      <div class="form-group" style="margin:0"><label>Column 1</label><textarea id="pb_col_0" style="min-height:70px;font-size:.82rem" placeholder="<h3>Title</h3><p>Text here</p><img src='...' style='width:100%'>">${savedCols[0]||''}</textarea></div>
+      <div class="form-group" style="margin:0"><label>Column 2</label><textarea id="pb_col_1" style="min-height:70px;font-size:.82rem" placeholder="<h3>Title</h3><p>Text here</p>">${savedCols[1]||''}</textarea></div>
+    </div>
+    <input type="hidden" id="pb_content" value="${fields._val||''}">`;
   } else if (type === 'html') {
     fields.innerHTML = `<div class="form-group"><label>Custom HTML Code</label><textarea id="pb_content" style="min-height:150px;font-family:monospace;font-size:.82rem" placeholder="&lt;div&gt;Your HTML here&lt;/div&gt;">${fields._val||''}</textarea></div>`;
   } else if (type === 'divider') {
@@ -2439,7 +2492,27 @@ async function pbSaveBlock() {
   const page  = document.getElementById('pb_page').value;
   const type  = document.getElementById('pb_type').value;
   const contentEl = document.getElementById('pb_content');
-  const content = contentEl ? contentEl.value : '';
+  let content = contentEl ? contentEl.value : '';
+
+  // For gallery: collect uploaded URLs + textarea URLs
+  if (type === 'gallery') {
+    const uploadedUrls = (window._pbGalleryUrls || []).join('\n');
+    const textareaUrls = content.trim();
+    const allUrls = [...new Set([...uploadedUrls.split('\n'), ...textareaUrls.split('\n')].map(u => u.trim()).filter(Boolean))];
+    content = allUrls.join('\n');
+    window._pbGalleryUrls = [];
+  }
+
+  // For columns: serialize column textareas to JSON
+  if (type === 'columns') {
+    const numCols = parseInt((document.getElementById('pb_alt')||{}).value) || 2;
+    const colData = [];
+    for (let i = 0; i < Math.max(numCols, 4); i++) {
+      const el = document.getElementById('pb_col_' + i);
+      colData.push(el ? el.value : '');
+    }
+    content = JSON.stringify(colData.filter((_, i) => i < (typeof numCols === 'number' ? numCols : 2)));
+  }
   const alt     = (document.getElementById('pb_alt')    ||{}).value || '';
   const link    = (document.getElementById('pb_link')   ||{}).value || '';
   const target  = (document.getElementById('pb_target') ||{}).value || '_self';
@@ -2570,6 +2643,94 @@ async function pbToggleVisible(id, visible) {
     toast(visible ? '✅ Block visible on store' : '🙈 Block hidden from store');
     pbLoadBlocks();
   } catch(e) {}
+}
+
+// ── Gallery image upload preview ─────────────────────────────────────────────
+window._pbGalleryUrls = [];
+
+async function pbGalleryPreview(input) {
+  const files = Array.from(input.files);
+  const preview = document.getElementById('pb_gallery_preview');
+  const textarea = document.getElementById('pb_content');
+  if (!preview) return;
+
+  // Show uploading state
+  preview.innerHTML = '<span style="font-size:.78rem;color:#94a3b8">⏳ Uploading ' + files.length + ' images...</span>';
+
+  const uploaded = [];
+  for (const file of files) {
+    const fd = new FormData();
+    fd.append('image', file);
+    try {
+      const r = await fetch('/api/pageblocks/upload', { method:'POST', body: fd });
+      const d = await r.json();
+      if (d.url) uploaded.push(d.url);
+    } catch(e) {}
+  }
+
+  window._pbGalleryUrls = uploaded;
+
+  // Show thumbnails
+  preview.innerHTML = uploaded.map(url =>
+    `<div style="position:relative;display:inline-block">
+      <img src="${url}" style="width:70px;height:70px;object-fit:cover;border-radius:6px;border:2px solid #22c55e">
+    </div>`
+  ).join('');
+
+  // Also put URLs in textarea
+  if (textarea) {
+    const existing = textarea.value.trim();
+    const newUrls = uploaded.join('\n');
+    textarea.value = existing ? existing + '\n' + newUrls : newUrls;
+  }
+
+  toast('✅ ' + uploaded.length + ' images uploaded');
+}
+
+// ── Drag-to-reorder blocks ────────────────────────────────────────────────────
+let pbDragId = null;
+
+function pbRenderWithDrag() {
+  pbRender(); // pbRender already runs; we attach drag events after
+  setTimeout(() => {
+    document.querySelectorAll('.pb-block-card').forEach(card => {
+      card.setAttribute('draggable', 'true');
+      card.style.cursor = 'grab';
+      card.addEventListener('dragstart', e => {
+        pbDragId = card.dataset.id;
+        card.style.opacity = '0.5';
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      card.addEventListener('dragend', () => {
+        card.style.opacity = '1';
+        pbDragId = null;
+      });
+      card.addEventListener('dragover', e => {
+        e.preventDefault();
+        card.style.borderColor = '#f97316';
+        card.style.borderStyle = 'dashed';
+      });
+      card.addEventListener('dragleave', () => {
+        card.style.borderColor = '#e2e8f0';
+        card.style.borderStyle = 'solid';
+      });
+      card.addEventListener('drop', async e => {
+        e.preventDefault();
+        card.style.borderColor = '#e2e8f0';
+        card.style.borderStyle = 'solid';
+        const targetId = card.dataset.id;
+        if (!pbDragId || pbDragId === targetId) return;
+        const fromIdx = pbBlocks.findIndex(b => (b._id||b.id) === pbDragId);
+        const toIdx   = pbBlocks.findIndex(b => (b._id||b.id) === targetId);
+        if (fromIdx < 0 || toIdx < 0) return;
+        const [moved] = pbBlocks.splice(fromIdx, 1);
+        pbBlocks.splice(toIdx, 0, moved);
+        await pbSaveOrder();
+        pbRender();
+        toast('✅ Block order saved');
+      });
+    });
+  }, 100);
 }
 
 async function pbMoveUp(id) {

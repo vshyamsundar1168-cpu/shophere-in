@@ -896,7 +896,29 @@ async function loadPageBlocks(){
         // Show caption/alt text below image if it exists
         const caption = b.alt ? `<div style="font-size:${s.fontSize||'.85rem'};color:${s.color||'#475569'};text-align:${s.textAlign||'center'};padding:6px 4px;font-weight:${s.fontWeight||'600'}">${b.alt}</div>` : '';
         html=`<div class="${animClass.trim()}" style="${styleStr}">${inner}${caption}</div>`;
-      } else if(b.type==='video'){
+      } else if(b.type==='gallery'){
+        const urls = (b.content||'').split('\n').map(u=>u.trim()).filter(Boolean);
+        const layout = b.alt || 'grid3';
+        const imgH   = b.link || '200px';
+        const gap    = s.padding || '8px';
+        let gridStyle = '';
+        if(layout==='row')   gridStyle=`display:flex;flex-wrap:nowrap;overflow-x:auto;gap:${gap}`;
+        else if(layout==='grid2') gridStyle=`display:grid;grid-template-columns:repeat(2,1fr);gap:${gap}`;
+        else if(layout==='grid4') gridStyle=`display:grid;grid-template-columns:repeat(4,1fr);gap:${gap}`;
+        else                 gridStyle=`display:grid;grid-template-columns:repeat(3,1fr);gap:${gap}`;
+        const imgs = urls.map(url=>`<img src="${url}" style="width:100%;height:${imgH};object-fit:cover;border-radius:${s.borderRadius||'6px'};display:block" loading="lazy" onerror="this.style.display='none'">`).join('');
+        html=`<div class="${animClass.trim()}" style="${styleStr}"><div style="${gridStyle}">${imgs}</div></div>`;
+      } else if(b.type==='columns'){
+        let cols=[];
+        try{ cols=JSON.parse(b.content||'[]'); }catch(e){ cols=[b.content||'']; }
+        const layout=b.alt||'2';
+        let gridCols='1fr 1fr';
+        if(layout==='3')   gridCols='1fr 1fr 1fr';
+        else if(layout==='4')   gridCols='1fr 1fr 1fr 1fr';
+        else if(layout==='2-1') gridCols='2fr 1fr';
+        else if(layout==='1-2') gridCols='1fr 2fr';
+        const colHtml=cols.map(c=>`<div style="min-width:0;${s.color?'color:'+s.color:''};${s.fontSize?'font-size:'+s.fontSize:''}">${c||''}</div>`).join('');
+        html=`<div class="${animClass.trim()}" style="${styleStr};display:grid;grid-template-columns:${gridCols};gap:${s.padding||'16px'};align-items:start">${colHtml}</div>`;
         html=`<div class="${animClass.trim()}" style="${styleStr}"><video src="${b.content||''}" controls style="width:100%;border-radius:${s.borderRadius||'8px'};max-height:400px"></video>${b.alt?`<p style="font-size:.82rem;color:var(--m);margin-top:6px">${b.alt}</p>`:''}</div>`;
       } else if(b.type==='audio'){
         html=`<div class="${animClass.trim()}" style="${styleStr}">${b.alt?`<p style="font-size:.84rem;font-weight:600;margin-bottom:6px">${b.alt}</p>`:''}<audio src="${b.content||''}" controls style="width:100%"></audio></div>`;
