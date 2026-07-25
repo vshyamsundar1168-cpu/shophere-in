@@ -1214,6 +1214,19 @@ async function startServer() {
   server.listen(PORT, () => {
     console.log(`\n  ✅  ShopHere.in  →  http://localhost:${PORT}`);
     console.log(`  ⚙️   Admin Panel  →  http://localhost:${PORT}/admin.html\n`);
+
+    // Keep-alive ping every 14 minutes to prevent Render free tier sleep
+    if (process.env.RENDER) {
+      const https = require('https');
+      const domain = process.env.CUSTOM_DOMAIN || 'shophere.in';
+      setInterval(() => {
+        try {
+          https.get(`https://${domain}/api/stats`, res => {
+            console.log(`[KEEP-ALIVE] ping ${domain} → ${res.statusCode}`);
+          }).on('error', () => {});
+        } catch(e) {}
+      }, 14 * 60 * 1000); // 14 minutes
+    }
   });
 }
 

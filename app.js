@@ -893,7 +893,9 @@ async function loadPageBlocks(){
         const imgS=`width:${imgW};max-width:100%;display:block;${imgH}${s.borderRadius?';border-radius:'+s.borderRadius:''}`;
         const img=`<img src="${b.content||''}" alt="${b.alt||''}" style="${imgS}" loading="lazy" onerror="this.style.display='none'">`;
         const inner=b.link?`<a href="${b.link}" target="${b.target||'_self'}" title="${b.alt||''}" style="display:block">${img}</a>`:img;
-        html=`<div class="${animClass.trim()}" style="${styleStr}">${inner}</div>`;
+        // Show caption/alt text below image if it exists
+        const caption = b.alt ? `<div style="font-size:${s.fontSize||'.85rem'};color:${s.color||'#475569'};text-align:${s.textAlign||'center'};padding:6px 4px;font-weight:${s.fontWeight||'600'}">${b.alt}</div>` : '';
+        html=`<div class="${animClass.trim()}" style="${styleStr}">${inner}${caption}</div>`;
       } else if(b.type==='video'){
         html=`<div class="${animClass.trim()}" style="${styleStr}"><video src="${b.content||''}" controls style="width:100%;border-radius:${s.borderRadius||'8px'};max-height:400px"></video>${b.alt?`<p style="font-size:.82rem;color:var(--m);margin-top:6px">${b.alt}</p>`:''}</div>`;
       } else if(b.type==='audio'){

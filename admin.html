@@ -771,14 +771,14 @@ if(window.location.protocol==='file:'){
       <details style="margin-top:10px;background:#1e293b;border-radius:8px;overflow:hidden">
         <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none;color:#fff">👁️ Live Preview</summary>
         <div style="padding:14px;border-top:1px solid rgba(255,255,255,.1)">
-          <button onclick="pbPreview()" style="padding:7px 16px;background:#f97316;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:10px">🔄 Refresh Preview</button>
+          <button id="pbPreviewBtn" style="padding:7px 16px;background:#f97316;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:10px">🔄 Refresh Preview</button>
           <div id="pb_preview" style="background:#fff;border-radius:8px;padding:16px;min-height:60px"></div>
         </div>
       </details>
 
       <div style="display:flex;gap:10px;margin-top:16px">
-        <button onclick="pbSaveBlock()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Block</button>
-        <button onclick="closePbModal()" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;font-size:.84rem;cursor:pointer">Cancel</button>
+        <button id="pbSaveBtn" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Block</button>
+        <button id="pbCancelBtn" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;font-size:.84rem;cursor:pointer">Cancel</button>
       </div>
     </div>
   </div>
@@ -2307,14 +2307,14 @@ function pbTypeChanged() {
     fields.innerHTML = `<div class="form-group"><label>${type==='heading'?'Heading Text':'Text Content (HTML allowed)'}</label><textarea id="pb_content" style="min-height:${type==='heading'?'60px':'120px'};font-size:.84rem" placeholder="${type==='heading'?'Enter heading...':'Enter text or HTML...'}">${fields._val||''}</textarea></div>`;
   } else if (type === 'image') {
     fields.innerHTML = `<div class="form-group"><label>Image URL</label><input id="pb_content" placeholder="/uploads/... or https://..." value="${fields._val||''}"><small style="color:var(--m)">Or upload below</small></div>
-    <div class="form-group"><label>Alt Text</label><input id="pb_alt" placeholder="Image description"></div>
+    <div class="form-group"><label>Caption / Text to show below image</label><input id="pb_alt" placeholder="e.g. Express your Patriotism" value="${fields._alt||''}"></div>
     <div class="form-group"><label>Upload Image</label><input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadImg(this)"></div>
-    <div class="form-group"><label>Link URL (optional)</label><input id="pb_link" placeholder="https://..."></div>`;
+    <div class="form-group"><label>Link URL (optional — makes image clickable)</label><input id="pb_link" placeholder="https://..."></div>`;
   } else if (type === 'image-link') {
     fields.innerHTML = `<div class="form-group"><label>Ad Image URL *</label><input id="pb_content" placeholder="https://... or /uploads/..." value="${fields._val||''}"></div>
+    <div class="form-group"><label>Caption / Text to show below image</label><input id="pb_alt" placeholder="e.g. Shop Now! 50% Off" value="${fields._alt||''}"></div>
     <div class="form-group"><label>Upload Ad Image</label><input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadImg(this)"></div>
     <div class="form-group"><label>Click Link URL *</label><input id="pb_link" placeholder="https://example.com or /products"></div>
-    <div class="form-group"><label>Alt / Tooltip Text</label><input id="pb_alt" placeholder="Click to shop now!"></div>
     <div class="form-group"><label>Open in</label><select id="pb_target" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="_self">Same Tab</option><option value="_blank">New Tab</option></select></div>`;
   } else if (type === 'video') {
     fields.innerHTML = `<div class="form-group"><label>Video URL or /uploads/... path</label><input id="pb_content" placeholder="/uploads/video.mp4 or https://youtube.com/..." value="${fields._val||''}"></div>
@@ -3573,6 +3573,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Wire up buttons that have late-defined handlers (use delegation so lazy tabs work)
   document.addEventListener('click', function(e) {
     if (e.target && e.target.id === 'btnTestCloudinary') testCloudinary();
+    if (e.target && e.target.id === 'pbSaveBtn')   pbSaveBlock();
+    if (e.target && e.target.id === 'pbCancelBtn') closePbModal();
+    if (e.target && e.target.id === 'pbPreviewBtn') pbPreview();
   });
   // Show admin username
   try {
