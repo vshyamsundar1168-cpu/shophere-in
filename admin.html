@@ -2379,7 +2379,7 @@ function pbTypeChanged() {
     </div>
     <div class="form-group">
       <label>Number of Columns</label>
-      <select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+      <select id="pb_alt" onchange="pbColumnsChanged(this.value)" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
         <option value="2"${(fields._alt||'2')==='2'?' selected':''}>2 Columns (50%/50%)</option>
         <option value="3"${fields._alt==='3'?' selected':''}>3 Columns (33%/33%/33%)</option>
         <option value="4"${fields._alt==='4'?' selected':''}>4 Columns</option>
@@ -2388,10 +2388,17 @@ function pbTypeChanged() {
       </select>
     </div>
     <div id="pb_col_wrap" style="display:grid;gap:10px">
-      <div class="form-group" style="margin:0"><label>Column 1</label><textarea id="pb_col_0" style="min-height:70px;font-size:.82rem" placeholder="<h3>Title</h3><p>Text here</p><img src='...' style='width:100%'>">${savedCols[0]||''}</textarea></div>
-      <div class="form-group" style="margin:0"><label>Column 2</label><textarea id="pb_col_1" style="min-height:70px;font-size:.82rem" placeholder="<h3>Title</h3><p>Text here</p>">${savedCols[1]||''}</textarea></div>
+      <div class="form-group" style="margin:0"><label>Column 1 (HTML allowed: &lt;img&gt;, &lt;h3&gt;, &lt;p&gt;, text)</label><textarea id="pb_col1" style="min-height:80px;font-size:.82rem" placeholder="<img src='URL' style='width:100%'>&#10;<h3>Title</h3>&#10;<p>Your text here</p>">${savedCols[0]||''}</textarea></div>
+      <div class="form-group" style="margin:0"><label>Column 2</label><textarea id="pb_col2" style="min-height:80px;font-size:.82rem" placeholder="<img src='URL' style='width:100%'>&#10;<h3>Title</h3>&#10;<p>Your text here</p>">${savedCols[1]||''}</textarea></div>
+      <div class="form-group" id="col3wrap" style="margin:0;display:none"><label>Column 3</label><textarea id="pb_col3" style="min-height:80px;font-size:.82rem" placeholder="<p>Column 3 content</p>">${savedCols[2]||''}</textarea></div>
+      <div class="form-group" id="col4wrap" style="margin:0;display:none"><label>Column 4</label><textarea id="pb_col4" style="min-height:80px;font-size:.82rem" placeholder="<p>Column 4 content</p>">${savedCols[3]||''}</textarea></div>
     </div>
     <input type="hidden" id="pb_content" value="${fields._val||''}">`;
+    // Show/hide extra columns based on selection
+    setTimeout(() => {
+      const sel = document.getElementById('pb_alt');
+      if (sel) pbColumnsUpdate(sel.value);
+    }, 30);
   } else if (type === 'html') {
     fields.innerHTML = `<div class="form-group"><label>Custom HTML Code</label><textarea id="pb_content" style="min-height:150px;font-family:monospace;font-size:.82rem" placeholder="&lt;div&gt;Your HTML here&lt;/div&gt;">${fields._val||''}</textarea></div>`;
   } else if (type === 'divider') {
@@ -2505,13 +2512,12 @@ async function pbSaveBlock() {
 
   // For columns: serialize column textareas to JSON
   if (type === 'columns') {
-    const numCols = parseInt((document.getElementById('pb_alt')||{}).value) || 2;
     const colData = [];
-    for (let i = 0; i < Math.max(numCols, 4); i++) {
-      const el = document.getElementById('pb_col_' + i);
-      colData.push(el ? el.value : '');
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById('pb_col' + i);
+      if (el && el.value.trim()) colData.push(el.value);
     }
-    content = JSON.stringify(colData.filter((_, i) => i < (typeof numCols === 'number' ? numCols : 2)));
+    content = JSON.stringify(colData);
   }
   const alt     = (document.getElementById('pb_alt')    ||{}).value || '';
   const link    = (document.getElementById('pb_link')   ||{}).value || '';
@@ -2643,6 +2649,15 @@ async function pbToggleVisible(id, visible) {
     toast(visible ? '✅ Block visible on store' : '🙈 Block hidden from store');
     pbLoadBlocks();
   } catch(e) {}
+}
+
+// ── pbColumnsUpdate — show/hide column textareas based on selection ──────────
+function pbColumnsUpdate(val) {
+  const n = parseInt(val) || 2;
+  const c3 = document.getElementById('col3wrap');
+  const c4 = document.getElementById('col4wrap');
+  if (c3) c3.style.display = n >= 3 ? 'block' : 'none';
+  if (c4) c4.style.display = n >= 4 ? 'block' : 'none';
 }
 
 // ── Gallery image upload preview ─────────────────────────────────────────────
