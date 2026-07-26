@@ -2259,7 +2259,7 @@ async function pbLoadBlocks() {
     const res = await fetch('/api/pageblocks');
     pbBlocks = await res.json();
     pbRender();
-    setTimeout(pbRenderWithDrag, 150);
+    setTimeout(pbRenderWithDrag, 200);
   } catch(e) { toast('❌ Could not load page blocks: ' + e.message); }
 }
 
@@ -2279,9 +2279,9 @@ function pbRender() {
         ? (() => { const urls = b.content.split('\n').filter(Boolean); return urls.length ? `<img src="${urls[0]}" style="width:100%;height:100%;object-fit:cover">` : '🖼️🖼️'; })()
         : (icons[b.type]||'📝');
     return `<div class="pb-block-card" data-id="${b._id||b.id}">
-      <div class="pb-block-preview">${preview}</div>
+      <div class="pb-block-preview pb-drag-handle" title="Drag to reorder" style="cursor:grab">${preview}</div>
       <div class="pb-block-info">
-        <div style="font-size:.85rem;font-weight:700;margin-bottom:4px">${b.title || 'Untitled Block'}</div>
+        <div style="font-size:.85rem;font-weight:700;margin-bottom:4px">${b.title || 'Untitled Block'} <span style="font-size:.68rem;color:#94a3b8;font-weight:400">⠿ drag to reorder</span></div>
         <div style="font-size:.75rem;color:var(--m);margin-bottom:6px">Type: ${b.type} | Page: ${b.page}</div>
         <div style="font-size:.78rem;color:#475569;overflow:hidden;max-height:36px;text-overflow:ellipsis">${b.type==='image'||b.type==='image-link'?'[Image]':b.type==='gallery'?'[Gallery: '+(b.content||'').split('\n').filter(Boolean).length+' images]':b.type==='columns'?'[Columns layout]':b.type==='video'?'[Video]':b.type==='audio'?'[Audio]':(b.content||'').substring(0,80)}</div>
         <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.78rem;cursor:pointer">
@@ -2706,46 +2706,50 @@ async function pbGalleryPreview(input) {
 let pbDragId = null;
 
 function pbRenderWithDrag() {
-  pbRender(); // pbRender already runs; we attach drag events after
-  setTimeout(() => {
-    document.querySelectorAll('.pb-block-card').forEach(card => {
-      card.setAttribute('draggable', 'true');
-      card.style.cursor = 'grab';
-      card.addEventListener('dragstart', e => {
-        pbDragId = card.dataset.id;
-        card.style.opacity = '0.5';
-        e.dataTransfer.effectAllowed = 'move';
-      });
-      card.addEventListener('dragend', () => {
-        card.style.opacity = '1';
-        pbDragId = null;
-      });
-      card.addEventListener('dragover', e => {
-        e.preventDefault();
-        card.style.borderColor = '#f97316';
-        card.style.borderStyle = 'dashed';
-      });
-      card.addEventListener('dragleave', () => {
-        card.style.borderColor = '#e2e8f0';
-        card.style.borderStyle = 'solid';
-      });
-      card.addEventListener('drop', async e => {
-        e.preventDefault();
-        card.style.borderColor = '#e2e8f0';
-        card.style.borderStyle = 'solid';
-        const targetId = card.dataset.id;
-        if (!pbDragId || pbDragId === targetId) return;
-        const fromIdx = pbBlocks.findIndex(b => (b._id||b.id) === pbDragId);
-        const toIdx   = pbBlocks.findIndex(b => (b._id||b.id) === targetId);
-        if (fromIdx < 0 || toIdx < 0) return;
-        const [moved] = pbBlocks.splice(fromIdx, 1);
-        pbBlocks.splice(toIdx, 0, moved);
-        await pbSaveOrder();
-        pbRender();
-        toast('✅ Block order saved');
-      });
+  // Don't call pbRender() again here — it was already called by pbLoadBlocks
+  // Just attach drag events to existing cards
+  document.querySelectorAll('.pb-block-card').forEach(card => {
+    const dragHandle = card.querySelector('.pb-drag-handle');
+    if (!dragHandle) return;
+
+    card.setAttribute('draggable', 'true');
+
+    card.addEventListener('dragstart', e => {
+      // Only drag when starting from card itself, not buttons
+      pbDragId = card.dataset.id;
+      setTimeout(() => { card.style.opacity = '0.4'; }, 0);
+      e.dataTransfer.effectAllowed = 'move';
     });
-  }, 100);
+    card.addEventListener('dragend', () => {
+      card.style.opacity = '1';
+      document.querySelectorAll('.pb-block-card').forEach(c => {
+        c.style.outline = '';
+      });
+      pbDragId = null;
+    });
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      card.style.outline = '2px dashed #f97316';
+      e.dataTransfer.dropEffect = 'move';
+    });
+    card.addEventListener('dragleave', () => {
+      card.style.outline = '';
+    });
+    card.addEventListener('drop', async e => {
+      e.preventDefault();
+      card.style.outline = '';
+      const targetId = card.dataset.id;
+      if (!pbDragId || pbDragId === targetId) return;
+      const fromIdx = pbBlocks.findIndex(b => (b._id||b.id) === pbDragId);
+      const toIdx   = pbBlocks.findIndex(b => (b._id||b.id) === targetId);
+      if (fromIdx < 0 || toIdx < 0) return;
+      const [moved] = pbBlocks.splice(fromIdx, 1);
+      pbBlocks.splice(toIdx, 0, moved);
+      await pbSaveOrder();
+      pbLoadBlocks();
+      toast('✅ Block reordered');
+    });
+  });
 }
 
 async function pbMoveUp(id) {
