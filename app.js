@@ -153,73 +153,18 @@ async function loadSettings(){
       if(logoImg){logoImg.src=s.logo;logoImg.style.display='block';}
     }
     if(s.primaryColor) document.documentElement.style.setProperty('--p',s.primaryColor);
-    // Build dynamic CSS block combining all settings
+    // Apply only essential dynamic settings — don't override new design CSS
     let dynCSS = '';
-    // Legacy area-wise text colors
-    const hasColors = s.colorBody || s.colorHeading || s.colorLink || s.colorProdName;
-    if(hasColors){
-      const bc  = s.colorBody         || '#1e293b';
-      const hc  = s.colorHeading      || '#1e293b';
-      const lc  = s.colorLink         || s.primaryColor || '#f97316';
-      const pc  = s.colorProdName     || '#1e293b';
-      const ppc = s.colorProdPrice    || '#1e293b';
-      const pbc = s.colorProdBrand    || '#64748b';
-      const ftc = s.colorFooterText   || '#94a3b8';
-      const fhc = s.colorFooterHead   || '#ffffff';
-      const nc  = s.colorNavText      || '#94a3b8';
-      const atc = s.colorAnnoText     || '#ffffff';
-      const abg = s.colorAnnoBg       || '#1e293b';
-      const btc = s.bannerTextColor   || '#ffffff';
-      dynCSS += `body{color:${bc}}h1,h2,h3,h4,h5,h6{color:${hc}}.pc-name{color:${pc}}.pc-price .cur{color:${ppc}}.pc-brand{color:${pbc}}a{color:${lc}}.footer-col ul li a{color:${ftc}}.footer-col h5{color:${fhc}}.footer-brand p{color:${ftc}}.nav-inner a{color:${nc}}.nav-inner a.active,.nav-inner a:hover{color:#fff}.top-bar{background:${abg};color:${atc}}.marquee-bar{background:${abg};color:${atc}}.hero-slide h1,.hero-slide p{color:${btc}}`;
+    // Only apply primary color if changed from default
+    if(s.primaryColor && s.primaryColor !== '#f97316') {
+      document.documentElement.style.setProperty('--p', s.primaryColor);
     }
-    // VC — Color Theme
-    if(s.colorBg)       { dynCSS+=`:root{--bg:${s.colorBg}}body{background:${s.colorBg}}`; }
-    if(s.colorBtnCart)  { dynCSS+=`.btn-cart{background:${s.colorBtnCart}}`; }
-    if(s.colorBtnBuy)   { dynCSS+=`.btn-buy{background:${s.colorBtnBuy}}`; }
-    if(s.colorNavBg)    { dynCSS+=`.main-nav{background:${s.colorNavBg}}`; }
-    if(s.colorFooterBg) { dynCSS+=`footer{background:${s.colorFooterBg}}`; }
-    // VC — Product card
-    if(s.prodCardBg)     { dynCSS+=`.product-card{background:${s.prodCardBg}}`; }
-    if(s.prodCardRadius) { dynCSS+=`.product-card{border-radius:${s.prodCardRadius}px}`; }
-    if(s.badgeNewBg)     { dynCSS+=`.pc-badge.new{background:${s.badgeNewBg}}`; }
-    if(s.badgeDealBg)    { dynCSS+=`.pc-badge.deal{background:${s.badgeDealBg}}`; }
-    if(s.badgeHotBg)     { dynCSS+=`.pc-badge.hot{background:${s.badgeHotBg}}`; }
-    if(s.prodNameSize)   { dynCSS+=`.pc-name{font-size:${s.prodNameSize}px}`; }
-    if(s.prodPriceSize)  { dynCSS+=`.pc-price .cur{font-size:${s.prodPriceSize}px}`; }
-    if(s.prodImgHeight && parseInt(s.prodImgHeight) > 0){ dynCSS+=`.pc-img{height:${s.prodImgHeight}px;aspect-ratio:unset}`; }
-    // VC — Typography per section
-    const VC_SEC_MAP = {
-      heading:         'h1,h2,h3,h4,h5,h6',
-      body:            'body',
-      productName:     '.pc-name',
-      productPrice:    '.pc-price .cur',
-      productBrand:    '.pc-brand',
-      navigation:      '.nav-inner a',
-      footer:          '.footer-col',
-      announcementBar: '.top-bar,.marquee-bar',
-    };
-    const usedFonts = new Set();
-    Object.entries(VC_SEC_MAP).forEach(([key, sel]) => {
-      const font = s['font_'+key], sz = s['fontSize_'+key], fw = s['fontWeight_'+key], col = s['textColor_'+key];
-      let rule = '';
-      if(font)  { rule += `font-family:'${font}',sans-serif;`; usedFonts.add(font); }
-      if(sz)    { rule += `font-size:${sz}px;`; }
-      if(fw)    { rule += `font-weight:${fw};`; }
-      if(col)   { rule += `color:${col};`; }
-      if(rule)  { dynCSS += `${sel}{${rule}}`; }
-    });
-    // Inject Google Fonts for any fonts found
-    usedFonts.forEach(font => {
-      const id = 'gf_sf_'+font.replace(/\s+/g,'_');
-      if(!document.getElementById(id)){
-        const link = document.createElement('link');
-        link.id=id; link.rel='stylesheet';
-        link.href=`https://fonts.googleapis.com/css2?family=${encodeURIComponent(font)}:wght@400;700&display=swap`;
-        link.onerror=()=>{ /* CDN failed — font-family rule still applied with fallback */ };
-        document.head.appendChild(link);
-      }
-    });
-    // Apply combined dynamic style
+    // Banner text color for hero slides
+    const btc = s.bannerTextColor || '#ffffff';
+    dynCSS += `.hero-slide h1,.hero-slide p{color:${btc}}`;
+    // Announcement bar text only
+    if(s.colorAnnoText) dynCSS += `.top-bar{color:${s.colorAnnoText}}`;
+    // Apply minimal style
     let dynStyle = document.getElementById('dynamic-colors');
     if(!dynStyle){ dynStyle=document.createElement('style'); dynStyle.id='dynamic-colors'; document.head.appendChild(dynStyle); }
     if(dynCSS) dynStyle.textContent = dynCSS;
