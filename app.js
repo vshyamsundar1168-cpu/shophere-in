@@ -142,20 +142,15 @@ async function loadSettings(){
   try{
     const s=await fetch('/api/settings').then(r=>r.json());
     storeSettings=s;
-    // #21 Store name + logo in header
+    // Store name + logo in header — preserve new design colors
     const logoText=document.getElementById('logoText');
     const logoImg=document.getElementById('headerLogo');
     if(s.storeName){
       document.title=s.storeName;
-      if(logoText){
-        const nm=s.storeName;
-        const mid=Math.floor(nm.length/2);
-        logoText.innerHTML=`<span style="color:var(--p)">${nm.slice(0,mid)}</span><span>${nm.slice(mid)}</span>`;
-      }
+      // Don't override logo HTML — let HTML/CSS control colors
     }
-    if(s.logo&&s.logo.trim()){
+    if(s.logo&&s.logo.trim()&&s.logo.startsWith('http')){
       if(logoImg){logoImg.src=s.logo;logoImg.style.display='block';}
-      // Keep text too — don't hide
     }
     if(s.primaryColor) document.documentElement.style.setProperty('--p',s.primaryColor);
     // Build dynamic CSS block combining all settings
