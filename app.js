@@ -889,11 +889,12 @@ async function loadPageBlocks(){
         html=`<h2 class="${animClass.trim()}" style="font-weight:800;${styleStr}">${b.content||''}</h2>`;
       } else if(b.type==='image'||b.type==='image-link'){
         const imgW = s.width || '100%';
-        const imgH = s.minHeight ? `height:${s.minHeight};object-fit:cover;` : '';
-        const imgS=`width:${imgW};max-width:100%;display:block;${imgH}${s.borderRadius?';border-radius:'+s.borderRadius:''}`;
+        const imgH = s.minHeight || 'auto';
+        // object-fit:contain so full image shows without cropping
+        const imgS=`width:${imgW};height:${imgH};max-width:100%;display:block;object-fit:contain;${s.borderRadius?'border-radius:'+s.borderRadius:''}`;
         const img=`<img src="${b.content||''}" alt="${b.alt||''}" style="${imgS}" loading="lazy" onerror="this.style.display='none'">`;
         const inner=b.link?`<a href="${b.link}" target="${b.target||'_self'}" title="${b.alt||''}" style="display:block">${img}</a>`:img;
-        // Show caption/alt text below image if it exists
+        // Show caption text below image
         const caption = b.alt ? `<div style="font-size:${s.fontSize||'.85rem'};color:${s.color||'#475569'};text-align:${s.textAlign||'center'};padding:6px 4px;font-weight:${s.fontWeight||'600'}">${b.alt}</div>` : '';
         html=`<div class="${animClass.trim()}" style="${styleStr}">${inner}${caption}</div>`;
       } else if(b.type==='gallery'){
