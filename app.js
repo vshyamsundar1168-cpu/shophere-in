@@ -9,6 +9,7 @@ let page=1; const PAGE=12;
 let heroIdx=0, heroTimer=null;
 let selectedPayment='cod';
 const CAT_ICONS={'Electronics':'📱','Fashion':'👗','Kitchen':'🍳','Sports':'⚽','Beauty':'💄','Books':'📚','Toys':'🧸','Home':'🏠','Kids':'🧒','Women':'👩','Men':'👨','default':'🛍️'};
+const CAT_COLORS={'Electronics':['#dbeafe','#1d4ed8'],'Fashion':['#fce7f3','#be185d'],'Kitchen':['#fef3c7','#d97706'],'Sports':['#dcfce7','#16a34a'],'Beauty':['#fdf4ff','#9333ea'],'Books':['#fff7ed','#ea580c'],'Toys':['#fef9c3','#ca8a04'],'Home':['#f0fdf4','#15803d'],'Kids':['#ffe4e6','#e11d48'],'Women':['#fdf2f8','#db2777'],'Men':['#eff6ff','#2563eb'],'default':['#f8fafc','#475569']};
 
 // ── Utility ───────────────────────────────────────────────────────────────────
 function toast(msg,dur=3000){
@@ -229,10 +230,13 @@ async function loadCategories(){
       allCategories.map(c=>`<a onclick="filterCat('${c.replace(/'/g,"\\'")}');setActive(this)">${CAT_ICONS[c]||'🛍️'} ${c}</a>`).join('');
     // Category cards
     const cg=document.getElementById('catGrid');
-    if(cg) cg.innerHTML=allCategories.map(c=>`
-      <div class="cat-card" onclick="filterCat('${c.replace(/'/g,"\\'")}')">
-        <div class="cat-icon">${CAT_ICONS[c]||'🛍️'}</div><span>${c}</span>
-      </div>`).join('');
+    if(cg) cg.innerHTML=allCategories.map(c=>{
+      const [bg,color]=CAT_COLORS[c]||CAT_COLORS.default;
+      return `<div class="cat-card" onclick="filterCat('${c.replace(/'/g,"\\'")}')">
+        <div class="cat-icon" style="background:${bg};color:${color}">${CAT_ICONS[c]||'🛍️'}</div>
+        <span>${c}</span>
+      </div>`;
+    }).join('');
     // Search dropdown
     const sel=document.getElementById('searchCat');
     if(sel) sel.innerHTML='<option value="all">All</option>'+allCategories.map(c=>`<option value="${c}">${c}</option>`).join('');
@@ -860,8 +864,8 @@ async function loadPageBlocks(){
         else if(layout==='1-2') gridCols='1fr 2fr';
         const colHtml=cols.map(c=>`<div style="min-width:0;${s.color?'color:'+s.color:''};${s.fontSize?'font-size:'+s.fontSize:''}">${c||''}</div>`).join('');
         html=`<div class="${animClass.trim()}" style="${styleStr};display:grid;grid-template-columns:${gridCols};gap:${s.padding||'16px'};align-items:start">${colHtml}</div>`;
+      } else if(b.type==='video'){
         html=`<div class="${animClass.trim()}" style="${styleStr}"><video src="${b.content||''}" controls style="width:100%;border-radius:${s.borderRadius||'8px'};max-height:400px"></video>${b.alt?`<p style="font-size:.82rem;color:var(--m);margin-top:6px">${b.alt}</p>`:''}</div>`;
-      } else if(b.type==='audio'){
         html=`<div class="${animClass.trim()}" style="${styleStr}">${b.alt?`<p style="font-size:.84rem;font-weight:600;margin-bottom:6px">${b.alt}</p>`:''}<audio src="${b.content||''}" controls style="width:100%"></audio></div>`;
       } else if(b.type==='button'){
         const btnS=`background:${b.btnColor||s.background||'var(--p)'};color:${s.color||'#fff'};padding:${s.padding||'12px 28px'};border:none;border-radius:${s.borderRadius||'50px'};font-size:${s.fontSize||'.9rem'};font-weight:700;cursor:pointer;display:inline-block;text-decoration:none`;
@@ -960,6 +964,7 @@ async function loadPageBlocks(){
 
       const wrap=document.createElement('div');
       if(isSticky) wrap.style.cssText=`position:sticky;top:0;z-index:${s.zIndex||100}`;
+      wrap.className='pb-block-wrap';
       wrap.innerHTML=html;
       zone.appendChild(wrap);
     });
