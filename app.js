@@ -355,9 +355,9 @@ function productCard(p){
 }
 
 function renderHomeGrids(){
-  const featured=allProducts.filter(p=>p.featured).slice(0,8);
-  const deals=allProducts.filter(p=>p.badge==='deal').slice(0,8);
-  const newA=allProducts.filter(p=>p.badge==='new').slice(0,8);
+  const featured=allProducts.filter(p=>p.featured).slice(0,10);
+  const deals=allProducts.filter(p=>p.badge==='deal').slice(0,10);
+  const newA=allProducts.filter(p=>p.badge==='new').slice(0,10);
   const fill=(arr,id,sec)=>{
     const el=document.getElementById(id); if(!el)return;
     el.innerHTML=arr.length?arr.map(p=>productCard(p)).join(''):'<p style="color:var(--m);padding:20px">None available</p>';

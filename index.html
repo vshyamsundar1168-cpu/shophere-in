@@ -180,23 +180,31 @@
 <div id="homeSections">
   <!-- CATEGORIES -->
   <div class="container">
-    <div class="sec-hdr"><h2>Shop by Category</h2></div>
-    <div class="cat-grid" id="catGrid"></div>
+    <div class="section-card">
+      <div class="sec-hdr"><h2>🗂️ Shop by Category</h2></div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
   </div>
   <!-- FEATURED -->
   <div class="container" id="featuredSection">
-    <div class="sec-hdr"><h2>⭐ Featured Products</h2><a onclick="filterCat('all')">View All →</a></div>
-    <div class="h-scroll" id="featuredGrid"></div>
+    <div class="section-card">
+      <div class="sec-hdr"><h2>⭐ Featured Products</h2><a onclick="filterCat('all')">View All →</a></div>
+      <div class="products-grid" id="featuredGrid"></div>
+    </div>
   </div>
   <!-- DEALS -->
   <div class="container" id="dealsSection">
-    <div class="sec-hdr"><h2>🔥 Today's Deals</h2><a onclick="filterBadge('deal')">View All →</a></div>
-    <div class="h-scroll" id="dealsGrid"></div>
+    <div class="section-card">
+      <div class="sec-hdr"><h2>🔥 Today's Deals</h2><a onclick="filterBadge('deal')">View All →</a></div>
+      <div class="products-grid" id="dealsGrid"></div>
+    </div>
   </div>
   <!-- NEW ARRIVALS -->
   <div class="container" id="newSection">
-    <div class="sec-hdr"><h2>✨ New Arrivals</h2><a onclick="filterBadge('new')">View All →</a></div>
-    <div class="h-scroll" id="newGrid"></div>
+    <div class="section-card">
+      <div class="sec-hdr"><h2>✨ New Arrivals</h2><a onclick="filterBadge('new')">View All →</a></div>
+      <div class="products-grid" id="newGrid"></div>
+    </div>
   </div>
   <!-- Page Builder blocks: HOME zone (bottom) -->
   <div id="pb-zone-home-bottom" class="pb-zone"></div>
