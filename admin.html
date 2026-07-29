@@ -27,8 +27,10 @@ if(window.location.protocol==='file:'){
 .alert-box code{background:#f1f5f9;padding:6px 12px;border-radius:6px;font-size:.85rem;display:block;margin:8px 0}
 .admin-wrap{display:flex;min-height:100vh}
 .sidebar{width:230px;background:#1e293b;color:#94a3b8;flex-shrink:0;display:flex;flex-direction:column}
-.sb-brand{padding:20px 20px 16px;font-size:1.1rem;font-weight:800;color:#f97316;border-bottom:1px solid rgba(255,255,255,.06)}
-.sb-brand span{color:#fff}
+.sb-brand{padding:20px 20px 16px;font-size:1.1rem;font-weight:800;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-brand .sh-shop{color:#f97316}
+.sb-brand .sh-here{color:#ffffff}
+.sb-brand .sh-in{color:#f59e0b}
 .sb-nav{padding:10px 0;flex:1;display:flex;flex-direction:column}
 .sb-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;font-size:.84rem;font-weight:500;transition:all .15s;border-left:3px solid transparent}
 .sb-item:hover,.sb-item.active{background:rgba(255,255,255,.07);color:#fff;border-left-color:#f97316}
@@ -67,7 +69,7 @@ if(window.location.protocol==='file:'){
 <div class="admin-wrap">
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <div class="sb-brand">Shop<span>Here</span>.in<br><small style="font-size:.65rem;color:#64748b;font-weight:400">Admin Panel</small></div>
+  <div class="sb-brand"><span class="sh-shop">Shop</span><span class="sh-here">Here</span><span class="sh-in">.in</span><br><small style="font-size:.65rem;color:#64748b;font-weight:400">Admin Panel</small></div>
   <div class="sb-nav">
     <div class="sb-item active" onclick="showTab('dashboard',this)">📊 Dashboard</div>
     <div class="sb-item" onclick="showTab('products',this)">📦 Products</div>
@@ -717,8 +719,9 @@ if(window.location.protocol==='file:'){
             <div class="form-group" style="margin:0">
               <label>Image Fit / Zoom</label>
               <select id="pb_objectFit" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
-                <option value="cover">🔍 Zoom/Fill (cover)</option>
-                <option value="contain">📐 Show Full (contain)</option>
+                <option value="contain">📐 Show Full — No Crop (default)</option>
+                <option value="cover">🔍 Zoom/Fill — May Crop</option>
+                <option value="scale-down">🔲 Shrink to Fit</option>
                 <option value="scale-down">⬇️ Shrink Fit</option>
                 <option value="fill">↔️ Stretch Fill</option>
               </select>
@@ -2323,7 +2326,7 @@ function pbTypeChanged() {
     fields.innerHTML = `<div class="form-group"><label>Image URL</label><input id="pb_content" placeholder="/uploads/... or https://..." value="${fields._val||''}"><small style="color:var(--m)">Or upload below</small></div>
     <div class="form-group"><label>Caption / Text to show below image</label><input id="pb_alt" placeholder="e.g. Express your Patriotism" value="${fields._alt||''}"></div>
     <div class="form-group"><label>Upload Image</label><input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadImg(this)"></div>
-    <div class="form-group"><label>Link URL (optional — makes image clickable)</label><input id="pb_link" placeholder="https://..."></div>`;
+    <div class="form-group"><label>Link URL (optional — makes image clickable)</label><input id="pb_link" placeholder="https://..." value="${fields._link||''}"></div>`;
   } else if (type === 'image-link') {
     fields.innerHTML = `<div class="form-group"><label>Ad Image URL *</label><input id="pb_content" placeholder="https://... or /uploads/..." value="${fields._val||''}"></div>
     <div class="form-group"><label>Caption / Text to show below image</label><input id="pb_alt" placeholder="e.g. Shop Now! 50% Off" value="${fields._alt||''}"></div>
@@ -2423,7 +2426,9 @@ function pbOpenAdd() {
   document.getElementById('pb_title').value = '';
   document.getElementById('pb_page').value = pbCurrentPage === 'all' ? 'home' : pbCurrentPage;
   document.getElementById('pb_type').value = 'text';
-  document.getElementById('pb_fields')._val = '';
+  document.getElementById('pb_fields')._val  = '';
+  document.getElementById('pb_fields')._alt  = '';
+  document.getElementById('pb_fields')._link = '';
   pbTypeChanged();
   // Reset all style fields
   document.getElementById('pb_textColor').value = '#1e293b';
@@ -2449,7 +2454,7 @@ function pbOpenAdd() {
   document.getElementById('pb_posTop').value = '';
   document.getElementById('pb_posRight').value = '';
   document.getElementById('pb_zIndex').value = '';
-  document.getElementById('pb_objectFit').value = 'cover';
+  document.getElementById('pb_objectFit').value = 'contain';
   document.getElementById('pb_preview').innerHTML = '';
   document.getElementById('pbModal').classList.add('open');
 }
@@ -2462,16 +2467,32 @@ function pbOpenEdit(id) {
   document.getElementById('pb_title').value = b.title || '';
   document.getElementById('pb_page').value = b.page || 'home';
   document.getElementById('pb_type').value = b.type || 'text';
-  document.getElementById('pb_fields')._val = b.content || '';
+  // Pre-store ALL field values so pbTypeChanged can pre-fill them
+  const fields = document.getElementById('pb_fields');
+  fields._val  = b.content || '';
+  fields._alt  = b.alt     || '';
+  fields._link = b.link    || '';
   pbTypeChanged();
-  // Fill content after type change
+  // Fill remaining fields after DOM is built by pbTypeChanged
   setTimeout(() => {
     const c = document.getElementById('pb_content');
     if (c) c.value = b.content || '';
-    const a = document.getElementById('pb_alt'); if (a) a.value = b.alt || '';
-    const l = document.getElementById('pb_link'); if (l) l.value = b.link || '';
-    const bc = document.getElementById('pb_btnColor'); if (bc && b.btnColor) bc.value = b.btnColor;
-  }, 50);
+    const a = document.getElementById('pb_alt');     if (a) a.value = b.alt    || '';
+    const l = document.getElementById('pb_link');    if (l) l.value = b.link   || '';
+    const t = document.getElementById('pb_target');  if (t) t.value = b.target || '_self';
+    const bc= document.getElementById('pb_btnColor');if (bc && b.btnColor) bc.value = b.btnColor;
+    // For columns: re-populate individual column textareas
+    if (b.type === 'columns') {
+      let cols = [];
+      try { cols = JSON.parse(b.content || '[]'); } catch(e) {}
+      cols.forEach((col, i) => {
+        const el = document.getElementById('pb_col' + (i+1));
+        if (el) el.value = col;
+      });
+      const sel = document.getElementById('pb_alt');
+      if (sel) pbColumnsUpdate(sel.value || b.alt || '2');
+    }
+  }, 80);
   if (b.style) {
     const s = b.style;
     const gv = id => { const e = document.getElementById(id); if(e) e.value = s[id.replace('pb_','')] || s[id] || ''; };
@@ -2568,7 +2589,10 @@ async function pbSaveBlock() {
   // Remove empty keys
   Object.keys(style).forEach(k => { if (!style[k]) delete style[k]; });
 
-  const block = { title, page, type, content, alt, link, target, btnColor, style, visible: true };
+  // Preserve visibility on edit; default true for new blocks
+  const existingBlock = pbEditId ? pbBlocks.find(x => (x._id||x.id) === pbEditId) : null;
+  const visible = existingBlock ? (existingBlock.visible !== false) : true;
+  const block = { title, page, type, content, alt, link, target, btnColor, style, visible };
 
   try {
     if (pbEditId) {
@@ -2718,38 +2742,53 @@ async function pbGalleryPreview(input) {
 let pbDragId = null;
 
 function pbRenderWithDrag() {
-  // Don't call pbRender() again here — it was already called by pbLoadBlocks
-  // Just attach drag events to existing cards
   document.querySelectorAll('.pb-block-card').forEach(card => {
-    const dragHandle = card.querySelector('.pb-drag-handle');
-    if (!dragHandle) return;
+    const handle = card.querySelector('.pb-drag-handle');
+    if (!handle) return;
 
-    card.setAttribute('draggable', 'true');
+    // Only the handle is draggable — buttons/checkboxes are NOT affected
+    handle.setAttribute('draggable', 'true');
+    handle.style.cursor = 'grab';
+    handle.title = 'Drag to reorder';
 
-    card.addEventListener('dragstart', e => {
-      // Only drag when starting from card itself, not buttons
+    handle.addEventListener('dragstart', e => {
       pbDragId = card.dataset.id;
-      setTimeout(() => { card.style.opacity = '0.4'; }, 0);
       e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', pbDragId);
+      setTimeout(() => { card.style.opacity = '0.45'; card.style.transform = 'scale(.97)'; }, 0);
     });
-    card.addEventListener('dragend', () => {
+
+    handle.addEventListener('dragend', () => {
       card.style.opacity = '1';
+      card.style.transform = '';
       document.querySelectorAll('.pb-block-card').forEach(c => {
         c.style.outline = '';
+        c.style.background = '';
       });
       pbDragId = null;
     });
+
+    // The whole card is the drop target
     card.addEventListener('dragover', e => {
       e.preventDefault();
+      if (card.dataset.id === pbDragId) return;
       card.style.outline = '2px dashed #f97316';
+      card.style.background = '#fff7ed';
       e.dataTransfer.dropEffect = 'move';
     });
-    card.addEventListener('dragleave', () => {
-      card.style.outline = '';
+
+    card.addEventListener('dragleave', e => {
+      // Only clear if we left the card entirely (not a child element)
+      if (!card.contains(e.relatedTarget)) {
+        card.style.outline = '';
+        card.style.background = '';
+      }
     });
+
     card.addEventListener('drop', async e => {
       e.preventDefault();
       card.style.outline = '';
+      card.style.background = '';
       const targetId = card.dataset.id;
       if (!pbDragId || pbDragId === targetId) return;
       const fromIdx = pbBlocks.findIndex(b => (b._id||b.id) === pbDragId);
@@ -2758,7 +2797,7 @@ function pbRenderWithDrag() {
       const [moved] = pbBlocks.splice(fromIdx, 1);
       pbBlocks.splice(toIdx, 0, moved);
       await pbSaveOrder();
-      pbLoadBlocks();
+      pbRender();
       toast('✅ Block reordered');
     });
   });

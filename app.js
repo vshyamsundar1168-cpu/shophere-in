@@ -299,7 +299,9 @@ async function loadBanners(){
       // Build background correctly — do NOT duplicate background-size
       let bgStyle;
       if(b.bgImage && b.bgImage.trim()){
-        bgStyle = `background-image:url('${b.bgImage}');background-size:${fit};background-position:center;background-repeat:no-repeat`;
+        // contain = show full banner image, no crop; cover = zoom fill
+        const bg = fit === 'contain' ? '#000' : 'transparent';
+        bgStyle = `background-image:url('${b.bgImage}');background-size:${fit};background-position:center;background-repeat:no-repeat;background-color:${bg}`;
       } else {
         bgStyle = `background:${b.bgGradient||'linear-gradient(135deg,#1e293b 0%,#f97316 100%)'}`;
       }
@@ -863,22 +865,21 @@ async function loadPageBlocks(){
       } else if(b.type==='image'||b.type==='image-link'){
         const imgW   = s.width    || '100%';
         const imgH   = s.minHeight;          // may be undefined/empty
-        const imgFit = s.objectFit || 'cover';
+        // Default: 'contain' = show full image, no crop. User can choose 'cover' = zoom/fill.
+        const imgFit = s.objectFit || 'contain';
         const radius = s.borderRadius || '0px';
 
-        // When a fixed height IS set: use a fixed-size container with object-fit so
-        //   the image zooms/fills without overflowing (no crop artefact).
-        // When NO height is set: just let the <img> scale naturally by width —
-        //   width shrinks → image scales down proportionally, never cropping.
         let imgStyle, wrapStyle;
         if(imgH && imgH !== 'auto'){
-          // Fixed height mode — zoom/fill inside the box
-          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};`;
+          // Fixed height set: use object-fit inside fixed box
+          // contain = full image visible (letterbox), cover = zoom fill (may crop by design)
+          const bgColor = (imgFit === 'contain') ? (s.background || 'transparent') : 'transparent';
+          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};background:${bgColor};`;
           imgStyle  = `width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};`;
         } else {
-          // Auto height mode — scale by width, keep full image visible
-          wrapStyle = `display:block;width:${imgW};max-width:100%;border-radius:${radius};overflow:hidden;`;
-          imgStyle  = `width:100%;height:auto;display:block;object-fit:${imgFit};object-position:center;border-radius:${radius};`;
+          // No fixed height: image scales naturally with width — NEVER crops
+          wrapStyle = `display:block;width:${imgW};max-width:100%;border-radius:${radius};line-height:0;`;
+          imgStyle  = `width:100%;height:auto;display:block;border-radius:${radius};`;
         }
 
         // Build outer wrapper style — exclude width/minHeight (handled inside) but keep bg, padding, etc.

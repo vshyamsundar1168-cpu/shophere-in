@@ -30,7 +30,10 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
 .hdr{max-width:1400px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .logo{display:flex;align-items:center;flex-shrink:0;cursor:pointer;gap:10px;text-decoration:none}
 .logo img{height:42px;object-fit:contain;border-radius:6px}
-.logo-text{font-size:1.6rem;font-weight:800;color:#f97316;font-family:'Poppins',sans-serif;letter-spacing:-.5px;white-space:nowrap}
+.logo-text{font-size:1.6rem;font-weight:800;font-family:'Poppins',sans-serif;letter-spacing:-.5px;white-space:nowrap}
+.logo-text .sh-shop{color:#f97316}
+.logo-text .sh-here{color:#ffffff}
+.logo-text .sh-in{color:#f59e0b}
 
 /* ── SEARCH BAR (Amazon style) ────────────────────────────────────────────── */
 .search-wrap{flex:1;display:flex;border-radius:8px;overflow:hidden;max-width:700px;box-shadow:0 0 0 2px var(--p)}
@@ -281,8 +284,10 @@ video,audio{width:100%;border-radius:8px;margin-bottom:8px}
 /* ── FOOTER ───────────────────────────────────────────────────────────────── */
 footer{background:var(--sec);color:#94a3b8;margin-top:60px}
 .footer-top{max-width:1400px;margin:0 auto;padding:44px 20px 28px;display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 1fr;gap:32px}
-.footer-logo .ft{font-size:1.5rem;font-weight:800;color:var(--p);font-family:'Poppins',sans-serif}
-.footer-logo .ft span{color:#fff}
+.footer-logo .ft{font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;letter-spacing:-.5px}
+.footer-logo .ft .sh-shop{color:#f97316}
+.footer-logo .ft .sh-here{color:#ffffff}
+.footer-logo .ft .sh-in{color:#f59e0b}
 .footer-logo{margin-bottom:14px}
 .footer-brand p{font-size:.82rem;line-height:1.8;margin-bottom:18px;color:#94a3b8}
 .social-row{display:flex;gap:10px}
