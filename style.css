@@ -69,11 +69,11 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
 .cat-chip span{font-size:.72rem;font-weight:700;color:var(--t);white-space:nowrap;text-align:center}
 
 /* ── HERO BANNER ──────────────────────────────────────────────────────────── */
-.hero-slider{position:relative;overflow:hidden;height:420px;background:var(--sec2)}
-.hero-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;color:#fff;padding:40px;opacity:0;transition:opacity .6s;pointer-events:none}
+.hero-slider{position:relative;overflow:hidden;height:420px;background:var(--sec2);min-height:80px;transition:height .3s}
+.hero-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;color:#fff;padding:clamp(10px,3vw,40px);opacity:0;transition:opacity .6s;pointer-events:none;overflow:hidden}
 .hero-slide.active{opacity:1;pointer-events:all}
-.hero-slide h1{font-size:2.6rem;font-weight:800;margin-bottom:12px;text-shadow:0 2px 12px rgba(0,0,0,.4);font-family:'Poppins',sans-serif}
-.hero-slide p{font-size:1.05rem;margin-bottom:24px;color:rgba(255,255,255,.88);max-width:500px}
+.hero-slide h1{font-size:clamp(.85rem,2.6rem,2.6rem);font-weight:800;margin-bottom:clamp(4px,12px,12px);text-shadow:0 2px 12px rgba(0,0,0,.4);font-family:'Poppins',sans-serif;line-height:1.2}
+.hero-slide p{font-size:clamp(.65rem,1.05rem,1.05rem);margin-bottom:clamp(6px,24px,24px);color:rgba(255,255,255,.88);max-width:500px}
 .hero-cta{background:var(--p);color:#fff;border:none;padding:13px 32px;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(249,115,22,.4)}
 .hero-cta:hover{background:var(--pd);transform:translateY(-2px)}
 .hero-dots{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}

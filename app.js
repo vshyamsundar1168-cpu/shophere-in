@@ -154,25 +154,45 @@ async function loadSettings(){
       if(logoImg){logoImg.src=s.logo;logoImg.style.display='block';}
     }
     if(s.primaryColor) document.documentElement.style.setProperty('--p',s.primaryColor);
-    // Apply only essential dynamic settings — don't override new design CSS
+
+    // Apply essential dynamic settings from admin Store Settings
     let dynCSS = '';
-    // Only apply primary color if changed from default
-    if(s.primaryColor && s.primaryColor !== '#f97316') {
-      document.documentElement.style.setProperty('--p', s.primaryColor);
-    }
-    // Banner text color for hero slides
+
+    // Extended Color Theme — applies colors set in admin Visual Customizer
+    if(s.colorBg)        { dynCSS += `body{background:${s.colorBg}}:root{--bg:${s.colorBg}}`; }
+    if(s.colorBtnCart)   { dynCSS += `.btn-cart{background:${s.colorBtnCart};color:var(--p);border-color:var(--p)}`; }
+    if(s.colorBtnBuy)    { dynCSS += `.btn-buy{background:${s.colorBtnBuy}}`; }
+    if(s.colorNavBg)     { dynCSS += `.main-nav{background:${s.colorNavBg}}`; }
+    if(s.colorFooterBg)  { dynCSS += `footer{background:${s.colorFooterBg}}`; }
+    if(s.colorFooterText){ dynCSS += `.footer-col ul li a{color:${s.colorFooterText}}.footer-brand p{color:${s.colorFooterText}}`; }
+    if(s.colorFooterHead){ dynCSS += `.footer-col h5{color:${s.colorFooterHead}}`; }
+    if(s.prodCardBg)     { dynCSS += `.product-card{background:${s.prodCardBg}}`; }
+    if(s.prodCardRadius) { dynCSS += `.product-card{border-radius:${s.prodCardRadius}px}`; }
+    if(s.badgeNewBg)     { dynCSS += `.pc-badge.new{background:${s.badgeNewBg}}`; }
+    if(s.badgeDealBg)    { dynCSS += `.pc-badge.deal{background:${s.badgeDealBg}}`; }
+    if(s.badgeHotBg)     { dynCSS += `.pc-badge.hot{background:${s.badgeHotBg}}`; }
+    if(s.colorBody)      { dynCSS += `body{color:${s.colorBody}}`; }
+    if(s.colorHeading)   { dynCSS += `h1,h2,h3,h4,h5,h6{color:${s.colorHeading}}`; }
+    if(s.colorProdName)  { dynCSS += `.pc-name{color:${s.colorProdName}}`; }
+    if(s.colorProdPrice) { dynCSS += `.pc-price .cur{color:${s.colorProdPrice}}`; }
+    if(s.colorProdBrand) { dynCSS += `.pc-brand{color:${s.colorProdBrand}}`; }
+    // Banner text
     const btc = s.bannerTextColor || '#ffffff';
     dynCSS += `.hero-slide h1,.hero-slide p{color:${btc}}`;
-    // Announcement bar text only
-    if(s.colorAnnoText) dynCSS += `.top-bar{color:${s.colorAnnoText}}`;
-    // Apply minimal style
+
+    // Apply combined dynamic style
     let dynStyle = document.getElementById('dynamic-colors');
     if(!dynStyle){ dynStyle=document.createElement('style'); dynStyle.id='dynamic-colors'; document.head.appendChild(dynStyle); }
     if(dynCSS) dynStyle.textContent = dynCSS;
     // Banner size
     if(s.bannerSizeVal && s.bannerSizeUnit){
       const slider = document.getElementById('heroSlider');
-      if(slider) slider.style.height = s.bannerSizeVal + s.bannerSizeUnit;
+      if(slider){
+        slider.style.height = s.bannerSizeVal + s.bannerSizeUnit;
+        // Ensure content always visible inside resized banner
+        slider.style.overflow = 'hidden';
+        slider.style.minHeight = '80px';
+      }
     }
     // #20 Free shipping threshold
     const thresh=parseFloat(s.freeShippingThreshold)||0;
@@ -283,10 +303,10 @@ async function loadBanners(){
       } else {
         bgStyle = `background:${b.bgGradient||'linear-gradient(135deg,#1e293b 0%,#f97316 100%)'}`;
       }
-      return `<div style="${bgStyle};position:absolute;inset:0;display:flex;align-items:${aItems};justify-content:center;flex-direction:column;text-align:${tAlign};color:${tClr};padding:32px 48px;opacity:${i===0?1:0};transition:opacity .6s;pointer-events:${i===0?'all':'none'}">
-        <h1 style="font-size:${hSz};font-weight:800;margin-bottom:10px;text-shadow:0 2px 8px rgba(0,0,0,.4)">${b.headline||''}</h1>
-        <p style="font-size:1rem;margin-bottom:22px;opacity:.88">${b.subtitle||''}</p>
-        <button onclick="filterCat('all')" class="btn btn-outline">${b.ctaLabel||'Shop Now'} →</button>
+      return `<div style="${bgStyle};position:absolute;inset:0;display:flex;align-items:${aItems};justify-content:center;flex-direction:column;text-align:${tAlign};color:${tClr};padding:20px 48px;opacity:${i===0?1:0};transition:opacity .6s;pointer-events:${i===0?'all':'none'};overflow:hidden">
+        <h1 style="font-size:clamp(.9rem,${hSz},${hSz});font-weight:800;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,.4);line-height:1.2">${b.headline||''}</h1>
+        <p style="font-size:clamp(.7rem,1rem,1rem);margin-bottom:14px;opacity:.88;max-width:600px">${b.subtitle||''}</p>
+        <button onclick="filterCat('all')" class="btn btn-outline" style="flex-shrink:0">${b.ctaLabel||'Shop Now'} →</button>
       </div>`;
     }).join('');
     slider.appendChild(prev); slider.appendChild(next);
@@ -841,15 +861,42 @@ async function loadPageBlocks(){
       } else if(b.type==='heading'){
         html=`<h2 class="${animClass.trim()}" style="font-weight:800;${styleStr}">${b.content||''}</h2>`;
       } else if(b.type==='image'||b.type==='image-link'){
-        const imgW = s.width || '100%';
-        const imgH = s.minHeight || 'auto';
-        // object-fit:contain so full image shows without cropping
-        const imgS=`width:${imgW};height:${imgH};max-width:100%;display:block;object-fit:contain;${s.borderRadius?'border-radius:'+s.borderRadius:''}`;
-        const img=`<img src="${b.content||''}" alt="${b.alt||''}" style="${imgS}" loading="lazy" onerror="this.style.display='none'">`;
-        const inner=b.link?`<a href="${b.link}" target="${b.target||'_self'}" title="${b.alt||''}" style="display:block">${img}</a>`:img;
-        // Show caption text below image
-        const caption = b.alt ? `<div style="font-size:${s.fontSize||'.85rem'};color:${s.color||'#475569'};text-align:${s.textAlign||'center'};padding:6px 4px;font-weight:${s.fontWeight||'600'}">${b.alt}</div>` : '';
-        html=`<div class="${animClass.trim()}" style="${styleStr}">${inner}${caption}</div>`;
+        const imgW   = s.width    || '100%';
+        const imgH   = s.minHeight;          // may be undefined/empty
+        const imgFit = s.objectFit || 'cover';
+        const radius = s.borderRadius || '0px';
+
+        // When a fixed height IS set: use a fixed-size container with object-fit so
+        //   the image zooms/fills without overflowing (no crop artefact).
+        // When NO height is set: just let the <img> scale naturally by width —
+        //   width shrinks → image scales down proportionally, never cropping.
+        let imgStyle, wrapStyle;
+        if(imgH && imgH !== 'auto'){
+          // Fixed height mode — zoom/fill inside the box
+          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};`;
+          imgStyle  = `width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};`;
+        } else {
+          // Auto height mode — scale by width, keep full image visible
+          wrapStyle = `display:block;width:${imgW};max-width:100%;border-radius:${radius};overflow:hidden;`;
+          imgStyle  = `width:100%;height:auto;display:block;object-fit:${imgFit};object-position:center;border-radius:${radius};`;
+        }
+
+        // Build outer wrapper style — exclude width/minHeight (handled inside) but keep bg, padding, etc.
+        const outerParts = Object.entries({
+          'background':       s.background,
+          'background-image': s.backgroundImage,
+          'background-size':  s.backgroundImage ? (s.backgroundSize||'cover') : null,
+          'padding':          s.padding,
+          'margin':           s.margin,
+          'text-align':       s.textAlign,
+          'box-shadow':       s.boxShadow,
+          'opacity':          s.opacity,
+        }).filter(([,v])=>v).map(([k,v])=>`${k}:${v}`).join(';');
+
+        const imgEl = `<div style="${wrapStyle}"><img src="${b.content||''}" alt="${b.alt||''}" style="${imgStyle}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`;
+        const inner = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block">${imgEl}</a>` : imgEl;
+        const caption = b.alt ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;font-weight:600">${b.alt}</div>` : '';
+        html=`<div class="${animClass.trim()}" style="${outerParts}">${inner}${caption}</div>`;
       } else if(b.type==='gallery'){
         const urls = (b.content||'').split('\n').map(u=>u.trim()).filter(Boolean);
         const layout = b.alt || 'grid3';
