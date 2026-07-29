@@ -220,23 +220,32 @@ function buildFAQ(text){
 async function loadCategories(){
   try{
     allCategories=await fetch('/api/categories').then(r=>r.json());
-    // Nav bar
+    // Nav bar — no emojis, larger text, clean categories
     const nav=document.getElementById('mainNav');
     if(nav) nav.innerHTML=
-      `<a onclick="goHome();setActive(this)" class="active">🏠 Home</a>`+
-      `<a onclick="filterCat('all');setActive(this)">🛍️ All</a>`+
-      `<a onclick="filterBadge('deal');setActive(this)">🔥 Deals</a>`+
-      `<a onclick="filterBadge('new');setActive(this)">✨ New</a>`+
-      allCategories.map(c=>`<a onclick="filterCat('${c.replace(/'/g,"\\'")}');setActive(this)">${CAT_ICONS[c]||'🛍️'} ${c}</a>`).join('');
-    // Category cards
+      `<a onclick="goHome();setActive(this)" class="active">Home</a>`+
+      `<a onclick="filterCat('all');setActive(this)">All Products</a>`+
+      `<a onclick="filterBadge('deal');setActive(this)">Deals</a>`+
+      `<a onclick="filterBadge('new');setActive(this)">New Arrivals</a>`+
+      `<a onclick="filterBadge('hot');setActive(this)">Hot Picks</a>`+
+      allCategories.map(c=>`<a onclick="filterCat('${c.replace(/'/g,"\\'")}');setActive(this)">${c}</a>`).join('');
+
+    // Category strip below hero — colored boxes, no emojis
+    const cs=document.getElementById('catStrip');
+    if(cs){
+      const [bg,color]=Object.entries(CAT_COLORS);
+      cs.innerHTML=allCategories.map(c=>{
+        const [cbg,cc]=CAT_COLORS[c]||CAT_COLORS.default;
+        return `<div class="cat-chip" onclick="filterCat('${c.replace(/'/g,"\\'")}');window.scrollTo(0,0)" style="--chip-bg:${cbg};--chip-color:${cc}">
+          <div class="cat-chip-icon" style="background:${cbg};color:${cc}">${CAT_ICONS[c]||'🛍️'}</div>
+          <span>${c}</span>
+        </div>`;
+      }).join('');
+    }
+
+    // Keep catGrid for backward compatibility (hidden now)
     const cg=document.getElementById('catGrid');
-    if(cg) cg.innerHTML=allCategories.map(c=>{
-      const [bg,color]=CAT_COLORS[c]||CAT_COLORS.default;
-      return `<div class="cat-card" onclick="filterCat('${c.replace(/'/g,"\\'")}')">
-        <div class="cat-icon" style="background:${bg};color:${color}">${CAT_ICONS[c]||'🛍️'}</div>
-        <span>${c}</span>
-      </div>`;
-    }).join('');
+    if(cg) cg.style.display='none';
     // Search dropdown
     const sel=document.getElementById('searchCat');
     if(sel) sel.innerHTML='<option value="all">All</option>'+allCategories.map(c=>`<option value="${c}">${c}</option>`).join('');

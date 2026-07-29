@@ -52,11 +52,21 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
 .user-chip:hover{background:rgba(255,255,255,.08)}
 
 /* ── NAVIGATION ───────────────────────────────────────────────────────────── */
-.main-nav{background:var(--sec2);border-bottom:1px solid rgba(255,255,255,.06)}
+.main-nav{background:var(--sec2);border-bottom:1px solid rgba(255,255,255,.08)}
 .nav-inner{max-width:1400px;margin:0 auto;padding:0 20px;display:flex;overflow-x:auto;gap:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .nav-inner::-webkit-scrollbar{display:none}
-.nav-inner a{color:#ccc;font-size:.82rem;font-weight:500;padding:10px 14px;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;cursor:pointer;display:block}
-.nav-inner a:hover,.nav-inner a.active{color:#fff;border-bottom-color:var(--p)}
+.nav-inner a{color:#d1d5db;font-size:.92rem;font-weight:600;padding:12px 18px;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s;cursor:pointer;display:block;letter-spacing:.1px}
+.nav-inner a:hover,.nav-inner a.active{color:#fff;border-bottom-color:var(--p);background:rgba(255,255,255,.04)}
+
+/* ── CATEGORY STRIP (below hero) ─────────────────────────────────────────── */
+.cat-strip{background:#fff;border-bottom:1px solid var(--b);overflow:hidden}
+.cat-strip-inner{max-width:1400px;margin:0 auto;padding:14px 20px;display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.cat-strip-inner::-webkit-scrollbar{display:none}
+.cat-chip{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;padding:10px 14px;border-radius:12px;border:1.5px solid var(--b);background:#fff;min-width:76px;transition:all .22s;flex-shrink:0}
+.cat-chip:hover{border-color:var(--p);transform:translateY(-2px);box-shadow:0 4px 14px rgba(249,115,22,.15)}
+.cat-chip-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;transition:transform .2s}
+.cat-chip:hover .cat-chip-icon{transform:scale(1.1)}
+.cat-chip span{font-size:.72rem;font-weight:700;color:var(--t);white-space:nowrap;text-align:center}
 
 /* ── HERO BANNER ──────────────────────────────────────────────────────────── */
 .hero-slider{position:relative;overflow:hidden;height:420px;background:var(--sec2)}
