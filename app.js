@@ -894,7 +894,6 @@ async function loadPageBlocks(){
         const inner = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block">${wrapDiv}</a>` : wrapDiv;
         const caption = b.alt ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;font-weight:600">${b.alt}</div>` : '';
         html=`<div class="${animClass.trim()}" style="${outerParts}">${inner}${caption}</div>`;
-        html=`<div class="${animClass.trim()}" style="${outerParts}">${inner}${caption}</div>`;
       } else if(b.type==='gallery'){
         const urls = (b.content||'').split('\n').map(u=>u.trim()).filter(Boolean);
         const layout = b.alt || 'grid3';

@@ -334,8 +334,10 @@ footer{background:var(--sec);color:#94a3b8;margin-top:60px}
 .pb-block-wrap{flex:1;min-width:200px;max-width:100%}
 /* Single block in zone takes full width */
 .pb-zone:has(.pb-block-wrap:only-child) .pb-block-wrap{flex:none;width:100%}
-/* Image blocks in zones look good */
-.pb-zone img{border-radius:8px;max-width:100%}
+/* Image blocks in zones — hover zoom */
+.pb-zone img{border-radius:8px;max-width:100%;transition:transform .35s ease}
+.pb-zone div[onmouseover] img{transition:transform .35s ease}
+.pb-zone div[onmouseover]:hover img{transform:scale(1.06)}
 /* Zone inside container */
 .container .pb-zone{padding:0;margin-bottom:16px}
 
