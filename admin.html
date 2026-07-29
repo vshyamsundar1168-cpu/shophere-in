@@ -2293,21 +2293,22 @@ function pbRender() {
       : b.type === 'gallery' && b.content
         ? (() => { const urls = b.content.split('\n').filter(Boolean); return urls.length ? `<img src="${urls[0]}" style="width:100%;height:100%;object-fit:cover">` : '🖼️🖼️'; })()
         : (icons[b.type]||'📝');
-    return `<div class="pb-block-card" data-id="${b._id||b.id}">
+    const bid = String(b._id||b.id);
+    return `<div class="pb-block-card" data-id="${bid}">
       <div class="pb-drag-grip pb-drag-handle"><span>⠿⠿⠿</span> Drag to reorder &nbsp;·&nbsp; ${b.title || 'Untitled Block'} <span style="margin-left:auto;font-size:.68rem;color:#cbd5e1">${b.type} | ${b.page}</span></div>
       <div class="pb-block-body">
         <div class="pb-block-preview">${preview}</div>
         <div class="pb-block-info">
           <div style="font-size:.78rem;color:#475569;overflow:hidden;max-height:36px;text-overflow:ellipsis">${b.type==='image'||b.type==='image-link'?'[Image]':b.type==='gallery'?'[Gallery: '+(b.content||'').split('\n').filter(Boolean).length+' images]':b.type==='columns'?'[Columns layout]':b.type==='video'?'[Video]':b.type==='audio'?'[Audio]':(b.content||'').substring(0,80)}</div>
           <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.78rem;cursor:pointer">
-            <input type="checkbox" ${b.visible!==false?'checked':''} onchange="pbToggleVisible('${b._id||b.id}',this.checked)" style="accent-color:var(--p)"> Visible on store
+            <input type="checkbox" ${b.visible!==false?'checked':''} onchange="pbToggleVisible('${bid}',this.checked)" style="accent-color:var(--p)"> Visible on store
           </label>
         </div>
         <div class="pb-block-actions">
-          <button onclick="pbOpenEdit('${b._id||b.id}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">✏️ Edit</button>
-          <button onclick="pbDelete('${b._id||b.id}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">🗑️ Delete</button>
-          <button onclick="pbMoveUp('${b._id||b.id}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬆</button>
-          <button onclick="pbMoveDown('${b._id||b.id}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬇</button>
+          <button onclick="pbOpenEdit('${bid}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">✏️ Edit</button>
+          <button onclick="pbDelete('${bid}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">🗑️ Delete</button>
+          <button onclick="pbMoveUp('${bid}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬆</button>
+          <button onclick="pbMoveDown('${bid}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬇</button>
         </div>
       </div>
     </div>`;
@@ -2466,10 +2467,10 @@ function pbOpenAdd() {
 }
 
 function pbOpenEdit(id) {
-  const b = pbBlocks.find(x => (x._id||x.id) === id);
-  if (!b) return;
-  pbEditId = id;
-  document.getElementById('pbModalTitle').textContent = 'Edit Content Block';
+  const b = pbBlocks.find(x => String(x._id||x.id) === String(id));
+  if (!b) { toast('❌ Block not found'); return; }
+  pbEditId = String(b._id||b.id);
+  document.getElementById('pbModalTitle').textContent = 'Edit Block: ' + (b.title||b.type);
   document.getElementById('pb_title').value = b.title || '';
   document.getElementById('pb_page').value = b.page || 'home';
   document.getElementById('pb_type').value = b.type || 'text';
@@ -2479,7 +2480,7 @@ function pbOpenEdit(id) {
   fields._alt  = b.alt     || '';
   fields._link = b.link    || '';
   pbTypeChanged();
-  // Fill remaining fields after DOM is built by pbTypeChanged
+  // Fill content fields after pbTypeChanged rebuilds the DOM
   setTimeout(() => {
     const c = document.getElementById('pb_content');
     if (c) c.value = b.content || '';
@@ -2487,7 +2488,6 @@ function pbOpenEdit(id) {
     const l = document.getElementById('pb_link');    if (l) l.value = b.link   || '';
     const t = document.getElementById('pb_target');  if (t) t.value = b.target || '_self';
     const bc= document.getElementById('pb_btnColor');if (bc && b.btnColor) bc.value = b.btnColor;
-    // For columns: re-populate individual column textareas
     if (b.type === 'columns') {
       let cols = [];
       try { cols = JSON.parse(b.content || '[]'); } catch(e) {}
@@ -2496,9 +2496,9 @@ function pbOpenEdit(id) {
         if (el) el.value = col;
       });
       const sel = document.getElementById('pb_alt');
-      if (sel) pbColumnsUpdate(sel.value || b.alt || '2');
+      if (sel) { sel.value = b.alt || '2'; pbColumnsUpdate(sel.value); }
     }
-  }, 80);
+  }, 100);
   if (b.style) {
     const s = b.style;
     const gv = id => { const e = document.getElementById(id); if(e) e.value = s[id.replace('pb_','')] || s[id] || ''; };
@@ -2596,7 +2596,7 @@ async function pbSaveBlock() {
   Object.keys(style).forEach(k => { if (!style[k]) delete style[k]; });
 
   // Preserve visibility on edit; default true for new blocks
-  const existingBlock = pbEditId ? pbBlocks.find(x => (x._id||x.id) === pbEditId) : null;
+  const existingBlock = pbEditId ? pbBlocks.find(x => String(x._id||x.id) === String(pbEditId)) : null;
   const visible = existingBlock ? (existingBlock.visible !== false) : true;
   const block = { title, page, type, content, alt, link, target, btnColor, style, visible };
 
@@ -2807,8 +2807,8 @@ function pbRenderWithDrag() {
       card.style.background = '';
       const targetId = card.dataset.id;
       if (!pbDragId || pbDragId === targetId) return;
-      const fromIdx = pbBlocks.findIndex(b => (b._id||b.id) === pbDragId);
-      const toIdx   = pbBlocks.findIndex(b => (b._id||b.id) === targetId);
+      const fromIdx = pbBlocks.findIndex(b => String(b._id||b.id) === String(pbDragId));
+      const toIdx   = pbBlocks.findIndex(b => String(b._id||b.id) === String(targetId));
       if (fromIdx < 0 || toIdx < 0) return;
       const [moved] = pbBlocks.splice(fromIdx, 1);
       pbBlocks.splice(toIdx, 0, moved);
@@ -2820,16 +2820,16 @@ function pbRenderWithDrag() {
 }
 
 async function pbMoveUp(id) {
-  const idx = pbBlocks.findIndex(b => (b._id||b.id) === id);
+  const idx = pbBlocks.findIndex(b => String(b._id||b.id) === String(id));
   if (idx <= 0) return;
   [pbBlocks[idx-1], pbBlocks[idx]] = [pbBlocks[idx], pbBlocks[idx-1]];
-  await pbSaveOrder(); pbRender(); // pbRender now calls pbRenderWithDrag
+  await pbSaveOrder(); pbRender();
 }
 async function pbMoveDown(id) {
-  const idx = pbBlocks.findIndex(b => (b._id||b.id) === id);
+  const idx = pbBlocks.findIndex(b => String(b._id||b.id) === String(id));
   if (idx < 0 || idx >= pbBlocks.length-1) return;
   [pbBlocks[idx], pbBlocks[idx+1]] = [pbBlocks[idx+1], pbBlocks[idx]];
-  await pbSaveOrder(); pbRender(); // pbRender now calls pbRenderWithDrag
+  await pbSaveOrder(); pbRender();
 }
 async function pbSaveOrder() {
   try { await fetch('/api/pageblocks/reorder', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ids: pbBlocks.map(b=>b._id||b.id) }) }); } catch(e) {}

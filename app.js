@@ -864,29 +864,25 @@ async function loadPageBlocks(){
         html=`<h2 class="${animClass.trim()}" style="font-weight:800;${styleStr}">${b.content||''}</h2>`;
       } else if(b.type==='image'||b.type==='image-link'){
         const imgW   = s.width    || '100%';
-        const imgH   = s.minHeight;          // may be undefined/empty
-        // Default: 'contain' = show full image, no crop. User can choose 'cover' = zoom/fill.
+        const imgH   = s.minHeight;
         const imgFit = s.objectFit || 'contain';
         const radius = s.borderRadius || '0px';
+        // Zoom on hover (smooth scale)
+        const hoverZoom = `onmouseover="this.querySelector('img').style.transform='scale(1.06)'" onmouseout="this.querySelector('img').style.transform='scale(1)'"`;
 
-        let imgStyle, wrapStyle;
-        if(imgH && imgH !== 'auto'){
-          // Fixed height set: use object-fit inside fixed box
-          // contain = full image visible (letterbox), cover = zoom fill (may crop by design)
-          const bgColor = (imgFit === 'contain') ? (s.background || 'transparent') : 'transparent';
-          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};background:${bgColor};`;
-          imgStyle  = `width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};`;
+        let imgTag, wrapStyle;
+        if(imgH && imgH !== 'auto' && imgH !== ''){
+          // Fixed height: fill box with chosen fit — overflow:hidden keeps it clean
+          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};cursor:pointer;`;
+          imgTag = `<img src="${b.content||''}" alt="${b.alt||''}" style="width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};transition:transform .35s ease;" loading="lazy" onerror="this.parentElement.style.display='none'">`;
         } else {
-          // No fixed height: image scales naturally with width — NEVER crops
-          wrapStyle = `display:block;width:${imgW};max-width:100%;border-radius:${radius};line-height:0;`;
-          imgStyle  = `width:100%;height:auto;display:block;border-radius:${radius};`;
+          // No height: image scales by width, never crops — natural aspect ratio preserved
+          wrapStyle = `display:block;width:${imgW};max-width:100%;overflow:hidden;border-radius:${radius};line-height:0;cursor:pointer;`;
+          imgTag = `<img src="${b.content||''}" alt="${b.alt||''}" style="width:100%;height:auto;display:block;border-radius:${radius};transition:transform .35s ease;" loading="lazy" onerror="this.parentElement.style.display='none'">`;
         }
 
-        // Build outer wrapper style — exclude width/minHeight (handled inside) but keep bg, padding, etc.
         const outerParts = Object.entries({
           'background':       s.background,
-          'background-image': s.backgroundImage,
-          'background-size':  s.backgroundImage ? (s.backgroundSize||'cover') : null,
           'padding':          s.padding,
           'margin':           s.margin,
           'text-align':       s.textAlign,
@@ -894,9 +890,10 @@ async function loadPageBlocks(){
           'opacity':          s.opacity,
         }).filter(([,v])=>v).map(([k,v])=>`${k}:${v}`).join(';');
 
-        const imgEl = `<div style="${wrapStyle}"><img src="${b.content||''}" alt="${b.alt||''}" style="${imgStyle}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`;
-        const inner = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block">${imgEl}</a>` : imgEl;
+        const wrapDiv = `<div style="${wrapStyle}" ${hoverZoom}>${imgTag}</div>`;
+        const inner = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block">${wrapDiv}</a>` : wrapDiv;
         const caption = b.alt ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;font-weight:600">${b.alt}</div>` : '';
+        html=`<div class="${animClass.trim()}" style="${outerParts}">${inner}${caption}</div>`;
         html=`<div class="${animClass.trim()}" style="${outerParts}">${inner}${caption}</div>`;
       } else if(b.type==='gallery'){
         const urls = (b.content||'').split('\n').map(u=>u.trim()).filter(Boolean);
