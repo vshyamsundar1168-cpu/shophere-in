@@ -51,7 +51,36 @@ if(window.location.protocol==='file:'){
 .data-table tr:last-child td{border:none}
 .data-table tr:hover td{background:#fafafa}
 .tab{display:none}.tab.active{display:block}
-</style>
+/* ── MODALS ──────────────────────────────────────────────────────────────── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);display:flex;flex-direction:column}
+.modal-lg{max-width:820px}
+.modal-hdr{padding:18px 24px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10;border-radius:16px 16px 0 0}
+.modal-hdr h3{font-size:1.05rem;font-weight:700}
+.modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--m);line-height:1;padding:0}
+.modal-body{padding:20px 24px;overflow-y:auto}
+/* ── FORMS ───────────────────────────────────────────────────────────────── */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;font-family:inherit;transition:border-color .2s;box-sizing:border-box}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--p)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* ── TOAST ───────────────────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:28px;right:24px;background:#1e293b;color:#fff;padding:12px 22px;border-radius:10px;font-size:.85rem;font-weight:600;z-index:9999;opacity:0;transform:translateY(16px);transition:all .3s;pointer-events:none;max-width:340px}
+#toast.show{opacity:1;transform:none}
+/* ── PAGE BUILDER BLOCK CARDS ────────────────────────────────────────────── */
+.pb-block-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,opacity .2s;margin-bottom:2px}
+.pb-block-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.pb-drag-grip{background:#f1f5f9;border-bottom:1px solid #e2e8f0;padding:6px 14px;display:flex;align-items:center;gap:8px;cursor:grab;user-select:none;font-size:.72rem;color:#64748b;font-weight:600}
+.pb-drag-grip:active{cursor:grabbing;background:#e2e8f0}
+.pb-drag-grip span{font-size:1.1rem;letter-spacing:2px;color:#cbd5e1}
+.pb-block-body{display:flex;align-items:stretch}
+.pb-block-preview{width:110px;min-height:80px;flex-shrink:0;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-size:2.5rem;border-right:1px solid #e2e8f0;overflow:hidden}
+.pb-block-info{flex:1;padding:12px 16px}
+.pb-block-actions{display:flex;flex-direction:column;gap:6px;padding:10px;border-left:1px solid #e2e8f0;justify-content:center}
+.pb-page-btn{padding:6px 14px;border:1.5px solid #e2e8f0;border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;cursor:pointer;color:#475569;transition:all .2s}
+.pb-page-btn.active,.pb-page-btn:hover{background:#f97316;color:#fff;border-color:#f97316}
 </head>
 <body>
 
