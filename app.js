@@ -865,34 +865,45 @@ async function loadPageBlocks(){
       } else if(b.type==='image'||b.type==='image-link'){
         const imgW   = s.width    || '100%';
         const imgH   = s.minHeight;
+        // contain = show full image no crop (default), cover = zoom fill
         const imgFit = s.objectFit || 'contain';
         const radius = s.borderRadius || '0px';
-        // Zoom on hover (smooth scale)
-        const hoverZoom = `onmouseover="this.querySelector('img').style.transform='scale(1.06)'" onmouseout="this.querySelector('img').style.transform='scale(1)'"`;
 
-        let imgTag, wrapStyle;
+        let imgEl, wrapStyle;
         if(imgH && imgH !== 'auto' && imgH !== ''){
-          // Fixed height: fill box with chosen fit — overflow:hidden keeps it clean
-          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};cursor:pointer;`;
-          imgTag = `<img src="${b.content||''}" alt="${b.alt||''}" style="width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};transition:transform .35s ease;" loading="lazy" onerror="this.parentElement.style.display='none'">`;
+          // Fixed height — image scales to fit inside box, NO overflow clipping with contain
+          // overflow:hidden only when cover is chosen (user explicitly wants fill/crop)
+          const clip = imgFit === 'cover' ? 'overflow:hidden;' : 'overflow:visible;';
+          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;${clip}border-radius:${radius};cursor:zoom-in;position:relative;`;
+          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}"
+            style="width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};transition:transform .35s ease;transform-origin:center;"
+            onmouseover="this.style.transform='scale(1.07)'"
+            onmouseout="this.style.transform='scale(1)'"
+            onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}'); event.stopPropagation();"
+            loading="lazy" onerror="this.style.display='none'">`;
         } else {
-          // No height: image scales by width, never crops — natural aspect ratio preserved
-          wrapStyle = `display:block;width:${imgW};max-width:100%;overflow:hidden;border-radius:${radius};line-height:0;cursor:pointer;`;
-          imgTag = `<img src="${b.content||''}" alt="${b.alt||''}" style="width:100%;height:auto;display:block;border-radius:${radius};transition:transform .35s ease;" loading="lazy" onerror="this.parentElement.style.display='none'">`;
+          // No height — scale by width, full image always visible, never crops
+          wrapStyle = `display:block;width:${imgW};max-width:100%;border-radius:${radius};line-height:0;cursor:zoom-in;overflow:hidden;`;
+          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}"
+            style="width:100%;height:auto;display:block;border-radius:${radius};transition:transform .35s ease;transform-origin:center;"
+            onmouseover="this.style.transform='scale(1.07)'"
+            onmouseout="this.style.transform='scale(1)'"
+            onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}'); event.stopPropagation();"
+            loading="lazy" onerror="this.style.display='none'">`;
         }
 
         const outerParts = Object.entries({
-          'background':       s.background,
-          'padding':          s.padding,
-          'margin':           s.margin,
-          'text-align':       s.textAlign,
-          'box-shadow':       s.boxShadow,
-          'opacity':          s.opacity,
+          'background': s.background,
+          'padding':    s.padding,
+          'margin':     s.margin,
+          'text-align': s.textAlign,
+          'box-shadow': s.boxShadow,
+          'opacity':    s.opacity,
         }).filter(([,v])=>v).map(([k,v])=>`${k}:${v}`).join(';');
 
-        const wrapDiv = `<div style="${wrapStyle}" ${hoverZoom}>${imgTag}</div>`;
-        const inner = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block">${wrapDiv}</a>` : wrapDiv;
-        const caption = b.alt ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;font-weight:600">${b.alt}</div>` : '';
+        const wrapDiv = `<div style="${wrapStyle}">${imgEl}</div>`;
+        const inner   = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block">${wrapDiv}</a>` : wrapDiv;
+        const caption = b.alt  ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;font-weight:600">${b.alt}</div>` : '';
         html=`<div class="${animClass.trim()}" style="${outerParts}">${inner}${caption}</div>`;
       } else if(b.type==='gallery'){
         const urls = (b.content||'').split('\n').map(u=>u.trim()).filter(Boolean);
@@ -1018,8 +1029,67 @@ async function loadPageBlocks(){
       const wrap=document.createElement('div');
       if(isSticky) wrap.style.cssText=`position:sticky;top:0;z-index:${s.zIndex||100}`;
       wrap.className='pb-block-wrap';
+      wrap.setAttribute('data-bid', b.id||b._id||'');
       wrap.innerHTML=html;
       zone.appendChild(wrap);
+    });
+
+    // ── Drag & drop reorder within each zone ─────────────────────────────────
+    document.querySelectorAll('.pb-zone').forEach(zone=>{
+      const blocks = zone.querySelectorAll('.pb-block-wrap');
+      if(blocks.length < 2) return; // nothing to reorder
+      let dragSrc = null;
+      blocks.forEach(block=>{
+        // Add drag handle indicator
+        block.style.position = 'relative';
+        const grip = document.createElement('div');
+        grip.title = 'Drag to reorder';
+        grip.style.cssText = 'position:absolute;top:4px;right:4px;z-index:9;background:rgba(0,0,0,.45);color:#fff;border-radius:4px;padding:2px 6px;font-size:.65rem;cursor:grab;user-select:none;opacity:0;transition:opacity .2s;pointer-events:auto;';
+        grip.textContent = '⠿ drag';
+        block.appendChild(grip);
+        block.addEventListener('mouseenter', ()=>{ grip.style.opacity='1'; });
+        block.addEventListener('mouseleave', ()=>{ grip.style.opacity='0'; });
+
+        block.setAttribute('draggable','true');
+        block.addEventListener('dragstart', e=>{
+          dragSrc = block;
+          e.dataTransfer.effectAllowed = 'move';
+          setTimeout(()=>{ block.style.opacity='0.4'; }, 0);
+        });
+        block.addEventListener('dragend', ()=>{
+          block.style.opacity='1';
+          zone.querySelectorAll('.pb-block-wrap').forEach(b2=>{ b2.style.outline=''; b2.style.background=''; });
+        });
+        block.addEventListener('dragover', e=>{
+          e.preventDefault();
+          if(block === dragSrc) return;
+          block.style.outline='2px dashed #f97316';
+          block.style.background='rgba(249,115,22,.05)';
+        });
+        block.addEventListener('dragleave', e=>{
+          if(!block.contains(e.relatedTarget)){
+            block.style.outline=''; block.style.background='';
+          }
+        });
+        block.addEventListener('drop', async e=>{
+          e.preventDefault();
+          block.style.outline=''; block.style.background='';
+          if(!dragSrc || dragSrc===block) return;
+          // Reorder in DOM immediately
+          const parent = block.parentNode;
+          const srcIdx  = Array.from(parent.children).indexOf(dragSrc);
+          const tgtIdx  = Array.from(parent.children).indexOf(block);
+          if(srcIdx < tgtIdx) parent.insertBefore(dragSrc, block.nextSibling);
+          else parent.insertBefore(dragSrc, block);
+          dragSrc.style.opacity='1';
+          // Save new order to server
+          const ids = Array.from(parent.querySelectorAll('.pb-block-wrap')).map(w=>w.dataset.bid).filter(Boolean);
+          try{
+            await fetch('/api/pageblocks/reorder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});
+          }catch(err){}
+          dragSrc=null;
+        });
+      });
     });
   }catch(e){console.warn('Page blocks failed',e.message);}
 }

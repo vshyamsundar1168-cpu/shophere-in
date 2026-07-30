@@ -146,7 +146,7 @@ if(window.location.protocol==='file:'){
     <div class="sec">
       <h3 style="font-size:.95rem;font-weight:700;margin-bottom:14px">Recent Orders</h3>
       <table class="data-table">
-        <thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
         <tbody id="recentOrders"></tbody>
       </table>
     </div>
@@ -1576,7 +1576,10 @@ async function loadStats() {
       <td>₹${(o.total || 0).toLocaleString('en-IN')}</td>
       <td><span class="status-badge s-${(o.status || '').toLowerCase()}">${o.status || ''}</span></td>
       <td>${o.date ? new Date(o.date).toLocaleDateString('en-IN') : ''}</td>
-    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--m);padding:24px">No orders yet</td></tr>';
+      <td>${o.status !== 'Cancelled' && o.status !== 'Delivered'
+        ? `<button onclick="cancelOrder('${o.id}');loadStats();" style="padding:3px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:6px;font-size:.74rem;font-weight:700;cursor:pointer">✕ Cancel</button>`
+        : `<span style="font-size:.72rem;color:${o.status==='Cancelled'?'#ef4444':'#22c55e'};font-weight:600">${o.status}</span>`}</td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--m);padding:24px">No orders yet</td></tr>';
   } catch (e) {
     toast('❌ Recent orders error: ' + e.message);
   }
