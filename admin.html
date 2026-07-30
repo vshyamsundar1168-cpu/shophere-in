@@ -2479,42 +2479,41 @@ function pbTypeChanged() {
 }
 
 function pbOpenAdd() {
-  pbEditId = null;
-  document.getElementById('pbModalTitle').textContent = 'Add Content Block';
-  document.getElementById('pb_title').value = '';
-  document.getElementById('pb_page').value = pbCurrentPage === 'all' ? 'home' : pbCurrentPage;
-  document.getElementById('pb_type').value = 'text';
-  document.getElementById('pb_fields')._val  = '';
-  document.getElementById('pb_fields')._alt  = '';
-  document.getElementById('pb_fields')._link = '';
-  pbTypeChanged();
-  // Reset all style fields
-  document.getElementById('pb_textColor').value = '#1e293b';
-  document.getElementById('pb_bgColor').value = '#ffffff';
-  document.getElementById('pb_borderColor').value = '#e2e8f0';
-  document.getElementById('pb_fontSize').value = '';
-  document.getElementById('pb_fontWeight').value = '';
-  document.getElementById('pb_align').value = '';
-  document.getElementById('pb_lineHeight').value = '';
-  document.getElementById('pb_width').value = '';
-  document.getElementById('pb_minHeight').value = '';
-  document.getElementById('pb_padding').value = '';
-  document.getElementById('pb_margin').value = '';
-  document.getElementById('pb_radius').value = '';
-  document.getElementById('pb_borderWidth').value = '';
-  document.getElementById('pb_borderStyle').value = '';
-  document.getElementById('pb_shadow').value = '';
-  document.getElementById('pb_opacity').value = '';
-  document.getElementById('pb_bgImage').value = '';
-  document.getElementById('pb_bgSize').value = '';
-  document.getElementById('pb_animation').value = '';
-  document.getElementById('pb_position').value = '';
-  document.getElementById('pb_posTop').value = '';
-  document.getElementById('pb_posRight').value = '';
-  document.getElementById('pb_zIndex').value = '';
-  document.getElementById('pb_objectFit').value = 'contain';
-  document.getElementById('pb_preview').innerHTML = '';
-  document.getElementById('pbModal').classList.add('open');
+  try {
+    pbEditId = null;
+    const modal = document.getElementById('pbModal');
+    if (!modal) { alert('Page Builder modal not found. Please refresh the page.'); return; }
+    document.getElementById('pbModalTitle').textContent = 'Add Content Block';
+    document.getElementById('pb_title').value = '';
+    const pageEl = document.getElementById('pb_page');
+    if (pageEl) pageEl.value = pbCurrentPage === 'all' ? 'home' : pbCurrentPage;
+    const typeEl = document.getElementById('pb_type');
+    if (typeEl) typeEl.value = 'text';
+    const fields = document.getElementById('pb_fields');
+    if (fields) { fields._val = ''; fields._alt = ''; fields._link = ''; }
+    pbTypeChanged();
+    // Reset style fields safely
+    const styleFields = {
+      'pb_textColor':'#1e293b','pb_bgColor':'#ffffff','pb_borderColor':'#e2e8f0',
+      'pb_fontSize':'','pb_fontWeight':'','pb_align':'','pb_lineHeight':'',
+      'pb_width':'','pb_minHeight':'','pb_padding':'','pb_margin':'','pb_radius':'',
+      'pb_borderWidth':'','pb_borderStyle':'','pb_shadow':'','pb_opacity':'',
+      'pb_bgImage':'','pb_bgSize':'','pb_animation':'','pb_position':'',
+      'pb_posTop':'','pb_posRight':'','pb_zIndex':'','pb_objectFit':'contain'
+    };
+    Object.entries(styleFields).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    });
+    const prev = document.getElementById('pb_preview');
+    if (prev) prev.innerHTML = '';
+    // Open modal
+    modal.classList.add('open');
+    modal.style.display = 'flex';  // force show regardless of CSS
+  } catch(err) {
+    alert('Error opening Page Builder: ' + err.message + '\nPlease refresh and try again.');
+    console.error('pbOpenAdd error:', err);
+  }
 }
 
 function pbOpenEdit(id) {
@@ -2579,9 +2578,13 @@ function pbOpenEdit(id) {
     document.getElementById('pb_objectFit').value = s.objectFit || 'cover';
   }
   document.getElementById('pbModal').classList.add('open');
+  document.getElementById('pbModal').style.display = 'flex';
 }
 
-function closePbModal() { document.getElementById('pbModal').classList.remove('open'); }
+function closePbModal() {
+  const modal = document.getElementById('pbModal');
+  if (modal) { modal.classList.remove('open'); modal.style.display = ''; }
+}
 
 async function pbSaveBlock() {
   const title = document.getElementById('pb_title').value.trim() || 'Untitled Block';
