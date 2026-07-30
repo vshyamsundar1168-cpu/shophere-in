@@ -2517,68 +2517,85 @@ function pbOpenAdd() {
 }
 
 function pbOpenEdit(id) {
-  const b = pbBlocks.find(x => String(x._id||x.id) === String(id));
-  if (!b) { toast('❌ Block not found'); return; }
-  pbEditId = String(b._id||b.id);
-  document.getElementById('pbModalTitle').textContent = 'Edit Block: ' + (b.title||b.type);
-  document.getElementById('pb_title').value = b.title || '';
-  document.getElementById('pb_page').value = b.page || 'home';
-  document.getElementById('pb_type').value = b.type || 'text';
-  // Pre-store ALL field values so pbTypeChanged can pre-fill them
-  const fields = document.getElementById('pb_fields');
-  fields._val  = b.content || '';
-  fields._alt  = b.alt     || '';
-  fields._link = b.link    || '';
-  pbTypeChanged();
-  // Fill content fields after pbTypeChanged rebuilds the DOM
-  setTimeout(() => {
-    const c = document.getElementById('pb_content');
-    if (c) c.value = b.content || '';
-    const a = document.getElementById('pb_alt');     if (a) a.value = b.alt    || '';
-    const l = document.getElementById('pb_link');    if (l) l.value = b.link   || '';
-    const t = document.getElementById('pb_target');  if (t) t.value = b.target || '_self';
-    const bc= document.getElementById('pb_btnColor');if (bc && b.btnColor) bc.value = b.btnColor;
-    if (b.type === 'columns') {
-      let cols = [];
-      try { cols = JSON.parse(b.content || '[]'); } catch(e) {}
-      cols.forEach((col, i) => {
-        const el = document.getElementById('pb_col' + (i+1));
-        if (el) el.value = col;
-      });
-      const sel = document.getElementById('pb_alt');
-      if (sel) { sel.value = b.alt || '2'; pbColumnsUpdate(sel.value); }
+  try {
+    const b = pbBlocks.find(x => String(x._id||x.id) === String(id));
+    if (!b) { toast('❌ Block not found (id=' + id + ')'); return; }
+
+    const modal = document.getElementById('pbModal');
+    if (!modal) { alert('Modal not found. Refresh page.'); return; }
+
+    pbEditId = String(b._id||b.id);
+
+    // Set basic fields safely
+    const setVal = (elId, val) => { const e = document.getElementById(elId); if (e) e.value = val || ''; };
+    setVal('pbModalTitle', ''); // set via textContent below
+    document.getElementById('pbModalTitle').textContent = 'Edit: ' + (b.title || b.type || 'Block');
+    setVal('pb_title', b.title);
+    setVal('pb_page',  b.page || 'home');
+    setVal('pb_type',  b.type || 'text');
+
+    // Pre-store content for pbTypeChanged to use
+    const fields = document.getElementById('pb_fields');
+    if (fields) { fields._val = b.content || ''; fields._alt = b.alt || ''; fields._link = b.link || ''; }
+
+    pbTypeChanged();
+
+    // Fill dynamic fields after DOM rebuild
+    setTimeout(() => {
+      try {
+        setVal('pb_content', b.content);
+        setVal('pb_alt',     b.alt);
+        setVal('pb_link',    b.link);
+        const t  = document.getElementById('pb_target');   if (t)  t.value  = b.target   || '_self';
+        const bc = document.getElementById('pb_btnColor'); if (bc && b.btnColor) bc.value = b.btnColor;
+        if (b.type === 'columns') {
+          let cols = [];
+          try { cols = JSON.parse(b.content || '[]'); } catch(e) {}
+          cols.forEach((col, i) => { const el = document.getElementById('pb_col'+(i+1)); if (el) el.value = col; });
+          const sel = document.getElementById('pb_alt');
+          if (sel) { sel.value = b.alt || '2'; pbColumnsUpdate(sel.value); }
+        }
+      } catch(e2) { console.warn('pbOpenEdit setTimeout error:', e2); }
+    }, 120);
+
+    // Fill style fields safely
+    if (b.style) {
+      const s = b.style;
+      const sv = (elId, val) => { const e = document.getElementById(elId); if (e && val !== undefined && val !== '') e.value = val; };
+      sv('pb_textColor',   s.color);
+      sv('pb_bgColor',     s.background);
+      sv('pb_borderColor', s.borderColor);
+      sv('pb_fontSize',    s.fontSize ? parseInt(s.fontSize) : '');
+      sv('pb_fontWeight',  s.fontWeight);
+      sv('pb_align',       s.textAlign);
+      sv('pb_lineHeight',  s.lineHeight);
+      sv('pb_width',       s.width);
+      sv('pb_minHeight',   s.minHeight);
+      sv('pb_padding',     s.padding);
+      sv('pb_margin',      s.margin);
+      sv('pb_radius',      s.borderRadius);
+      sv('pb_borderWidth', s.borderWidth);
+      sv('pb_borderStyle', s.borderStyle);
+      sv('pb_shadow',      s.boxShadow);
+      sv('pb_opacity',     s.opacity);
+      sv('pb_bgImage',     s.backgroundImage ? s.backgroundImage.replace(/url\(['"]?|['"]?\)/g,'') : '');
+      sv('pb_bgSize',      s.backgroundSize);
+      sv('pb_animation',   s.animation);
+      sv('pb_position',    s.position);
+      sv('pb_posTop',      s.top);
+      sv('pb_posRight',    s.right);
+      sv('pb_zIndex',      s.zIndex);
+      sv('pb_objectFit',   s.objectFit || 'cover');
     }
-  }, 100);
-  if (b.style) {
-    const s = b.style;
-    const gv = id => { const e = document.getElementById(id); if(e) e.value = s[id.replace('pb_','')] || s[id] || ''; };
-    document.getElementById('pb_textColor').value = s.color || '#1e293b';
-    document.getElementById('pb_bgColor').value = s.background || '#ffffff';
-    document.getElementById('pb_borderColor').value = s.borderColor || '#e2e8f0';
-    document.getElementById('pb_fontSize').value = s.fontSize ? parseInt(s.fontSize) : '';
-    document.getElementById('pb_fontWeight').value = s.fontWeight || '';
-    document.getElementById('pb_align').value = s.textAlign || '';
-    document.getElementById('pb_lineHeight').value = s.lineHeight || '';
-    document.getElementById('pb_width').value = s.width || '';
-    document.getElementById('pb_minHeight').value = s.minHeight || '';
-    document.getElementById('pb_padding').value = s.padding || '';
-    document.getElementById('pb_margin').value = s.margin || '';
-    document.getElementById('pb_radius').value = s.borderRadius || '';
-    document.getElementById('pb_borderWidth').value = s.borderWidth || '';
-    document.getElementById('pb_borderStyle').value = s.borderStyle || '';
-    document.getElementById('pb_shadow').value = s.boxShadow || '';
-    document.getElementById('pb_opacity').value = s.opacity || '';
-    document.getElementById('pb_bgImage').value = s.backgroundImage ? s.backgroundImage.replace(/url\(['"]?|['"]?\)/g,'') : '';
-    document.getElementById('pb_bgSize').value = s.backgroundSize || '';
-    document.getElementById('pb_animation').value = s.animation || '';
-    document.getElementById('pb_position').value = s.position || '';
-    document.getElementById('pb_posTop').value = s.top || '';
-    document.getElementById('pb_posRight').value = s.right || '';
-    document.getElementById('pb_zIndex').value = s.zIndex || '';
-    document.getElementById('pb_objectFit').value = s.objectFit || 'cover';
+
+    // Force open
+    modal.classList.add('open');
+    modal.style.display = 'flex';
+
+  } catch(err) {
+    alert('Error opening Edit: ' + err.message);
+    console.error('pbOpenEdit error:', err);
   }
-  document.getElementById('pbModal').classList.add('open');
-  document.getElementById('pbModal').style.display = 'flex';
 }
 
 function closePbModal() {
