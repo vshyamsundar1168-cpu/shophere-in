@@ -868,23 +868,17 @@ async function loadPageBlocks(){
         const imgFit = s.objectFit || 'contain';
         const radius = s.borderRadius || '0px';
 
-        // Unique class for CSS hover zoom — avoids overflow clipping issue
-        const zClass = 'pb-img-zoom';
-
+        // Zoom: scale the WRAPPER (not just the image) so overflow:hidden doesn't clip it
         let imgEl, wrapStyle;
         if(imgH && imgH !== 'auto' && imgH !== ''){
-          // Fixed height — contain keeps full image, cover fills (may crop by choice)
-          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};cursor:zoom-in;`;
-          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}" class="${zClass}"
+          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};cursor:zoom-in;transition:transform .35s ease,box-shadow .35s ease;transform-origin:center;`;
+          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}"
             style="width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};"
-            onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}');"
-            loading="lazy" onerror="this.style.display='none'">`;
+            loading="lazy" onerror="this.parentElement.style.display='none'">`;
         } else {
-          // No height — image scales naturally with width, NEVER crops
-          wrapStyle = `display:block;width:${imgW};max-width:100%;border-radius:${radius};line-height:0;cursor:zoom-in;overflow:hidden;`;
-          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}" class="${zClass}"
+          wrapStyle = `display:block;width:${imgW};max-width:100%;border-radius:${radius};line-height:0;cursor:zoom-in;transition:transform .35s ease,box-shadow .35s ease;transform-origin:center;`;
+          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}"
             style="width:100%;height:auto;display:block;border-radius:${radius};"
-            onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}');"
             loading="lazy" onerror="this.style.display='none'">`;
         }
 
@@ -897,7 +891,7 @@ async function loadPageBlocks(){
           'opacity':    s.opacity,
         }).filter(([,v])=>v).map(([k,v])=>`${k}:${v}`).join(';');
 
-        const wrapDiv = `<div style="${wrapStyle}">${imgEl}</div>`;
+        const wrapDiv = `<div class="pb-img-zoom" style="${wrapStyle}" onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}')">${imgEl}</div>`;
         const inner   = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block">${wrapDiv}</a>` : wrapDiv;
         const caption = b.alt  ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;font-weight:600">${b.alt}</div>` : '';
         html=`<div class="${animClass.trim()}" style="${outerParts}">${inner}${caption}</div>`;

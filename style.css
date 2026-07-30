@@ -334,17 +334,15 @@ footer{background:var(--sec);color:#94a3b8;margin-top:60px}
 .pb-block-wrap{flex:1;min-width:200px;max-width:100%}
 /* Single block in zone takes full width */
 .pb-zone:has(.pb-block-wrap:only-child) .pb-block-wrap{flex:none;width:100%}
-/* Image zoom — CSS hover, works regardless of overflow on parent */
+/* Image zoom — scales the whole wrapper so overflow:hidden never clips */
 .pb-img-zoom{
   transition:transform .35s ease, box-shadow .35s ease;
   transform-origin:center;
   display:block;
 }
 .pb-img-zoom:hover{
-  transform:scale(1.07);
-  box-shadow:0 8px 32px rgba(0,0,0,.22);
-  position:relative;
-  z-index:10;
+  transform:scale(1.05);
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
   cursor:zoom-in;
 }
 .pb-zone div[onmouseover] img{transition:transform .35s ease}
