@@ -862,50 +862,31 @@ async function loadPageBlocks(){
       } else if(b.type==='heading'){
         html=`<h2 class="${animClass.trim()}" style="font-weight:800;${styleStr}">${b.content||''}</h2>`;
       } else if(b.type==='image'||b.type==='image-link'){
-        const imgW   = s.width    || '100%';
-        const imgH   = s.minHeight; // treat as max-height, not fixed height
-        const imgFit = s.objectFit || 'contain';
-        const radius = s.borderRadius || '0px';
-        const imgSrc = (b.content||'').replace(/'/g,"\\'");
+        // CLEAN IMAGE BLOCK — no cropping, zoom on hover, click opens lightbox
+        const imgW  = s.width  || '100%';
+        const imgH  = s.minHeight || '';  // height the user set in admin
+        const fit   = s.objectFit || 'contain';
+        const rad   = s.borderRadius || '8px';
+        const src   = (b.content||'').replace(/'/g,"\\'");
 
-        // KEY FIX: image is NEVER cropped
-        // - No fixed height on container (that's what was causing the crop)
-        // - Image uses width:100%, height:auto — scales proportionally
-        // - If user sets a height, use it as max-height on the image (image shrinks, never crops)
-        // - object-fit only used when both width AND height are fixed (user chose cover)
-        const imgStyle = [
-          'max-width:100%',
-          'display:block',
-          `border-radius:${radius}`,
-          'width:100%',
-          imgH ? `max-height:${imgH}` : '',
-          imgH && imgFit==='cover' ? 'height:100%;object-fit:cover;object-position:center' : 'height:auto',
-        ].filter(Boolean).join(';');
+        // The image tag — scales to fit its container, never overflows or crops
+        // If height is set:  image fills that height using object-fit
+        // If no height set:  image is natural size (width:100%, height:auto) — never crops
+        let imgCSS;
+        if(imgH){
+          imgCSS = `width:100%;height:${imgH};object-fit:${fit};object-position:center;display:block;border-radius:${rad};`;
+        } else {
+          imgCSS = `width:100%;height:auto;display:block;border-radius:${rad};`;
+        }
 
-        const wrapStyle = [
-          'display:block',
-          `width:${imgW}`,
-          'max-width:100%',
-          `border-radius:${radius}`,
-          'line-height:0',
-          'cursor:zoom-in',
-          s.padding  ? `padding:${s.padding}` : '',
-          s.margin   ? `margin:${s.margin}` : '',
-          s.boxShadow? `box-shadow:${s.boxShadow}` : '',
-          s.opacity  ? `opacity:${s.opacity}` : '',
-          s.background? `background:${s.background}` : '',
-        ].filter(Boolean).join(';');
+        // Wrapper: only sets width, background, padding — NO overflow:hidden so zoom is visible
+        const wrapCSS = `display:block;width:${imgW};max-width:100%;${imgH?'':''}${s.background?'background:'+s.background+';':''}${s.padding?'padding:'+s.padding+';':''}${s.margin?'margin:'+s.margin+';':''}border-radius:${rad};line-height:0;`;
 
-        const imgTag = `<img src="${b.content||''}" alt="${b.alt||''}"
-          style="${imgStyle}"
-          loading="lazy"
-          onerror="this.style.display='none'">`;
-
-        const wrapDiv = `<div class="pb-img-zoom" style="${wrapStyle}" onclick="openLightbox('${imgSrc}')">${imgTag}</div>`;
-        const inner   = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block">${wrapDiv}</a>` : wrapDiv;
-        const caption = b.alt  ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;font-weight:600">${b.alt}</div>` : '';
-        const textAlign = s.textAlign ? `text-align:${s.textAlign}` : '';
-        html=`<div class="${animClass.trim()}" style="${textAlign}">${inner}${caption}</div>`;
+        const imgTag  = `<img src="${b.content||''}" alt="${b.alt||''}" style="${imgCSS}" loading="lazy" onerror="this.style.display='none'">`;
+        const wrapDiv = `<div class="pb-img-zoom" style="${wrapCSS}" onclick="openLightbox('${src}')">${imgTag}</div>`;
+        const linked  = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block;border-radius:${rad};">${wrapDiv}</a>` : wrapDiv;
+        const caption = b.alt  ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;">${b.alt}</div>` : '';
+        html=`<div class="${animClass.trim()}" style="${s.textAlign?'text-align:'+s.textAlign:''}${s.opacity?';opacity:'+s.opacity:''}">${linked}${caption}</div>`;
       } else if(b.type==='mixed'){
         let mx={img:'',imgLink:'',video:'',text:'',layout:'img-top'};
         try{ mx=JSON.parse(b.content||'{}'); }catch(e){}
@@ -951,6 +932,7 @@ async function loadPageBlocks(){
         html=`<div class="${animClass.trim()}" style="${styleStr};display:grid;grid-template-columns:${gridCols};gap:${s.padding||'16px'};align-items:start">${colHtml}</div>`;
       } else if(b.type==='video'){
         html=`<div class="${animClass.trim()}" style="${styleStr}"><video src="${b.content||''}" controls style="width:100%;border-radius:${s.borderRadius||'8px'};max-height:400px"></video>${b.alt?`<p style="font-size:.82rem;color:var(--m);margin-top:6px">${b.alt}</p>`:''}</div>`;
+      } else if(b.type==='audio'){
         html=`<div class="${animClass.trim()}" style="${styleStr}">${b.alt?`<p style="font-size:.84rem;font-weight:600;margin-bottom:6px">${b.alt}</p>`:''}<audio src="${b.content||''}" controls style="width:100%"></audio></div>`;
       } else if(b.type==='button'){
         const btnS=`background:${b.btnColor||s.background||'var(--p)'};color:${s.color||'#fff'};padding:${s.padding||'12px 28px'};border:none;border-radius:${s.borderRadius||'50px'};font-size:${s.fontSize||'.9rem'};font-weight:700;cursor:pointer;display:inline-block;text-decoration:none`;
