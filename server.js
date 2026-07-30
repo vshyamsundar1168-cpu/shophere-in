@@ -1197,10 +1197,11 @@ const server = http.createServer(async (req, res) => {
       if(err){res.writeHead(404,{'Content-Type':'text/html'});return res.end('<h1>404 Not Found</h1>');}
       const ext=path.extname(fp).toLowerCase();
       const mime = MIME_MAP[ext]||'text/plain';
-      // HTML files: never cache so updates are always immediate
-      const cacheHdr = ext==='.html'
+      // Never cache HTML, CSS, JS — always serve fresh after deploy
+      const noCache = ['.html','.css','.js'].includes(ext);
+      const cacheHdr = noCache
         ? {'Cache-Control':'no-store,no-cache,must-revalidate','Pragma':'no-cache','Expires':'0'}
-        : {'Cache-Control':'public,max-age=3600'};
+        : {'Cache-Control':'public,max-age=86400'};
       res.writeHead(200,{'Content-Type':mime,...cacheHdr});
       res.end(data);
     });
