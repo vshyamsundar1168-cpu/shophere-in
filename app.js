@@ -288,7 +288,7 @@ async function loadBanners(){
     const slider=document.getElementById('heroSlider');
     const prev=slider.querySelector('.hero-prev'), next=slider.querySelector('.hero-next'), dots=document.getElementById('heroDots');
     slider.innerHTML=allBanners.map((b,i)=>{
-      const fit  = (storeSettings&&storeSettings.bannerFit)  || 'cover';
+      const fit  = (storeSettings&&storeSettings.bannerFit)  || 'contain';
       const posV = (storeSettings&&storeSettings.bannerPos)  || 'center';
       const hSz  = ({'xlarge':'3rem','large':'2.4rem','medium':'1.8rem','small':'1.4rem'})[(storeSettings&&storeSettings.bannerTextSize)] || '2.4rem';
       const tClr = (storeSettings&&storeSettings.bannerTextColor) || '#ffffff';
@@ -299,8 +299,7 @@ async function loadBanners(){
       // Build background correctly — do NOT duplicate background-size
       let bgStyle;
       if(b.bgImage && b.bgImage.trim()){
-        // contain = show full banner image, no crop; cover = zoom fill
-        const bg = fit === 'contain' ? '#000' : 'transparent';
+        const bg = fit==='cover' ? 'transparent' : '#1e293b';
         bgStyle = `background-image:url('${b.bgImage}');background-size:${fit};background-position:center;background-repeat:no-repeat;background-color:${bg}`;
       } else {
         bgStyle = `background:${b.bgGradient||'linear-gradient(135deg,#1e293b 0%,#f97316 100%)'}`;
@@ -864,37 +863,69 @@ async function loadPageBlocks(){
         html=`<h2 class="${animClass.trim()}" style="font-weight:800;${styleStr}">${b.content||''}</h2>`;
       } else if(b.type==='image'||b.type==='image-link'){
         const imgW   = s.width    || '100%';
-        const imgH   = s.minHeight;
+        const imgH   = s.minHeight; // treat as max-height, not fixed height
         const imgFit = s.objectFit || 'contain';
         const radius = s.borderRadius || '0px';
+        const imgSrc = (b.content||'').replace(/'/g,"\\'");
 
-        // Zoom: scale the WRAPPER (not just the image) so overflow:hidden doesn't clip it
-        let imgEl, wrapStyle;
-        if(imgH && imgH !== 'auto' && imgH !== ''){
-          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};cursor:zoom-in;transition:transform .35s ease,box-shadow .35s ease;transform-origin:center;`;
-          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}"
-            style="width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};"
-            loading="lazy" onerror="this.parentElement.style.display='none'">`;
-        } else {
-          wrapStyle = `display:block;width:${imgW};max-width:100%;border-radius:${radius};line-height:0;cursor:zoom-in;transition:transform .35s ease,box-shadow .35s ease;transform-origin:center;`;
-          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}"
-            style="width:100%;height:auto;display:block;border-radius:${radius};"
-            loading="lazy" onerror="this.style.display='none'">`;
-        }
+        // KEY FIX: image is NEVER cropped
+        // - No fixed height on container (that's what was causing the crop)
+        // - Image uses width:100%, height:auto — scales proportionally
+        // - If user sets a height, use it as max-height on the image (image shrinks, never crops)
+        // - object-fit only used when both width AND height are fixed (user chose cover)
+        const imgStyle = [
+          'max-width:100%',
+          'display:block',
+          `border-radius:${radius}`,
+          'width:100%',
+          imgH ? `max-height:${imgH}` : '',
+          imgH && imgFit==='cover' ? 'height:100%;object-fit:cover;object-position:center' : 'height:auto',
+        ].filter(Boolean).join(';');
 
-        const outerParts = Object.entries({
-          'background': s.background,
-          'padding':    s.padding,
-          'margin':     s.margin,
-          'text-align': s.textAlign,
-          'box-shadow': s.boxShadow,
-          'opacity':    s.opacity,
-        }).filter(([,v])=>v).map(([k,v])=>`${k}:${v}`).join(';');
+        const wrapStyle = [
+          'display:block',
+          `width:${imgW}`,
+          'max-width:100%',
+          `border-radius:${radius}`,
+          'line-height:0',
+          'cursor:zoom-in',
+          s.padding  ? `padding:${s.padding}` : '',
+          s.margin   ? `margin:${s.margin}` : '',
+          s.boxShadow? `box-shadow:${s.boxShadow}` : '',
+          s.opacity  ? `opacity:${s.opacity}` : '',
+          s.background? `background:${s.background}` : '',
+        ].filter(Boolean).join(';');
 
-        const wrapDiv = `<div class="pb-img-zoom" style="${wrapStyle}" onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}')">${imgEl}</div>`;
+        const imgTag = `<img src="${b.content||''}" alt="${b.alt||''}"
+          style="${imgStyle}"
+          loading="lazy"
+          onerror="this.style.display='none'">`;
+
+        const wrapDiv = `<div class="pb-img-zoom" style="${wrapStyle}" onclick="openLightbox('${imgSrc}')">${imgTag}</div>`;
         const inner   = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block">${wrapDiv}</a>` : wrapDiv;
         const caption = b.alt  ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;font-weight:600">${b.alt}</div>` : '';
-        html=`<div class="${animClass.trim()}" style="${outerParts}">${inner}${caption}</div>`;
+        const textAlign = s.textAlign ? `text-align:${s.textAlign}` : '';
+        html=`<div class="${animClass.trim()}" style="${textAlign}">${inner}${caption}</div>`;
+      } else if(b.type==='mixed'){
+        let mx={img:'',imgLink:'',video:'',text:'',layout:'img-top'};
+        try{ mx=JSON.parse(b.content||'{}'); }catch(e){}
+        const rad = s.borderRadius||'8px';
+        const imgPart = mx.img ? `<div style="flex:1;min-width:200px">
+          <div class="pb-img-zoom" onclick="openLightbox('${mx.img.replace(/'/g,"\\'")}')">
+            <img src="${mx.img}" style="width:100%;height:auto;display:block;border-radius:${rad};max-width:100%" loading="lazy">
+          </div></div>` : '';
+        const textPart = mx.text ? `<div style="flex:1;min-width:200px;${s.color?'color:'+s.color:''};${s.fontSize?'font-size:'+s.fontSize:''}">
+          ${mx.text}</div>` : '';
+        const videoPart = mx.video ? `<div style="flex:1;min-width:200px">
+          <video src="${mx.video}" controls style="width:100%;border-radius:${rad};display:block"></video></div>` : '';
+        let inner='';
+        if(mx.layout==='img-left')  inner=`<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">${imgPart}${textPart}${videoPart}</div>`;
+        else if(mx.layout==='img-right') inner=`<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">${textPart}${videoPart}${imgPart}</div>`;
+        else if(mx.layout==='text-top')  inner=`${textPart}<div style="margin-top:12px">${imgPart}${videoPart}</div>`;
+        else if(mx.layout==='video-top') inner=`${videoPart}<div style="margin-top:12px">${textPart}${imgPart}</div>`;
+        else inner=`${mx.imgLink?`<a href="${mx.imgLink}" style="display:block">${imgPart}</a>`:imgPart}<div style="margin-top:12px">${textPart}${videoPart}</div>`; // img-top default
+        if(mx.imgLink && mx.layout==='img-top') inner=`<a href="${mx.imgLink}" style="display:block">${imgPart}</a><div style="margin-top:12px">${textPart}${videoPart}</div>`;
+        html=`<div class="${animClass.trim()}" style="${styleStr}">${inner}</div>`;
       } else if(b.type==='gallery'){
         const urls = (b.content||'').split('\n').map(u=>u.trim()).filter(Boolean);
         const layout = b.alt || 'grid3';

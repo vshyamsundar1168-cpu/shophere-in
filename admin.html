@@ -698,6 +698,7 @@ if(window.location.protocol==='file:'){
             <option value="heading">🔤 Heading</option>
             <option value="image">🖼️ Single Image</option>
             <option value="image-link">🔗 Image + Link (Ad Banner)</option>
+            <option value="mixed">🎨 Mixed — Image + Text + Video</option>
             <option value="gallery">🖼️🖼️ Gallery (Multiple Images)</option>
             <option value="columns">⬛⬛ Side-by-Side Columns</option>
             <option value="video">🎬 Video</option>
@@ -2474,6 +2475,28 @@ function pbTypeChanged() {
     }, 30);
   } else if (type === 'html') {
     fields.innerHTML = `<div class="form-group"><label>Custom HTML Code</label><textarea id="pb_content" style="min-height:150px;font-family:monospace;font-size:.82rem" placeholder="&lt;div&gt;Your HTML here&lt;/div&gt;">${fields._val||''}</textarea></div>`;
+  } else if (type === 'mixed') {
+    fields.innerHTML = `
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.78rem;color:#166534">
+      🎨 <strong>Mixed Block</strong> — combine image, text and video in one block. All fields are optional.
+    </div>
+    <div class="form-group"><label>🖼️ Image URL (optional)</label><input id="pb_mixed_img" placeholder="/uploads/... or https://..." value="${fields._alt||''}">
+      <small style="color:var(--m)">Or upload: <input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadMixedImg(this)" style="font-size:.78rem"></small>
+    </div>
+    <div class="form-group"><label>🔗 Image Link URL (optional)</label><input id="pb_mixed_imglink" placeholder="https://... (makes image clickable)" value="${fields._link||''}"></div>
+    <div class="form-group"><label>📝 Text / HTML (optional)</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Enter text, headings, HTML...">${fields._val||''}</textarea></div>
+    <div class="form-group"><label>🎬 Video URL (optional)</label><input id="pb_mixed_video" placeholder="/uploads/video.mp4 or https://..." value="${fields._link2||''}"></div>
+    <div class="form-group"><label>📐 Layout</label>
+      <select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+        <option value="img-top">🔼 Image on Top, Text Below</option>
+        <option value="img-left">◀️ Image Left, Text Right</option>
+        <option value="img-right">▶️ Image Right, Text Left</option>
+        <option value="text-top">🔡 Text on Top, Image Below</option>
+        <option value="video-top">🎬 Video on Top, Text Below</option>
+      </select>
+    </div>
+    <input type="hidden" id="pb_mixed_video_hidden" value="">`;
+  }
   } else if (type === 'divider') {
     fields.innerHTML = `<div class="form-group"><label>Divider Style</label><select id="pb_content" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="solid">Solid Line</option><option value="dashed">Dashed Line</option><option value="dotted">Dotted Line</option></select></div>`;
   } else if (type === 'spacer') {
@@ -2612,6 +2635,16 @@ async function pbSaveBlock() {
   const type  = document.getElementById('pb_type').value;
   const contentEl = document.getElementById('pb_content');
   let content = contentEl ? contentEl.value : '';
+
+  // For mixed block: pack all fields into JSON content
+  if (type === 'mixed') {
+    const mixImg   = (document.getElementById('pb_mixed_img')    ||{}).value||'';
+    const mixLink  = (document.getElementById('pb_mixed_imglink')||{}).value||'';
+    const mixVideo = (document.getElementById('pb_mixed_video')  ||{}).value||'';
+    const mixText  = (document.getElementById('pb_content')      ||{}).value||'';
+    const layout   = (document.getElementById('pb_alt')          ||{}).value||'img-top';
+    content = JSON.stringify({ img:mixImg, imgLink:mixLink, video:mixVideo, text:mixText, layout });
+  }
 
   // For gallery: collect uploaded URLs + textarea URLs
   if (type === 'gallery') {
@@ -2907,6 +2940,17 @@ async function pbMoveDown(id) {
 }
 async function pbSaveOrder() {
   try { await fetch('/api/pageblocks/reorder', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ids: pbBlocks.map(b=>b._id||b.id) }) }); } catch(e) {}
+}
+
+async function pbUploadMixedImg(input) {
+  const file = input.files[0]; if (!file) return;
+  toast('⏳ Uploading image...');
+  const fd = new FormData(); fd.append('image', file);
+  try {
+    const r = await fetch('/api/pageblocks/upload', { method:'POST', body: fd });
+    const d = await r.json();
+    if (d.url) { const c = document.getElementById('pb_mixed_img'); if(c) c.value = d.url; toast('✅ Image uploaded'); }
+  } catch(e) { toast('❌ Upload failed: ' + e.message); }
 }
 
 async function pbUploadImg(input) {
