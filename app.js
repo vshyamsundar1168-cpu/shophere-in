@@ -865,30 +865,26 @@ async function loadPageBlocks(){
       } else if(b.type==='image'||b.type==='image-link'){
         const imgW   = s.width    || '100%';
         const imgH   = s.minHeight;
-        // contain = show full image no crop (default), cover = zoom fill
         const imgFit = s.objectFit || 'contain';
         const radius = s.borderRadius || '0px';
 
+        // Unique class for CSS hover zoom — avoids overflow clipping issue
+        const zClass = 'pb-img-zoom';
+
         let imgEl, wrapStyle;
         if(imgH && imgH !== 'auto' && imgH !== ''){
-          // Fixed height — image scales to fit inside box, NO overflow clipping with contain
-          // overflow:hidden only when cover is chosen (user explicitly wants fill/crop)
-          const clip = imgFit === 'cover' ? 'overflow:hidden;' : 'overflow:visible;';
-          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;${clip}border-radius:${radius};cursor:zoom-in;position:relative;`;
-          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}"
-            style="width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};transition:transform .35s ease;transform-origin:center;"
-            onmouseover="this.style.transform='scale(1.07)'"
-            onmouseout="this.style.transform='scale(1)'"
-            onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}'); event.stopPropagation();"
+          // Fixed height — contain keeps full image, cover fills (may crop by choice)
+          wrapStyle = `display:block;width:${imgW};height:${imgH};max-width:100%;overflow:hidden;border-radius:${radius};cursor:zoom-in;`;
+          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}" class="${zClass}"
+            style="width:100%;height:100%;object-fit:${imgFit};object-position:center;display:block;border-radius:${radius};"
+            onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}');"
             loading="lazy" onerror="this.style.display='none'">`;
         } else {
-          // No height — scale by width, full image always visible, never crops
+          // No height — image scales naturally with width, NEVER crops
           wrapStyle = `display:block;width:${imgW};max-width:100%;border-radius:${radius};line-height:0;cursor:zoom-in;overflow:hidden;`;
-          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}"
-            style="width:100%;height:auto;display:block;border-radius:${radius};transition:transform .35s ease;transform-origin:center;"
-            onmouseover="this.style.transform='scale(1.07)'"
-            onmouseout="this.style.transform='scale(1)'"
-            onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}'); event.stopPropagation();"
+          imgEl = `<img src="${b.content||''}" alt="${b.alt||''}" class="${zClass}"
+            style="width:100%;height:auto;display:block;border-radius:${radius};"
+            onclick="openLightbox('${(b.content||'').replace(/'/g,"\\'")}');"
             loading="lazy" onerror="this.style.display='none'">`;
         }
 
