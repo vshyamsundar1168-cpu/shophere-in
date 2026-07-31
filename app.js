@@ -908,16 +908,26 @@ async function loadPageBlocks(){
         if(mx.imgLink && mx.layout==='img-top') inner=`<a href="${mx.imgLink}" style="display:block">${imgPart}</a><div style="margin-top:12px">${textPart}${videoPart}</div>`;
         html=`<div class="${animClass.trim()}" style="${styleStr}">${inner}</div>`;
       } else if(b.type==='gallery'){
-        const urls = (b.content||'').split('\n').map(u=>u.trim()).filter(Boolean);
+        // Filter to only valid image URLs (skip any text that got mixed in)
+        const urls = (b.content||'').split('\n')
+          .map(u=>u.trim())
+          .filter(u=>u && (u.startsWith('http')||u.startsWith('/uploads/')));
         const layout = b.alt || 'grid3';
         const imgH   = b.link || '200px';
+        const fit    = s.objectFit || 'contain';
         const gap    = s.padding || '8px';
         let gridStyle = '';
-        if(layout==='row')   gridStyle=`display:flex;flex-wrap:nowrap;overflow-x:auto;gap:${gap}`;
+        if(layout==='row')    gridStyle=`display:flex;flex-wrap:wrap;gap:${gap};align-items:flex-start`;
         else if(layout==='grid2') gridStyle=`display:grid;grid-template-columns:repeat(2,1fr);gap:${gap}`;
         else if(layout==='grid4') gridStyle=`display:grid;grid-template-columns:repeat(4,1fr);gap:${gap}`;
-        else                 gridStyle=`display:grid;grid-template-columns:repeat(3,1fr);gap:${gap}`;
-        const imgs = urls.map(url=>`<img src="${url}" style="width:100%;height:${imgH};object-fit:cover;border-radius:${s.borderRadius||'6px'};display:block" loading="lazy" onerror="this.style.display='none'">`).join('');
+        else                  gridStyle=`display:grid;grid-template-columns:repeat(3,1fr);gap:${gap}`;
+        const rad = s.borderRadius||'6px';
+        const imgs = urls.map(url=>{
+          const src = url.replace(/'/g,"\\'");
+          return `<div class="pb-img-zoom" style="overflow:hidden;border-radius:${rad};cursor:zoom-in;" onclick="openLightbox('${src}')">
+            <img src="${url}" style="width:100%;height:${imgH};object-fit:${fit};object-position:center;display:block;border-radius:${rad};" loading="lazy" onerror="this.parentElement.style.display='none'">
+          </div>`;
+        }).join('');
         html=`<div class="${animClass.trim()}" style="${styleStr}"><div style="${gridStyle}">${imgs}</div></div>`;
       } else if(b.type==='columns'){
         let cols=[];

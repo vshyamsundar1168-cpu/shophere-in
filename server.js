@@ -1171,10 +1171,13 @@ const server = http.createServer(async (req, res) => {
       for(const b of blocks){
         const upd = {};
         if(b.style){
-          // Reset objectFit to contain (no crop)
           if(b.style.objectFit === 'cover') upd['style.objectFit'] = 'contain';
-          // Remove minHeight that was causing fixed-height cropping
-          if(b.style.minHeight){ upd['style.minHeight'] = ''; }
+          if(b.style.minHeight) upd['style.minHeight'] = '';
+        }
+        // For gallery blocks: link stores the image height — keep it but set objectFit
+        if(b.type === 'gallery'){
+          if(!b.style) upd['style'] = {};
+          upd['style.objectFit'] = 'contain';
         }
         if(Object.keys(upd).length){
           await db.collection('pageblocks').updateOne({_id:b._id},{$set:upd});
