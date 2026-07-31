@@ -1163,6 +1163,27 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return sendJSON(res, 400, { error: e.message }); }
     }
 
+    // ── ONE-TIME FIX: reset all blocks objectFit to contain, remove bad heights ─
+    if(p==='/api/pageblocks/fixall' && m==='POST') {
+      const db = getDb();
+      const blocks = await db.collection('pageblocks').find({}).toArray();
+      let fixed = 0;
+      for(const b of blocks){
+        const upd = {};
+        if(b.style){
+          // Reset objectFit to contain (no crop)
+          if(b.style.objectFit === 'cover') upd['style.objectFit'] = 'contain';
+          // Remove minHeight that was causing fixed-height cropping
+          if(b.style.minHeight){ upd['style.minHeight'] = ''; }
+        }
+        if(Object.keys(upd).length){
+          await db.collection('pageblocks').updateOne({_id:b._id},{$set:upd});
+          fixed++;
+        }
+      }
+      return sendJSON(res, 200, { fixed, total: blocks.length });
+    }
+
     // ── STATS ─────────────────────────────────────────────────────────────────
     if(p==='/api/stats'&&m==='GET') {
       const db = getDb();
