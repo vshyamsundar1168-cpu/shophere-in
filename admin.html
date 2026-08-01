@@ -2453,7 +2453,7 @@ function pbTypeChanged() {
     </div>
     <div class="form-group">
       <label>Number of Columns</label>
-      <select id="pb_alt" onchange="pbColumnsChanged(this.value)" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+      <select id="pb_alt" onchange="pbColumnsUpdate(this.value)" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
         <option value="2"${(fields._alt||'2')==='2'?' selected':''}>2 Columns (50%/50%)</option>
         <option value="3"${fields._alt==='3'?' selected':''}>3 Columns (33%/33%/33%)</option>
         <option value="4"${fields._alt==='4'?' selected':''}>4 Columns</option>
@@ -2496,7 +2496,6 @@ function pbTypeChanged() {
       </select>
     </div>
     <input type="hidden" id="pb_mixed_video_hidden" value="">`;
-  }
   } else if (type === 'divider') {
     fields.innerHTML = `<div class="form-group"><label>Divider Style</label><select id="pb_content" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="solid">Solid Line</option><option value="dashed">Dashed Line</option><option value="dotted">Dotted Line</option></select></div>`;
   } else if (type === 'spacer') {
@@ -2692,7 +2691,7 @@ async function pbSaveBlock() {
     opacity:         gv('pb_opacity'),
     backgroundImage: bgImg ? `url('${bgImg}')` : '',
     backgroundSize:  gv('pb_bgSize'),
-    objectFit:       gv('pb_objectFit') || 'cover',
+    objectFit:       gv('pb_objectFit') || 'contain',
     animation:       gv('pb_animation'),
     position:        gv('pb_position'),
     top:             addPx(gv('pb_posTop')),
