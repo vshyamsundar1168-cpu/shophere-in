@@ -651,7 +651,9 @@ const server = http.createServer(async (req, res) => {
         total:body.total||0,name:body.name||'',phone:body.phone||'',email:body.email||'',
         address:body.address||'',city:body.city||'',state:body.state||'',
         pin:body.pin||'',payment:body.payment||'cod',paymentDetail:body.paymentDetail||'',
-        status:'Processing',date:new Date().toISOString()};
+        status:body.status||'Processing',
+        notes:body.notes||'',manual:body.manual||false,
+        date:body.date||new Date().toISOString()};
       await db.collection('orders').insertOne(order);
       const { _id, ...orderOut } = order;
       return sendJSON(res,201,orderOut);

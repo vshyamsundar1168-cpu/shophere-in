@@ -228,11 +228,12 @@ if(window.location.protocol==='file:'){
   <!-- ORDERS TAB -->
   <div id="tab-orders" class="tab">
     <div class="sec">
-      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
         <select id="orderStatusFilter" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" onchange="filterOrders(this.value)">
           <option value="">All Statuses</option>
           <option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option>
         </select>
+        <button onclick="openAddOrderModal()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer;margin-left:auto">➕ Add Manual Order</button>
       </div>
       <div style="overflow-x:auto">
         <table class="data-table">
@@ -885,6 +886,81 @@ if(window.location.protocol==='file:'){
       <button onclick="discOpenAdd()" style="padding:9px 16px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Create Discount</button>
     </div>
     <div id="discList" style="display:grid;gap:10px"></div>
+  </div>
+</div>
+
+<!-- MANUAL ORDER MODAL -->
+<div class="overlay" id="manualOrderModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr">
+      <h3>➕ Add Manual Order</h3>
+      <button class="modal-close" onclick="closeAddOrderModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Customer Details -->
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px;color:var(--p)">👤 Customer Details</h4>
+      <div class="form-row">
+        <div class="form-group"><label>Customer Name *</label><input id="mo_name" placeholder="Full name"></div>
+        <div class="form-group"><label>Phone *</label><input id="mo_phone" placeholder="+91-XXXXXXXXXX" type="tel"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input id="mo_email" placeholder="customer@email.com" type="email"></div>
+        <div class="form-group"><label>Payment Method</label>
+          <select id="mo_payment" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="cod">Cash on Delivery</option>
+            <option value="upi">UPI</option>
+            <option value="card">Card</option>
+            <option value="netbanking">Net Banking</option>
+            <option value="paid">Already Paid</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Address *</label><input id="mo_address" placeholder="House No, Street, Area"></div>
+      <div class="form-row">
+        <div class="form-group"><label>City *</label><input id="mo_city" placeholder="City"></div>
+        <div class="form-group"><label>State</label><input id="mo_state" placeholder="State"></div>
+        <div class="form-group"><label>PIN Code</label><input id="mo_pin" placeholder="XXXXXX" maxlength="6"></div>
+      </div>
+
+      <hr style="margin:16px 0;border-color:var(--b)">
+
+      <!-- Products -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h4 style="font-size:.88rem;font-weight:700;color:var(--p)">🛒 Order Items</h4>
+        <button onclick="moAddItem()" style="padding:6px 14px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer">+ Add Item</button>
+      </div>
+      <div id="mo_items" style="display:grid;gap:8px"></div>
+      <div style="background:#f8fafc;border-radius:8px;padding:12px 16px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.9rem;font-weight:700">Total Amount (₹)</span>
+        <input id="mo_total" type="number" min="0" placeholder="Auto-calculated or enter manually"
+          style="width:200px;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.9rem;font-weight:700;outline:none;text-align:right">
+      </div>
+
+      <hr style="margin:16px 0;border-color:var(--b)">
+
+      <!-- Status & Notes -->
+      <div class="form-row">
+        <div class="form-group"><label>Order Status</label>
+          <select id="mo_status" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="Processing">Processing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Order Date</label>
+          <input id="mo_date" type="datetime-local" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+        </div>
+      </div>
+      <div class="form-group"><label>Notes (internal, not shown to customer)</label>
+        <textarea id="mo_notes" placeholder="e.g. WhatsApp order, paid via UPI ref #..." style="min-height:60px;font-size:.84rem"></textarea>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="saveManualOrder()" style="flex:1;padding:11px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Order</button>
+        <button onclick="closeAddOrderModal()" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;cursor:pointer">Cancel</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1918,7 +1994,7 @@ async function loadOrders() {
 function filterOrders(status) {
   const list = status ? allOrders.filter(o => o.status === status) : allOrders;
   document.getElementById('ordersBody').innerHTML = list.length ? list.map(o => `<tr>
-    <td><strong>${o.id}</strong></td>
+    <td><strong>${o.id}</strong>${o.manual ? ' <span style="background:#fef9c3;color:#854d0e;padding:1px 6px;border-radius:4px;font-size:.68rem;font-weight:700">✍️ Manual</span>' : ''}</td>
     <td>${o.name || ''}</td>
     <td>${o.phone || ''}</td>
     <td style="max-width:150px;font-size:.78rem">${[o.address, o.city].filter(Boolean).join(', ')}</td>
@@ -1964,6 +2040,133 @@ async function cancelOrder(id) {
     loadOrders();
   } catch (e) {
     toast('❌ Cancel failed: ' + e.message);
+  }
+}
+
+// ── Manual Order ──────────────────────────────────────────────────────────────
+let moItemCount = 0;
+
+function openAddOrderModal() {
+  moItemCount = 0;
+  // Reset all fields
+  ['mo_name','mo_phone','mo_email','mo_address','mo_city','mo_state','mo_pin','mo_notes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('mo_payment').value = 'cod';
+  document.getElementById('mo_status').value  = 'Processing';
+  document.getElementById('mo_total').value   = '';
+  // Set default date to now
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('mo_date').value = now.toISOString().slice(0,16);
+  // Start with one empty item row
+  document.getElementById('mo_items').innerHTML = '';
+  moAddItem();
+  const modal = document.getElementById('manualOrderModal');
+  modal.classList.add('open');
+  modal.style.display = 'flex';
+}
+
+function closeAddOrderModal() {
+  const modal = document.getElementById('manualOrderModal');
+  modal.classList.remove('open');
+  modal.style.display = '';
+}
+
+function moAddItem() {
+  moItemCount++;
+  const idx = moItemCount;
+  const div = document.createElement('div');
+  div.id = 'mo_item_' + idx;
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:end;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid var(--b)';
+  div.innerHTML = `
+    <div class="form-group" style="margin:0">
+      <label style="font-size:.72rem">Product Name</label>
+      <input id="mo_iname_${idx}" placeholder="Product name or description" oninput="moCalcTotal()"
+        style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label style="font-size:.72rem">Price (₹)</label>
+      <input id="mo_iprice_${idx}" type="number" min="0" placeholder="0" oninput="moCalcTotal()"
+        style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label style="font-size:.72rem">Qty</label>
+      <input id="mo_iqty_${idx}" type="number" min="1" value="1" oninput="moCalcTotal()"
+        style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+    </div>
+    <button onclick="document.getElementById('mo_item_${idx}').remove();moCalcTotal()"
+      style="padding:7px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.84rem;cursor:pointer;height:36px;margin-bottom:0">✕</button>`;
+  document.getElementById('mo_items').appendChild(div);
+}
+
+function moCalcTotal() {
+  let total = 0;
+  document.querySelectorAll('[id^="mo_item_"]').forEach(row => {
+    const idx = row.id.split('_')[2];
+    const price = parseFloat((document.getElementById('mo_iprice_'+idx)||{}).value) || 0;
+    const qty   = parseInt((document.getElementById('mo_iqty_'+idx)||{}).value)   || 1;
+    total += price * qty;
+  });
+  document.getElementById('mo_total').value = total || '';
+}
+
+async function saveManualOrder() {
+  const name    = document.getElementById('mo_name').value.trim();
+  const phone   = document.getElementById('mo_phone').value.trim();
+  const address = document.getElementById('mo_address').value.trim();
+  const city    = document.getElementById('mo_city').value.trim();
+  if (!name)    { toast('❌ Customer name is required'); return; }
+  if (!phone)   { toast('❌ Phone is required'); return; }
+  if (!address) { toast('❌ Address is required'); return; }
+  if (!city)    { toast('❌ City is required'); return; }
+
+  // Collect items
+  const items = [];
+  document.querySelectorAll('[id^="mo_item_"]').forEach(row => {
+    const idx   = row.id.split('_')[2];
+    const iname = (document.getElementById('mo_iname_'+idx)||{}).value||'';
+    const price = parseFloat((document.getElementById('mo_iprice_'+idx)||{}).value)||0;
+    const qty   = parseInt((document.getElementById('mo_iqty_'+idx)||{}).value)||1;
+    if (iname) items.push({ name:iname, price, qty, id: 0 });
+  });
+  if (!items.length) { toast('❌ Add at least one item'); return; }
+
+  const total   = parseFloat(document.getElementById('mo_total').value) || items.reduce((s,i)=>s+i.price*i.qty, 0);
+  const dateVal = document.getElementById('mo_date').value;
+  const notes   = document.getElementById('mo_notes').value.trim();
+
+  const order = {
+    name,
+    phone,
+    email:   document.getElementById('mo_email').value.trim(),
+    address,
+    city,
+    state:   document.getElementById('mo_state').value.trim(),
+    pin:     document.getElementById('mo_pin').value.trim(),
+    payment: document.getElementById('mo_payment').value,
+    status:  document.getElementById('mo_status').value,
+    items,
+    total,
+    notes,
+    manual:  true,
+    date:    dateVal ? new Date(dateVal).toISOString() : new Date().toISOString(),
+  };
+
+  try {
+    const res  = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ Order ' + data.id + ' created successfully!');
+    closeAddOrderModal();
+    loadOrders();
+    loadStats();
+  } catch (e) {
+    toast('❌ Failed to save order: ' + e.message);
   }
 }
 
