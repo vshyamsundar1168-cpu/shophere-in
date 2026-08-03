@@ -1043,7 +1043,19 @@ async function loadPageBlocks(){
       if(isSticky) wrap.style.cssText=`position:sticky;top:0;z-index:${s.zIndex||100}`;
       wrap.className='pb-block-wrap';
       wrap.setAttribute('data-bid', b.id||b._id||'');
+      wrap.setAttribute('data-scale','1');
       wrap.innerHTML=html;
+
+      // ── Per-block zoom toolbar ──────────────────────────────────────────────
+      const zoomBar = document.createElement('div');
+      zoomBar.className = 'pb-zoom-bar';
+      zoomBar.innerHTML = `
+        <button class="pb-zoom-btn" title="Zoom In"  onclick="pbZoom(this,0.1)">🔍+</button>
+        <span   class="pb-zoom-val">100%</span>
+        <button class="pb-zoom-btn" title="Zoom Out" onclick="pbZoom(this,-0.1)">🔍−</button>
+        <button class="pb-zoom-btn" title="Reset"    onclick="pbZoomReset(this)">↺</button>`;
+      wrap.appendChild(zoomBar);
+
       zone.appendChild(wrap);
     });
 
@@ -1105,5 +1117,29 @@ async function loadPageBlocks(){
       });
     });
   }catch(e){console.warn('Page blocks failed',e.message);}
+}
+
+// ── Per-block zoom controls ───────────────────────────────────────────────────
+function pbZoom(btn, delta) {
+  const wrap = btn.closest('.pb-block-wrap');
+  if (!wrap) return;
+  let scale = parseFloat(wrap.getAttribute('data-scale') || '1');
+  scale = Math.min(3, Math.max(0.3, Math.round((scale + delta) * 10) / 10));
+  wrap.setAttribute('data-scale', scale);
+  wrap.style.transform       = `scale(${scale})`;
+  wrap.style.transformOrigin = 'top left';
+  wrap.style.marginBottom    = scale > 1 ? `${(scale - 1) * wrap.offsetHeight}px` : '';
+  const val = wrap.querySelector('.pb-zoom-val');
+  if (val) val.textContent = Math.round(scale * 100) + '%';
+}
+
+function pbZoomReset(btn) {
+  const wrap = btn.closest('.pb-block-wrap');
+  if (!wrap) return;
+  wrap.setAttribute('data-scale', '1');
+  wrap.style.transform    = '';
+  wrap.style.marginBottom = '';
+  const val = wrap.querySelector('.pb-zoom-val');
+  if (val) val.textContent = '100%';
 }
 

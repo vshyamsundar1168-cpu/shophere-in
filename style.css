@@ -357,6 +357,29 @@ footer{background:var(--sec);color:#94a3b8;margin-top:60px}
 /* Zone inside container */
 .container .pb-zone{padding:0;margin-bottom:16px}
 
+/* ── PER-BLOCK ZOOM TOOLBAR ──────────────────────────────────────────────── */
+.pb-block-wrap{position:relative;}
+.pb-zoom-bar{
+  display:flex;align-items:center;gap:4px;
+  position:absolute;top:6px;right:6px;
+  background:rgba(30,41,59,.75);
+  border-radius:20px;padding:3px 8px;
+  opacity:0;transition:opacity .2s;
+  z-index:20;pointer-events:auto;
+}
+.pb-block-wrap:hover .pb-zoom-bar{opacity:1;}
+.pb-zoom-btn{
+  background:rgba(255,255,255,.15);color:#fff;
+  border:none;border-radius:50%;width:24px;height:24px;
+  font-size:.72rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;padding:0;line-height:1;
+}
+.pb-zoom-btn:hover{background:rgba(249,115,22,.85);}
+.pb-zoom-val{
+  color:#fff;font-size:.68rem;font-weight:700;
+  min-width:36px;text-align:center;
+}
+
 /* ── RESPONSIVE ───────────────────────────────────────────────────────────── */
 @media(max-width:1200px){.products-grid{grid-template-columns:repeat(4,1fr)}.footer-top{grid-template-columns:1fr 1fr 1fr}}
 @media(max-width:1000px){.products-grid{grid-template-columns:repeat(3,1fr)}.shop-layout{flex-direction:column}.sidebar-filters{width:100%;position:static}.trust-inner{grid-template-columns:repeat(2,1fr)}}
