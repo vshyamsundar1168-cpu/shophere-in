@@ -659,6 +659,12 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res,201,orderOut);
     }
     const om=p.match(/^\/api\/orders\/(\w+)$/);
+    if(om && m==='DELETE'){
+      const db = getDb();
+      const r = await db.collection('orders').deleteOne({ id: om[1] });
+      if(!r.deletedCount) return sendJSON(res,404,{error:'Order not found'});
+      return sendJSON(res,200,{deleted:true});
+    }
     if(om && m==='PUT'){
       const body=await readJSON(req);
       const db = getDb();

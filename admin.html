@@ -2007,6 +2007,7 @@ function filterOrders(status) {
           ${['Processing','Shipped','Delivered','Cancelled'].map(s => `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}
         </select>
         ${o.status !== 'Cancelled' ? `<button onclick="cancelOrder('${o.id}')" style="padding:4px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">✕ Cancel</button>` : `<span style="font-size:.72rem;color:#ef4444;font-weight:700">Cancelled</span>`}
+        <button onclick="deleteOrder('${o.id}')" style="padding:4px 10px;background:#fff1f2;color:#be123c;border:1.5px solid #fda4af;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">🗑️</button>
       </div>
     </td>
     <td>${o.date ? new Date(o.date).toLocaleDateString('en-IN') : ''}</td>
@@ -2040,6 +2041,19 @@ async function cancelOrder(id) {
     loadOrders();
   } catch (e) {
     toast('❌ Cancel failed: ' + e.message);
+  }
+}
+
+async function deleteOrder(id) {
+  if (!confirm('Permanently delete order ' + id + '?\nThis cannot be undone.')) return;
+  try {
+    const res = await fetch('/api/orders/' + id, { method: 'DELETE' });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
+    toast('✅ Order ' + id + ' deleted');
+    loadOrders();
+    loadStats();
+  } catch (e) {
+    toast('❌ Delete failed: ' + e.message);
   }
 }
 
