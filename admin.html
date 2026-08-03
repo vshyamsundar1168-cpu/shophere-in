@@ -2074,7 +2074,7 @@ function filterOrders(status) {
     <td>${o.name || ''}</td>
     <td>${o.phone || ''}</td>
     <td style="max-width:150px;font-size:.78rem">${[o.address, o.city].filter(Boolean).join(', ')}</td>
-    <td>${(o.items || []).length} item(s)</td>
+    <td style="font-size:.78rem;max-width:180px">${(o.items||[]).map(i=>`<div style="padding:2px 0;border-bottom:1px solid #f1f5f9;line-height:1.4"><strong>${i.name||'Item'}</strong> × ${i.qty||1} <span style="color:var(--p);font-weight:700">₹${((i.price||0)*(i.qty||1)).toLocaleString('en-IN')}</span></div>`).join('') || '—'}</td>
     <td>₹${(o.total || 0).toLocaleString('en-IN')}</td>
     <td style="text-transform:capitalize">${o.payment || ''}</td>
     <td>
