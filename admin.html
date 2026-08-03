@@ -889,6 +889,82 @@ if(window.location.protocol==='file:'){
   </div>
 </div>
 
+<!-- EDIT ORDER MODAL -->
+<div class="overlay" id="editOrderModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr">
+      <h3>✏️ Edit Order <span id="eo_id_label" style="color:var(--p);font-size:.9rem"></span></h3>
+      <button class="modal-close" onclick="closeEditOrderModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Customer Details -->
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px;color:var(--p)">👤 Customer Details</h4>
+      <div class="form-row">
+        <div class="form-group"><label>Customer Name *</label><input id="eo_name" placeholder="Full name"></div>
+        <div class="form-group"><label>Phone *</label><input id="eo_phone" placeholder="+91-XXXXXXXXXX"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input id="eo_email" type="email" placeholder="email@example.com"></div>
+        <div class="form-group"><label>Payment Method</label>
+          <select id="eo_payment" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="cod">Cash on Delivery</option>
+            <option value="upi">UPI</option>
+            <option value="card">Card</option>
+            <option value="netbanking">Net Banking</option>
+            <option value="paid">Already Paid</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Address</label><input id="eo_address" placeholder="House No, Street, Area"></div>
+      <div class="form-row">
+        <div class="form-group"><label>City</label><input id="eo_city" placeholder="City"></div>
+        <div class="form-group"><label>State</label><input id="eo_state" placeholder="State"></div>
+        <div class="form-group"><label>PIN Code</label><input id="eo_pin" placeholder="XXXXXX" maxlength="6"></div>
+      </div>
+
+      <hr style="margin:16px 0;border-color:var(--b)">
+
+      <!-- Items -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h4 style="font-size:.88rem;font-weight:700;color:var(--p)">🛒 Order Items</h4>
+        <button onclick="eoAddItem()" style="padding:6px 14px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer">+ Add Item</button>
+      </div>
+      <div id="eo_items" style="display:grid;gap:8px"></div>
+      <div style="background:#f8fafc;border-radius:8px;padding:12px 16px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.9rem;font-weight:700">Total Amount (₹)</span>
+        <input id="eo_total" type="number" min="0"
+          style="width:200px;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.9rem;font-weight:700;outline:none;text-align:right">
+      </div>
+
+      <hr style="margin:16px 0;border-color:var(--b)">
+
+      <!-- Status & Date -->
+      <div class="form-row">
+        <div class="form-group"><label>Order Status</label>
+          <select id="eo_status" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="Processing">Processing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Order Date</label>
+          <input id="eo_date" type="datetime-local" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+        </div>
+      </div>
+      <div class="form-group"><label>Notes</label>
+        <textarea id="eo_notes" placeholder="Internal notes…" style="min-height:60px;font-size:.84rem"></textarea>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="saveEditOrder()" style="flex:1;padding:11px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Changes</button>
+        <button onclick="closeEditOrderModal()" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;cursor:pointer">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MANUAL ORDER MODAL -->
 <div class="overlay" id="manualOrderModal">
   <div class="modal modal-lg">
@@ -2007,6 +2083,7 @@ function filterOrders(status) {
           ${['Processing','Shipped','Delivered','Cancelled'].map(s => `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}
         </select>
         ${o.status !== 'Cancelled' ? `<button onclick="cancelOrder('${o.id}')" style="padding:4px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">✕ Cancel</button>` : `<span style="font-size:.72rem;color:#ef4444;font-weight:700">Cancelled</span>`}
+        <button onclick="editOrder('${o.id}')" style="padding:4px 10px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">✏️ Edit</button>
         <button onclick="deleteOrder('${o.id}')" style="padding:4px 10px;background:#fff1f2;color:#be123c;border:1.5px solid #fda4af;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">🗑️</button>
       </div>
     </td>
@@ -2054,6 +2131,145 @@ async function deleteOrder(id) {
     loadStats();
   } catch (e) {
     toast('❌ Delete failed: ' + e.message);
+  }
+}
+
+// ── Edit Order ────────────────────────────────────────────────────────────────
+let eoEditId = null;
+let eoItemCount = 0;
+
+function editOrder(id) {
+  const o = allOrders.find(x => x.id === id);
+  if (!o) { toast('❌ Order not found'); return; }
+  eoEditId = id;
+  document.getElementById('eo_id_label').textContent = '— ' + id;
+
+  // Fill customer fields
+  const sv = (elId, val) => { const e = document.getElementById(elId); if (e) e.value = val || ''; };
+  sv('eo_name',    o.name);
+  sv('eo_phone',   o.phone);
+  sv('eo_email',   o.email);
+  sv('eo_address', o.address);
+  sv('eo_city',    o.city);
+  sv('eo_state',   o.state);
+  sv('eo_pin',     o.pin);
+  sv('eo_payment', o.payment || 'cod');
+  sv('eo_status',  o.status  || 'Processing');
+  sv('eo_total',   o.total);
+  sv('eo_notes',   o.notes);
+
+  // Set date
+  if (o.date) {
+    const d = new Date(o.date);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    document.getElementById('eo_date').value = d.toISOString().slice(0,16);
+  }
+
+  // Fill items
+  eoItemCount = 0;
+  document.getElementById('eo_items').innerHTML = '';
+  const items = o.items && o.items.length ? o.items : [{name:'', price:0, qty:1}];
+  items.forEach(item => eoAddItem(item));
+
+  const modal = document.getElementById('editOrderModal');
+  modal.classList.add('open');
+  modal.style.display = 'flex';
+}
+
+function closeEditOrderModal() {
+  const modal = document.getElementById('editOrderModal');
+  modal.classList.remove('open');
+  modal.style.display = '';
+  eoEditId = null;
+}
+
+function eoAddItem(item) {
+  eoItemCount++;
+  const idx = eoItemCount;
+  const div = document.createElement('div');
+  div.id = 'eo_item_' + idx;
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:end;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid var(--b)';
+  div.innerHTML = `
+    <div class="form-group" style="margin:0">
+      <label style="font-size:.72rem">Product Name</label>
+      <input id="eo_iname_${idx}" value="${(item&&item.name)||''}" placeholder="Product name" oninput="eoCalcTotal()"
+        style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label style="font-size:.72rem">Price (₹)</label>
+      <input id="eo_iprice_${idx}" type="number" min="0" value="${(item&&item.price)||0}" oninput="eoCalcTotal()"
+        style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label style="font-size:.72rem">Qty</label>
+      <input id="eo_iqty_${idx}" type="number" min="1" value="${(item&&item.qty)||1}" oninput="eoCalcTotal()"
+        style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+    </div>
+    <button onclick="document.getElementById('eo_item_${idx}').remove();eoCalcTotal()"
+      style="padding:7px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.84rem;cursor:pointer;height:36px">✕</button>`;
+  document.getElementById('eo_items').appendChild(div);
+}
+
+function eoCalcTotal() {
+  let total = 0;
+  document.querySelectorAll('[id^="eo_item_"]').forEach(row => {
+    const idx   = row.id.split('_')[2];
+    const price = parseFloat((document.getElementById('eo_iprice_'+idx)||{}).value)||0;
+    const qty   = parseInt((document.getElementById('eo_iqty_'+idx)||{}).value)||1;
+    total += price * qty;
+  });
+  document.getElementById('eo_total').value = total || '';
+}
+
+async function saveEditOrder() {
+  if (!eoEditId) return;
+  const name  = document.getElementById('eo_name').value.trim();
+  const phone = document.getElementById('eo_phone').value.trim();
+  if (!name)  { toast('❌ Customer name is required'); return; }
+  if (!phone) { toast('❌ Phone is required'); return; }
+
+  // Collect items
+  const items = [];
+  document.querySelectorAll('[id^="eo_item_"]').forEach(row => {
+    const idx   = row.id.split('_')[2];
+    const iname = (document.getElementById('eo_iname_'+idx)||{}).value||'';
+    const price = parseFloat((document.getElementById('eo_iprice_'+idx)||{}).value)||0;
+    const qty   = parseInt((document.getElementById('eo_iqty_'+idx)||{}).value)||1;
+    if (iname) items.push({ name:iname, price, qty, id:0 });
+  });
+
+  const dateVal = document.getElementById('eo_date').value;
+  const updates = {
+    name,
+    phone,
+    email:   document.getElementById('eo_email').value.trim(),
+    address: document.getElementById('eo_address').value.trim(),
+    city:    document.getElementById('eo_city').value.trim(),
+    state:   document.getElementById('eo_state').value.trim(),
+    pin:     document.getElementById('eo_pin').value.trim(),
+    payment: document.getElementById('eo_payment').value,
+    status:  document.getElementById('eo_status').value,
+    total:   parseFloat(document.getElementById('eo_total').value)||0,
+    notes:   document.getElementById('eo_notes').value.trim(),
+    items,
+    date:    dateVal ? new Date(dateVal).toISOString() : undefined,
+  };
+  // Remove undefined keys
+  Object.keys(updates).forEach(k => updates[k] === undefined && delete updates[k]);
+
+  try {
+    const res  = await fetch('/api/orders/' + eoEditId, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(updates),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
+    toast('✅ Order ' + eoEditId + ' updated');
+    closeEditOrderModal();
+    loadOrders();
+    loadStats();
+  } catch (e) {
+    toast('❌ Save failed: ' + e.message);
   }
 }
 
