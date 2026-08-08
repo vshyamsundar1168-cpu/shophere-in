@@ -1046,10 +1046,10 @@ async function loadPageBlocks(){
       wrap.setAttribute('data-scale','1');
 
       // ── Block title + caption shown on store ────────────────────────────────
-      const titleHtml = b.title && b.title !== 'Untitled Block'
-        ? `<div class="pb-block-title">${b.title}</div>` : '';
+      const titleHtml = (b.title && b.title !== 'Untitled Block')
+        ? `<div style="font-size:1.05rem;font-weight:800;color:#1e293b;padding:8px 4px 6px;font-family:'Poppins',sans-serif;border-bottom:2px solid #f97316;margin-bottom:8px;display:block;">${b.title}</div>` : '';
       const captionHtml = b.caption
-        ? `<div class="pb-block-caption">${b.caption}</div>` : '';
+        ? `<div style="font-size:.88rem;color:#475569;padding:8px 4px 4px;line-height:1.6;display:block;">${b.caption}</div>` : '';
       wrap.innerHTML = titleHtml + html + captionHtml;
 
       // ── Per-block zoom toolbar ──────────────────────────────────────────────
