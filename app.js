@@ -1044,7 +1044,13 @@ async function loadPageBlocks(){
       wrap.className='pb-block-wrap';
       wrap.setAttribute('data-bid', b.id||b._id||'');
       wrap.setAttribute('data-scale','1');
-      wrap.innerHTML=html;
+
+      // ── Block title + caption shown on store ────────────────────────────────
+      const titleHtml = b.title && b.title !== 'Untitled Block'
+        ? `<div class="pb-block-title">${b.title}</div>` : '';
+      const captionHtml = b.caption
+        ? `<div class="pb-block-caption">${b.caption}</div>` : '';
+      wrap.innerHTML = titleHtml + html + captionHtml;
 
       // ── Per-block zoom toolbar ──────────────────────────────────────────────
       const zoomBar = document.createElement('div');

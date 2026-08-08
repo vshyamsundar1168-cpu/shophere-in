@@ -359,6 +359,18 @@ footer{background:var(--sec);color:#94a3b8;margin-top:60px}
 
 /* ── PER-BLOCK ZOOM TOOLBAR ──────────────────────────────────────────────── */
 .pb-block-wrap{position:relative;}
+
+/* Block title shown on store */
+.pb-block-title{
+  font-size:1.1rem;font-weight:800;color:#1e293b;
+  padding:8px 4px 6px;font-family:'Poppins',sans-serif;
+  border-bottom:2px solid #f97316;margin-bottom:8px;
+}
+/* Block caption shown below block */
+.pb-block-caption{
+  font-size:.88rem;color:#475569;
+  padding:8px 4px 4px;line-height:1.6;
+}
 .pb-zoom-bar{
   display:flex;align-items:center;gap:4px;
   position:absolute;top:6px;right:6px;

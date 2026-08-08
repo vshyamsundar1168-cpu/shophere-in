@@ -716,8 +716,12 @@ if(window.location.protocol==='file:'){
       </div>
 
       <div class="form-group">
-        <label>Block Title / Label (admin only)</label>
-        <input id="pb_title" placeholder="e.g. Home Banner Text">
+        <label>Block Title <small style="color:var(--m);font-weight:400">(shown on store above the block)</small></label>
+        <input id="pb_title" placeholder="e.g. Independence Day Special — Tiranga Sarees">
+      </div>
+      <div class="form-group">
+        <label>Block Caption / Text <small style="color:var(--m);font-weight:400">(shown below the block on store — optional)</small></label>
+        <textarea id="pb_caption" style="min-height:60px;font-size:.84rem" placeholder="Add a description, offer text, or any message to show below this block..."></textarea>
       </div>
 
       <!-- Dynamic fields based on type -->
@@ -2965,6 +2969,8 @@ function pbOpenAdd() {
     });
     const prev = document.getElementById('pb_preview');
     if (prev) prev.innerHTML = '';
+    const capEl = document.getElementById('pb_caption');
+    if (capEl) capEl.value = '';
     // Open modal
     modal.classList.add('open');
     modal.style.display = 'flex';  // force show regardless of CSS
@@ -2988,8 +2994,9 @@ function pbOpenEdit(id) {
     const setVal = (elId, val) => { const e = document.getElementById(elId); if (e) e.value = val || ''; };
     setVal('pbModalTitle', ''); // set via textContent below
     document.getElementById('pbModalTitle').textContent = 'Edit: ' + (b.title || b.type || 'Block');
-    setVal('pb_title', b.title);
-    setVal('pb_page',  b.page || 'home');
+    setVal('pb_title',   b.title);
+    setVal('pb_caption', b.caption);
+    setVal('pb_page',    b.page || 'home');
     setVal('pb_type',  b.type || 'text');
 
     // Pre-store content for pbTypeChanged to use
@@ -3062,7 +3069,8 @@ function closePbModal() {
 }
 
 async function pbSaveBlock() {
-  const title = document.getElementById('pb_title').value.trim() || 'Untitled Block';
+  const title   = document.getElementById('pb_title').value.trim() || 'Untitled Block';
+  const caption = (document.getElementById('pb_caption')||{}).value||'';
   const page  = document.getElementById('pb_page').value;
   const type  = document.getElementById('pb_type').value;
   const contentEl = document.getElementById('pb_content');
@@ -3137,7 +3145,7 @@ async function pbSaveBlock() {
   // Preserve visibility on edit; default true for new blocks
   const existingBlock = pbEditId ? pbBlocks.find(x => String(x._id||x.id) === String(pbEditId)) : null;
   const visible = existingBlock ? (existingBlock.visible !== false) : true;
-  const block = { title, page, type, content, alt, link, target, btnColor, style, visible };
+  const block = { title, caption, page, type, content, alt, link, target, btnColor, style, visible };
 
   try {
     if (pbEditId) {
