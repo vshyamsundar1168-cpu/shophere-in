@@ -794,6 +794,20 @@ document.addEventListener('DOMContentLoaded',async()=>{
 // extra popup
 function openAbout(){openOverlay('aboutPopup');}
 
+// ── Page Builder click action handler ─────────────────────────────────────────
+function pbBlockClick(b, imgUrl) {
+  if (b.clickAction === 'product' && b.productId) {
+    openProduct(b.productId);
+  } else if (b.clickAction === 'link' && b.clickLink) {
+    window.open(b.clickLink, '_blank');
+  } else if (b.clickAction === 'category' && b.clickCat) {
+    filterCat(b.clickCat);
+    document.getElementById('productsSection') && showProducts();
+  } else if (imgUrl) {
+    openLightbox(imgUrl);
+  }
+}
+
 // ── Page Builder Renderer ─────────────────────────────────────────────────────
 async function loadPageBlocks(){
   try{
@@ -883,7 +897,12 @@ async function loadPageBlocks(){
         const wrapCSS = `display:block;width:${imgW};max-width:100%;${imgH?'':''}${s.background?'background:'+s.background+';':''}${s.padding?'padding:'+s.padding+';':''}${s.margin?'margin:'+s.margin+';':''}border-radius:${rad};line-height:0;`;
 
         const imgTag  = `<img src="${b.content||''}" alt="${b.alt||''}" style="${imgCSS}" loading="lazy" onerror="this.style.display='none'">`;
-        const wrapDiv = `<div class="pb-img-zoom" style="${wrapCSS}" onclick="openLightbox('${src}')">${imgTag}</div>`;
+        // Build click handler — product modal, link, category filter, or lightbox
+        const clickFn = b.clickAction==='product'&&b.productId ? `openProduct(${b.productId})`
+          : b.clickAction==='link'&&b.clickLink ? `window.open('${b.clickLink}','_blank')`
+          : b.clickAction==='category'&&b.clickCat ? `filterCat('${b.clickCat}');showProducts()`
+          : `openLightbox('${src}')`;
+        const wrapDiv = `<div class="pb-img-zoom" style="${wrapCSS}" onclick="${clickFn}">${imgTag}</div>`;
         const linked  = b.link ? `<a href="${b.link}" target="${b.target||'_self'}" style="display:block;border-radius:${rad};">${wrapDiv}</a>` : wrapDiv;
         const caption = b.alt  ? `<div style="font-size:.85rem;color:#475569;text-align:center;padding:6px 4px;">${b.alt}</div>` : '';
         html=`<div class="${animClass.trim()}" style="${s.textAlign?'text-align:'+s.textAlign:''}${s.opacity?';opacity:'+s.opacity:''}">${linked}${caption}</div>`;
@@ -924,7 +943,12 @@ async function loadPageBlocks(){
         const rad = s.borderRadius||'6px';
         const imgs = urls.map(url=>{
           const src = url.replace(/'/g,"\\'");
-          return `<div class="pb-img-zoom" style="overflow:hidden;border-radius:${rad};cursor:zoom-in;" onclick="openLightbox('${src}')">
+          // Gallery images: if block has click action use it, else open lightbox
+          const clickFn = b.clickAction==='product'&&b.productId ? `openProduct(${b.productId})`
+            : b.clickAction==='link'&&b.clickLink ? `window.open('${b.clickLink}','_blank')`
+            : b.clickAction==='category'&&b.clickCat ? `filterCat('${b.clickCat}');showProducts()`
+            : `openLightbox('${src}')`;
+          return `<div class="pb-img-zoom" style="overflow:hidden;border-radius:${rad};cursor:${b.clickAction==='product'?'pointer':'zoom-in'};" onclick="${clickFn}">
             <img src="${url}" style="width:100%;height:${imgH};object-fit:${fit};object-position:center;display:block;border-radius:${rad};" loading="lazy" onerror="this.parentElement.style.display='none'">
           </div>`;
         }).join('');

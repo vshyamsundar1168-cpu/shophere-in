@@ -724,6 +724,39 @@ if(window.location.protocol==='file:'){
         <textarea id="pb_caption" style="min-height:60px;font-size:.84rem" placeholder="Add a description, offer text, or any message to show below this block..."></textarea>
       </div>
 
+      <!-- Click Action -->
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-bottom:4px">
+        <div class="form-row" style="margin-bottom:8px">
+          <div class="form-group" style="margin:0">
+            <label>🖱️ Click Action <small style="color:var(--m);font-weight:400">(what happens when customer clicks)</small></label>
+            <select id="pb_clickAction" onchange="pbToggleClickFields()" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+              <option value="">None (just zoom/lightbox)</option>
+              <option value="product">🛒 Open Product Cart (Add to Cart popup)</option>
+              <option value="link">🔗 Open a Link / Page</option>
+              <option value="category">📦 Filter by Category</option>
+            </select>
+          </div>
+        </div>
+        <div id="pb_clickProductRow" style="display:none">
+          <div class="form-group" style="margin:0">
+            <label>Product ID <small style="color:var(--m);font-weight:400">(find it in Products tab — shown as #ID)</small></label>
+            <input id="pb_productId" type="number" placeholder="e.g. 1001" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+          </div>
+        </div>
+        <div id="pb_clickLinkRow" style="display:none">
+          <div class="form-group" style="margin:0">
+            <label>Link URL</label>
+            <input id="pb_clickLink" placeholder="https://... or /products?cat=sarees" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+          </div>
+        </div>
+        <div id="pb_clickCatRow" style="display:none">
+          <div class="form-group" style="margin:0">
+            <label>Category Name <small style="color:var(--m);font-weight:400">(exact name as in your categories)</small></label>
+            <input id="pb_clickCat" placeholder="e.g. Sarees, Mens Wear, Electronics" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+          </div>
+        </div>
+      </div>
+
       <!-- Dynamic fields based on type -->
       <div id="pb_fields"></div>
 
@@ -2940,6 +2973,16 @@ function pbTypeChanged() {
   }
 }
 
+function pbToggleClickFields() {
+  const v = (document.getElementById('pb_clickAction')||{}).value || '';
+  const pRow = document.getElementById('pb_clickProductRow');
+  const lRow = document.getElementById('pb_clickLinkRow');
+  const cRow = document.getElementById('pb_clickCatRow');
+  if (pRow) pRow.style.display = v === 'product'  ? 'block' : 'none';
+  if (lRow) lRow.style.display = v === 'link'     ? 'block' : 'none';
+  if (cRow) cRow.style.display = v === 'category' ? 'block' : 'none';
+}
+
 function pbOpenAdd() {
   try {
     pbEditId = null;
@@ -2971,6 +3014,11 @@ function pbOpenAdd() {
     if (prev) prev.innerHTML = '';
     const capEl = document.getElementById('pb_caption');
     if (capEl) capEl.value = '';
+    const caEl = document.getElementById('pb_clickAction');
+    if (caEl) { caEl.value = ''; pbToggleClickFields(); }
+    const piEl = document.getElementById('pb_productId');   if (piEl) piEl.value = '';
+    const plEl = document.getElementById('pb_clickLink');   if (plEl) plEl.value = '';
+    const pcEl = document.getElementById('pb_clickCat');    if (pcEl) pcEl.value = '';
     // Open modal
     modal.classList.add('open');
     modal.style.display = 'flex';  // force show regardless of CSS
@@ -2994,9 +3042,17 @@ function pbOpenEdit(id) {
     const setVal = (elId, val) => { const e = document.getElementById(elId); if (e) e.value = val || ''; };
     setVal('pbModalTitle', ''); // set via textContent below
     document.getElementById('pbModalTitle').textContent = 'Edit: ' + (b.title || b.type || 'Block');
-    setVal('pb_title',   b.title);
-    setVal('pb_caption', b.caption);
-    setVal('pb_page',    b.page || 'home');
+    setVal('pb_title',      b.title);
+    setVal('pb_caption',    b.caption);
+    setVal('pb_page',       b.page || 'home');
+    // Click action
+    setTimeout(() => {
+      const ca = document.getElementById('pb_clickAction');
+      if (ca) { ca.value = b.clickAction || ''; pbToggleClickFields(); }
+      const pi = document.getElementById('pb_productId'); if (pi) pi.value = b.productId || '';
+      const pl = document.getElementById('pb_clickLink'); if (pl) pl.value = b.clickLink  || '';
+      const pc = document.getElementById('pb_clickCat');  if (pc) pc.value = b.clickCat   || '';
+    }, 50);
     setVal('pb_type',  b.type || 'text');
 
     // Pre-store content for pbTypeChanged to use
@@ -3071,6 +3127,10 @@ function closePbModal() {
 async function pbSaveBlock() {
   const title   = document.getElementById('pb_title').value.trim() || 'Untitled Block';
   const caption = (document.getElementById('pb_caption')||{}).value||'';
+  const clickAction = (document.getElementById('pb_clickAction')||{}).value||'';
+  const productId   = parseInt((document.getElementById('pb_productId')||{}).value)||0;
+  const clickLink   = (document.getElementById('pb_clickLink')||{}).value||'';
+  const clickCat    = (document.getElementById('pb_clickCat')||{}).value||'';
   const page  = document.getElementById('pb_page').value;
   const type  = document.getElementById('pb_type').value;
   const contentEl = document.getElementById('pb_content');
@@ -3145,7 +3205,7 @@ async function pbSaveBlock() {
   // Preserve visibility on edit; default true for new blocks
   const existingBlock = pbEditId ? pbBlocks.find(x => String(x._id||x.id) === String(pbEditId)) : null;
   const visible = existingBlock ? (existingBlock.visible !== false) : true;
-  const block = { title, caption, page, type, content, alt, link, target, btnColor, style, visible };
+  const block = { title, caption, clickAction, productId, clickLink, clickCat, page, type, content, alt, link, target, btnColor, style, visible };
 
   try {
     if (pbEditId) {
