@@ -297,17 +297,21 @@ async function loadBanners(){
       const aItems = alignMap[posV] || 'center';
       const tAlign = textMap[posV]  || 'center';
       // Build background correctly — do NOT duplicate background-size
-      let bgStyle;
+      let bgStyle, imgOverlay = '';
       if(b.bgImage && b.bgImage.trim()){
-        const bg = fit==='cover' ? 'transparent' : '#1e293b';
-        bgStyle = `background-image:url('${b.bgImage}');background-size:${fit};background-position:center;background-repeat:no-repeat;background-color:${bg}`;
+        // Use <img> tag instead of background — scales perfectly, no crop, no gaps
+        bgStyle = `background:#1e293b`;
+        imgOverlay = `<img src="${b.bgImage}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:${fit};object-position:center;display:block;z-index:0;" loading="lazy">`;
       } else {
         bgStyle = `background:${b.bgGradient||'linear-gradient(135deg,#1e293b 0%,#f97316 100%)'}`;
       }
       return `<div style="${bgStyle};position:absolute;inset:0;display:flex;align-items:${aItems};justify-content:center;flex-direction:column;text-align:${tAlign};color:${tClr};padding:20px 48px;opacity:${i===0?1:0};transition:opacity .6s;pointer-events:${i===0?'all':'none'};overflow:hidden">
-        <h1 style="font-size:clamp(.9rem,${hSz},${hSz});font-weight:800;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,.4);line-height:1.2">${b.headline||''}</h1>
-        <p style="font-size:clamp(.7rem,1rem,1rem);margin-bottom:14px;opacity:.88;max-width:600px">${b.subtitle||''}</p>
-        <button onclick="filterCat('all')" class="btn btn-outline" style="flex-shrink:0">${b.ctaLabel||'Shop Now'} →</button>
+        ${imgOverlay}
+        <div style="position:relative;z-index:1;width:100%">
+          <h1 style="font-size:clamp(.9rem,${hSz},${hSz});font-weight:800;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,.4);line-height:1.2">${b.headline||''}</h1>
+          <p style="font-size:clamp(.7rem,1rem,1rem);margin-bottom:14px;opacity:.88;max-width:600px">${b.subtitle||''}</p>
+          <button onclick="filterCat('all')" class="btn btn-outline" style="flex-shrink:0">${b.ctaLabel||'Shop Now'} →</button>
+        </div>
       </div>`;
     }).join('');
     slider.appendChild(prev); slider.appendChild(next);

@@ -72,8 +72,8 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
 .cat-chip span{font-size:.72rem;font-weight:700;color:var(--t);white-space:nowrap;text-align:center}
 
 /* ── HERO BANNER ──────────────────────────────────────────────────────────── */
-.hero-slider{position:relative;overflow:hidden;height:420px;background:var(--sec2);min-height:80px;transition:height .3s}
-.hero-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;color:#fff;padding:clamp(10px,3vw,40px);opacity:0;transition:opacity .6s;pointer-events:none;overflow:hidden}
+.hero-slider{position:relative;height:420px;background:var(--sec2);min-height:80px;transition:height .3s;overflow:hidden}
+.hero-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;color:#fff;padding:clamp(10px,3vw,40px);opacity:0;transition:opacity .6s;pointer-events:none}
 .hero-slide.active{opacity:1;pointer-events:all}
 .hero-slide h1{font-size:clamp(.85rem,2.6rem,2.6rem);font-weight:800;margin-bottom:clamp(4px,12px,12px);text-shadow:0 2px 12px rgba(0,0,0,.4);font-family:'Poppins',sans-serif;line-height:1.2}
 .hero-slide p{font-size:clamp(.65rem,1.05rem,1.05rem);margin-bottom:clamp(6px,24px,24px);color:rgba(255,255,255,.88);max-width:500px}
