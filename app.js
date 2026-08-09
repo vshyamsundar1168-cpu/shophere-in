@@ -285,48 +285,65 @@ async function loadBanners(){
     let bans=await fetch('/api/banners').then(r=>r.json());
     allBanners=bans.filter(b=>b.active!==false);
     if(!allBanners.length) allBanners=[{bgGradient:'linear-gradient(135deg,#1e293b,#f97316)',headline:'Welcome to ShopHere.in 🛍️',subtitle:"India's favourite store",ctaLabel:'Shop Now'}];
-    const slider=document.getElementById('heroSlider');
-    const prev=slider.querySelector('.hero-prev'), next=slider.querySelector('.hero-next'), dots=document.getElementById('heroDots');
-    slider.innerHTML=allBanners.map((b,i)=>{
-      const fit  = (storeSettings&&storeSettings.bannerFit)  || 'contain';
-      const posV = (storeSettings&&storeSettings.bannerPos)  || 'center';
-      const hSz  = ({'xlarge':'3rem','large':'2.4rem','medium':'1.8rem','small':'1.4rem'})[(storeSettings&&storeSettings.bannerTextSize)] || '2.4rem';
-      const tClr = (storeSettings&&storeSettings.bannerTextColor) || '#ffffff';
-      const alignMap = {'center':'center','flex-start':'flex-start','flex-end':'flex-end','left':'flex-start','right':'flex-end'};
-      const textMap  = {'center':'center','flex-start':'left','flex-end':'right','left':'left','right':'right'};
-      const aItems = alignMap[posV] || 'center';
-      const tAlign = textMap[posV]  || 'center';
-      // Build background correctly — do NOT duplicate background-size
-      let bgStyle, imgOverlay = '';
-      if(b.bgImage && b.bgImage.trim()){
-        // Use <img> tag instead of background — scales perfectly, no crop, no gaps
-        bgStyle = `background:#1e293b`;
-        imgOverlay = `<img src="${b.bgImage}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:${fit};object-position:center;display:block;z-index:0;" loading="lazy">`;
-      } else {
-        bgStyle = `background:${b.bgGradient||'linear-gradient(135deg,#1e293b 0%,#f97316 100%)'}`;
-      }
-      return `<div style="${bgStyle};position:absolute;inset:0;display:flex;align-items:${aItems};justify-content:center;flex-direction:column;text-align:${tAlign};color:${tClr};padding:20px 48px;opacity:${i===0?1:0};transition:opacity .6s;pointer-events:${i===0?'all':'none'};overflow:hidden">
-        ${imgOverlay}
-        <div style="position:relative;z-index:1;width:100%">
-          <h1 style="font-size:clamp(.9rem,${hSz},${hSz});font-weight:800;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,.4);line-height:1.2">${b.headline||''}</h1>
-          <p style="font-size:clamp(.7rem,1rem,1rem);margin-bottom:14px;opacity:.88;max-width:600px">${b.subtitle||''}</p>
-          <button onclick="filterCat('all')" class="btn btn-outline" style="flex-shrink:0">${b.ctaLabel||'Shop Now'} →</button>
+
+    const slider = document.getElementById('heroSlider');
+    const track  = document.getElementById('heroTrack');
+    const dots   = document.getElementById('heroDots');
+
+    // Apply banner height from store settings
+    const bSzVal  = storeSettings&&storeSettings.bannerSizeVal;
+    const bSzUnit = storeSettings&&storeSettings.bannerSizeUnit || 'px';
+    if(bSzVal) slider.style.height = bSzVal + bSzUnit;
+
+    const fit  = (storeSettings&&storeSettings.bannerFit)       || 'contain';
+    const posV = (storeSettings&&storeSettings.bannerPos)        || 'center';
+    const hSz  = ({'xlarge':'3rem','large':'2.4rem','medium':'1.8rem','small':'1.4rem'})[(storeSettings&&storeSettings.bannerTextSize)] || '2.4rem';
+    const tClr = (storeSettings&&storeSettings.bannerTextColor)  || '#ffffff';
+    const alignMap={'center':'center','left':'flex-start','right':'flex-end','flex-start':'flex-start','flex-end':'flex-end'};
+    const textMap ={'center':'center','left':'left','right':'right','flex-start':'left','flex-end':'right'};
+    const aItems = alignMap[posV]||'center';
+    const tAlign = textMap[posV] ||'center';
+
+    // Build slides in track (side by side)
+    track.innerHTML = allBanners.map((b,i)=>{
+      const hasBg = b.bgImage && b.bgImage.trim();
+      const gradBg = b.bgGradient||'linear-gradient(135deg,#1e293b 0%,#f97316 100%)';
+      const imgTag = hasBg
+        ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};" loading="lazy" alt="">`
+        : '';
+      // gradient background shown when no image, or as fallback
+      const slideBg = hasBg ? 'background:#1e293b' : `background:${gradBg}`;
+      return `<div class="hero-slide" style="${slideBg}">
+        ${imgTag}
+        <div class="slide-overlay" style="align-items:${aItems};text-align:${tAlign};color:${tClr}">
+          <h1 style="font-size:clamp(.9rem,${hSz},${hSz})">${b.headline||''}</h1>
+          <p>${b.subtitle||''}</p>
+          <button onclick="filterCat('all')" class="hero-cta">${b.ctaLabel||'Shop Now'} →</button>
         </div>
       </div>`;
     }).join('');
-    slider.appendChild(prev); slider.appendChild(next);
-    dots.innerHTML=allBanners.map((_,i)=>`<button onclick="heroGo(${i})" style="width:10px;height:10px;border-radius:50%;background:${i===0?'#fff':'rgba(255,255,255,.45)'};border:none;cursor:pointer;transition:all .3s;padding:0"></button>`).join('');
-    slider.appendChild(dots);
-    if(allBanners.length>1){clearInterval(heroTimer);heroTimer=setInterval(heroNext,5000);}
-  }catch(e){}
+
+    // Dots
+    dots.innerHTML = allBanners.map((_,i)=>
+      `<button onclick="heroGo(${i})" style="width:10px;height:10px;border-radius:50%;background:${i===0?'#fff':'rgba(255,255,255,.5)'};border:none;cursor:pointer;padding:0;transition:all .3s"></button>`
+    ).join('');
+
+    heroIdx = 0;
+    if(allBanners.length>1){ clearInterval(heroTimer); heroTimer=setInterval(heroNext,5000); }
+  }catch(e){ console.warn('Banners failed',e); }
 }
+
 function heroGo(i){
-  heroIdx=i;
-  document.querySelectorAll('#heroSlider>div').forEach((s,j)=>{s.style.opacity=j===i?1:0;s.style.pointerEvents=j===i?'all':'none';});
-  document.querySelectorAll('#heroDots button').forEach((d,j)=>{d.style.background=j===i?'#fff':'rgba(255,255,255,.45)';});
+  heroIdx = i;
+  const track = document.getElementById('heroTrack');
+  if(track) track.style.transform = `translateX(-${i*100}%)`;
+  document.querySelectorAll('#heroDots button').forEach((d,j)=>{
+    d.style.background = j===i ? '#fff' : 'rgba(255,255,255,.5)';
+    d.style.transform  = j===i ? 'scale(1.3)' : 'scale(1)';
+  });
 }
-function heroNext(){if(allBanners.length>1)heroGo((heroIdx+1)%allBanners.length);}
-function heroPrev(){if(allBanners.length>1)heroGo((heroIdx-1+allBanners.length)%allBanners.length);}
+function heroNext(){ if(allBanners.length>1) heroGo((heroIdx+1)%allBanners.length); }
+function heroPrev(){ if(allBanners.length>1) heroGo((heroIdx-1+allBanners.length)%allBanners.length); }
 
 // ── Products ──────────────────────────────────────────────────────────────────
 async function loadProducts(){
