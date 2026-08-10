@@ -259,26 +259,14 @@ if(window.location.protocol==='file:'){
   <!-- BANNERS TAB -->
   <div id="tab-banners" class="tab">
     <div class="sec">
-      <div id="bannerList" style="margin-bottom:24px"></div>
-      <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid var(--b);max-width:560px">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">Add New Banner</h4>
-        <div class="form-group">
-          <label>Background Image (optional)</label>
-          <div class="upload-area" onclick="document.getElementById('bn_img').click()">
-            🖼️ Upload banner image (optional)
-            <input type="file" id="bn_img" accept="image/*" style="display:none" onchange="document.getElementById('bn_imgName').textContent=this.files[0]?.name||''">
-          </div>
-          <span id="bn_imgName" style="font-size:.75rem;color:var(--m)"></span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🖼️ Banners</h3>
+          <p style="font-size:.8rem;color:var(--m)">Add banners. Use <strong>Grid</strong> mode to show 2–4 banners side by side. Use <strong>Slider</strong> for full-width slideshow.</p>
         </div>
-        <div class="form-group"><label>OR Background Gradient CSS</label><input id="bn_grad" placeholder="linear-gradient(135deg,#1e293b,#f97316)"></div>
-        <div class="form-group"><label>Headline *</label><input id="bn_head" placeholder="Enter banner headline"></div>
-        <div class="form-group"><label>Subtitle</label><input id="bn_sub" placeholder="Enter subtitle text"></div>
-        <div class="form-row">
-          <div class="form-group"><label>CTA Button Label</label><input id="bn_cta" placeholder="Shop Now"></div>
-          <div class="form-group"><label>CTA Link URL</label><input id="bn_url" placeholder="https:// or #section"></div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="addBanner()">Add Banner</button>
+        <button onclick="openAddBannerModal()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Add Banner</button>
       </div>
+      <div id="bannerList" style="display:grid;gap:12px"></div>
     </div>
   </div>
 
@@ -922,6 +910,125 @@ if(window.location.protocol==='file:'){
       <button onclick="discOpenAdd()" style="padding:9px 16px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Create Discount</button>
     </div>
     <div id="discList" style="display:grid;gap:10px"></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT BANNER MODAL -->
+<div class="overlay" id="bnModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr">
+      <h3 id="bnModalTitle">Add Banner</h3>
+      <button class="modal-close" onclick="closeBannerModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Image -->
+      <div class="form-group">
+        <label>Banner Image</label>
+        <div class="upload-area" onclick="document.getElementById('bn_img').click()" style="cursor:pointer">
+          🖼️ Click to upload banner image
+          <input type="file" id="bn_img" accept="image/*" style="display:none" onchange="bnPreviewImg(this)">
+        </div>
+        <img id="bn_imgPrev" src="" style="max-height:80px;margin-top:8px;display:none;border-radius:8px;object-fit:contain" alt="">
+        <small style="color:var(--m)">Or paste URL below:</small>
+        <input id="bn_imgUrl" placeholder="https://... image URL" style="width:100%;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;margin-top:4px" oninput="bnPreviewUrl(this.value)">
+      </div>
+
+      <div class="form-group"><label>OR Background Gradient CSS (if no image)</label>
+        <input id="bn_grad" placeholder="linear-gradient(135deg,#1e293b,#f97316)">
+      </div>
+
+      <hr style="margin:14px 0;border-color:var(--b)">
+
+      <!-- Text -->
+      <div class="form-row">
+        <div class="form-group"><label>Headline</label><input id="bn_head" placeholder="Sale 50% Off!"></div>
+        <div class="form-group"><label>Subtitle</label><input id="bn_sub" placeholder="Limited time offer"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Button Label</label><input id="bn_cta" placeholder="Shop Now"></div>
+        <div class="form-group"><label>Button Link</label><input id="bn_url" placeholder="https:// or /products"></div>
+      </div>
+
+      <hr style="margin:14px 0;border-color:var(--b)">
+
+      <!-- Display Settings -->
+      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px;color:var(--p)">🎨 Display Settings</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="form-group" style="margin:0">
+          <label>Display Mode</label>
+          <select id="bn_mode" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="slider">🎠 Slider (full width, one at a time)</option>
+            <option value="grid">⬛⬛ Grid (side by side)</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Width % (for Grid mode)</label>
+          <select id="bn_width" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="100">100% — Full width</option>
+            <option value="50">50% — 2 side by side</option>
+            <option value="33">33% — 3 side by side</option>
+            <option value="25">25% — 4 side by side</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Banner Height (px)</label>
+          <input id="bn_height" type="number" placeholder="e.g. 300" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="form-group" style="margin:0">
+          <label>Image Fit</label>
+          <select id="bn_fit" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="contain">✅ Fit — No Crop</option>
+            <option value="cover">🔲 Fill — May Crop</option>
+            <option value="fill">↔️ Stretch</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Text Size</label>
+          <select id="bn_textsize" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="xlarge">Extra Large</option>
+            <option value="large" selected>Large</option>
+            <option value="medium">Medium</option>
+            <option value="small">Small</option>
+            <option value="none">Hide Text</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Text Color</label>
+          <input type="color" id="bn_textcolor" value="#ffffff" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Text Position</label>
+          <select id="bn_textpos" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+            <option value="center">Center</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+            <option value="bottom">Bottom</option>
+            <option value="top">Top</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Animation</label>
+        <select id="bn_anim" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+          <option value="">None</option>
+          <option value="fade-in">✨ Fade In</option>
+          <option value="slide-up">⬆️ Slide Up</option>
+          <option value="slide-left">◀️ Slide from Left</option>
+          <option value="slide-right">▶️ Slide from Right</option>
+          <option value="zoom-in">🔍 Zoom In</option>
+          <option value="pulse">💓 Pulse</option>
+          <option value="bounce">🏀 Bounce</option>
+        </select>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="saveBannerModal()" style="flex:1;padding:11px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Banner</button>
+        <button onclick="closeBannerModal()" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;cursor:pointer">Cancel</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2469,62 +2576,141 @@ async function loadReviews() {
 // ── Banners ───────────────────────────────────────────────────────────────────
 let allBanners = [];
 
+let allBanners = [];
+let bnEditId = null;
+
 async function loadBanners() {
   try {
     const res = await fetch('/api/banners');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     allBanners = await res.json();
+    const animLabels = {'':'None','fade-in':'✨ Fade In','slide-up':'⬆️ Slide Up','slide-left':'◀️ Slide Left','slide-right':'▶️ Slide Right','zoom-in':'🔍 Zoom In','pulse':'💓 Pulse','bounce':'🏀 Bounce'};
     document.getElementById('bannerList').innerHTML = allBanners.length
       ? allBanners.map(b => {
-          const bgStyle = b.bgImage
-            ? `background:url('${b.bgImage}') center/cover no-repeat`
-            : `background:${b.bgGradient || 'linear-gradient(135deg,#1e293b,#f97316)'}`;
-          return `<div style="background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden;margin-bottom:14px">
-            <div style="height:100px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;padding:16px;text-align:center;${bgStyle}">${b.headline || ''}</div>
-            <div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-              <div>
-                <div style="font-size:.84rem;font-weight:600">${b.headline || ''}</div>
-                <div style="font-size:.75rem;color:var(--m)">${b.subtitle || ''} · <a href="${b.ctaUrl || '#'}" style="color:var(--p)">${b.ctaLabel || 'Shop Now'}</a></div>
+          const img = b.bgImage ? `<img src="${b.bgImage}" style="width:100%;height:90px;object-fit:${b.objectFit||'contain'};border-radius:6px;display:block" alt="">` : `<div style="height:90px;background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'};border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">${b.headline||''}</div>`;
+          const modeLabel = b.displayMode==='grid' ? `⬛⬛ Grid ${b.widthPct||100}%` : '🎠 Slider';
+          return `<div style="background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden;display:flex;gap:0">
+            <div style="width:160px;flex-shrink:0;padding:8px;border-right:1px solid var(--b)">${img}</div>
+            <div style="flex:1;padding:12px 16px">
+              <div style="font-size:.85rem;font-weight:700;margin-bottom:4px">${b.headline||'(no headline)'}</div>
+              <div style="font-size:.75rem;color:var(--m);margin-bottom:6px">${b.subtitle||''}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <span style="background:#f1f5f9;padding:2px 8px;border-radius:4px;font-size:.72rem">${modeLabel}</span>
+                ${b.bannerHeight?`<span style="background:#f1f5f9;padding:2px 8px;border-radius:4px;font-size:.72rem">${b.bannerHeight}px</span>`:''}
+                ${b.animation?`<span style="background:#fef9c3;padding:2px 8px;border-radius:4px;font-size:.72rem">${animLabels[b.animation]||b.animation}</span>`:''}
+                <span style="background:${b.objectFit==='cover'?'#fff7ed':'#f0fdf4'};padding:2px 8px;border-radius:4px;font-size:.72rem">${b.objectFit==='cover'?'Fill':'No Crop'}</span>
               </div>
-              <div style="display:flex;gap:8px;align-items:center">
-                <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer">
-                  <input type="checkbox"${b.active ? ' checked' : ''} onchange="toggleBanner(${b.id},this.checked)"> Active
-                </label>
-                <button class="btn btn-sm btn-danger" onclick="deleteBanner(${b.id})">🗑️</button>
-              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:10px;border-left:1px solid var(--b);justify-content:center">
+              <label style="display:flex;align-items:center;gap:5px;font-size:.76rem;cursor:pointer;white-space:nowrap">
+                <input type="checkbox"${b.active?' checked':''} onchange="toggleBanner(${b.id},this.checked)" style="accent-color:var(--p)"> Active
+              </label>
+              <button onclick="openEditBannerModal(${b.id})" style="padding:5px 10px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.74rem;font-weight:600;cursor:pointer">✏️ Edit</button>
+              <button onclick="deleteBanner(${b.id})" style="padding:5px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.74rem;font-weight:600;cursor:pointer">🗑️</button>
             </div>
           </div>`;
         }).join('')
-      : '<p style="color:var(--m);font-size:.84rem">No banners yet. Add one below.</p>';
+      : '<p style="color:var(--m);font-size:.84rem">No banners yet. Click "+ Add Banner" above.</p>';
   } catch (e) {
     toast('❌ Error loading banners: ' + e.message);
   }
 }
 
-async function addBanner() {
+function openAddBannerModal() {
+  bnEditId = null;
+  document.getElementById('bnModalTitle').textContent = 'Add Banner';
+  ['bn_head','bn_sub','bn_cta','bn_url','bn_grad','bn_imgUrl','bn_height'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('bn_img').value='';
+  document.getElementById('bn_imgPrev').style.display='none';
+  document.getElementById('bn_mode').value='slider';
+  document.getElementById('bn_width').value='100';
+  document.getElementById('bn_fit').value='contain';
+  document.getElementById('bn_textsize').value='large';
+  document.getElementById('bn_textcolor').value='#ffffff';
+  document.getElementById('bn_textpos').value='center';
+  document.getElementById('bn_anim').value='';
+  const modal=document.getElementById('bnModal');
+  modal.classList.add('open'); modal.style.display='flex';
+}
+
+function openEditBannerModal(id) {
+  const b = allBanners.find(x=>x.id===id);
+  if(!b) return;
+  bnEditId = id;
+  document.getElementById('bnModalTitle').textContent = 'Edit Banner';
+  const sv=(elId,val)=>{const e=document.getElementById(elId);if(e)e.value=val||'';};
+  sv('bn_head',      b.headline);
+  sv('bn_sub',       b.subtitle);
+  sv('bn_cta',       b.ctaLabel);
+  sv('bn_url',       b.ctaUrl);
+  sv('bn_grad',      b.bgGradient);
+  sv('bn_imgUrl',    b.bgImage);
+  sv('bn_height',    b.bannerHeight);
+  sv('bn_mode',      b.displayMode||'slider');
+  sv('bn_width',     b.widthPct||'100');
+  sv('bn_fit',       b.objectFit||'contain');
+  sv('bn_textsize',  b.textSize||'large');
+  sv('bn_textcolor', b.textColor||'#ffffff');
+  sv('bn_textpos',   b.textPosition||'center');
+  sv('bn_anim',      b.animation||'');
+  const prev=document.getElementById('bn_imgPrev');
+  if(b.bgImage){prev.src=b.bgImage;prev.style.display='block';}else{prev.style.display='none';}
+  const modal=document.getElementById('bnModal');
+  modal.classList.add('open'); modal.style.display='flex';
+}
+
+function closeBannerModal() {
+  const modal=document.getElementById('bnModal');
+  modal.classList.remove('open'); modal.style.display='';
+}
+
+function bnPreviewImg(input) {
+  if(!input.files[0]) return;
+  const r=new FileReader();
+  r.onload=e=>{const img=document.getElementById('bn_imgPrev');img.src=e.target.result;img.style.display='block';};
+  r.readAsDataURL(input.files[0]);
+}
+function bnPreviewUrl(url) {
+  const img=document.getElementById('bn_imgPrev');
+  if(url){img.src=url;img.style.display='block';}else{img.style.display='none';}
+}
+
+async function saveBannerModal() {
   const head = document.getElementById('bn_head').value.trim();
-  if (!head) { toast('❌ Headline is required'); return; }
   const fd = new FormData();
   const imgFile = document.getElementById('bn_img').files[0];
   if (imgFile) fd.append('bgImage', imgFile);
-  fd.append('bgGradient', document.getElementById('bn_grad').value || 'linear-gradient(135deg,#1e293b,#f97316)');
-  fd.append('headline', head);
-  fd.append('subtitle', document.getElementById('bn_sub').value || '');
-  fd.append('ctaLabel', document.getElementById('bn_cta').value || 'Shop Now');
-  fd.append('ctaUrl', document.getElementById('bn_url').value || '#');
+  const imgUrl = document.getElementById('bn_imgUrl').value.trim();
+  if (imgUrl && !imgFile) fd.append('bgImageUrl', imgUrl);
+  fd.append('bgGradient',   document.getElementById('bn_grad').value || 'linear-gradient(135deg,#1e293b,#f97316)');
+  fd.append('headline',     head);
+  fd.append('subtitle',     document.getElementById('bn_sub').value || '');
+  fd.append('ctaLabel',     document.getElementById('bn_cta').value || 'Shop Now');
+  fd.append('ctaUrl',       document.getElementById('bn_url').value || '#');
+  fd.append('displayMode',  document.getElementById('bn_mode').value);
+  fd.append('widthPct',     document.getElementById('bn_width').value);
+  fd.append('bannerHeight', document.getElementById('bn_height').value || '');
+  fd.append('objectFit',    document.getElementById('bn_fit').value);
+  fd.append('textSize',     document.getElementById('bn_textsize').value);
+  fd.append('textColor',    document.getElementById('bn_textcolor').value);
+  fd.append('textPosition', document.getElementById('bn_textpos').value);
+  fd.append('animation',    document.getElementById('bn_anim').value);
   fd.append('active', 'true');
   try {
-    const res = await fetch('/api/banners', { method: 'POST', body: fd });
+    let res;
+    if (bnEditId) {
+      // PUT — send as JSON for edit (no new file)
+      const obj = {};
+      fd.forEach((v,k)=>{ obj[k]=v; });
+      if(imgFile) { /* re-upload handled by POST route */ }
+      res = await fetch('/api/banners/'+bnEditId, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(obj) });
+    } else {
+      res = await fetch('/api/banners', { method:'POST', body:fd });
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-    toast('✅ Banner added!');
-    document.getElementById('bn_head').value = '';
-    document.getElementById('bn_sub').value = '';
-    document.getElementById('bn_grad').value = '';
-    document.getElementById('bn_cta').value = '';
-    document.getElementById('bn_url').value = '';
-    document.getElementById('bn_img').value = '';
-    document.getElementById('bn_imgName').textContent = '';
+    toast(bnEditId ? '✅ Banner updated!' : '✅ Banner added!');
+    closeBannerModal();
     loadBanners();
   } catch (e) {
     toast('❌ Banner error: ' + e.message);
@@ -2545,16 +2731,9 @@ async function deleteBanner(id) {
 
 async function toggleBanner(id, active) {
   try {
-    const res = await fetch('/api/banners/' + id, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ active })
-    });
-    if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-    toast('✅ Banner updated');
-  } catch (e) {
-    toast('❌ Error: ' + e.message);
-  }
+    await fetch('/api/banners/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ active }) });
+    toast('✅ Banner ' + (active ? 'activated' : 'deactivated'));
+  } catch (e) { toast('❌ Error: ' + e.message); }
 }
 </script>
 

@@ -713,8 +713,24 @@ const server = http.createServer(async (req, res) => {
       let fields={},files=[];
       if(ct.includes('multipart')){const r=await parseMultipart(req);fields=r.fields;files=r.files;}
       else fields=await readJSON(req);
-      const banner={id:nextBid++,bgGradient:fields.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)',bgImage:'',
-        headline:fields.headline||'',subtitle:fields.subtitle||'',ctaLabel:fields.ctaLabel||'Shop Now',ctaUrl:fields.ctaUrl||'#',active:fields.active!=='false'};
+      const banner={id:nextBid++,
+        bgGradient:fields.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)',
+        bgImage:'',
+        headline:  fields.headline  ||'',
+        subtitle:  fields.subtitle  ||'',
+        ctaLabel:  fields.ctaLabel  ||'Shop Now',
+        ctaUrl:    fields.ctaUrl    ||'#',
+        active:    fields.active !== 'false',
+        // Per-banner display settings
+        displayMode:   fields.displayMode   ||'slider',   // slider | grid
+        widthPct:      fields.widthPct      ||'100',      // % of row width when in grid mode
+        bannerHeight:  fields.bannerHeight  ||'',         // px height override
+        textSize:      fields.textSize      ||'large',
+        textColor:     fields.textColor     ||'#ffffff',
+        textPosition:  fields.textPosition  ||'center',
+        animation:     fields.animation     ||'',         // fade-in, slide-up, pulse, bounce
+        objectFit:     fields.objectFit     ||'contain',  // contain | cover
+      };
       const bg=files.find(f=>f.fieldName==='bgImage'&&f.data&&f.data.length>0);
       if(bg) {
         const cloudUrl = _cloudName ? await uploadToCloudinary(bg.data, bg.mimeType, bg.filename) : null;

@@ -284,52 +284,114 @@ async function loadBanners(){
   try{
     let bans=await fetch('/api/banners').then(r=>r.json());
     allBanners=bans.filter(b=>b.active!==false);
-    if(!allBanners.length) allBanners=[{bgGradient:'linear-gradient(135deg,#1e293b,#f97316)',headline:'Welcome to ShopHere.in 🛍️',subtitle:"India's favourite store",ctaLabel:'Shop Now'}];
+    if(!allBanners.length) allBanners=[{bgGradient:'linear-gradient(135deg,#1e293b,#f97316)',headline:'Welcome to ShopHere.in 🛍️',subtitle:"India's favourite store",ctaLabel:'Shop Now',displayMode:'slider',widthPct:'100',objectFit:'contain'}];
 
     const slider = document.getElementById('heroSlider');
     const track  = document.getElementById('heroTrack');
     const dots   = document.getElementById('heroDots');
 
-    // Apply banner height from store settings
+    // Inject banner animation keyframes once
+    if(!document.getElementById('bn-anim-styles')){
+      const st=document.createElement('style');
+      st.id='bn-anim-styles';
+      st.textContent=`
+        @keyframes bn-fade-in{from{opacity:0}to{opacity:1}}
+        @keyframes bn-slide-up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+        @keyframes bn-slide-left{from{transform:translateX(-60px);opacity:0}to{transform:none;opacity:1}}
+        @keyframes bn-slide-right{from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
+        @keyframes bn-zoom-in{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+        @keyframes bn-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+        @keyframes bn-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        .bn-fade-in .slide-overlay{animation:bn-fade-in .8s ease forwards}
+        .bn-slide-up .slide-overlay{animation:bn-slide-up .7s ease forwards}
+        .bn-slide-left .slide-overlay{animation:bn-slide-left .7s ease forwards}
+        .bn-slide-right .slide-overlay{animation:bn-slide-right .7s ease forwards}
+        .bn-zoom-in{animation:bn-zoom-in .8s ease forwards}
+        .bn-pulse .banner-img{animation:bn-pulse 3s ease infinite}
+        .bn-bounce .slide-overlay{animation:bn-bounce 2s ease infinite}
+      `;
+      document.head.appendChild(st);
+    }
+
+    // Separate slider banners from grid banners
+    const sliderBans = allBanners.filter(b=>!b.displayMode||b.displayMode==='slider');
+    const gridBans   = allBanners.filter(b=>b.displayMode==='grid');
+
+    // ── GRID banners — shown side by side above or below slider ────────────────
+    let gridEl = document.getElementById('banner-grid-row');
+    if(!gridEl){
+      gridEl = document.createElement('div');
+      gridEl.id = 'banner-grid-row';
+      gridEl.style.cssText = 'display:flex;flex-wrap:wrap;gap:0;width:100%';
+      slider.parentNode.insertBefore(gridEl, slider.nextSibling);
+    }
+    if(gridBans.length){
+      gridEl.style.display='flex';
+      gridEl.innerHTML = gridBans.map(b=>{
+        const h   = b.bannerHeight ? b.bannerHeight+'px' : '280px';
+        const fit = b.objectFit||'contain';
+        const w   = b.widthPct||'50';
+        const tClr= b.textColor||'#fff';
+        const hSz = ({'xlarge':'2.2rem','large':'1.6rem','medium':'1.2rem','small':'.9rem','none':'0'})[b.textSize||'large']||'1.6rem';
+        const posMap={'center':'center','left':'flex-start','right':'flex-end','top':'flex-start','bottom':'flex-end'};
+        const aPos = posMap[b.textPosition||'center']||'center';
+        const animClass = b.animation ? 'bn-'+b.animation : '';
+        const imgTag = (b.bgImage||b.bgImageUrl) ? `<img class="banner-img" src="${b.bgImage||b.bgImageUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:${fit};object-position:center;display:block;" loading="lazy">` : '';
+        const gradBg = (!b.bgImage&&!b.bgImageUrl) ? `background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'}` : 'background:#1e293b';
+        const showText = b.textSize !== 'none';
+        return `<div class="${animClass}" style="${gradBg};position:relative;flex:0 0 ${w}%;width:${w}%;height:${h};overflow:hidden;cursor:pointer;" onclick="filterCat('all');showProducts()">
+          ${imgTag}
+          ${showText?`<div class="slide-overlay" style="align-items:${aPos};text-align:${b.textPosition==='center'?'center':b.textPosition==='right'?'right':'left'};color:${tClr};padding:16px 20px;justify-content:center">
+            <h2 style="font-size:${hSz};font-weight:800;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.5);line-height:1.2">${b.headline||''}</h2>
+            ${b.subtitle?`<p style="font-size:clamp(.7rem,.9rem,.9rem);margin-bottom:10px;opacity:.9">${b.subtitle}</p>`:''}
+            ${b.ctaLabel?`<button class="hero-cta" style="font-size:.82rem;padding:8px 20px">${b.ctaLabel}</button>`:''}
+          </div>`:''}
+        </div>`;
+      }).join('');
+    } else {
+      gridEl.style.display='none';
+    }
+
+    // ── SLIDER banners ─────────────────────────────────────────────────────────
+    // Apply height from first slider banner or store settings
     const bSzVal  = storeSettings&&storeSettings.bannerSizeVal;
     const bSzUnit = storeSettings&&storeSettings.bannerSizeUnit || 'px';
     if(bSzVal) slider.style.height = bSzVal + bSzUnit;
+    else if(sliderBans[0]&&sliderBans[0].bannerHeight) slider.style.height = sliderBans[0].bannerHeight+'px';
 
-    const fit  = (storeSettings&&storeSettings.bannerFit)       || 'contain';
-    const posV = (storeSettings&&storeSettings.bannerPos)        || 'center';
-    const hSz  = ({'xlarge':'3rem','large':'2.4rem','medium':'1.8rem','small':'1.4rem'})[(storeSettings&&storeSettings.bannerTextSize)] || '2.4rem';
-    const tClr = (storeSettings&&storeSettings.bannerTextColor)  || '#ffffff';
-    const alignMap={'center':'center','left':'flex-start','right':'flex-end','flex-start':'flex-start','flex-end':'flex-end'};
-    const textMap ={'center':'center','left':'left','right':'right','flex-start':'left','flex-end':'right'};
-    const aItems = alignMap[posV]||'center';
-    const tAlign = textMap[posV] ||'center';
+    if(!sliderBans.length){ slider.style.display='none'; return; }
+    slider.style.display='';
 
-    // Build slides in track (side by side)
-    track.innerHTML = allBanners.map((b,i)=>{
-      const hasBg = b.bgImage && b.bgImage.trim();
+    const globalFit = (storeSettings&&storeSettings.bannerFit)||'contain';
+
+    track.innerHTML = sliderBans.map((b,i)=>{
+      const fit  = b.objectFit||globalFit;
+      const hSz  = ({'xlarge':'3rem','large':'2.4rem','medium':'1.8rem','small':'1.4rem','none':'0'})[b.textSize||(storeSettings&&storeSettings.bannerTextSize)||'large']||'2.4rem';
+      const tClr = b.textColor||(storeSettings&&storeSettings.bannerTextColor)||'#ffffff';
+      const posMap={'center':'center','left':'flex-start','right':'flex-end','top':'flex-start','bottom':'flex-end'};
+      const aItems = posMap[b.textPosition||storeSettings&&storeSettings.bannerPos||'center']||'center';
+      const tAlign = (b.textPosition==='left'||b.textPosition==='right') ? b.textPosition : 'center';
+      const hasBg  = b.bgImage&&b.bgImage.trim();
       const gradBg = b.bgGradient||'linear-gradient(135deg,#1e293b 0%,#f97316 100%)';
-      const imgTag = hasBg
-        ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};" loading="lazy" alt="">`
-        : '';
-      // gradient background shown when no image, or as fallback
-      const slideBg = hasBg ? 'background:#1e293b' : `background:${gradBg}`;
-      return `<div class="hero-slide" style="${slideBg}">
+      const animClass = b.animation ? 'bn-'+b.animation : '';
+      const imgTag = hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};" loading="lazy" alt="">` : '';
+      const showText = b.textSize !== 'none';
+      return `<div class="hero-slide ${animClass}" style="${hasBg?'background:#1e293b':'background:'+gradBg}">
         ${imgTag}
-        <div class="slide-overlay" style="align-items:${aItems};text-align:${tAlign};color:${tClr}">
+        ${showText?`<div class="slide-overlay" style="align-items:${aItems};text-align:${tAlign};color:${tClr}">
           <h1 style="font-size:clamp(.9rem,${hSz},${hSz})">${b.headline||''}</h1>
           <p>${b.subtitle||''}</p>
           <button onclick="filterCat('all')" class="hero-cta">${b.ctaLabel||'Shop Now'} →</button>
-        </div>
+        </div>`:''}
       </div>`;
     }).join('');
 
-    // Dots
-    dots.innerHTML = allBanners.map((_,i)=>
+    dots.innerHTML = sliderBans.map((_,i)=>
       `<button onclick="heroGo(${i})" style="width:10px;height:10px;border-radius:50%;background:${i===0?'#fff':'rgba(255,255,255,.5)'};border:none;cursor:pointer;padding:0;transition:all .3s"></button>`
     ).join('');
 
     heroIdx = 0;
-    if(allBanners.length>1){ clearInterval(heroTimer); heroTimer=setInterval(heroNext,5000); }
+    if(sliderBans.length>1){ clearInterval(heroTimer); heroTimer=setInterval(heroNext,5000); }
   }catch(e){ console.warn('Banners failed',e); }
 }
 
@@ -342,8 +404,8 @@ function heroGo(i){
     d.style.transform  = j===i ? 'scale(1.3)' : 'scale(1)';
   });
 }
-function heroNext(){ if(allBanners.length>1) heroGo((heroIdx+1)%allBanners.length); }
-function heroPrev(){ if(allBanners.length>1) heroGo((heroIdx-1+allBanners.length)%allBanners.length); }
+function heroNext(){ if(allBanners.length>1) heroGo((heroIdx+1)%allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length); }
+function heroPrev(){ if(allBanners.length>1) heroGo((heroIdx-1+allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length)%allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length); }
 
 // ── Products ──────────────────────────────────────────────────────────────────
 async function loadProducts(){
