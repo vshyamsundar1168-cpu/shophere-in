@@ -735,6 +735,9 @@ const server = http.createServer(async (req, res) => {
       if(bg) {
         const cloudUrl = _cloudName ? await uploadToCloudinary(bg.data, bg.mimeType, bg.filename) : null;
         banner.bgImage = cloudUrl || saveFile(bg).url;
+      } else if(fields.bgImageUrl && fields.bgImageUrl.startsWith('http')) {
+        // Use pasted image URL directly
+        banner.bgImage = fields.bgImageUrl;
       }
       const db = getDb();
       await db.collection('banners').insertOne(banner);
