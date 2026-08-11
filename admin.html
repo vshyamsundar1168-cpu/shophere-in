@@ -2684,37 +2684,76 @@ function bnPreviewUrl(url) {
 }
 
 async function saveBannerModal() {
-  const head = document.getElementById('bn_head').value.trim();
-  const fd = new FormData();
-  const imgFile = document.getElementById('bn_img').files[0];
-  if (imgFile) fd.append('bgImage', imgFile);
-  const imgUrl = document.getElementById('bn_imgUrl').value.trim();
-  if (imgUrl && !imgFile) fd.append('bgImageUrl', imgUrl);
-  fd.append('bgGradient',   document.getElementById('bn_grad').value || 'linear-gradient(135deg,#1e293b,#f97316)');
-  fd.append('headline',     head);
-  fd.append('subtitle',     document.getElementById('bn_sub').value || '');
-  fd.append('ctaLabel',     document.getElementById('bn_cta').value || 'Shop Now');
-  fd.append('ctaUrl',       document.getElementById('bn_url').value || '#');
-  fd.append('displayMode',  document.getElementById('bn_mode').value);
-  fd.append('widthPct',     document.getElementById('bn_width').value);
-  fd.append('bannerHeight', document.getElementById('bn_height').value || '');
-  fd.append('objectFit',    document.getElementById('bn_fit').value);
-  fd.append('textSize',     document.getElementById('bn_textsize').value);
-  fd.append('textColor',    document.getElementById('bn_textcolor').value);
-  fd.append('textPosition', document.getElementById('bn_textpos').value);
-  fd.append('animation',    document.getElementById('bn_anim').value);
-  fd.append('active', 'true');
+  const head     = document.getElementById('bn_head').value.trim();
+  const imgFile  = document.getElementById('bn_img').files[0];
+  const imgUrl   = document.getElementById('bn_imgUrl').value.trim();
+
   try {
     let res;
+
     if (bnEditId) {
-      // PUT — send as JSON for edit (no new file)
-      const obj = {};
-      fd.forEach((v,k)=>{ obj[k]=v; });
-      if(imgFile) { /* re-upload handled by POST route */ }
-      res = await fetch('/api/banners/'+bnEditId, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(obj) });
+      // ── EDIT: send as JSON, preserve existing bgImage unless new one provided ──
+      const existing = allBanners.find(x => x.id === bnEditId) || {};
+      const obj = {
+        headline:     head,
+        subtitle:     document.getElementById('bn_sub').value || '',
+        ctaLabel:     document.getElementById('bn_cta').value || 'Shop Now',
+        ctaUrl:       document.getElementById('bn_url').value || '#',
+        bgGradient:   document.getElementById('bn_grad').value || existing.bgGradient || 'linear-gradient(135deg,#1e293b,#f97316)',
+        displayMode:  document.getElementById('bn_mode').value,
+        widthPct:     document.getElementById('bn_width').value,
+        bannerHeight: document.getElementById('bn_height').value || '',
+        objectFit:    document.getElementById('bn_fit').value,
+        textSize:     document.getElementById('bn_textsize').value,
+        textColor:    document.getElementById('bn_textcolor').value,
+        textPosition: document.getElementById('bn_textpos').value,
+        animation:    document.getElementById('bn_anim').value,
+        active:       true,
+      };
+
+      if (imgFile) {
+        // New file uploaded — upload it first via POST multipart then update
+        const fd = new FormData();
+        fd.append('bgImage', imgFile);
+        fd.append('_uploadOnly', 'true');
+        // Upload via POST to get URL, then set it
+        const upRes = await fetch('/api/banners/upload', { method:'POST', body: fd });
+        if (upRes.ok) { const upData = await upRes.json(); if(upData.url) obj.bgImage = upData.url; }
+        else obj.bgImage = existing.bgImage || ''; // keep existing on upload fail
+      } else if (imgUrl) {
+        obj.bgImage = imgUrl; // user pasted a new URL
+      } else {
+        obj.bgImage = existing.bgImage || ''; // PRESERVE existing image
+      }
+
+      res = await fetch('/api/banners/' + bnEditId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(obj)
+      });
+
     } else {
-      res = await fetch('/api/banners', { method:'POST', body:fd });
+      // ── ADD: send as FormData with file upload ──
+      const fd = new FormData();
+      if (imgFile) fd.append('bgImage', imgFile);
+      if (imgUrl && !imgFile) fd.append('bgImageUrl', imgUrl);
+      fd.append('bgGradient',   document.getElementById('bn_grad').value || 'linear-gradient(135deg,#1e293b,#f97316)');
+      fd.append('headline',     head);
+      fd.append('subtitle',     document.getElementById('bn_sub').value || '');
+      fd.append('ctaLabel',     document.getElementById('bn_cta').value || 'Shop Now');
+      fd.append('ctaUrl',       document.getElementById('bn_url').value || '#');
+      fd.append('displayMode',  document.getElementById('bn_mode').value);
+      fd.append('widthPct',     document.getElementById('bn_width').value);
+      fd.append('bannerHeight', document.getElementById('bn_height').value || '');
+      fd.append('objectFit',    document.getElementById('bn_fit').value);
+      fd.append('textSize',     document.getElementById('bn_textsize').value);
+      fd.append('textColor',    document.getElementById('bn_textcolor').value);
+      fd.append('textPosition', document.getElementById('bn_textpos').value);
+      fd.append('animation',    document.getElementById('bn_anim').value);
+      fd.append('active', 'true');
+      res = await fetch('/api/banners', { method: 'POST', body: fd });
     }
+
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
     toast(bnEditId ? '✅ Banner updated!' : '✅ Banner added!');
@@ -3328,6 +3367,12 @@ async function pbSaveBlock() {
   const contentEl = document.getElementById('pb_content');
   let content = contentEl ? contentEl.value : '';
 
+  // Preserve existing content (image URL) if field is empty on edit
+  if (!content && pbEditId && (type === 'image' || type === 'image-link')) {
+    const existingBlock = pbBlocks.find(x => String(x._id||x.id) === String(pbEditId));
+    if (existingBlock) content = existingBlock.content || '';
+  }
+
   // For mixed block: pack all fields into JSON content
   if (type === 'mixed') {
     const mixImg   = (document.getElementById('pb_mixed_img')    ||{}).value||'';
@@ -3365,6 +3410,13 @@ async function pbSaveBlock() {
   const gv = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
   const addPx = v => v ? (isNaN(v) ? v : v + 'px') : '';
   const bgImg = gv('pb_bgImage');
+  // Preserve existing backgroundImage if field is empty on edit
+  const existingBgImg = pbEditId
+    ? (pbBlocks.find(x=>String(x._id||x.id)===String(pbEditId))||{}).style?.backgroundImage || ''
+    : '';
+  const resolvedBgImg = bgImg
+    ? `url('${bgImg}')`
+    : existingBgImg; // keep existing if field cleared
   const style = {
     color:           gv('pb_textColor'),
     background:      gv('pb_bgColor'),
@@ -3382,7 +3434,7 @@ async function pbSaveBlock() {
     borderStyle:     gv('pb_borderStyle'),
     boxShadow:       gv('pb_shadow'),
     opacity:         gv('pb_opacity'),
-    backgroundImage: bgImg ? `url('${bgImg}')` : '',
+    backgroundImage: resolvedBgImg,
     backgroundSize:  gv('pb_bgSize'),
     objectFit:       gv('pb_objectFit') || 'contain',
     animation:       gv('pb_animation'),
