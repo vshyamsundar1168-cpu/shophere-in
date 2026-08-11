@@ -777,7 +777,17 @@ if(window.location.protocol==='file:'){
 
           <!-- Row 3: Sizing -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
-            <div class="form-group" style="margin:0"><label>Width</label><input id="pb_width" placeholder="100% or 300px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0">
+              <label>Block Width (for side by side)</label>
+              <select id="pb_widthPreset" onchange="pbApplyWidthPreset(this.value)" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+                <option value="">Full Width (default)</option>
+                <option value="50%">50% — 2 side by side</option>
+                <option value="33%">33% — 3 side by side</option>
+                <option value="25%">25% — 4 side by side</option>
+                <option value="custom">Custom...</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0"><label>Custom Width</label><input id="pb_width" placeholder="100% or 300px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
             <div class="form-group" style="margin:0"><label>Height</label><input id="pb_minHeight" placeholder="auto or 200px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
             <div class="form-group" style="margin:0">
               <label>Image Fit / Zoom</label>
@@ -3147,6 +3157,12 @@ function pbTypeChanged() {
   } else if (type === 'spacer') {
     fields.innerHTML = `<div class="form-group"><label>Height (px)</label><input type="number" id="pb_content" placeholder="40" value="${fields._val||'40'}" min="4" max="400"></div>`;
   }
+}
+
+function pbApplyWidthPreset(val) {
+  const w = document.getElementById('pb_width');
+  if (!w) return;
+  if (val && val !== 'custom') { w.value = val; }
 }
 
 function pbToggleClickFields() {

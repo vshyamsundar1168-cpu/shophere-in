@@ -385,13 +385,25 @@ footer{background:var(--sec);color:#94a3b8;margin-top:60px}
 #trackOrderModal .modal{max-width:460px}
 
 /* ── PB ZONES ─────────────────────────────────────────────────────────────── */
-.pb-zone{width:100%}
-.pb-zone:not(:empty){padding:16px 0}
-/* Multiple blocks in same zone automatically go side by side */
-.pb-zone{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
-.pb-block-wrap{flex:1;min-width:200px;max-width:100%}
-/* Single block in zone takes full width */
-.pb-zone:has(.pb-block-wrap:only-child) .pb-block-wrap{flex:none;width:100%}
+.pb-zone{
+  width:100%;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:flex-start;
+  padding:0;
+  box-sizing:border-box;
+}
+.pb-zone:not(:empty){padding:12px 0}
+/* Default: each block takes full width unless width% is set on it */
+.pb-block-wrap{
+  flex:1 1 100%;
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+  position:relative;
+  overflow:visible;
+}
 /* Image zoom — wrapper scales on hover, no overflow clip */
 .pb-img-zoom{
   display:inline-block;
