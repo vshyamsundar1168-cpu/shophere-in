@@ -489,7 +489,6 @@ function getFiltered(){
   let list=[...allProducts];
   if(currentCat&&currentCat!=='all') list=list.filter(p=>p.category===currentCat);
   if(currentBadge) list=list.filter(p=>p.badge===currentBadge);
-  // #9 broad search
   if(currentQ){
     const q=currentQ;
     list=list.filter(p=>(p.name+' '+p.brand+' '+p.category+' '+(p.description||'')).toLowerCase().includes(q));
@@ -497,19 +496,62 @@ function getFiltered(){
   if(currentMin>0) list=list.filter(p=>p.price>=currentMin);
   if(currentMax<Infinity) list=list.filter(p=>p.price<=currentMax);
   if(currentRating>0) list=list.filter(p=>p.rating>=currentRating);
-  if(currentSort==='price_asc') list.sort((a,b)=>a.price-b.price);
+  // Sort
+  if(currentSort==='price_asc')  list.sort((a,b)=>a.price-b.price);
   else if(currentSort==='price_desc') list.sort((a,b)=>b.price-a.price);
-  else if(currentSort==='rating') list.sort((a,b)=>b.rating-a.rating);
+  else if(currentSort==='rating')     list.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  else if(currentSort==='name_asc')   list.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(currentSort==='newest')     list.sort((a,b)=>(b.id||0)-(a.id||0));
+  else if(currentSort==='discount')   list.sort((a,b)=>{
+    const da=a.originalPrice>a.price?Math.round((1-a.price/a.originalPrice)*100):0;
+    const db=b.originalPrice>b.price?Math.round((1-b.price/b.originalPrice)*100):0;
+    return db-da;
+  });
   return list;
 }
+
 function renderProducts(){
-  const list=getFiltered(), start=(page-1)*PAGE, slice=list.slice(start,start+PAGE);
-  const rc=document.getElementById('resultCount'); if(rc) rc.textContent=`Showing ${list.length} product${list.length!==1?'s':''}`;
-  const pg=document.getElementById('productsGrid');
-  pg.innerHTML=slice.length?slice.map(p=>productCard(p)).join(''):'<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">🔍</div><p>No products found</p></div>';
-  const pag=document.getElementById('pagination');
-  const pages=Math.ceil(list.length/PAGE);
-  pag.innerHTML=pages<=1?'':[...Array(pages)].map((_,i)=>`<button class="page-btn${i+1===page?' active':''}" onclick="goPage(${i+1})">${i+1}</button>`).join('');
+  const list = getFiltered();
+  const pg   = document.getElementById('productsGrid');
+  const rc   = document.getElementById('resultCount');
+  if(rc) rc.textContent = `${list.length} product${list.length!==1?'s':''}`;
+
+  if(!list.length){
+    pg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">🔍</div><p>No products found</p></div>';
+    return;
+  }
+
+  // If filtering/searching a specific category or badge — show flat grid (no grouping)
+  const showGrouped = (currentCat==='all' || !currentCat) && !currentBadge && !currentQ;
+
+  if(showGrouped){
+    // Group by category and show each as a section
+    const catMap = {};
+    list.forEach(p=>{
+      const c = p.category || 'Other';
+      if(!catMap[c]) catMap[c]=[];
+      catMap[c].push(p);
+    });
+    const cats = Object.keys(catMap).sort();
+    pg.innerHTML = cats.map(cat=>`
+      <div class="cat-section" id="cat-${cat.replace(/\s+/g,'-')}">
+        <div class="cat-section-hdr">
+          <h3 class="cat-section-title">${cat}</h3>
+          <span class="cat-section-count">${catMap[cat].length} product${catMap[cat].length!==1?'s':''}</span>
+          <button onclick="filterCat('${cat.replace(/'/g,"\\'")}');setSortSelect()" class="cat-see-all">See All →</button>
+        </div>
+        <div class="products-grid">${catMap[cat].map(p=>productCard(p)).join('')}</div>
+      </div>`
+    ).join('');
+  } else {
+    // Flat grid for single category / search / badge
+    pg.innerHTML = `<div class="products-grid">${list.map(p=>productCard(p)).join('')}</div>`;
+  }
+}
+
+function setSortSelect(){
+  const sel = document.getElementById('sortSelect');
+  if(sel) sel.value = currentSort||'';
 }
 function goPage(p2){page=p2;renderProducts();window.scrollTo({top:document.getElementById('productsSection').offsetTop-80,behavior:'smooth'});}
 function showProducts(){document.getElementById('homeSections').style.display='none';document.getElementById('productsSection').style.display='block';}

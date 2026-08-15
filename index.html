@@ -235,20 +235,23 @@
     <div class="shop-main">
       <div class="sec-hdr">
         <h2 id="sectionTitle">All Products</h2>
-        <select style="padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none" onchange="setSortAndFilter(this.value)">
-          <option value="">Sort By</option>
-          <option value="price_asc">Price: Low → High</option>
-          <option value="price_desc">Price: High → Low</option>
-          <option value="rating">Top Rated</option>
-        </select>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="sortSelect" style="padding:7px 12px;border:1.5px solid var(--b);border-radius:7px;font-size:.84rem;outline:none;background:#fff" onchange="setSortAndFilter(this.value)">
+            <option value="">🔀 Sort By</option>
+            <option value="price_asc">💰 Price: Low → High</option>
+            <option value="price_desc">💰 Price: High → Low</option>
+            <option value="rating">⭐ Top Rated</option>
+            <option value="name_asc">🔤 Name: A → Z</option>
+            <option value="newest">🆕 Newest First</option>
+            <option value="discount">🏷️ Best Discount</option>
+          </select>
+        </div>
       </div>
       <div class="result-count" id="resultCount"></div>
       <!-- Page Builder blocks: PRODUCTS zone -->
       <div id="pb-zone-products" class="pb-zone"></div>
-      <div class="products-grid" id="productsGrid"></div>
-      <!-- Page Builder blocks: SIDEBAR zone -->
+      <div id="productsGrid"></div>
       <div id="pb-zone-sidebar" class="pb-zone" style="margin-top:16px"></div>
-      <div class="pagination" id="pagination"></div>
     </div>
   </div>
 </div>
