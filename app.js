@@ -240,7 +240,29 @@ function buildFAQ(text){
 async function loadCategories(){
   try{
     allCategories=await fetch('/api/categories').then(r=>r.json());
-    // Nav bar — no emojis, larger text, clean categories
+
+    // ── Preferred nav order ───────────────────────────────────────────────────
+    const NAV_ORDER = [
+      'Women','Woman','Women\'s','Ladies',
+      'Men','Man','Men\'s','Gents',
+      'Kids','Children','Boy','Girl',
+      'Fashion','Clothing','Apparel','Dress','Sarees','Kurta',
+      'Home','Home & Office','Home/Office Needs','Kitchen','Furniture','Bedding',
+      'Electronics','Mobiles','Computers','Laptops','Gadgets',
+      'Vehicle','Vehicle Accessories','Automobile','Auto',
+      'Uncategorized','Others','Miscellaneous'
+    ];
+    const navOrderLower = NAV_ORDER.map(x=>x.toLowerCase());
+    const sortedCats = [...allCategories].sort((a,b)=>{
+      const ai = navOrderLower.findIndex(x=>a.toLowerCase().includes(x)||x.includes(a.toLowerCase()));
+      const bi = navOrderLower.findIndex(x=>b.toLowerCase().includes(x)||x.includes(b.toLowerCase()));
+      const aIdx = ai === -1 ? 999 : ai;
+      const bIdx = bi === -1 ? 999 : bi;
+      if(aIdx !== bIdx) return aIdx - bIdx;
+      return a.localeCompare(b); // alphabetical for same group
+    });
+
+    // Nav bar — ordered, no emojis
     const nav=document.getElementById('mainNav');
     if(nav) nav.innerHTML=
       `<a onclick="goHome();setActive(this)" class="active">Home</a>`+
@@ -248,13 +270,12 @@ async function loadCategories(){
       `<a onclick="filterBadge('deal');setActive(this)">Deals</a>`+
       `<a onclick="filterBadge('new');setActive(this)">New Arrivals</a>`+
       `<a onclick="filterBadge('hot');setActive(this)">Hot Picks</a>`+
-      allCategories.map(c=>`<a onclick="filterCat('${c.replace(/'/g,"\\'")}');setActive(this)">${c}</a>`).join('');
+      sortedCats.map(c=>`<a onclick="filterCat('${c.replace(/'/g,"\\'")}');setActive(this)">${c}</a>`).join('');
 
-    // Category strip below hero — colored boxes, no emojis
+    // Category strip below hero — same sorted order
     const cs=document.getElementById('catStrip');
     if(cs){
-      const [bg,color]=Object.entries(CAT_COLORS);
-      cs.innerHTML=allCategories.map(c=>{
+      cs.innerHTML=sortedCats.map(c=>{
         const [cbg,cc]=CAT_COLORS[c]||CAT_COLORS.default;
         return `<div class="cat-chip" onclick="filterCat('${c.replace(/'/g,"\\'")}');window.scrollTo(0,0)" style="--chip-bg:${cbg};--chip-color:${cc}">
           <div class="cat-chip-icon" style="background:${cbg};color:${cc}">${CAT_ICONS[c]||'🛍️'}</div>
@@ -266,16 +287,16 @@ async function loadCategories(){
     // Keep catGrid for backward compatibility (hidden now)
     const cg=document.getElementById('catGrid');
     if(cg) cg.style.display='none';
-    // Search dropdown
+    // Search dropdown — sorted order
     const sel=document.getElementById('searchCat');
-    if(sel) sel.innerHTML='<option value="all">All</option>'+allCategories.map(c=>`<option value="${c}">${c}</option>`).join('');
-    // Filter sidebar
+    if(sel) sel.innerHTML='<option value="all">All</option>'+sortedCats.map(c=>`<option value="${c}">${c}</option>`).join('');
+    // Filter sidebar — sorted order
     const fc=document.getElementById('filterCats');
     if(fc) fc.innerHTML=`<label><input type="checkbox" value="all" checked onchange="catCkChange(this)"> All Categories</label>`+
-      allCategories.map(c=>`<label><input type="checkbox" value="${c}" onchange="catCkChange(this)"> ${c}</label>`).join('');
-    // Footer shop links #18
+      sortedCats.map(c=>`<label><input type="checkbox" value="${c}" onchange="catCkChange(this)"> ${c}</label>`).join('');
+    // Footer shop links — sorted order
     const fl=document.getElementById('footerCatLinks');
-    if(fl) fl.innerHTML=allCategories.slice(0,6).map(c=>`<li><a onclick="filterCat('${c.replace(/'/g,"\\'")}');window.scrollTo(0,0)" style="cursor:pointer">${c}</a></li>`).join('');
+    if(fl) fl.innerHTML=sortedCats.slice(0,6).map(c=>`<li><a onclick="filterCat('${c.replace(/'/g,"\\'")}');window.scrollTo(0,0)" style="cursor:pointer">${c}</a></li>`).join('');
   }catch(e){console.warn('Categories failed',e.message);}
 }
 
@@ -532,7 +553,16 @@ function renderProducts(){
       if(!catMap[c]) catMap[c]=[];
       catMap[c].push(p);
     });
-    const cats = Object.keys(catMap).sort();
+    const cats = Object.keys(catMap).sort((a,b)=>{
+      // Use same NAV_ORDER logic for consistent section order
+      const navOL = ['women','men','kids','fashion','clothing','sarees','kurta','home','kitchen','electronics','mobiles','vehicle','auto','uncategorized','others'];
+      const ai = navOL.findIndex(x=>a.toLowerCase().includes(x)||x.includes(a.toLowerCase()));
+      const bi = navOL.findIndex(x=>b.toLowerCase().includes(x)||x.includes(b.toLowerCase()));
+      const aIdx = ai === -1 ? 999 : ai;
+      const bIdx = bi === -1 ? 999 : bi;
+      if(aIdx !== bIdx) return aIdx - bIdx;
+      return a.localeCompare(b);
+    });
     pg.innerHTML = cats.map(cat=>`
       <div class="cat-section" id="cat-${cat.replace(/\s+/g,'-')}">
         <div class="cat-section-hdr">
