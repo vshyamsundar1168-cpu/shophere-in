@@ -262,15 +262,25 @@ async function loadCategories(){
       return a.localeCompare(b); // alphabetical for same group
     });
 
-    // Nav bar — ordered, no emojis
-    const nav=document.getElementById('mainNav');
-    if(nav) nav.innerHTML=
-      `<a onclick="goHome();setActive(this)" class="active">Home</a>`+
-      `<a onclick="filterCat('all');setActive(this)">All Products</a>`+
-      `<a onclick="filterBadge('deal');setActive(this)">Deals</a>`+
-      `<a onclick="filterBadge('new');setActive(this)">New Arrivals</a>`+
-      `<a onclick="filterBadge('hot');setActive(this)">Hot Picks</a>`+
-      sortedCats.map(c=>`<a onclick="filterCat('${c.replace(/'/g,"\\'")}');setActive(this)">${c}</a>`).join('');
+    // Nav bar — append dynamic DB categories AFTER the fixed hardcoded items in index.html
+    // Fixed items: Home, All Products, Women, Men, Kids, Fashion, Deals, Home/Office, Electricals, Electronics, Vehicle Accessories
+    const fixedCats = ['all','women','man','men','kids','fashion','deal','home','home/office','electricals','electronics','vehicle'];
+    const nav = document.getElementById('mainNav');
+    if(nav){
+      // Only add categories not already shown as fixed nav items
+      const extraCats = sortedCats.filter(c=>{
+        const cl = c.toLowerCase();
+        return !fixedCats.some(f => cl.includes(f) || f.includes(cl));
+      });
+      if(extraCats.length){
+        extraCats.forEach(c=>{
+          const a = document.createElement('a');
+          a.textContent = c;
+          a.onclick = ()=>{ filterCat(c); setActive(a); };
+          nav.appendChild(a);
+        });
+      }
+    }
 
     // Category strip below hero — same sorted order
     const cs=document.getElementById('catStrip');
