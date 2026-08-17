@@ -616,7 +616,24 @@ async function openProduct(id){
   const stars='★'.repeat(Math.round(p.rating||0))+'☆'.repeat(5-Math.round(p.rating||0));
   const out=p.stock===0;
   const mainImg=p.images&&p.images.length?`<img id="mgMainImg" src="${p.images[0].url}" style="width:100%;height:100%;object-fit:contain;cursor:zoom-in" onclick="openLightbox('${p.images[0].url}')">`:`<span style="font-size:6rem">📦</span>`;
-  const thumbs=p.images&&p.images.length>1?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${p.images.map((img,i)=>`<div style="width:60px;height:60px;border-radius:8px;overflow:hidden;border:2px solid ${i===0?'var(--p)':'var(--b)'};cursor:pointer;flex-shrink:0" onclick="mgShow('${img.url}',this)"><img src="${img.url}" style="width:100%;height:100%;object-fit:cover"></div>`).join('')}</div>`:'';
+
+  // Show first 3 thumbnails, then "+ N more colours/designs" expandable
+  const THUMB_SHOW = 3;
+  let thumbs = '';
+  if(p.images && p.images.length > 1){
+    const allImgs = p.images;
+    const visibleImgs = allImgs.slice(0, THUMB_SHOW);
+    const hiddenImgs  = allImgs.slice(THUMB_SHOW);
+    const thumbItem = (img, i) => `<div class="mg-thumb" style="width:60px;height:60px;border-radius:8px;overflow:hidden;border:2px solid ${i===0?'var(--p)':'var(--b)'};cursor:pointer;flex-shrink:0;transition:border-color .2s" onclick="mgShow('${img.url}',this)"><img src="${img.url}" style="width:100%;height:100%;object-fit:cover" loading="lazy"></div>`;
+    const visibleHtml = visibleImgs.map((img,i)=>thumbItem(img,i)).join('');
+    const hiddenHtml  = hiddenImgs.length
+      ? `<div id="mgExtraThumb" style="display:none;display:flex;flex-wrap:wrap;gap:8px;display:none">${hiddenImgs.map((img,i)=>thumbItem(img,i+THUMB_SHOW)).join('')}</div>
+         <button onclick="mgToggleMore(this)" style="margin-top:6px;padding:5px 14px;background:#fff7ed;color:var(--p);border:1.5px solid var(--p);border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap">
+           🎨 +${hiddenImgs.length} more colours/designs ▾
+         </button>`
+      : '';
+    thumbs = `<div style="margin-top:8px"><div style="display:flex;gap:8px;flex-wrap:wrap">${visibleHtml}</div>${hiddenHtml}</div>`;
+  }
   const videos=p.videos&&p.videos.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">📹 Videos</h4>${p.videos.map(v=>`<video src="${v.url}" controls style="width:100%;border-radius:8px;margin-bottom:6px;max-height:200px"></video>`).join('')}</div>`:'';
   const audios=p.audios&&p.audios.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">🎵 Audio</h4>${p.audios.map(a=>`<div style="margin-bottom:8px"><div style="font-size:.73rem;color:var(--m);margin-bottom:3px">${a.name}</div><audio src="${a.url}" controls style="width:100%"></audio></div>`).join('')}</div>`:'';
   let revs=[]; try{revs=await fetch(`/api/reviews/${id}`).then(r=>r.json());}catch(e){}
@@ -657,7 +674,26 @@ async function openProduct(id){
 }
 let _revStar=5;
 function setRevStar(n){_revStar=n;[1,2,3,4,5].forEach(i=>{const b=document.getElementById('rstar'+i);if(b)b.style.color=i<=n?'#f59e0b':'#d1d5db';});}
-function mgShow(url,el){const img=document.getElementById('mgMainImg');if(img){img.src=url;img.onclick=()=>openLightbox(url);}document.querySelectorAll('[onclick^="mgShow"]').forEach(x=>x.parentElement&&(x.parentElement.style.borderColor='var(--b)'));el.style.borderColor='var(--p)';}
+function mgShow(url,el){const img=document.getElementById('mgMainImg');if(img){img.src=url;img.onclick=()=>openLightbox(url);}document.querySelectorAll('.mg-thumb').forEach(x=>{x.style.borderColor='var(--b)';});el.style.borderColor='var(--p)';}
+
+function mgToggleMore(btn){
+  const extra = document.getElementById('mgExtraThumb');
+  if(!extra) return;
+  const isHidden = extra.style.display === 'none' || extra.style.display === '';
+  if(isHidden){
+    extra.style.display = 'flex';
+    extra.style.flexWrap = 'wrap';
+    extra.style.gap = '8px';
+    extra.style.marginTop = '8px';
+    // Count remaining
+    const count = extra.querySelectorAll('.mg-thumb').length;
+    btn.innerHTML = `🎨 Hide extra colours/designs ▴`;
+  } else {
+    extra.style.display = 'none';
+    const count = extra.querySelectorAll('.mg-thumb').length;
+    btn.innerHTML = `🎨 +${count} more colours/designs ▾`;
+  }
+}
 function openLightbox(url){const lb=document.getElementById('lightbox');document.getElementById('lightboxImg').src=url;lb.style.display='flex';}
 async function submitReview(pid){
   const name=document.getElementById('rv_name').value.trim(), text=document.getElementById('rv_text').value.trim();
