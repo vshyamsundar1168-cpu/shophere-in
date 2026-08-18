@@ -953,11 +953,7 @@ if(window.location.protocol==='file:'){
       <!-- Text -->
       <div class="form-row">
         <div class="form-group"><label>Headline</label><input id="bn_head" placeholder="Sale 50% Off!"></div>
-        <div class="form-group"><label>Subtitle</label><input id="bn_sub" placeholder="Limited time offer"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Button Label</label><input id="bn_cta" placeholder="Shop Now"></div>
-        <div class="form-group"><label>Button Link</label><input id="bn_url" placeholder="https:// or /products"></div>
+        <div class="form-group"><label>Subtitle / Description (multiple lines supported)</label><textarea id="bn_sub" placeholder="Add more details here...&#10;Multiple lines work fine." style="min-height:70px;font-size:.84rem;resize:vertical"></textarea></div>
       </div>
 
       <hr style="margin:14px 0;border-color:var(--b)">
@@ -2627,7 +2623,7 @@ async function loadBanners() {
 function openAddBannerModal() {
   bnEditId = null;
   document.getElementById('bnModalTitle').textContent = 'Add Banner';
-  ['bn_head','bn_sub','bn_cta','bn_url','bn_grad','bn_imgUrl','bn_height'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['bn_head','bn_sub','bn_grad','bn_imgUrl','bn_height'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('bn_img').value='';
   document.getElementById('bn_imgPrev').style.display='none';
   document.getElementById('bn_mode').value='slider';
@@ -2649,8 +2645,6 @@ function openEditBannerModal(id) {
   const sv=(elId,val)=>{const e=document.getElementById(elId);if(e)e.value=val||'';};
   sv('bn_head',      b.headline);
   sv('bn_sub',       b.subtitle);
-  sv('bn_cta',       b.ctaLabel);
-  sv('bn_url',       b.ctaUrl);
   sv('bn_grad',      b.bgGradient);
   sv('bn_imgUrl',    b.bgImage);
   sv('bn_height',    b.bannerHeight);
@@ -2697,8 +2691,6 @@ async function saveBannerModal() {
       const obj = {
         headline:     head,
         subtitle:     document.getElementById('bn_sub').value || '',
-        ctaLabel:     document.getElementById('bn_cta').value || 'Shop Now',
-        ctaUrl:       document.getElementById('bn_url').value || '#',
         bgGradient:   document.getElementById('bn_grad').value || existing.bgGradient || 'linear-gradient(135deg,#1e293b,#f97316)',
         displayMode:  document.getElementById('bn_mode').value,
         widthPct:     document.getElementById('bn_width').value,
@@ -2740,8 +2732,6 @@ async function saveBannerModal() {
       fd.append('bgGradient',   document.getElementById('bn_grad').value || 'linear-gradient(135deg,#1e293b,#f97316)');
       fd.append('headline',     head);
       fd.append('subtitle',     document.getElementById('bn_sub').value || '');
-      fd.append('ctaLabel',     document.getElementById('bn_cta').value || 'Shop Now');
-      fd.append('ctaUrl',       document.getElementById('bn_url').value || '#');
       fd.append('displayMode',  document.getElementById('bn_mode').value);
       fd.append('widthPct',     document.getElementById('bn_width').value);
       fd.append('bannerHeight', document.getElementById('bn_height').value || '');

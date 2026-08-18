@@ -372,10 +372,9 @@ async function loadBanners(){
         const showText = b.textSize !== 'none';
         return `<div class="${animClass}" style="${gradBg};position:relative;flex:0 0 ${w}%;width:${w}%;height:${h};overflow:hidden;cursor:pointer;" onclick="filterCat('all');showProducts()">
           ${imgTag}
-          ${showText?`<div class="slide-overlay" style="align-items:${aPos};text-align:${b.textPosition==='center'?'center':b.textPosition==='right'?'right':'left'};color:${tClr};padding:16px 20px;justify-content:center">
-            <h2 style="font-size:${hSz};font-weight:800;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.5);line-height:1.2">${b.headline||''}</h2>
-            ${b.subtitle?`<p style="font-size:clamp(.7rem,.9rem,.9rem);margin-bottom:10px;opacity:.9">${b.subtitle}</p>`:''}
-            ${b.ctaLabel?`<button class="hero-cta" style="font-size:.82rem;padding:8px 20px">${b.ctaLabel}</button>`:''}
+          ${showText?`<div class="slide-overlay" style="align-items:${aPos};text-align:${b.textPosition==='center'?'center':b.textPosition==='right'?'right':'left'};color:${tClr};padding:16px 20px;justify-content:flex-end">
+            <h2 style="font-size:${hSz};font-weight:800;margin-bottom:4px;text-shadow:0 2px 8px rgba(0,0,0,.6);line-height:1.3;white-space:normal;word-break:break-word">${b.headline||''}</h2>
+            ${b.subtitle?`<p style="font-size:clamp(.7rem,.88rem,.9rem);margin-bottom:0;opacity:.95;white-space:normal;word-break:break-word;line-height:1.5">${b.subtitle}</p>`:''}
           </div>`:''}
         </div>`;
       }).join('');
@@ -410,9 +409,8 @@ async function loadBanners(){
       return `<div class="hero-slide ${animClass}" style="${hasBg?'background:#1e293b':'background:'+gradBg}">
         ${imgTag}
         ${showText?`<div class="slide-overlay" style="align-items:${aItems};text-align:${tAlign};color:${tClr}">
-          <h1 style="font-size:clamp(.9rem,${hSz},${hSz})">${b.headline||''}</h1>
-          <p>${b.subtitle||''}</p>
-          <button onclick="filterCat('all')" class="hero-cta">${b.ctaLabel||'Shop Now'} →</button>
+          <h1 style="font-size:clamp(.85rem,${hSz},${hSz})">${b.headline||''}</h1>
+          ${b.subtitle?`<p>${b.subtitle}</p>`:''}
         </div>`:''}
       </div>`;
     }).join('');
