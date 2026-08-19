@@ -106,7 +106,7 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   object-position:center;
   display:block;
 }
-/* Text overlay — sits at bottom of banner, does NOT cover full image */
+/* Text overlay — sits at bottom of banner, NO background shade */
 .hero-slide .slide-overlay{
   position:absolute;
   left:0;right:0;bottom:0;
@@ -114,10 +114,9 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   flex-direction:column;
   align-items:center;
   text-align:center;
-  padding:20px clamp(12px,4vw,48px) 28px;
+  padding:16px clamp(12px,4vw,48px) 24px;
   color:#fff;
-  /* gradient only at bottom — image visible above */
-  background:linear-gradient(transparent, rgba(0,0,0,.55) 40%, rgba(0,0,0,.72));
+  background:none;
   z-index:1;
 }
 .hero-slide .slide-overlay h1{
