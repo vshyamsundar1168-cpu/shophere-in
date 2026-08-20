@@ -982,12 +982,53 @@ document.addEventListener('DOMContentLoaded',async()=>{
   await loadBanners();
   await loadProducts();
   loadPageBlocks();
+  trackVisit(); // record this visit silently
 
   // Re-fetch page blocks when user returns to this tab (after admin changes)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') loadPageBlocks();
   });
 });
+
+// ── Visitor Tracking ──────────────────────────────────────────────────────────
+function trackVisit(){
+  try{
+    // Generate a session ID stored in sessionStorage so we only count once per session
+    let sid = sessionStorage.getItem('sh_sid');
+    if(!sid){ sid = Math.random().toString(36).slice(2)+Date.now().toString(36); sessionStorage.setItem('sh_sid',sid); }
+    else return; // already tracked this session
+
+    // Detect device
+    const ua = navigator.userAgent;
+    const device = /Mobi|Android|iPhone|iPad/i.test(ua) ? 'mobile'
+                 : /Tablet|iPad/i.test(ua) ? 'tablet' : 'desktop';
+
+    // Detect OS
+    const os = /Windows/i.test(ua)?'Windows'
+             : /Mac/i.test(ua)?'Mac'
+             : /Android/i.test(ua)?'Android'
+             : /iPhone|iPad/i.test(ua)?'iOS'
+             : /Linux/i.test(ua)?'Linux':'Other';
+
+    // Detect browser
+    const browser = /Edg/i.test(ua)?'Edge'
+                  : /Chrome/i.test(ua)?'Chrome'
+                  : /Firefox/i.test(ua)?'Firefox'
+                  : /Safari/i.test(ua)?'Safari'
+                  : /MSIE|Trident/i.test(ua)?'IE':'Other';
+
+    fetch('/api/visit',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        page: window.location.pathname,
+        ref:  document.referrer || '',
+        ua, device, os, browser,
+        sessionId: sid,
+      })
+    }).catch(()=>{}); // silent fail — never block the store
+  }catch(e){}
+}
 
 
 // extra popup

@@ -116,6 +116,7 @@ if(window.location.protocol==='file:'){
     <div class="sb-item" onclick="showTab('customcols',this)">🗃️ Custom Columns</div>
     <div class="sb-item" onclick="showTab('import',this)">📥 Supplier Import</div>
     <div class="sb-item" onclick="showTab('extension',this)">🧩 Push Extension</div>
+    <div class="sb-item" onclick="showTab('analytics',this)">📊 Analytics</div>
     <div class="sb-item sb-bottom"><a href="/" target="_blank">🏠 View Store</a></div>
     <div class="sb-item sb-bottom" style="font-size:.6rem;color:#475569;padding:8px 20px">v8bd1c8c</div>
   </div>
@@ -1415,6 +1416,67 @@ if(window.location.protocol==='file:'){
   </div>
 </div>
 
+<!-- ANALYTICS TAB -->
+<div id="tab-analytics" class="tab">
+  <div class="sec">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">📊 Visitor Analytics</h3>
+        <p style="font-size:.8rem;color:var(--m)">See who is visiting your store, from where, and on what device.</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="analyticsRange" onchange="loadAnalytics()" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
+          <option value="1">Today</option>
+          <option value="7" selected>Last 7 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="365">Last 1 year</option>
+        </select>
+        <button onclick="loadAnalytics()" style="padding:8px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <!-- Live + summary cards -->
+    <div id="analyticsCards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
+      <div class="stat-card"><div class="stat-icon" style="color:#22c55e">🟢</div><div><div class="stat-val" id="an-live">—</div><div class="stat-lbl">Live Now (5 min)</div></div></div>
+      <div class="stat-card"><div class="stat-icon">👁️</div><div><div class="stat-val" id="an-today">—</div><div class="stat-lbl">Today's Visits</div></div></div>
+      <div class="stat-card"><div class="stat-icon">📅</div><div><div class="stat-val" id="an-recent">—</div><div class="stat-lbl">Period Visits</div></div></div>
+      <div class="stat-card"><div class="stat-icon">🌍</div><div><div class="stat-val" id="an-total">—</div><div class="stat-lbl">Total All Time</div></div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+      <!-- Countries -->
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
+        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">🌍 Top Countries</h4>
+        <div id="an-countries"><p style="color:var(--m);font-size:.82rem">Loading...</p></div>
+      </div>
+      <!-- Cities -->
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
+        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">🏙️ Top Cities</h4>
+        <div id="an-cities"><p style="color:var(--m);font-size:.82rem">Loading...</p></div>
+      </div>
+      <!-- Devices -->
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
+        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">📱 Devices</h4>
+        <div id="an-devices"><p style="color:var(--m);font-size:.82rem">Loading...</p></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <!-- Browsers -->
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
+        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">🌐 Browsers</h4>
+        <div id="an-browsers"><p style="color:var(--m);font-size:.82rem">Loading...</p></div>
+      </div>
+      <!-- Daily chart -->
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
+        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">📈 Daily Visits</h4>
+        <div id="an-daily" style="display:flex;gap:4px;align-items:flex-end;height:100px;overflow-x:auto"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- SUPPLIER IMPORT TAB -->
 <div id="tab-import" class="tab">
   <div class="sec">
@@ -1642,7 +1704,8 @@ function showTab(name, el) {
   if (name === 'discounts')   loadDiscounts();
   if (name === 'customcols')  loadCustomCols();
   if (name === 'import')      initImportTab();
-  if (name === 'extension')   {} // static page, no init needed
+  if (name === 'extension')   {}
+  if (name === 'analytics')   loadAnalytics();
 }
 
 // ── Global categories store ───────────────────────────────────────────────────
@@ -4693,6 +4756,63 @@ function adminLogout() {
 </script>
 
 <script>
+// ── Analytics ─────────────────────────────────────────────────────────────────
+async function loadAnalytics() {
+  try {
+    const range = document.getElementById('analyticsRange')?.value || '7';
+    const res   = await fetch('/api/analytics?range='+range);
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const d = await res.json();
+
+    // Summary cards
+    document.getElementById('an-live').textContent   = d.live   ?? '—';
+    document.getElementById('an-today').textContent  = d.today  ?? '—';
+    document.getElementById('an-recent').textContent = d.recent ?? '—';
+    document.getElementById('an-total').textContent  = d.total  ?? '—';
+
+    // Helper to render a bar list
+    const barList = (items, labelKey, total) => items.length
+      ? items.map(x=>{
+          const pct = total ? Math.round((x.count/total)*100) : 0;
+          return `<div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px">
+              <span style="font-weight:600">${x[labelKey]||'Unknown'}</span>
+              <span style="color:var(--m)">${x.count} (${pct}%)</span>
+            </div>
+            <div style="background:#f1f5f9;border-radius:4px;height:7px">
+              <div style="background:var(--p);height:7px;border-radius:4px;width:${pct}%;transition:width .4s"></div>
+            </div>
+          </div>`;
+        }).join('')
+      : '<p style="color:var(--m);font-size:.82rem">No data yet</p>';
+
+    document.getElementById('an-countries').innerHTML = barList(d.countries||[], '_id', d.recent);
+    document.getElementById('an-cities').innerHTML    = barList((d.cities||[]).map(x=>({...x,_id:(x._id||'?')+(x.country?', '+x.country:'')})), '_id', d.recent);
+    document.getElementById('an-devices').innerHTML   = barList(d.devices||[], '_id', d.recent);
+    document.getElementById('an-browsers').innerHTML  = barList(d.browsers||[], '_id', d.recent);
+
+    // Daily chart — simple bar chart
+    const daily = d.daily || [];
+    const maxV  = daily.reduce((m,x)=>Math.max(m,x.count),1);
+    const chartEl = document.getElementById('an-daily');
+    if(chartEl){
+      chartEl.innerHTML = daily.length
+        ? daily.map(x=>{
+            const h = Math.max(6, Math.round((x.count/maxV)*90));
+            const label = x._id ? x._id.slice(5) : ''; // MM-DD
+            return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:24px;max-width:40px" title="${x._id}: ${x.count} visits">
+              <span style="font-size:.6rem;color:var(--m)">${x.count}</span>
+              <div style="background:var(--p);width:100%;border-radius:3px 3px 0 0;height:${h}px;transition:height .4s"></div>
+              <span style="font-size:.6rem;color:var(--m);white-space:nowrap">${label}</span>
+            </div>`;
+          }).join('')
+        : '<p style="color:var(--m);font-size:.82rem">No data yet</p>';
+    }
+  } catch(e) {
+    toast('❌ Analytics error: ' + e.message);
+  }
+}
+
 // ── Inventory ─────────────────────────────────────────────────────────────────
 let invProds = [];
 

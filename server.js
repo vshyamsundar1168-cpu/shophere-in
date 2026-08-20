@@ -1231,6 +1231,67 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    // ── VISITOR TRACKING ─────────────────────────────────────────────────────
+    // POST /api/visit — record a page visit
+    if(p==='/api/visit' && m==='POST'){
+      try{
+        const body = await readJSON(req);
+        const db = getDb();
+        const ip = (req.headers['x-forwarded-for']||req.socket.remoteAddress||'').split(',')[0].trim();
+        // Get location from free IP API (non-blocking)
+        let country='Unknown', city='Unknown', region='';
+        try{
+          const geoRes = await new Promise((resolve,reject)=>{
+            https.get(`https://ipapi.co/${ip}/json/`,r=>{
+              let d=''; r.on('data',c=>d+=c); r.on('end',()=>resolve(d));
+            }).on('error',reject);
+          });
+          const geo = JSON.parse(geoRes);
+          if(geo&&!geo.error){ country=geo.country_name||'Unknown'; city=geo.city||'Unknown'; region=geo.region||''; }
+        }catch(e){}
+        const visit = {
+          ip,
+          country, city, region,
+          page:    body.page    || '/',
+          ref:     body.ref     || '',
+          ua:      body.ua      || '',
+          device:  body.device  || 'desktop',
+          os:      body.os      || '',
+          browser: body.browser || '',
+          ts:      new Date().toISOString(),
+          sessionId: body.sessionId || '',
+        };
+        await db.collection('visits').insertOne(visit);
+        return sendJSON(res,200,{ok:true});
+      }catch(e){ return sendJSON(res,200,{ok:false}); }
+    }
+
+    // GET /api/analytics — get visit stats for admin
+    if(p==='/api/analytics' && m==='GET'){
+      const db = getDb();
+      const range = sp.get('range')||'7'; // days
+      const since = new Date(Date.now() - parseInt(range)*24*60*60*1000).toISOString();
+      const [total, recent, countries, cities, devices, pages, browsers, today, live] = await Promise.all([
+        db.collection('visits').countDocuments(),
+        db.collection('visits').countDocuments({ ts:{ $gte:since } }),
+        db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$country',count:{$sum:1}}},{$sort:{count:-1}},{$limit:10}]).toArray(),
+        db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$city',country:{$first:'$country'},count:{$sum:1}}},{$sort:{count:-1}},{$limit:10}]).toArray(),
+        db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$device',count:{$sum:1}}},{$sort:{count:-1}}]).toArray(),
+        db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$page',count:{$sum:1}}},{$sort:{count:-1}},{$limit:5}]).toArray(),
+        db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$browser',count:{$sum:1}}},{$sort:{count:-1}},{$limit:5}]).toArray(),
+        db.collection('visits').countDocuments({ ts:{ $gte: new Date(new Date().setHours(0,0,0,0)).toISOString() } }),
+        // "Live" = visited in last 5 minutes
+        db.collection('visits').countDocuments({ ts:{ $gte: new Date(Date.now()-5*60*1000).toISOString() } }),
+      ]);
+      // Daily visits for chart (last N days)
+      const dailyAgg = await db.collection('visits').aggregate([
+        {$match:{ts:{$gte:since}}},
+        {$group:{_id:{$substr:['$ts',0,10]},count:{$sum:1}}},
+        {$sort:{_id:1}}
+      ]).toArray();
+      return sendJSON(res,200,{ total, recent, today, live, countries, cities, devices, pages, browsers, daily:dailyAgg });
+    }
+
     // ── UPLOADED FILES ────────────────────────────────────────────────────────
     if(p.startsWith('/uploads/')){
       const fn=decodeURIComponent(p.slice(9));
