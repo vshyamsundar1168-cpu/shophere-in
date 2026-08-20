@@ -1237,21 +1237,46 @@ const server = http.createServer(async (req, res) => {
       try{
         const body = await readJSON(req);
         const db = getDb();
-        const ip = (req.headers['x-forwarded-for']||req.socket.remoteAddress||'').split(',')[0].trim();
-        // Get location from free IP API (non-blocking)
-        let country='Unknown', city='Unknown', region='';
-        try{
-          const geoRes = await new Promise((resolve,reject)=>{
-            https.get(`https://ipapi.co/${ip}/json/`,r=>{
-              let d=''; r.on('data',c=>d+=c); r.on('end',()=>resolve(d));
-            }).on('error',reject);
+        const ip = (req.headers['x-forwarded-for']||req.socket.remoteAddress||'').split(',')[0].trim()
+                     .replace('::ffff:','').replace('::1','127.0.0.1');
+
+        // Try multiple geo APIs with timeout
+        let country='Unknown', city='Unknown', region='', countryCode='';
+        const geoTimeout = 4000;
+        const tryGeo = async (url, parse) => {
+          return new Promise((res2)=>{
+            const req2 = https.get(url, r=>{
+              let d=''; r.on('data',c=>d+=c); r.on('end',()=>{ try{ res2(parse(JSON.parse(d))); }catch(e){ res2(null); } });
+            });
+            req2.setTimeout(geoTimeout, ()=>{ req2.destroy(); res2(null); });
+            req2.on('error',()=>res2(null));
           });
-          const geo = JSON.parse(geoRes);
-          if(geo&&!geo.error){ country=geo.country_name||'Unknown'; city=geo.city||'Unknown'; region=geo.region||''; }
-        }catch(e){}
+        };
+
+        // Skip geo for local/private IPs
+        const isPrivate = ip==='127.0.0.1'||ip.startsWith('192.168.')||ip.startsWith('10.')||ip.startsWith('172.');
+        if(!isPrivate && ip){
+          // Try ip-api.com first (generous free tier, no key needed)
+          const geo1 = await tryGeo(
+            `http://ip-api.com/json/${ip}?fields=status,country,countryCode,regionName,city`,
+            d=> d.status==='success' ? {country:d.country,city:d.city,region:d.regionName,countryCode:d.countryCode} : null
+          );
+          if(geo1){ country=geo1.country||'Unknown'; city=geo1.city||'Unknown'; region=geo1.region||''; countryCode=geo1.countryCode||''; }
+          else {
+            // Fallback: ipapi.co
+            const geo2 = await tryGeo(
+              `https://ipapi.co/${ip}/json/`,
+              d=> (!d.error) ? {country:d.country_name,city:d.city,region:d.region,countryCode:d.country} : null
+            );
+            if(geo2){ country=geo2.country||'Unknown'; city=geo2.city||'Unknown'; region=geo2.region||''; countryCode=geo2.countryCode||''; }
+          }
+        } else if(isPrivate){
+          country='Local/India'; city='Localhost'; region='Dev';
+        }
+
         const visit = {
           ip,
-          country, city, region,
+          country, city, region, countryCode,
           page:    body.page    || '/',
           ref:     body.ref     || '',
           ua:      body.ua      || '',
@@ -1263,33 +1288,35 @@ const server = http.createServer(async (req, res) => {
         };
         await db.collection('visits').insertOne(visit);
         return sendJSON(res,200,{ok:true});
-      }catch(e){ return sendJSON(res,200,{ok:false}); }
+      }catch(e){ console.warn('[visit]',e.message); return sendJSON(res,200,{ok:false}); }
     }
 
     // GET /api/analytics — get visit stats for admin
     if(p==='/api/analytics' && m==='GET'){
       const db = getDb();
-      const range = sp.get('range')||'7'; // days
+      const range = sp.get('range')||'7';
       const since = new Date(Date.now() - parseInt(range)*24*60*60*1000).toISOString();
-      const [total, recent, countries, cities, devices, pages, browsers, today, live] = await Promise.all([
+      const [total, recent, countries, cities, devices, browsers, today, live, recentVisitors] = await Promise.all([
         db.collection('visits').countDocuments(),
         db.collection('visits').countDocuments({ ts:{ $gte:since } }),
         db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$country',count:{$sum:1}}},{$sort:{count:-1}},{$limit:10}]).toArray(),
-        db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$city',country:{$first:'$country'},count:{$sum:1}}},{$sort:{count:-1}},{$limit:10}]).toArray(),
+        db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:{city:'$city',country:'$country'},count:{$sum:1}}},{$sort:{count:-1}},{$limit:10}]).toArray(),
         db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$device',count:{$sum:1}}},{$sort:{count:-1}}]).toArray(),
-        db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$page',count:{$sum:1}}},{$sort:{count:-1}},{$limit:5}]).toArray(),
         db.collection('visits').aggregate([{$match:{ts:{$gte:since}}},{$group:{_id:'$browser',count:{$sum:1}}},{$sort:{count:-1}},{$limit:5}]).toArray(),
         db.collection('visits').countDocuments({ ts:{ $gte: new Date(new Date().setHours(0,0,0,0)).toISOString() } }),
-        // "Live" = visited in last 5 minutes
         db.collection('visits').countDocuments({ ts:{ $gte: new Date(Date.now()-5*60*1000).toISOString() } }),
+        // Last 50 visitors with details
+        db.collection('visits').find({},{projection:{_id:0,ip:1,country:1,city:1,region:1,countryCode:1,device:1,os:1,browser:1,ts:1,page:1,ref:1}})
+          .sort({ts:-1}).limit(50).toArray(),
       ]);
-      // Daily visits for chart (last N days)
       const dailyAgg = await db.collection('visits').aggregate([
         {$match:{ts:{$gte:since}}},
         {$group:{_id:{$substr:['$ts',0,10]},count:{$sum:1}}},
         {$sort:{_id:1}}
       ]).toArray();
-      return sendJSON(res,200,{ total, recent, today, live, countries, cities, devices, pages, browsers, daily:dailyAgg });
+      return sendJSON(res,200,{ total, recent, today, live, countries,
+        cities: cities.map(x=>({_id:`${x._id.city||'?'}, ${x._id.country||'?'}`, count:x.count})),
+        devices, browsers, daily:dailyAgg, recentVisitors });
     }
 
     // ── UPLOADED FILES ────────────────────────────────────────────────────────

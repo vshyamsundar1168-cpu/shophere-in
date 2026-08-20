@@ -1474,6 +1474,20 @@ if(window.location.protocol==='file:'){
         <div id="an-daily" style="display:flex;gap:4px;align-items:flex-end;height:100px;overflow-x:auto"></div>
       </div>
     </div>
+
+    <!-- Recent visitors table -->
+    <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-top:16px">
+      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">🕐 Recent Visitors (Last 50)</h4>
+      <div style="overflow-x:auto">
+        <table class="data-table" id="an-recent-table">
+          <thead><tr>
+            <th>Time</th><th>Country</th><th>City / Region</th>
+            <th>Device</th><th>OS</th><th>Browser</th><th>IP</th><th>Referrer</th>
+          </tr></thead>
+          <tbody id="an-visitors"><tr><td colspan="8" style="text-align:center;color:var(--m);padding:20px">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -4799,7 +4813,7 @@ async function loadAnalytics() {
       chartEl.innerHTML = daily.length
         ? daily.map(x=>{
             const h = Math.max(6, Math.round((x.count/maxV)*90));
-            const label = x._id ? x._id.slice(5) : ''; // MM-DD
+            const label = x._id ? x._id.slice(5) : '';
             return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:24px;max-width:40px" title="${x._id}: ${x.count} visits">
               <span style="font-size:.6rem;color:var(--m)">${x.count}</span>
               <div style="background:var(--p);width:100%;border-radius:3px 3px 0 0;height:${h}px;transition:height .4s"></div>
@@ -4807,6 +4821,31 @@ async function loadAnalytics() {
             </div>`;
           }).join('')
         : '<p style="color:var(--m);font-size:.82rem">No data yet</p>';
+    }
+
+    // Recent visitors table
+    const visitors = d.recentVisitors || [];
+    const deviceIcon = dev => dev==='mobile'?'📱':dev==='tablet'?'📟':'💻';
+    const tbody = document.getElementById('an-visitors');
+    if(tbody){
+      tbody.innerHTML = visitors.length
+        ? visitors.map(v=>{
+            const flag = v.countryCode ? `https://flagcdn.com/20x15/${v.countryCode.toLowerCase()}.png` : '';
+            const time = v.ts ? new Date(v.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+            const loc  = [v.city,v.region].filter(x=>x&&x!=='Unknown'&&x!=='null').join(', ') || '—';
+            const ref  = v.ref ? `<a href="${v.ref}" target="_blank" style="color:var(--p);font-size:.72rem;max-width:120px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.ref.replace(/https?:\/\//,'').substring(0,30)}</a>` : 'Direct';
+            return `<tr>
+              <td style="font-size:.76rem;white-space:nowrap">${time}</td>
+              <td style="font-size:.78rem">${flag?`<img src="${flag}" style="vertical-align:middle;margin-right:5px" onerror="this.style.display='none'">`:''}${v.country||'Unknown'}</td>
+              <td style="font-size:.78rem">${loc}</td>
+              <td style="font-size:.78rem">${deviceIcon(v.device)} ${v.device||'—'}</td>
+              <td style="font-size:.78rem">${v.os||'—'}</td>
+              <td style="font-size:.78rem">${v.browser||'—'}</td>
+              <td style="font-size:.72rem;color:var(--m);font-family:monospace">${(v.ip||'').substring(0,15)}</td>
+              <td style="font-size:.76rem">${ref}</td>
+            </tr>`;
+          }).join('')
+        : '<tr><td colspan="8" style="text-align:center;color:var(--m);padding:20px">No visitors recorded yet. Analytics starts tracking after this deploy.</td></tr>';
     }
   } catch(e) {
     toast('❌ Analytics error: ' + e.message);
