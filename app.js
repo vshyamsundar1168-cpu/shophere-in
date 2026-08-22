@@ -993,40 +993,45 @@ document.addEventListener('DOMContentLoaded',async()=>{
 // ── Visitor Tracking ──────────────────────────────────────────────────────────
 function trackVisit(){
   try{
-    // Generate a session ID stored in sessionStorage so we only count once per session
     let sid = sessionStorage.getItem('sh_sid');
     if(!sid){ sid = Math.random().toString(36).slice(2)+Date.now().toString(36); sessionStorage.setItem('sh_sid',sid); }
     else return; // already tracked this session
 
-    // Detect device
     const ua = navigator.userAgent;
     const device = /Mobi|Android|iPhone|iPad/i.test(ua) ? 'mobile'
                  : /Tablet|iPad/i.test(ua) ? 'tablet' : 'desktop';
+    const os = /Windows/i.test(ua)?'Windows':/Mac/i.test(ua)?'Mac':/Android/i.test(ua)?'Android':/iPhone|iPad/i.test(ua)?'iOS':/Linux/i.test(ua)?'Linux':'Other';
+    const browser = /Edg/i.test(ua)?'Edge':/Chrome/i.test(ua)?'Chrome':/Firefox/i.test(ua)?'Firefox':/Safari/i.test(ua)?'Safari':'Other';
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const lang = navigator.language || '';
+    const screen = `${window.screen.width}x${window.screen.height}`;
 
-    // Detect OS
-    const os = /Windows/i.test(ua)?'Windows'
-             : /Mac/i.test(ua)?'Mac'
-             : /Android/i.test(ua)?'Android'
-             : /iPhone|iPad/i.test(ua)?'iOS'
-             : /Linux/i.test(ua)?'Linux':'Other';
+    const baseData = {
+      page: window.location.pathname,
+      ref:  document.referrer || '',
+      ua, device, os, browser, tz, lang, screen,
+      sessionId: sid,
+    };
 
-    // Detect browser
-    const browser = /Edg/i.test(ua)?'Edge'
-                  : /Chrome/i.test(ua)?'Chrome'
-                  : /Firefox/i.test(ua)?'Firefox'
-                  : /Safari/i.test(ua)?'Safari'
-                  : /MSIE|Trident/i.test(ua)?'IE':'Other';
-
-    fetch('/api/visit',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        page: window.location.pathname,
-        ref:  document.referrer || '',
-        ua, device, os, browser,
-        sessionId: sid,
+    // Client-side geo lookup using ipinfo.io (HTTPS, free, reliable)
+    // This runs in the browser so no Render HTTPS restriction
+    fetch('https://ipinfo.io/json?token=')
+      .then(r=>r.ok?r.json():null)
+      .then(geo=>{
+        if(geo){
+          baseData.country     = geo.country  || '';
+          baseData.city        = geo.city      || '';
+          baseData.region      = geo.region    || '';
+          baseData.countryName = geo.org       || '';
+          baseData.ip          = geo.ip        || '';
+          baseData.loc         = geo.loc       || ''; // lat,lng
+        }
+        return fetch('/api/visit',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(baseData) });
       })
-    }).catch(()=>{}); // silent fail — never block the store
+      .catch(()=>{
+        // If geo fails, still track without location
+        fetch('/api/visit',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(baseData) }).catch(()=>{});
+      });
   }catch(e){}
 }
 

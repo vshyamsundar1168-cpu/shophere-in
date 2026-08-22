@@ -1232,59 +1232,31 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ── VISITOR TRACKING ─────────────────────────────────────────────────────
-    // POST /api/visit — record a page visit
+    // POST /api/visit — record a page visit (geo done client-side)
     if(p==='/api/visit' && m==='POST'){
       try{
         const body = await readJSON(req);
         const db = getDb();
-        const ip = (req.headers['x-forwarded-for']||req.socket.remoteAddress||'').split(',')[0].trim()
-                     .replace('::ffff:','').replace('::1','127.0.0.1');
-
-        // Try multiple geo APIs with timeout
-        let country='Unknown', city='Unknown', region='', countryCode='';
-        const geoTimeout = 4000;
-        const tryGeo = async (url, parse) => {
-          return new Promise((res2)=>{
-            const req2 = https.get(url, r=>{
-              let d=''; r.on('data',c=>d+=c); r.on('end',()=>{ try{ res2(parse(JSON.parse(d))); }catch(e){ res2(null); } });
-            });
-            req2.setTimeout(geoTimeout, ()=>{ req2.destroy(); res2(null); });
-            req2.on('error',()=>res2(null));
-          });
-        };
-
-        // Skip geo for local/private IPs
-        const isPrivate = ip==='127.0.0.1'||ip.startsWith('192.168.')||ip.startsWith('10.')||ip.startsWith('172.');
-        if(!isPrivate && ip){
-          // Try ip-api.com first (generous free tier, no key needed)
-          const geo1 = await tryGeo(
-            `http://ip-api.com/json/${ip}?fields=status,country,countryCode,regionName,city`,
-            d=> d.status==='success' ? {country:d.country,city:d.city,region:d.regionName,countryCode:d.countryCode} : null
-          );
-          if(geo1){ country=geo1.country||'Unknown'; city=geo1.city||'Unknown'; region=geo1.region||''; countryCode=geo1.countryCode||''; }
-          else {
-            // Fallback: ipapi.co
-            const geo2 = await tryGeo(
-              `https://ipapi.co/${ip}/json/`,
-              d=> (!d.error) ? {country:d.country_name,city:d.city,region:d.region,countryCode:d.country} : null
-            );
-            if(geo2){ country=geo2.country||'Unknown'; city=geo2.city||'Unknown'; region=geo2.region||''; countryCode=geo2.countryCode||''; }
-          }
-        } else if(isPrivate){
-          country='Local/India'; city='Localhost'; region='Dev';
-        }
-
+        // IP from header (in case client didn't send it)
+        const serverIp = (req.headers['x-forwarded-for']||req.socket.remoteAddress||'').split(',')[0].trim().replace('::ffff:','');
         const visit = {
-          ip,
-          country, city, region, countryCode,
-          page:    body.page    || '/',
-          ref:     body.ref     || '',
-          ua:      body.ua      || '',
-          device:  body.device  || 'desktop',
-          os:      body.os      || '',
-          browser: body.browser || '',
-          ts:      new Date().toISOString(),
-          sessionId: body.sessionId || '',
+          ip:          body.ip      || serverIp || '',
+          country:     body.country || 'Unknown',
+          city:        body.city    || 'Unknown',
+          region:      body.region  || '',
+          countryCode: body.country || '',  // ipinfo returns 2-letter code in 'country'
+          loc:         body.loc     || '',
+          page:        body.page    || '/',
+          ref:         body.ref     || '',
+          ua:          body.ua      || '',
+          device:      body.device  || 'desktop',
+          os:          body.os      || '',
+          browser:     body.browser || '',
+          tz:          body.tz      || '',
+          lang:        body.lang    || '',
+          screen:      body.screen  || '',
+          ts:          new Date().toISOString(),
+          sessionId:   body.sessionId || '',
         };
         await db.collection('visits').insertOne(visit);
         return sendJSON(res,200,{ok:true});
