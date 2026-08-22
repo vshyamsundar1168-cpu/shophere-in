@@ -1418,75 +1418,34 @@ if(window.location.protocol==='file:'){
 
 <!-- ANALYTICS TAB -->
 <div id="tab-analytics" class="tab">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <div class="sec">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-      <div>
-        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">📊 Visitor Analytics</h3>
-        <p style="font-size:.8rem;color:var(--m)">See who is visiting your store, from where, and on what device.</p>
-      </div>
+      <div><h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">?? Visitor Analytics</h3><p style="font-size:.8rem;color:var(--m)">Live visitor map � see who visited, from where, device, referrer.</p></div>
       <div style="display:flex;gap:8px;align-items:center">
-        <select id="analyticsRange" onchange="loadAnalytics()" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
-          <option value="1">Today</option>
-          <option value="7" selected>Last 7 days</option>
-          <option value="30">Last 30 days</option>
-          <option value="90">Last 90 days</option>
-          <option value="365">Last 1 year</option>
-        </select>
-        <button onclick="loadAnalytics()" style="padding:8px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">🔄 Refresh</button>
+        <select id="analyticsRange" onchange="loadAnalytics()" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="1">Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365" selected>All Time</option></select>
+        <button onclick="loadAnalytics()" style="padding:8px 16px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">?? Refresh</button>
       </div>
     </div>
-
-    <!-- Live + summary cards -->
-    <div id="analyticsCards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
-      <div class="stat-card"><div class="stat-icon" style="color:#22c55e">🟢</div><div><div class="stat-val" id="an-live">—</div><div class="stat-lbl">Live Now (5 min)</div></div></div>
-      <div class="stat-card"><div class="stat-icon">👁️</div><div><div class="stat-val" id="an-today">—</div><div class="stat-lbl">Today's Visits</div></div></div>
-      <div class="stat-card"><div class="stat-icon">📅</div><div><div class="stat-val" id="an-recent">—</div><div class="stat-lbl">Period Visits</div></div></div>
-      <div class="stat-card"><div class="stat-icon">🌍</div><div><div class="stat-val" id="an-total">—</div><div class="stat-lbl">Total All Time</div></div></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
+      <div class="stat-card"><div class="stat-icon" style="color:#22c55e">??</div><div><div class="stat-val" id="an-live">�</div><div class="stat-lbl">Live Now</div></div></div>
+      <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-today">�</div><div class="stat-lbl">Today</div></div></div>
+      <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-recent">�</div><div class="stat-lbl">This Period</div></div></div>
+      <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-total">�</div><div class="stat-lbl">All Time</div></div></div>
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
-      <!-- Countries -->
-      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
-        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">🌍 Top Countries</h4>
-        <div id="an-countries"><p style="color:var(--m);font-size:.82rem">Loading...</p></div>
-      </div>
-      <!-- Cities -->
-      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
-        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">🏙️ Top Cities</h4>
-        <div id="an-cities"><p style="color:var(--m);font-size:.82rem">Loading...</p></div>
-      </div>
-      <!-- Devices -->
-      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
-        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">📱 Devices</h4>
-        <div id="an-devices"><p style="color:var(--m);font-size:.82rem">Loading...</p></div>
-      </div>
+    <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:20px">
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:10px">??? Visitor Locations Map</h4>
+      <div id="an-map" style="height:420px;border-radius:8px;z-index:0"></div>
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <!-- Browsers -->
-      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
-        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">🌐 Browsers</h4>
-        <div id="an-browsers"><p style="color:var(--m);font-size:.82rem">Loading...</p></div>
-      </div>
-      <!-- Daily chart -->
-      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
-        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">📈 Daily Visits</h4>
-        <div id="an-daily" style="display:flex;gap:4px;align-items:flex-end;height:100px;overflow-x:auto"></div>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">?? Countries</h4><div id="an-countries"></div></div>
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">??? Cities</h4><div id="an-cities"></div></div>
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">?? Devices</h4><div id="an-devices"></div><hr style="margin:8px 0;border-color:var(--b)"><div id="an-browsers"></div></div>
     </div>
-
-    <!-- Recent visitors table -->
-    <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-top:16px">
-      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">🕐 Recent Visitors (Last 50)</h4>
-      <div style="overflow-x:auto">
-        <table class="data-table" id="an-recent-table">
-          <thead><tr>
-            <th>Time</th><th>Country</th><th>City / Region</th>
-            <th>Device</th><th>OS</th><th>Browser</th><th>Timezone</th><th>IP</th><th>Referrer</th>
-          </tr></thead>
-          <tbody id="an-visitors"><tr><td colspan="8" style="text-align:center;color:var(--m);padding:20px">Loading...</td></tr></tbody>
-        </table>
-      </div>
+    <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:20px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">?? Daily Visits</h4><div id="an-daily" style="display:flex;gap:3px;align-items:flex-end;height:120px;overflow-x:auto;padding-bottom:4px"></div></div>
+    <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
+      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">?? Recent Visitors (Last 50)</h4>
+      <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Time</th><th>Country</th><th>City</th><th>Device</th><th>OS</th><th>Browser</th><th>Timezone</th><th>IP</th><th>From</th></tr></thead><tbody id="an-visitors"><tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">Click Refresh to load</td></tr></tbody></table></div>
     </div>
   </div>
 </div>
@@ -4771,9 +4730,11 @@ function adminLogout() {
 
 <script>
 // ── Analytics ─────────────────────────────────────────────────────────────────
+let _anMap = null; // keep map instance to avoid re-init
+
 async function loadAnalytics() {
   try {
-    const range = document.getElementById('analyticsRange')?.value || '7';
+    const range = document.getElementById('analyticsRange')?.value || '365';
     const res   = await fetch('/api/analytics?range='+range);
     if (!res.ok) throw new Error('HTTP '+res.status);
     const d = await res.json();
@@ -4784,77 +4745,159 @@ async function loadAnalytics() {
     document.getElementById('an-recent').textContent = d.recent ?? '—';
     document.getElementById('an-total').textContent  = d.total  ?? '—';
 
-    // Helper to render a bar list
+    // ── Leaflet map ──────────────────────────────────────────────────────────
+    const visitors = d.recentVisitors || [];
+    const mapEl = document.getElementById('an-map');
+    if(mapEl && typeof L !== 'undefined'){
+      // Init map once
+      if(!_anMap){
+        _anMap = L.map('an-map').setView([20, 78], 4); // default center India
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+          attribution:'© OpenStreetMap',maxZoom:18
+        }).addTo(_anMap);
+      } else {
+        _anMap.eachLayer(l=>{ if(l instanceof L.Marker||l instanceof L.CircleMarker) _anMap.removeLayer(l); });
+      }
+      // City coordinate lookup (for common Indian + world cities)
+      const CITY_COORDS = {
+        'Hyderabad':[17.385,78.4867],'Mumbai':[19.0760,72.8777],'Delhi':[28.6139,77.2090],
+        'Bangalore':[12.9716,77.5946],'Chennai':[13.0827,80.2707],'Kolkata':[22.5726,88.3639],
+        'Pune':[18.5204,73.8567],'Ahmedabad':[23.0225,72.5714],'Surat':[21.1702,72.8311],
+        'Jaipur':[26.9124,75.7873],'Lucknow':[26.8467,80.9462],'Kanpur':[26.4499,80.3319],
+        'Nagpur':[21.1458,79.0882],'Visakhapatnam':[17.6868,83.2185],'Indore':[22.7196,75.8577],
+        'Bhopal':[23.2599,77.4126],'Patna':[25.5941,85.1376],'Vadodara':[22.3072,73.1812],
+        'Coimbatore':[11.0168,76.9558],'Kochi':[9.9312,76.2673],'Vijayawada':[16.5062,80.6480],
+        'New Delhi':[28.6139,77.2090],'Bengaluru':[12.9716,77.5946],
+        // World cities
+        'New York':[40.7128,-74.0060],'London':[51.5074,-0.1278],'Dubai':[25.2048,55.2708],
+        'Singapore':[1.3521,103.8198],'Sydney':[-33.8688,151.2093],'Tokyo':[35.6762,139.6503],
+        'Toronto':[43.6532,-79.3832],'Berlin':[52.5200,13.4050],'Paris':[48.8566,2.3522],
+        'Riyadh':[24.7136,46.6753],'Doha':[25.2854,51.5310],'Kuwait City':[29.3759,47.9774],
+      };
+      // Country center fallback
+      const COUNTRY_COORDS = {
+        'IN':[20.5937,78.9629],'US':[37.0902,-95.7129],'GB':[55.3781,-3.4360],
+        'AE':[23.4241,53.8478],'SG':[1.3521,103.8198],'AU':[-25.2744,133.7751],
+        'CA':[56.1304,-106.3468],'DE':[51.1657,10.4515],'FR':[46.2276,2.2137],
+        'JP':[36.2048,138.2529],'SA':[23.8859,45.0792],'QA':[25.3548,51.1839],
+        'KW':[29.3117,47.4818],'PK':[30.3753,69.3451],'BD':[23.6850,90.3563],
+        'LK':[7.8731,80.7718],'NP':[28.3949,84.1240],'MY':[4.2105,101.9758],
+      };
+      const markers = {};
+      visitors.filter(v=>v.country&&v.country!=='Unknown').forEach(v=>{
+        const cityCoords = CITY_COORDS[v.city] || CITY_COORDS[v.region];
+        const coords = cityCoords || COUNTRY_COORDS[v.country];
+        if(!coords) return;
+        const key = coords.join(',');
+        if(!markers[key]){
+          markers[key] = { coords, count:0, visits:[] };
+        }
+        markers[key].count++;
+        markers[key].visits.push(v);
+      });
+      const CC2 = {'IN':'🇮🇳','US':'🇺🇸','GB':'🇬🇧','AE':'🇦🇪','SG':'🇸🇬','AU':'🇦🇺','CA':'🇨🇦','DE':'🇩🇪','FR':'🇫🇷','JP':'🇯🇵','SA':'🇸🇦','QA':'🇶🇦','KW':'🇰🇼','PK':'🇵🇰','BD':'🇧🇩','LK':'🇱🇰','NP':'🇳🇵','MY':'🇲🇾'};
+      const countryNames = {'IN':'India','US':'USA','GB':'UK','AE':'UAE','SG':'Singapore','AU':'Australia','CA':'Canada','DE':'Germany','FR':'France','JP':'Japan','SA':'Saudi Arabia','QA':'Qatar','KW':'Kuwait','PK':'Pakistan','BD':'Bangladesh','LK':'Sri Lanka','NP':'Nepal','MY':'Malaysia'};
+      Object.values(markers).forEach(m=>{
+        const r = Math.min(30, 8 + m.count * 4);
+        const v0 = m.visits[0];
+        const flag = CC2[v0.country]||'🌍';
+        const cname = countryNames[v0.country]||v0.country||'';
+        const loc = v0.city&&v0.city!=='Unknown' ? v0.city+', '+cname : cname;
+        const circle = L.circleMarker(m.coords,{
+          radius: r, fillColor:'#f97316', color:'#fff', weight:2,
+          fillOpacity:0.85
+        }).addTo(_anMap);
+        const popupContent = `<div style="font-size:.82rem;min-width:160px">
+          <strong>${flag} ${loc}</strong><br>
+          <span style="color:#64748b">${m.count} visitor${m.count>1?'s':''}</span><br>
+          ${m.visits.slice(0,3).map(v=>`<div style="margin-top:4px;font-size:.75rem">💻 ${v.device||'?'} · ${v.browser||'?'} · ${v.ts?new Date(v.ts).toLocaleDateString('en-IN'):''}</div>`).join('')}
+          ${m.count>3?`<div style="color:#94a3b8;font-size:.72rem">+${m.count-3} more</div>`:''}
+        </div>`;
+        circle.bindPopup(popupContent);
+      });
+      // Auto-fit map to markers
+      const allCoords = Object.values(markers).map(m=>m.coords);
+      if(allCoords.length > 0){
+        const bounds = L.latLngBounds(allCoords);
+        _anMap.fitBounds(bounds.pad(0.2));
+      }
+      setTimeout(()=>_anMap.invalidateSize(),200);
+    } else if(mapEl && typeof L === 'undefined'){
+      mapEl.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#64748b;font-size:.84rem">⏳ Loading map library...</div>';
+      // Load Leaflet JS dynamically
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => loadAnalytics();
+      document.head.appendChild(script);
+      return;
+    }
+
+    // ── Bar lists ────────────────────────────────────────────────────────────
     const barList = (items, labelKey, total) => items.length
       ? items.map(x=>{
           const pct = total ? Math.round((x.count/total)*100) : 0;
           return `<div style="margin-bottom:8px">
-            <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px">
+            <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:3px">
               <span style="font-weight:600">${x[labelKey]||'Unknown'}</span>
               <span style="color:var(--m)">${x.count} (${pct}%)</span>
             </div>
             <div style="background:#f1f5f9;border-radius:4px;height:7px">
-              <div style="background:var(--p);height:7px;border-radius:4px;width:${pct}%;transition:width .4s"></div>
+              <div style="background:var(--p);height:7px;border-radius:4px;width:${pct}%"></div>
             </div>
           </div>`;
         }).join('')
-      : '<p style="color:var(--m);font-size:.82rem">No data yet</p>';
+      : '<p style="color:var(--m);font-size:.8rem">No data</p>';
 
-    // Country code map for display (ipinfo returns 2-letter codes)
-    const CC = {'IN':'🇮🇳 India','US':'🇺🇸 USA','GB':'🇬🇧 UK','AE':'🇦🇪 UAE','SG':'🇸🇬 Singapore','AU':'🇦🇺 Australia','CA':'🇨🇦 Canada','DE':'🇩🇪 Germany','FR':'🇫🇷 France','JP':'🇯🇵 Japan','SA':'🇸🇦 Saudi Arabia','QA':'🇶🇦 Qatar','KW':'🇰🇼 Kuwait','PK':'🇵🇰 Pakistan','BD':'🇧🇩 Bangladesh','LK':'🇱🇰 Sri Lanka','NP':'🇳🇵 Nepal','MY':'🇲🇾 Malaysia','Unknown':'❓ Unknown'};
-    const ccName = c => CC[c] || c;
-
-    document.getElementById('an-countries').innerHTML = barList((d.countries||[]).map(x=>({...x,_id:ccName(x._id)})), '_id', d.recent);
+    const CC = {'IN':'🇮🇳 India','US':'🇺🇸 USA','GB':'🇬🇧 UK','AE':'🇦🇪 UAE','SG':'🇸🇬 Singapore','AU':'🇦🇺 Australia','CA':'🇨🇦 Canada','DE':'🇩🇪 Germany','FR':'🇫🇷 France','JP':'🇯🇵 Japan','SA':'🇸🇦 Saudi Arabia','Unknown':'❓ Unknown'};
+    document.getElementById('an-countries').innerHTML = barList((d.countries||[]).map(x=>({...x,_id:CC[x._id]||x._id})), '_id', d.recent);
     document.getElementById('an-cities').innerHTML    = barList(d.cities||[], '_id', d.recent);
     document.getElementById('an-devices').innerHTML   = barList(d.devices||[], '_id', d.recent);
     document.getElementById('an-browsers').innerHTML  = barList(d.browsers||[], '_id', d.recent);
 
-    // Daily chart — simple bar chart
+    // Daily chart
     const daily = d.daily || [];
-    const maxV  = daily.reduce((m,x)=>Math.max(m,x.count),1);
+    const maxV = daily.reduce((m,x)=>Math.max(m,x.count),1);
     const chartEl = document.getElementById('an-daily');
     if(chartEl){
       chartEl.innerHTML = daily.length
         ? daily.map(x=>{
-            const h = Math.max(6, Math.round((x.count/maxV)*90));
-            const label = x._id ? x._id.slice(5) : '';
-            return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:24px;max-width:40px" title="${x._id}: ${x.count} visits">
-              <span style="font-size:.6rem;color:var(--m)">${x.count}</span>
-              <div style="background:var(--p);width:100%;border-radius:3px 3px 0 0;height:${h}px;transition:height .4s"></div>
-              <span style="font-size:.6rem;color:var(--m);white-space:nowrap">${label}</span>
+            const h = Math.max(6,Math.round((x.count/maxV)*110));
+            return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;min-width:22px;max-width:38px" title="${x._id}: ${x.count}">
+              <span style="font-size:.58rem;color:var(--m)">${x.count}</span>
+              <div style="background:var(--p);width:100%;border-radius:3px 3px 0 0;height:${h}px"></div>
+              <span style="font-size:.58rem;color:var(--m);white-space:nowrap">${(x._id||'').slice(5)}</span>
             </div>`;
           }).join('')
-        : '<p style="color:var(--m);font-size:.82rem">No data yet</p>';
+        : '<p style="color:var(--m);font-size:.8rem">No data</p>';
     }
 
     // Recent visitors table
-    const visitors = d.recentVisitors || [];
     const deviceIcon = dev => dev==='mobile'?'📱':dev==='tablet'?'📟':'💻';
     const CC2 = {'IN':'🇮🇳','US':'🇺🇸','GB':'🇬🇧','AE':'🇦🇪','SG':'🇸🇬','AU':'🇦🇺','CA':'🇨🇦','DE':'🇩🇪','FR':'🇫🇷','JP':'🇯🇵','SA':'🇸🇦','QA':'🇶🇦','KW':'🇰🇼','PK':'🇵🇰','BD':'🇧🇩','LK':'🇱🇰','NP':'🇳🇵','MY':'🇲🇾'};
-    const countryNames = {'IN':'India','US':'USA','GB':'UK','AE':'UAE','SG':'Singapore','AU':'Australia','CA':'Canada','DE':'Germany','FR':'France','JP':'Japan','SA':'Saudi Arabia','QA':'Qatar','KW':'Kuwait','PK':'Pakistan','BD':'Bangladesh','LK':'Sri Lanka','NP':'Nepal','MY':'Malaysia'};
+    const countryNames2 = {'IN':'India','US':'USA','GB':'UK','AE':'UAE','SG':'Singapore','AU':'Australia','CA':'Canada','DE':'Germany','FR':'France','JP':'Japan','SA':'Saudi Arabia','QA':'Qatar','KW':'Kuwait','PK':'Pakistan','BD':'Bangladesh','LK':'Sri Lanka','NP':'Nepal','MY':'Malaysia'};
     const tbody = document.getElementById('an-visitors');
     if(tbody){
       tbody.innerHTML = visitors.length
         ? visitors.map((v,i)=>{
             const time = v.ts ? new Date(v.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
             const flag = CC2[v.country]||'🌍';
-            const cname = countryNames[v.country]||v.country||'Unknown';
-            const loc  = [v.city,v.region].filter(x=>x&&x!=='Unknown'&&x!=='null'&&x).join(', ') || '—';
-            const ref  = v.ref ? `<span style="color:var(--p);font-size:.72rem" title="${v.ref}">${v.ref.replace(/https?:\/\/(www\.)?/,'').substring(0,25)||'Direct'}</span>` : '<span style="color:var(--m);font-size:.72rem">Direct</span>';
-            const isLive = (Date.now() - new Date(v.ts).getTime()) < 5*60*1000;
-            return `<tr style="${i%2===0?'':'background:#fafafa'}">
-              <td style="font-size:.76rem;white-space:nowrap">${isLive?'<span style="color:#22c55e;font-weight:700">🟢 Now</span> ':''}${time}</td>
-              <td style="font-size:.82rem;font-weight:600">${flag} ${cname}</td>
-              <td style="font-size:.78rem">${loc}</td>
-              <td style="font-size:.78rem">${deviceIcon(v.device)} ${v.device||'—'}</td>
-              <td style="font-size:.76rem">${v.os||'—'}</td>
-              <td style="font-size:.76rem">${v.browser||'—'}</td>
-              <td style="font-size:.7rem;color:var(--m)">${v.tz||'—'}</td>
-              <td style="font-size:.7rem;color:var(--m);font-family:monospace">${(v.ip||'').substring(0,15)}</td>
-              <td style="font-size:.74rem">${ref}</td>
+            const cname = countryNames2[v.country]||v.country||'Unknown';
+            const loc = [v.city,v.region].filter(x=>x&&x!=='Unknown'&&x).join(', ')||'—';
+            const ref = v.ref ? `<span title="${v.ref}" style="color:var(--p);font-size:.7rem">${v.ref.replace(/https?:\/\/(www\.)?/,'').substring(0,22)}</span>` : '<span style="color:var(--m);font-size:.7rem">Direct</span>';
+            const isLive = (Date.now()-new Date(v.ts).getTime()) < 5*60*1000;
+            return `<tr>
+              <td style="font-size:.74rem;white-space:nowrap">${isLive?'<b style="color:#22c55e">🟢</b> ':''}${time}</td>
+              <td style="font-size:.8rem;font-weight:600">${flag} ${cname}</td>
+              <td style="font-size:.76rem">${loc}</td>
+              <td style="font-size:.76rem">${deviceIcon(v.device)} ${v.device||'—'}</td>
+              <td style="font-size:.74rem">${v.os||'—'}</td>
+              <td style="font-size:.74rem">${v.browser||'—'}</td>
+              <td style="font-size:.68rem;color:var(--m)">${v.tz||'—'}</td>
+              <td style="font-size:.68rem;color:var(--m);font-family:monospace">${(v.ip||'').substring(0,14)}</td>
+              <td>${ref}</td>
             </tr>`;
           }).join('')
-        : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">No visitors yet. Data starts recording after this deploy.</td></tr>';
+        : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">No visitors yet — data records after first store visit.</td></tr>';
     }
   } catch(e) {
     toast('❌ Analytics error: ' + e.message);
