@@ -1424,7 +1424,8 @@ if(window.location.protocol==='file:'){
       <div><h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">?? Visitor Analytics</h3><p style="font-size:.8rem;color:var(--m)">Live visitor map � see who visited, from where, device, referrer.</p></div>
       <div style="display:flex;gap:8px;align-items:center">
         <select id="analyticsRange" onchange="loadAnalytics()" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="1">Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365" selected>All Time</option></select>
-        <button onclick="loadAnalytics()" style="padding:8px 16px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">?? Refresh</button>
+        <button onclick="loadAnalytics()" style="padding:8px 16px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">Refresh</button>
+        <button onclick="reGeoVisits()" style="padding:8px 14px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer" title="Re-lookup old Unknown locations">Fix Unknown</button>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
@@ -4730,6 +4731,16 @@ function adminLogout() {
 
 <script>
 // ── Analytics ─────────────────────────────────────────────────────────────────
+async function reGeoVisits(){
+  toast('Looking up unknown locations... please wait');
+  try{
+    const r = await fetch('/api/analytics/regeo',{method:'POST'});
+    const d = await r.json();
+    toast('Fixed ' + d.fixed + ' of ' + d.total + ' unknown visits. Click Refresh to see.');
+    if(d.fixed > 0) setTimeout(loadAnalytics, 1000);
+  }catch(e){ toast('Error: '+e.message); }
+}
+
 let _anMap = null; // keep map instance to avoid re-init
 
 async function loadAnalytics() {
@@ -4808,9 +4819,9 @@ async function loadAnalytics() {
           fillOpacity:0.85
         }).addTo(_anMap);
         const popupContent = `<div style="font-size:.82rem;min-width:160px">
-          <strong>${flag} ${loc}</strong><br>
+          <strong>${cname} — ${loc}</strong><br>
           <span style="color:#64748b">${m.count} visitor${m.count>1?'s':''}</span><br>
-          ${m.visits.slice(0,3).map(v=>`<div style="margin-top:4px;font-size:.75rem">💻 ${v.device||'?'} · ${v.browser||'?'} · ${v.ts?new Date(v.ts).toLocaleDateString('en-IN'):''}</div>`).join('')}
+          ${m.visits.slice(0,3).map(v=>`<div style="margin-top:4px;font-size:.75rem">${v.device||'?'} | ${v.browser||'?'} | ${v.ts?new Date(v.ts).toLocaleDateString('en-IN'):''}</div>`).join('')}
           ${m.count>3?`<div style="color:#94a3b8;font-size:.72rem">+${m.count-3} more</div>`:''}
         </div>`;
         circle.bindPopup(popupContent);
@@ -4848,8 +4859,14 @@ async function loadAnalytics() {
         }).join('')
       : '<p style="color:var(--m);font-size:.8rem">No data</p>';
 
-    const CC = {'IN':'🇮🇳 India','US':'🇺🇸 USA','GB':'🇬🇧 UK','AE':'🇦🇪 UAE','SG':'🇸🇬 Singapore','AU':'🇦🇺 Australia','CA':'🇨🇦 Canada','DE':'🇩🇪 Germany','FR':'🇫🇷 France','JP':'🇯🇵 Japan','SA':'🇸🇦 Saudi Arabia','Unknown':'❓ Unknown'};
-    document.getElementById('an-countries').innerHTML = barList((d.countries||[]).map(x=>({...x,_id:CC[x._id]||x._id})), '_id', d.recent);
+    const CC = {
+      'IN':'[India]','US':'[USA]','GB':'[UK]','AE':'[UAE]','SG':'[Singapore]',
+      'AU':'[Australia]','CA':'[Canada]','DE':'[Germany]','FR':'[France]',
+      'JP':'[Japan]','SA':'[Saudi Arabia]','QA':'[Qatar]','KW':'[Kuwait]',
+      'PK':'[Pakistan]','BD':'[Bangladesh]','LK':'[Sri Lanka]','NP':'[Nepal]',
+      'MY':'[Malaysia]','Unknown':'[Unknown]'
+    };
+    document.getElementById('an-countries').innerHTML = barList((d.countries||[]).map(x=>({...x,_id:CC[x._id]||('['+x._id+']')})), '_id', d.recent);
     document.getElementById('an-cities').innerHTML    = barList(d.cities||[], '_id', d.recent);
     document.getElementById('an-devices').innerHTML   = barList(d.devices||[], '_id', d.recent);
     document.getElementById('an-browsers').innerHTML  = barList(d.browsers||[], '_id', d.recent);
@@ -4873,20 +4890,20 @@ async function loadAnalytics() {
 
     // Recent visitors table
     const deviceIcon = dev => dev==='mobile'?'📱':dev==='tablet'?'📟':'💻';
-    const CC2 = {'IN':'🇮🇳','US':'🇺🇸','GB':'🇬🇧','AE':'🇦🇪','SG':'🇸🇬','AU':'🇦🇺','CA':'🇨🇦','DE':'🇩🇪','FR':'🇫🇷','JP':'🇯🇵','SA':'🇸🇦','QA':'🇶🇦','KW':'🇰🇼','PK':'🇵🇰','BD':'🇧🇩','LK':'🇱🇰','NP':'🇳🇵','MY':'🇲🇾'};
+    const CC2 = {'IN':'IN','US':'US','GB':'UK','AE':'UAE','SG':'SG','AU':'AU','CA':'CA','DE':'DE','FR':'FR','JP':'JP','SA':'SA','QA':'QA','KW':'KW','PK':'PK','BD':'BD','LK':'LK','NP':'NP','MY':'MY'};
     const countryNames2 = {'IN':'India','US':'USA','GB':'UK','AE':'UAE','SG':'Singapore','AU':'Australia','CA':'Canada','DE':'Germany','FR':'France','JP':'Japan','SA':'Saudi Arabia','QA':'Qatar','KW':'Kuwait','PK':'Pakistan','BD':'Bangladesh','LK':'Sri Lanka','NP':'Nepal','MY':'Malaysia'};
     const tbody = document.getElementById('an-visitors');
     if(tbody){
       tbody.innerHTML = visitors.length
         ? visitors.map((v,i)=>{
             const time = v.ts ? new Date(v.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-            const flag = CC2[v.country]||'🌍';
+            const flag = CC2[v.country]||'';
             const cname = countryNames2[v.country]||v.country||'Unknown';
             const loc = [v.city,v.region].filter(x=>x&&x!=='Unknown'&&x).join(', ')||'—';
             const ref = v.ref ? `<span title="${v.ref}" style="color:var(--p);font-size:.7rem">${v.ref.replace(/https?:\/\/(www\.)?/,'').substring(0,22)}</span>` : '<span style="color:var(--m);font-size:.7rem">Direct</span>';
             const isLive = (Date.now()-new Date(v.ts).getTime()) < 5*60*1000;
             return `<tr>
-              <td style="font-size:.74rem;white-space:nowrap">${isLive?'<b style="color:#22c55e">🟢</b> ':''}${time}</td>
+              <td style="font-size:.74rem;white-space:nowrap">${isLive?'<b style="color:#22c55e">[LIVE]</b> ':''}${time}</td>
               <td style="font-size:.8rem;font-weight:600">${flag} ${cname}</td>
               <td style="font-size:.76rem">${loc}</td>
               <td style="font-size:.76rem">${deviceIcon(v.device)} ${v.device||'—'}</td>

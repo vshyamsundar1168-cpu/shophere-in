@@ -1263,6 +1263,33 @@ const server = http.createServer(async (req, res) => {
       }catch(e){ console.warn('[visit]',e.message); return sendJSON(res,200,{ok:false}); }
     }
 
+    // GET /api/analytics/regeo — fix old Unknown visits by re-looking up IPs
+    if(p==='/api/analytics/regeo' && m==='POST'){
+      const db = getDb();
+      const unknowns = await db.collection('visits').find({country:'Unknown',ip:{$exists:true,$ne:''}},{projection:{_id:1,ip:1}}).limit(20).toArray();
+      let fixed = 0;
+      for(const v of unknowns){
+        try{
+          const ip = v.ip.replace('::ffff:','');
+          if(!ip||ip==='127.0.0.1') continue;
+          const geoRes = await new Promise((res2,rej)=>{
+            const req2=https.get(`https://ipapi.co/${ip}/json/`,r=>{
+              let d='';r.on('data',c=>d+=c);r.on('end',()=>res2(d));
+            });
+            req2.setTimeout(3000,()=>{req2.destroy();rej(new Error('timeout'));});
+            req2.on('error',rej);
+          });
+          const geo=JSON.parse(geoRes);
+          if(geo&&!geo.error&&geo.country_name){
+            await db.collection('visits').updateOne({_id:v._id},{$set:{country:geo.country,city:geo.city||'',region:geo.region||'',countryCode:geo.country}});
+            fixed++;
+          }
+          await new Promise(r=>setTimeout(r,300)); // rate limit
+        }catch(e){}
+      }
+      return sendJSON(res,200,{fixed,total:unknowns.length});
+    }
+
     // GET /api/analytics — get visit stats for admin
     if(p==='/api/analytics' && m==='GET'){
       const db = getDb();
