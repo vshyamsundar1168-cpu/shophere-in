@@ -4,7 +4,7 @@ let allProducts=[], allCategories=[], allBanners=[], storeSettings={};
 let cart=JSON.parse(localStorage.getItem('sh_cart')||'[]');
 let wishlist=JSON.parse(localStorage.getItem('sh_wish')||'[]');
 let myOrders=JSON.parse(localStorage.getItem('sh_orders')||'[]');
-let currentCat='all', currentBadge='', currentSort='', currentQ='', currentMin=0, currentMax=Infinity, currentRating=0;
+let currentCat='all', currentBadge='', currentSort='newest', currentQ='', currentMin=0, currentMax=Infinity, currentRating=0;
 let page=1; const PAGE=12;
 let heroIdx=0, heroTimer=null;
 let selectedPayment='cod';

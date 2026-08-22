@@ -466,7 +466,7 @@ const server = http.createServer(async (req, res) => {
       const minP=parseFloat(sp.get('minPrice')||0), maxP=parseFloat(sp.get('maxPrice')||Infinity);
       const minR=parseFloat(sp.get('minRating')||0), featured=sp.get('featured');
       const page=parseInt(sp.get('page')||1), limit=parseInt(sp.get('limit')||500);
-      let list = await db.collection('products').find({}, { projection: { _id: 0 } }).toArray();
+      let list = await db.collection('products').find({}, { projection: { _id: 0 } }).sort({ id: -1 }).toArray();
       if (cat && cat!=='all') list=list.filter(x=>x.category===cat);
       if (q) list=list.filter(x=>(x.name+' '+x.brand+' '+x.category+' '+(x.description||'')).toLowerCase().includes(q));
       if (badge) list=list.filter(x=>x.badge===badge);
