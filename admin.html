@@ -1434,9 +1434,17 @@ if(window.location.protocol==='file:'){
       <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-recent">�</div><div class="stat-lbl">This Period</div></div></div>
       <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-total">�</div><div class="stat-lbl">All Time</div></div></div>
     </div>
-    <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:20px">
-      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:10px">??? Visitor Locations Map</h4>
-      <div id="an-map" style="height:420px;border-radius:8px;z-index:0"></div>
+    <div style="background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,.15)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <h4 style="font-size:.9rem;font-weight:700;color:#fff;margin:0">Visitor Locations Map</h4>
+        <div style="display:flex;gap:6px">
+          <button onclick="_anMap&&_anMap.zoomIn()" style="background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem">+ Zoom In</button>
+          <button onclick="_anMap&&_anMap.zoomOut()" style="background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem">- Zoom Out</button>
+          <button onclick="_anMap&&_anMap.setView([20,78],4)" style="background:rgba(249,115,22,.8);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem">Reset</button>
+        </div>
+      </div>
+      <div id="an-map" style="height:280px;border-radius:10px;z-index:0;border:2px solid rgba(249,115,22,.4)"></div>
+      <p style="font-size:.72rem;color:#94a3b8;margin-top:6px;text-align:center">Orange circles = visitor locations. Larger circle = more visitors. Click to see details.</p>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
       <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">?? Countries</h4><div id="an-countries"></div></div>
@@ -4762,9 +4770,14 @@ async function loadAnalytics() {
     if(mapEl && typeof L !== 'undefined'){
       // Init map once
       if(!_anMap){
-        _anMap = L.map('an-map').setView([20, 78], 4); // default center India
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-          attribution:'© OpenStreetMap',maxZoom:18
+        _anMap = L.map('an-map', {
+          zoomControl: true,
+          scrollWheelZoom: true
+        }).setView([20, 78], 4);
+        // Use CartoDB dark map — looks professional and attractive
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+          attribution:'&copy; <a href="https://carto.com/">CARTO</a>',
+          maxZoom:18
         }).addTo(_anMap);
       } else {
         _anMap.eachLayer(l=>{ if(l instanceof L.Marker||l instanceof L.CircleMarker) _anMap.removeLayer(l); });
@@ -4806,25 +4819,38 @@ async function loadAnalytics() {
         markers[key].count++;
         markers[key].visits.push(v);
       });
-      const CC2 = {'IN':'🇮🇳','US':'🇺🇸','GB':'🇬🇧','AE':'🇦🇪','SG':'🇸🇬','AU':'🇦🇺','CA':'🇨🇦','DE':'🇩🇪','FR':'🇫🇷','JP':'🇯🇵','SA':'🇸🇦','QA':'🇶🇦','KW':'🇰🇼','PK':'🇵🇰','BD':'🇧🇩','LK':'🇱🇰','NP':'🇳🇵','MY':'🇲🇾'};
+      const CC2 = {}; // not needed for map — using flagcdn images
       const countryNames = {'IN':'India','US':'USA','GB':'UK','AE':'UAE','SG':'Singapore','AU':'Australia','CA':'Canada','DE':'Germany','FR':'France','JP':'Japan','SA':'Saudi Arabia','QA':'Qatar','KW':'Kuwait','PK':'Pakistan','BD':'Bangladesh','LK':'Sri Lanka','NP':'Nepal','MY':'Malaysia'};
       Object.values(markers).forEach(m=>{
-        const r = Math.min(30, 8 + m.count * 4);
+        const r = Math.min(28, 8 + m.count * 5);
         const v0 = m.visits[0];
-        const flag = CC2[v0.country]||'🌍';
         const cname = countryNames[v0.country]||v0.country||'';
         const loc = v0.city&&v0.city!=='Unknown' ? v0.city+', '+cname : cname;
+        // Flag image using flagcdn.com (no emoji, real images, works on all OS)
+        const flagImg = v0.country&&v0.country!=='Unknown'
+          ? `<img src="https://flagcdn.com/24x18/${v0.country.toLowerCase()}.png" style="vertical-align:middle;margin-right:5px;border-radius:2px" onerror="this.style.display='none'">`
+          : '';
         const circle = L.circleMarker(m.coords,{
-          radius: r, fillColor:'#f97316', color:'#fff', weight:2,
-          fillOpacity:0.85
+          radius: r,
+          fillColor:'#f97316',
+          color:'#fff',
+          weight: 2,
+          fillOpacity: 0.9,
+          className: 'visitor-pin'
         }).addTo(_anMap);
-        const popupContent = `<div style="font-size:.82rem;min-width:160px">
-          <strong>${cname} — ${loc}</strong><br>
-          <span style="color:#64748b">${m.count} visitor${m.count>1?'s':''}</span><br>
-          ${m.visits.slice(0,3).map(v=>`<div style="margin-top:4px;font-size:.75rem">${v.device||'?'} | ${v.browser||'?'} | ${v.ts?new Date(v.ts).toLocaleDateString('en-IN'):''}</div>`).join('')}
-          ${m.count>3?`<div style="color:#94a3b8;font-size:.72rem">+${m.count-3} more</div>`:''}
+        const popupContent = `<div style="font-size:.82rem;min-width:180px;font-family:sans-serif">
+          <div style="font-weight:700;font-size:.88rem;margin-bottom:6px;border-bottom:1px solid #e2e8f0;padding-bottom:6px">
+            ${flagImg}<strong>${loc||'Unknown'}</strong>
+          </div>
+          <div style="color:#475569;margin-bottom:4px"><b>${m.count}</b> visitor${m.count>1?'s':''}</div>
+          ${m.visits.slice(0,4).map(v=>`
+            <div style="padding:4px 0;border-bottom:1px solid #f1f5f9;font-size:.76rem;color:#64748b">
+              ${v.device==='mobile'?'Mobile':'Desktop'} | ${v.browser||'?'} | ${v.os||'?'}<br>
+              <span style="color:#94a3b8">${v.ts?new Date(v.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):''}</span>
+            </div>`).join('')}
+          ${m.count>4?`<div style="color:#94a3b8;font-size:.72rem;margin-top:4px">+${m.count-4} more visits</div>`:''}
         </div>`;
-        circle.bindPopup(popupContent);
+        circle.bindPopup(popupContent, {maxWidth: 240});
       });
       // Auto-fit map to markers
       const allCoords = Object.values(markers).map(m=>m.coords);
@@ -4860,13 +4886,15 @@ async function loadAnalytics() {
       : '<p style="color:var(--m);font-size:.8rem">No data</p>';
 
     const CC = {
-      'IN':'[India]','US':'[USA]','GB':'[UK]','AE':'[UAE]','SG':'[Singapore]',
-      'AU':'[Australia]','CA':'[Canada]','DE':'[Germany]','FR':'[France]',
-      'JP':'[Japan]','SA':'[Saudi Arabia]','QA':'[Qatar]','KW':'[Kuwait]',
-      'PK':'[Pakistan]','BD':'[Bangladesh]','LK':'[Sri Lanka]','NP':'[Nepal]',
-      'MY':'[Malaysia]','Unknown':'[Unknown]'
+      'IN':'India','US':'USA','GB':'UK','AE':'UAE','SG':'Singapore',
+      'AU':'Australia','CA':'Canada','DE':'Germany','FR':'France',
+      'JP':'Japan','SA':'Saudi Arabia','QA':'Qatar','KW':'Kuwait',
+      'PK':'Pakistan','BD':'Bangladesh','LK':'Sri Lanka','NP':'Nepal',
+      'MY':'Malaysia','Unknown':'Unknown'
     };
-    document.getElementById('an-countries').innerHTML = barList((d.countries||[]).map(x=>({...x,_id:CC[x._id]||('['+x._id+']')})), '_id', d.recent);
+    // Use flag images in bar list
+    const flagSpan = c => c&&c!=='Unknown'&&c.length===2 ? `<img src="https://flagcdn.com/16x12/${c.toLowerCase()}.png" style="vertical-align:middle;margin-right:4px;border-radius:1px" onerror="this.style.display='none'">` : '';
+    document.getElementById('an-countries').innerHTML = barList((d.countries||[]).map(x=>({...x,_id:`${flagSpan(x._id)}${CC[x._id]||x._id}`})), '_id', d.recent);
     document.getElementById('an-cities').innerHTML    = barList(d.cities||[], '_id', d.recent);
     document.getElementById('an-devices').innerHTML   = barList(d.devices||[], '_id', d.recent);
     document.getElementById('an-browsers').innerHTML  = barList(d.browsers||[], '_id', d.recent);
@@ -4889,22 +4917,22 @@ async function loadAnalytics() {
     }
 
     // Recent visitors table
-    const deviceIcon = dev => dev==='mobile'?'📱':dev==='tablet'?'📟':'💻';
-    const CC2 = {'IN':'IN','US':'US','GB':'UK','AE':'UAE','SG':'SG','AU':'AU','CA':'CA','DE':'DE','FR':'FR','JP':'JP','SA':'SA','QA':'QA','KW':'KW','PK':'PK','BD':'BD','LK':'LK','NP':'NP','MY':'MY'};
+    const deviceIcon = dev => dev==='mobile'?'[Mobile]':dev==='tablet'?'[Tablet]':'[Desktop]';
     const countryNames2 = {'IN':'India','US':'USA','GB':'UK','AE':'UAE','SG':'Singapore','AU':'Australia','CA':'Canada','DE':'Germany','FR':'France','JP':'Japan','SA':'Saudi Arabia','QA':'Qatar','KW':'Kuwait','PK':'Pakistan','BD':'Bangladesh','LK':'Sri Lanka','NP':'Nepal','MY':'Malaysia'};
+    const flagImg2 = c => c&&c!=='Unknown' ? `<img src="https://flagcdn.com/20x15/${c.toLowerCase()}.png" style="vertical-align:middle;margin-right:4px;border-radius:2px;border:1px solid #e2e8f0" onerror="this.style.display='none'">` : '';
     const tbody = document.getElementById('an-visitors');
     if(tbody){
       tbody.innerHTML = visitors.length
         ? visitors.map((v,i)=>{
             const time = v.ts ? new Date(v.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-            const flag = CC2[v.country]||'';
+            const flagHtml = flagImg2(v.country);
             const cname = countryNames2[v.country]||v.country||'Unknown';
             const loc = [v.city,v.region].filter(x=>x&&x!=='Unknown'&&x).join(', ')||'—';
             const ref = v.ref ? `<span title="${v.ref}" style="color:var(--p);font-size:.7rem">${v.ref.replace(/https?:\/\/(www\.)?/,'').substring(0,22)}</span>` : '<span style="color:var(--m);font-size:.7rem">Direct</span>';
             const isLive = (Date.now()-new Date(v.ts).getTime()) < 5*60*1000;
             return `<tr>
-              <td style="font-size:.74rem;white-space:nowrap">${isLive?'<b style="color:#22c55e">[LIVE]</b> ':''}${time}</td>
-              <td style="font-size:.8rem;font-weight:600">${flag} ${cname}</td>
+              <td style="font-size:.74rem;white-space:nowrap">${isLive?'<span style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-weight:700;font-size:.7rem">LIVE</span> ':''}${time}</td>
+              <td style="font-size:.8rem;font-weight:600">${flagHtml}${cname}</td>
               <td style="font-size:.76rem">${loc}</td>
               <td style="font-size:.76rem">${deviceIcon(v.device)} ${v.device||'—'}</td>
               <td style="font-size:.74rem">${v.os||'—'}</td>
