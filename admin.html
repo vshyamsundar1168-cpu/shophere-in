@@ -1434,17 +1434,17 @@ if(window.location.protocol==='file:'){
       <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-recent">�</div><div class="stat-lbl">This Period</div></div></div>
       <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-total">�</div><div class="stat-lbl">All Time</div></div></div>
     </div>
-    <div style="background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,.15)">
+    <div style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 4px 20px rgba(14,165,233,.15)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <h4 style="font-size:.9rem;font-weight:700;color:#fff;margin:0">Visitor Locations Map</h4>
+        <h4 style="font-size:.9rem;font-weight:700;color:#0c4a6e;margin:0">Visitor Locations Map</h4>
         <div style="display:flex;gap:6px">
-          <button onclick="_anMap&&_anMap.zoomIn()" style="background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem">+ Zoom In</button>
-          <button onclick="_anMap&&_anMap.zoomOut()" style="background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem">- Zoom Out</button>
-          <button onclick="_anMap&&_anMap.setView([20,78],4)" style="background:rgba(249,115,22,.8);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem">Reset</button>
+          <button onclick="_anMap&&_anMap.zoomIn()" style="background:#0ea5e9;color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:.8rem;font-weight:600">+ Zoom In</button>
+          <button onclick="_anMap&&_anMap.zoomOut()" style="background:#0ea5e9;color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:.8rem;font-weight:600">- Zoom Out</button>
+          <button onclick="_anMap&&_anMap.setView([20,78],4)" style="background:#f97316;color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:.8rem;font-weight:600">Reset</button>
         </div>
       </div>
-      <div id="an-map" style="height:280px;border-radius:10px;z-index:0;border:2px solid rgba(249,115,22,.4)"></div>
-      <p style="font-size:.72rem;color:#94a3b8;margin-top:6px;text-align:center">Orange circles = visitor locations. Larger circle = more visitors. Click to see details.</p>
+      <div id="an-map" style="height:300px;border-radius:10px;z-index:0;border:2px solid #7dd3fc;box-shadow:0 2px 12px rgba(14,165,233,.2)"></div>
+      <p style="font-size:.72rem;color:#0369a1;margin-top:6px;text-align:center">Orange circles = visitor locations. Bigger = more visitors. Click pin for details. Scroll to zoom.</p>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
       <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">?? Countries</h4><div id="an-countries"></div></div>
@@ -4774,10 +4774,10 @@ async function loadAnalytics() {
           zoomControl: true,
           scrollWheelZoom: true
         }).setView([20, 78], 4);
-        // Use CartoDB dark map — looks professional and attractive
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-          attribution:'&copy; <a href="https://carto.com/">CARTO</a>',
-          maxZoom:18
+        // Use CartoDB Voyager — sky blue, Google Maps style, very attractive
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+          attribution:'&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/">OSM</a>',
+          maxZoom:19
         }).addTo(_anMap);
       } else {
         _anMap.eachLayer(l=>{ if(l instanceof L.Marker||l instanceof L.CircleMarker) _anMap.removeLayer(l); });

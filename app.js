@@ -160,7 +160,7 @@ async function loadSettings(){
 
     // Extended Color Theme — applies colors set in admin Visual Customizer
     if(s.colorBg)        { dynCSS += `body{background:${s.colorBg}}:root{--bg:${s.colorBg}}`; }
-    if(s.colorBtnCart)   { dynCSS += `.btn-cart{background:${s.colorBtnCart};color:var(--p);border-color:var(--p)}`; }
+    if(s.colorBtnCart)   { dynCSS += `.btn-cart{background:${s.colorBtnCart}!important;}`; }
     if(s.colorBtnBuy)    { dynCSS += `.btn-buy{background:${s.colorBtnBuy}}`; }
     if(s.colorNavBg)     { dynCSS += `.main-nav{background:${s.colorNavBg}}`; }
     if(s.colorFooterBg)  { dynCSS += `footer{background:${s.colorFooterBg}}`; }
@@ -176,9 +176,9 @@ async function loadSettings(){
     if(s.colorProdName)  { dynCSS += `.pc-name{color:${s.colorProdName}}`; }
     if(s.colorProdPrice) { dynCSS += `.pc-price .cur{color:${s.colorProdPrice}}`; }
     if(s.colorProdBrand) { dynCSS += `.pc-brand{color:${s.colorProdBrand}}`; }
-    // Banner text
-    const btc = s.bannerTextColor || '#ffffff';
-    dynCSS += `.hero-slide h1,.hero-slide p{color:${btc}}`;
+    // Banner text color — only applied if explicitly set in store settings
+    // Per-banner textColor is applied directly on h1/p via inline style so no override needed
+    if(s.bannerTextColor) dynCSS += `.hero-slide h1,.hero-slide p{color:${s.bannerTextColor}}`;
 
     // Apply combined dynamic style
     let dynStyle = document.getElementById('dynamic-colors');
@@ -372,9 +372,9 @@ async function loadBanners(){
         const showText = b.textSize !== 'none';
         return `<div class="${animClass}" style="${gradBg};position:relative;flex:0 0 ${w}%;width:${w}%;height:${h};overflow:hidden;cursor:pointer;" onclick="filterCat('all');showProducts()">
           ${imgTag}
-          ${showText?`<div class="slide-overlay" style="align-items:${aPos};text-align:${b.textPosition==='center'?'center':b.textPosition==='right'?'right':'left'};color:${tClr};background:none;">
-            <h2 style="font-size:${hSz};font-weight:800;margin-bottom:4px;line-height:1.3;white-space:normal;word-break:break-word">${b.headline||''}</h2>
-            ${b.subtitle?`<p style="font-size:clamp(.7rem,.88rem,.9rem);margin-bottom:0;white-space:normal;word-break:break-word;line-height:1.5">${b.subtitle}</p>`:''}
+          ${showText?`<div class="slide-overlay" style="align-items:${aPos};text-align:${b.textPosition==='center'?'center':b.textPosition==='right'?'right':'left'};background:none;">
+            <h2 style="font-size:${hSz};font-weight:800;margin-bottom:4px;line-height:1.3;color:${tClr};text-shadow:0 2px 6px rgba(0,0,0,.5)">${b.headline||''}</h2>
+            ${b.subtitle?`<p style="font-size:clamp(.7rem,.88rem,.9rem);margin-bottom:0;line-height:1.5;color:${tClr};opacity:.92">${b.subtitle}</p>`:''}
           </div>`:''}
         </div>`;
       }).join('');
@@ -397,20 +397,28 @@ async function loadBanners(){
     track.innerHTML = sliderBans.map((b,i)=>{
       const fit  = b.objectFit||globalFit;
       const hSz  = ({'xlarge':'3rem','large':'2.4rem','medium':'1.8rem','small':'1.4rem','none':'0'})[b.textSize||(storeSettings&&storeSettings.bannerTextSize)||'large']||'2.4rem';
+      // Use per-banner color directly — not inherited from parent (avoids store-level CSS override)
       const tClr = b.textColor||(storeSettings&&storeSettings.bannerTextColor)||'#ffffff';
-      const posMap={'center':'center','left':'flex-start','right':'flex-end','top':'flex-start','bottom':'flex-end'};
-      const aItems = posMap[b.textPosition||storeSettings&&storeSettings.bannerPos||'center']||'center';
-      const tAlign = (b.textPosition==='left'||b.textPosition==='right') ? b.textPosition : 'center';
       const hasBg  = b.bgImage&&b.bgImage.trim();
       const gradBg = b.bgGradient||'linear-gradient(135deg,#1e293b 0%,#f97316 100%)';
       const animClass = b.animation ? 'bn-'+b.animation : '';
       const imgTag = hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};" loading="lazy" alt="">` : '';
       const showText = b.textSize !== 'none';
+
+      // Text position — actually move the overlay vertically
+      const pos = b.textPosition || (storeSettings&&storeSettings.bannerPos) || 'center';
+      let overlayStyle = 'position:absolute;left:0;right:0;display:flex;flex-direction:column;background:none;padding:16px 32px;';
+      if(pos==='top')         overlayStyle += 'top:0;bottom:auto;justify-content:flex-start;align-items:center;text-align:center;';
+      else if(pos==='bottom') overlayStyle += 'top:auto;bottom:0;justify-content:flex-end;align-items:center;text-align:center;';
+      else if(pos==='left')   overlayStyle += 'top:0;bottom:0;justify-content:center;align-items:flex-start;text-align:left;';
+      else if(pos==='right')  overlayStyle += 'top:0;bottom:0;justify-content:center;align-items:flex-end;text-align:right;';
+      else                    overlayStyle += 'top:0;bottom:0;justify-content:center;align-items:center;text-align:center;'; // center
+
       return `<div class="hero-slide ${animClass}" style="${hasBg?'background:#1e293b':'background:'+gradBg}">
         ${imgTag}
-        ${showText?`<div class="slide-overlay" style="align-items:${aItems};text-align:${tAlign};color:${tClr};background:none;">
-          <h1 style="font-size:clamp(.85rem,${hSz},${hSz})">${b.headline||''}</h1>
-          ${b.subtitle?`<p>${b.subtitle}</p>`:''}
+        ${showText?`<div style="${overlayStyle}z-index:1;">
+          <h1 style="font-size:clamp(.85rem,${hSz},${hSz});font-weight:800;color:${tClr};text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bottom:6px;line-height:1.2;font-family:'Poppins',sans-serif;">${b.headline||''}</h1>
+          ${b.subtitle?`<p style="color:${tClr};opacity:.92;font-size:clamp(.7rem,.95rem,.95rem);text-shadow:0 1px 4px rgba(0,0,0,.4);margin:0;line-height:1.5;">${b.subtitle}</p>`:''}
         </div>`:''}
       </div>`;
     }).join('');
