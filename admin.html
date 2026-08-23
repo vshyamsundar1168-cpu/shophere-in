@@ -493,7 +493,7 @@ if(window.location.protocol==='file:'){
           <textarea id="st_privacy" placeholder="Enter your privacy policy…" style="min-height:150px;font-size:.84rem"></textarea>
         </div>
         <hr style="margin:20px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">� Returns &amp; Refund Policy</h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">- Returns &amp; Refund Policy</h4>
         <div class="form-group">
           <label>Returns Policy <small style="color:var(--m);font-weight:400">(shows in Returns popup on store)</small></label>
           <textarea id="st_returns" placeholder="Enter your returns and refund policy…" style="min-height:120px;font-size:.84rem"></textarea>
@@ -1421,7 +1421,7 @@ if(window.location.protocol==='file:'){
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <div class="sec">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-      <div><h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">?? Visitor Analytics</h3><p style="font-size:.8rem;color:var(--m)">Live visitor map � see who visited, from where, device, referrer.</p></div>
+      <div><h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">Visitor Analytics</h3><p style="font-size:.8rem;color:var(--m)">Live visitor map - see who visited, from where, device, referrer.</p></div>
       <div style="display:flex;gap:8px;align-items:center">
         <select id="analyticsRange" onchange="loadAnalytics()" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="1">Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365" selected>All Time</option></select>
         <button onclick="loadAnalytics()" style="padding:8px 16px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">Refresh</button>
@@ -1429,10 +1429,10 @@ if(window.location.protocol==='file:'){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
-      <div class="stat-card"><div class="stat-icon" style="color:#22c55e">??</div><div><div class="stat-val" id="an-live">�</div><div class="stat-lbl">Live Now</div></div></div>
-      <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-today">�</div><div class="stat-lbl">Today</div></div></div>
-      <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-recent">�</div><div class="stat-lbl">This Period</div></div></div>
-      <div class="stat-card"><div class="stat-icon">??</div><div><div class="stat-val" id="an-total">�</div><div class="stat-lbl">All Time</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="color:#22c55e;font-size:1.4rem;font-weight:900">&#9679;</div><div><div class="stat-val" id="an-live">&mdash;</div><div class="stat-lbl">Live Now</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="color:#f59e0b;font-size:1.5rem">&#9728;</div><div><div class="stat-val" id="an-today">&mdash;</div><div class="stat-lbl">Today</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="color:#6366f1;font-size:1.3rem">&#9632;</div><div><div class="stat-val" id="an-recent">&mdash;</div><div class="stat-lbl">This Period</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="color:#14b8a6;font-size:1.3rem">&#9679;</div><div><div class="stat-val" id="an-total">&mdash;</div><div class="stat-lbl">All Time</div></div></div>
     </div>
     <div style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 4px 20px rgba(14,165,233,.15)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
