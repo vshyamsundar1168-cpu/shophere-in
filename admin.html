@@ -4759,10 +4759,10 @@ async function loadAnalytics() {
     const d = await res.json();
 
     // Summary cards
-    document.getElementById('an-live').textContent   = d.live   '—';
-    document.getElementById('an-today').textContent  = d.today  '—';
-    document.getElementById('an-recent').textContent = d.recent '—';
-    document.getElementById('an-total').textContent  = d.total  '—';
+    document.getElementById('an-live').textContent   = d.live   ?? '—';
+    document.getElementById('an-today').textContent  = d.today  ?? '—';
+    document.getElementById('an-recent').textContent = d.recent ?? '—';
+    document.getElementById('an-total').textContent  = d.total  ?? '—';
 
     // ── Leaflet map ──────────────────────────────────────────────────────────
     const visitors = d.recentVisitors || [];
