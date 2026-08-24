@@ -1447,13 +1447,13 @@ if(window.location.protocol==='file:'){
       <p style="font-size:.72rem;color:#0369a1;margin-top:6px;text-align:center">Orange circles = visitor locations. Bigger = more visitors. Click pin for details. Scroll to zoom.</p>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
-      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">?? Countries</h4><div id="an-countries"></div></div>
-      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">??? Cities</h4><div id="an-cities"></div></div>
-      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">?? Devices</h4><div id="an-devices"></div><hr style="margin:8px 0;border-color:var(--b)"><div id="an-browsers"></div></div>
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">Countries</h4><div id="an-countries"></div></div>
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">Cities</h4><div id="an-cities"></div></div>
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">Devices &amp; Browsers</h4><div id="an-devices"></div><hr style="margin:8px 0;border-color:var(--b)"><div id="an-browsers"></div></div>
     </div>
-    <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:20px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">?? Daily Visits</h4><div id="an-daily" style="display:flex;gap:3px;align-items:flex-end;height:120px;overflow-x:auto;padding-bottom:4px"></div></div>
+    <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:20px"><h4 style="font-size:.82rem;font-weight:700;margin-bottom:10px">Daily Visits</h4><div id="an-daily" style="display:flex;gap:3px;align-items:flex-end;height:120px;overflow-x:auto;padding-bottom:4px"></div></div>
     <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
-      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">?? Recent Visitors (Last 50)</h4>
+      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">Recent Visitors (Last 50)</h4>
       <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Time</th><th>Country</th><th>City</th><th>Device</th><th>OS</th><th>Browser</th><th>Timezone</th><th>IP</th><th>From</th></tr></thead><tbody id="an-visitors"><tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">Click Refresh to load</td></tr></tbody></table></div>
     </div>
   </div>
@@ -1906,10 +1906,10 @@ async function loadStats() {
     const res = await fetch('/api/stats');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const s = await res.json();
-    document.getElementById('st-p').textContent = s.totalProducts ?? '—';
-    document.getElementById('st-o').textContent = s.totalOrders ?? '—';
+    document.getElementById('st-p').textContent = s.totalProducts '—';
+    document.getElementById('st-o').textContent = s.totalOrders '—';
     document.getElementById('st-r').textContent = '₹' + (s.totalRevenue || 0).toLocaleString('en-IN');
-    document.getElementById('st-ls').textContent = s.lowStock ?? '—';
+    document.getElementById('st-ls').textContent = s.lowStock '—';
   } catch (e) {
     toast('❌ Stats error: ' + e.message);
   }
@@ -4759,10 +4759,10 @@ async function loadAnalytics() {
     const d = await res.json();
 
     // Summary cards
-    document.getElementById('an-live').textContent   = d.live   ?? '—';
-    document.getElementById('an-today').textContent  = d.today  ?? '—';
-    document.getElementById('an-recent').textContent = d.recent ?? '—';
-    document.getElementById('an-total').textContent  = d.total  ?? '—';
+    document.getElementById('an-live').textContent   = d.live   '—';
+    document.getElementById('an-today').textContent  = d.today  '—';
+    document.getElementById('an-recent').textContent = d.recent '—';
+    document.getElementById('an-total').textContent  = d.total  '—';
 
     // ── Leaflet map ──────────────────────────────────────────────────────────
     const visitors = d.recentVisitors || [];
