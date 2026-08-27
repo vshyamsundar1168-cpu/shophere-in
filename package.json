@@ -1,6 +1,6 @@
 {
   "name": "shophere-in",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ShopHere.in E-Commerce Platform",
   "main": "server.js",
   "scripts": {
