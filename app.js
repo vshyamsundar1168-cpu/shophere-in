@@ -198,7 +198,7 @@ async function loadSettings(){
     const thresh=parseFloat(s.freeShippingThreshold)||0;
     const bar=document.getElementById('topBar');
     if(bar){
-      if(thresh>0) bar.innerHTML=`[+] Free shipping on orders above <strong>₹${thresh.toLocaleString('en-IN')}</strong>${s.announcementBar?' | '+s.announcementBar:''}`;
+      if(thresh>0) bar.innerHTML=`[+] Free shipping on orders above <strong>&#8377;${thresh.toLocaleString('en-IN')}</strong>${s.announcementBar?' | '+s.announcementBar:''}`;
       else if(s.announcementBar) bar.textContent=s.announcementBar;
     }
     // Scrolling text
@@ -499,8 +499,8 @@ function productCard(p){
       <div class="pc-name" onclick="openProduct(${p.id})">${p.name||''}</div>
       <div class="pc-stars">${stars} <span>(${p.reviewCount||0})</span></div>
       <div class="pc-price">
-        <span class="cur">₹${price.toLocaleString('en-IN')}</span>
-        ${disc?`<span class="orig">₹${origPrice.toLocaleString('en-IN')}</span><span class="off">${disc}% off</span>`:''}
+        <span class="cur">&#8377;${price.toLocaleString('en-IN')}</span>
+        ${disc?`<span class="orig">&#8377;${origPrice.toLocaleString('en-IN')}</span><span class="off">${disc}% off</span>`:''}
       </div>
       <div class="pc-btns">
         <button class="btn-cart" onclick="addToCart(${p.id})">Add to Cart</button>
@@ -665,8 +665,8 @@ async function openProduct(id){
       <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:8px">${p.name}</h2>
       <div style="color:#f59e0b;font-size:.88rem;margin-bottom:8px">${stars} <span style="color:var(--m);font-size:.78rem">(${p.reviewCount||0})</span></div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <span style="font-size:1.6rem;font-weight:800">₹${p.price.toLocaleString('en-IN')}</span>
-        ${disc?`<span style="text-decoration:line-through;color:var(--m)">₹${p.originalPrice.toLocaleString('en-IN')}</span><span style="color:var(--g);font-weight:700">${disc}% off</span>`:''}
+        <span style="font-size:1.6rem;font-weight:800">&#8377;${p.price.toLocaleString('en-IN')}</span>
+        ${disc?`<span style="text-decoration:line-through;color:var(--m)">&#8377;${p.originalPrice.toLocaleString('en-IN')}</span><span style="color:var(--g);font-weight:700">${disc}% off</span>`:''}
       </div>
       <div style="margin-bottom:12px">${out?'<span style="color:var(--rd);font-weight:700">Out of Stock</span>':`<span style="color:var(--g);font-weight:700">[OK] In Stock (${p.stock} available)</span>`}</div>
       ${p.description?`<p style="font-size:.84rem;color:var(--m);margin-bottom:14px;line-height:1.6">${p.description}</p>`:''}
@@ -737,13 +737,13 @@ function changeQty(id,d){const i=cart.find(x=>x.id===id);if(!i)return;if(d>0&&i.
 function renderCartBody(){
   const body=document.getElementById('cartBody');
   document.getElementById('cartCount').textContent=cartCount();
-  document.getElementById('cartTotal').textContent='₹'+cartTotal().toLocaleString('en-IN',{minimumFractionDigits:2});
+  document.getElementById('cartTotal').textContent='&#8377;'+cartTotal().toLocaleString('en-IN',{minimumFractionDigits:2});
   if(!cart.length){body.innerHTML='<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">[Cart]</div><h3 style="margin-top:8px">Cart is empty</h3></div>';return;}
   body.innerHTML=cart.map(i=>`<div class="cart-item">
     <div class="ci-img">${i.image?`<img src="${i.image}" alt="" style="width:100%;height:100%;object-fit:cover">`:'<span style="font-size:1.8rem">[No Image]</span>'}</div>
     <div class="ci-info">
       <div class="ci-name">${i.name}</div>
-      <div class="ci-price">₹${(i.price*i.qty).toLocaleString('en-IN')}</div>
+      <div class="ci-price">&#8377;${(i.price*i.qty).toLocaleString('en-IN')}</div>
       <div class="ci-qty">
         <button class="qty-btn" onclick="changeQty(${i.id},-1)">−</button>
         <span class="qty-num">${i.qty}</span>
@@ -793,12 +793,12 @@ function startCheckout(){
         ${i.image?`<img src="${i.image}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">`:'<span style="font-size:1.6rem">[No Image]</span>'}
         <div>
           <div style="font-size:.85rem;font-weight:600">${i.name}</div>
-          <div style="font-size:.78rem;color:var(--m)">Qty: ${i.qty} × ₹${i.price.toLocaleString('en-IN')}</div>
+          <div style="font-size:.78rem;color:var(--m)">Qty: ${i.qty} × &#8377;${i.price.toLocaleString('en-IN')}</div>
         </div>
       </div>
-      <span style="font-weight:700">₹${(i.price*i.qty).toLocaleString('en-IN')}</span>
+      <span style="font-weight:700">&#8377;${(i.price*i.qty).toLocaleString('en-IN')}</span>
     </div>`).join('');
-  document.getElementById('coTotal').textContent='₹'+cartTotal().toLocaleString('en-IN',{minimumFractionDigits:2});
+  document.getElementById('coTotal').textContent='&#8377;'+cartTotal().toLocaleString('en-IN',{minimumFractionDigits:2});
   openOverlay('checkoutModal');
 }
 function coGoStep(n){coStep=n;updateCoSteps();}
@@ -918,8 +918,8 @@ function _confirmOrder(order, paymentLabel){
   cart=[]; saveCart(); updateCartBadge();
   document.getElementById('coOrderId').textContent=order.id;
   document.getElementById('coConfirmItems').innerHTML=
-    `${(order.items||[]).map(i=>`${i.name} × ${i.qty} — ₹${(i.price*i.qty).toLocaleString('en-IN')}`).join('<br>')}`+
-    `<br><strong style="margin-top:6px;display:block">Total: ₹${order.total.toLocaleString('en-IN')}</strong>`+
+    `${(order.items||[]).map(i=>`${i.name} × ${i.qty} — &#8377;${(i.price*i.qty).toLocaleString('en-IN')}`).join('<br>')}`+
+    `<br><strong style="margin-top:6px;display:block">Total: &#8377;${order.total.toLocaleString('en-IN')}</strong>`+
     `<br>Payment: ${paymentLabel}`;
   coGoStep(4);
 }
@@ -945,7 +945,7 @@ function trackOrder(){
     </div>
     <div style="font-size:.82rem;color:var(--m);margin-bottom:8px">Ordered: ${new Date(order.date).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
     <div style="font-size:.84rem;margin-bottom:8px">${(order.items||[]).map(i=>`${i.name} × ${i.qty}`).join(', ')}</div>
-    <div style="font-weight:700">₹${(order.total||0).toLocaleString('en-IN')} · ${(order.payment||'').toUpperCase()}</div>
+    <div style="font-weight:700">&#8377;${(order.total||0).toLocaleString('en-IN')} · ${(order.payment||'').toUpperCase()}</div>
     <div style="margin-top:10px;font-size:.82rem;color:var(--m)">Delivery to: ${order.address||''}, ${order.city||''} ${order.pin||''}</div>
   </div>`;
 }
@@ -960,7 +960,7 @@ function openOrders(){
       </div>
       <div style="font-size:.78rem;color:var(--m);margin-bottom:6px">${o.date?new Date(o.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):''} · ${(o.payment||'').toUpperCase()}</div>
       <div style="font-size:.82rem;margin-bottom:6px">${(o.items||[]).map(i=>`${i.name} × ${i.qty}`).join(', ')}</div>
-      <div style="font-weight:700">₹${(o.total||0).toLocaleString('en-IN')}</div>
+      <div style="font-weight:700">&#8377;${(o.total||0).toLocaleString('en-IN')}</div>
     </div>`).join(''):'<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">[No Image]</div><h3 style="margin-top:8px">No orders yet</h3></div>';
   openOverlay('ordersModal');
 }

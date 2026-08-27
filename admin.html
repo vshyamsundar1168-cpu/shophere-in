@@ -183,8 +183,8 @@ if(window.location.protocol==='file:'){
         </div>
         <div class="form-group"><label>Description</label><textarea id="ap_desc" placeholder="Product description…"></textarea></div>
         <div class="form-row">
-          <div class="form-group"><label>Price (₹) *</label><input id="ap_price" type="number" placeholder="0" min="0"></div>
-          <div class="form-group"><label>Original Price (₹)</label><input id="ap_orig" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label>Price (&#8377;) *</label><input id="ap_price" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label>Original Price (&#8377;)</label><input id="ap_orig" type="number" placeholder="0" min="0"></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Stock *</label><input id="ap_stock" type="number" placeholder="0" min="0"></div>
@@ -300,7 +300,7 @@ if(window.location.protocol==='file:'){
           <div class="form-group"><label>Primary Brand Color</label>
             <input type="color" id="st_color" value="#f97316" style="height:42px;border-radius:8px;border:1.5px solid var(--b);padding:4px;width:100%">
           </div>
-          <div class="form-group"><label>Free Shipping Threshold (₹)</label><input id="st_ship" type="number" placeholder="0" min="0"></div>
+          <div class="form-group"><label>Free Shipping Threshold (&#8377;)</label><input id="st_ship" type="number" placeholder="0" min="0"></div>
         </div>
 
         <!-- #24 TEXT COLOR CONTROLS -->
@@ -466,7 +466,7 @@ if(window.location.protocol==='file:'){
         </div>
         <button class="btn btn-sec btn-sm" onclick="previewBannerSize()" style="margin-top:8px">️ Preview Banner Size</button>
         <hr style="margin:16px 0;border-color:var(--b)">
-        <div class="form-group"><label>Announcement Bar Text</label><input id="st_ann" placeholder="e.g. Free shipping on orders above ₹999"></div>
+        <div class="form-group"><label>Announcement Bar Text</label><input id="st_ann" placeholder="e.g. Free shipping on orders above &#8377;999"></div>
         <div class="form-row">
           <div class="form-group"><label>Contact Email</label><input id="st_email" type="email" placeholder="your@email.com"></div>
           <div class="form-group"><label>Contact Phone</label><input id="st_phone" placeholder="+91-XXXXXXXXXX"></div>
@@ -893,7 +893,7 @@ if(window.location.protocol==='file:'){
       <select id="invBulkCat" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.82rem;outline:none">
         <option value="">All Categories</option>
       </select>
-      <input type="number" id="invBulkPrice" placeholder="New Price (₹)" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.82rem;outline:none;width:140px">
+      <input type="number" id="invBulkPrice" placeholder="New Price (&#8377;)" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.82rem;outline:none;width:140px">
       <input type="number" id="invBulkStock" placeholder="Set Stock Qty" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.82rem;outline:none;width:140px">
       <button onclick="invBulkUpdate()" style="padding:7px 14px;background:#3b82f6;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer">Apply to Selected</button>
       <label style="font-size:.78rem;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="invSelectAll" onchange="invToggleAll(this)"> Select All</label>
@@ -902,7 +902,7 @@ if(window.location.protocol==='file:'){
       <table class="data-table" id="invTable">
         <thead><tr>
           <th><input type="checkbox" onchange="invToggleAll(this)"></th>
-          <th>Product</th><th>Category</th><th>Price (₹)</th><th>Orig Price (₹)</th><th>Stock</th><th>Status</th>
+          <th>Product</th><th>Category</th><th>Price (&#8377;)</th><th>Orig Price (&#8377;)</th><th>Stock</th><th>Status</th>
         </tr></thead>
         <tbody id="invBody"></tbody>
       </table>
@@ -1082,7 +1082,7 @@ if(window.location.protocol==='file:'){
       </div>
       <div id="eo_items" style="display:grid;gap:8px"></div>
       <div style="background:#f8fafc;border-radius:8px;padding:12px 16px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:.9rem;font-weight:700">Total Amount (₹)</span>
+        <span style="font-size:.9rem;font-weight:700">Total Amount (&#8377;)</span>
         <input id="eo_total" type="number" min="0"
           style="width:200px;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.9rem;font-weight:700;outline:none;text-align:right">
       </div>
@@ -1158,7 +1158,7 @@ if(window.location.protocol==='file:'){
       </div>
       <div id="mo_items" style="display:grid;gap:8px"></div>
       <div style="background:#f8fafc;border-radius:8px;padding:12px 16px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:.9rem;font-weight:700">Total Amount (₹)</span>
+        <span style="font-size:.9rem;font-weight:700">Total Amount (&#8377;)</span>
         <input id="mo_total" type="number" min="0" placeholder="Auto-calculated or enter manually"
           style="width:200px;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.9rem;font-weight:700;outline:none;text-align:right">
       </div>
@@ -1200,14 +1200,14 @@ if(window.location.protocol==='file:'){
         <div class="form-group"><label>Discount Type</label>
           <select id="disc_type" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
             <option value="percent">% Percentage off</option>
-            <option value="flat">₹ Flat amount off</option>
+            <option value="flat">&#8377; Flat amount off</option>
             <option value="freeship"> Free Shipping</option>
           </select>
         </div>
-        <div class="form-group"><label>Discount Value</label><input id="disc_value" type="number" placeholder="e.g. 10 for 10% or ₹10"></div>
+        <div class="form-group"><label>Discount Value</label><input id="disc_value" type="number" placeholder="e.g. 10 for 10% or &#8377;10"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Min Order Amount (₹)</label><input id="disc_minorder" type="number" placeholder="0 = no minimum"></div>
+        <div class="form-group"><label>Min Order Amount (&#8377;)</label><input id="disc_minorder" type="number" placeholder="0 = no minimum"></div>
         <div class="form-group"><label>Max Uses (0 = unlimited)</label><input id="disc_maxuses" type="number" placeholder="0"></div>
       </div>
       <div class="form-row">
@@ -1514,7 +1514,7 @@ if(window.location.protocol==='file:'){
           <label>Price Markup % <small style="color:var(--m);font-weight:400">(applied on top of supplier price)</small></label>
           <div style="display:flex;align-items:center;gap:8px">
             <input type="number" id="imp_markup" value="30" min="0" max="500" style="width:90px;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">
-            <span style="font-size:.82rem;color:var(--m)">% — e.g. supplier price ₹100 -> your price ₹130</span>
+            <span style="font-size:.82rem;color:var(--m)">% — e.g. supplier price &#8377;100 -> your price &#8377;130</span>
           </div>
         </div>
         <div class="form-group" style="margin:0">
@@ -1913,7 +1913,7 @@ async function loadStats() {
     const s = await res.json();
     document.getElementById('st-p').textContent = s.totalProducts '—';
     document.getElementById('st-o').textContent = s.totalOrders '—';
-    document.getElementById('st-r').textContent = '₹' + (s.totalRevenue || 0).toLocaleString('en-IN');
+    document.getElementById('st-r').textContent = '&#8377;' + (s.totalRevenue || 0).toLocaleString('en-IN');
     document.getElementById('st-ls').textContent = s.lowStock '—';
   } catch (e) {
     toast('x Stats error: ' + e.message);
@@ -1925,7 +1925,7 @@ async function loadStats() {
     document.getElementById('recentOrders').innerHTML = orders.slice(0, 5).map(o => `<tr>
       <td><strong>${o.id}</strong></td>
       <td>${o.name || ''}</td>
-      <td>₹${(o.total || 0).toLocaleString('en-IN')}</td>
+      <td>&#8377;${(o.total || 0).toLocaleString('en-IN')}</td>
       <td><span class="status-badge s-${(o.status || '').toLowerCase()}">${o.status || ''}</span></td>
       <td>${o.date ? new Date(o.date).toLocaleDateString('en-IN') : ''}</td>
       <td>${o.status !== 'Cancelled' && o.status !== 'Delivered'
@@ -2005,15 +2005,15 @@ function renderProdTable(list) {
     return `<tr>
       <td>#${p.id}</td>
       <td>${img}</td>
-      <td style="max-width:180px"><strong>${p.name}</strong></td>
+      <td style="max-width:180px"><strong>${(p.name||'').replace(/`/g,"'")}</strong></td>
       <td>${p.category || ''}</td>
-      <td>₹${(p.price || 0).toLocaleString('en-IN')}</td>
+      <td>&#8377;${(p.price || 0).toLocaleString('en-IN')}</td>
       <td style="color:${stockColor};font-weight:700">${stock}${stock <= 10 && stock > 0 ? ' low' : ''}</td>
       <td>${p.rating || 0}</td>
-      <td>${p.badge ? `<span class="pc-badge ${p.badge}" style="position:static">${p.badge}</span>` : '—'}</td>
+      <td>${p.badge ? `<span class="pc-badge ${p.badge}" style="position:static">${p.badge}</span>` : '&mdash;'}</td>
       ${customCells}
       <td style="white-space:nowrap">
-        <button class="btn btn-sm btn-sec" onclick="openEdit(${p.id})"> Edit</button>
+        <button class="btn btn-sm btn-sec" onclick="openEdit(${p.id})">Edit</button>
         <button class="btn btn-sm" style="margin-left:4px;background:#e0f2fe;color:#0369a1;border:none;border-radius:7px;padding:7px 10px;font-size:.74rem;font-weight:700;cursor:pointer" onclick="openImgMgr(${p.id})">Images</button>
         <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteProduct(${p.id})">Delete</button>
       </td>
@@ -2179,8 +2179,8 @@ async function openEdit(id) {
     </div>
     <div class="form-group"><label>Description</label><textarea id="ep_desc">${p.description || ''}</textarea></div>
     <div class="form-row">
-      <div class="form-group"><label>Price (₹)</label><input id="ep_price" type="number" value="${p.price}"></div>
-      <div class="form-group"><label>Original Price (₹)</label><input id="ep_orig" type="number" value="${p.originalPrice || p.price}"></div>
+      <div class="form-group"><label>Price (&#8377;)</label><input id="ep_price" type="number" value="${p.price}"></div>
+      <div class="form-group"><label>Original Price (&#8377;)</label><input id="ep_orig" type="number" value="${p.originalPrice || p.price}"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Stock</label><input id="ep_stock" type="number" value="${p.stock}"></div>
@@ -2279,8 +2279,8 @@ function filterOrders(status) {
     <td>${o.name || ''}</td>
     <td>${o.phone || ''}</td>
     <td style="max-width:150px;font-size:.78rem">${[o.address, o.city].filter(Boolean).join(', ')}</td>
-    <td style="font-size:.78rem;max-width:180px">${(o.items||[]).map(i=>`<div style="padding:2px 0;border-bottom:1px solid #f1f5f9;line-height:1.4"><strong>${i.name||'Item'}</strong> × ${i.qty||1} <span style="color:var(--p);font-weight:700">₹${((i.price||0)*(i.qty||1)).toLocaleString('en-IN')}</span></div>`).join('') || '—'}</td>
-    <td>₹${(o.total || 0).toLocaleString('en-IN')}</td>
+    <td style="font-size:.78rem;max-width:180px">${(o.items||[]).map(i=>`<div style="padding:2px 0;border-bottom:1px solid #f1f5f9;line-height:1.4"><strong>${i.name||'Item'}</strong> × ${i.qty||1} <span style="color:var(--p);font-weight:700">&#8377;${((i.price||0)*(i.qty||1)).toLocaleString('en-IN')}</span></div>`).join('') || '—'}</td>
+    <td>&#8377;${(o.total || 0).toLocaleString('en-IN')}</td>
     <td style="text-transform:capitalize">${o.payment || ''}</td>
     <td>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
@@ -2401,7 +2401,7 @@ function eoAddItem(item) {
         style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
     </div>
     <div class="form-group" style="margin:0">
-      <label style="font-size:.72rem">Price (₹)</label>
+      <label style="font-size:.72rem">Price (&#8377;)</label>
       <input id="eo_iprice_${idx}" type="number" min="0" value="${(item&&item.price)||0}" oninput="eoCalcTotal()"
         style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
     </div>
@@ -2521,7 +2521,7 @@ function moAddItem() {
         style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
     </div>
     <div class="form-group" style="margin:0">
-      <label style="font-size:.72rem">Price (₹)</label>
+      <label style="font-size:.72rem">Price (&#8377;)</label>
       <input id="mo_iprice_${idx}" type="number" min="0" placeholder="0" oninput="moCalcTotal()"
         style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
     </div>
@@ -3149,7 +3149,7 @@ function pbTypeChanged() {
     <div class="form-group"><label>Button Link URL</label><input id="pb_link" placeholder="https://... or /products"></div>
     <div class="form-group"><label>Button Color</label><input type="color" id="pb_btnColor" value="#f97316" style="height:38px;width:100%;border-radius:7px;border:1.5px solid var(--b);padding:3px"></div>`;
   } else if (type === 'marquee') {
-    fields.innerHTML = `<div class="form-group"><label>Scrolling Text (use | to separate messages)</label><input id="pb_content" placeholder="Sale now on! | Free shipping above ₹999 | New arrivals every week" value="${fields._val||''}"></div>
+    fields.innerHTML = `<div class="form-group"><label>Scrolling Text (use | to separate messages)</label><input id="pb_content" placeholder="Sale now on! | Free shipping above &#8377;999 | New arrivals every week" value="${fields._val||''}"></div>
     <div class="form-group"><label>Scroll Speed</label><select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>`;
   } else if (type === 'countdown') {
     fields.innerHTML = `<div class="form-group"><label>Countdown Label (e.g. "Sale ends in:")</label><input id="pb_alt" placeholder="Sale ends in:" value="${fields._alt||'Sale ends in:'}"></div>
@@ -4588,9 +4588,9 @@ function impRenderPreview() {
       <td style="max-width:180px;font-size:.82rem"><strong>${r.name||'—'}</strong></td>
       <td style="font-size:.78rem">${r.brand||'—'}</td>
       <td style="font-size:.78rem">${r.category}</td>
-      <td style="font-size:.82rem">₹${r.supplierPrice.toLocaleString('en-IN')}</td>
-      <td style="font-size:.82rem;font-weight:700;color:#22c55e">₹${r.price.toLocaleString('en-IN')}</td>
-      <td style="font-size:.78rem;color:var(--m)">₹${r.originalPrice.toLocaleString('en-IN')}</td>
+      <td style="font-size:.82rem">&#8377;${r.supplierPrice.toLocaleString('en-IN')}</td>
+      <td style="font-size:.82rem;font-weight:700;color:#22c55e">&#8377;${r.price.toLocaleString('en-IN')}</td>
+      <td style="font-size:.78rem;color:var(--m)">&#8377;${r.originalPrice.toLocaleString('en-IN')}</td>
       <td style="font-size:.78rem">${r.stock}</td>
       <td style="font-size:.75rem;color:var(--m)">${r.sku||'—'}</td>
       <td>${status}</td>
@@ -4697,8 +4697,8 @@ async function loadPushedProducts() {
           <td>${img}</td>
           <td style="font-size:.82rem"><strong>${p.name}</strong></td>
           <td style="font-size:.78rem;color:var(--m)">${p.supplier||'—'}</td>
-          <td style="font-size:.82rem">₹${(p.supplierPrice||0).toLocaleString('en-IN')}</td>
-          <td style="font-size:.82rem;font-weight:700;color:#22c55e">₹${(p.price||0).toLocaleString('en-IN')}</td>
+          <td style="font-size:.82rem">&#8377;${(p.supplierPrice||0).toLocaleString('en-IN')}</td>
+          <td style="font-size:.82rem;font-weight:700;color:#22c55e">&#8377;${(p.price||0).toLocaleString('en-IN')}</td>
           <td style="font-size:.78rem">${p.stock}</td>
           <td style="font-size:.75rem;color:var(--m)">${p.importedAt ? new Date(p.importedAt).toLocaleDateString('en-IN') : '—'}</td>
         </tr>`;
@@ -5127,7 +5127,7 @@ function renderDiscounts() {
   el.innerHTML = allDiscounts.map(d => {
     const now = new Date();
     const expired = d.expiry && new Date(d.expiry) < now;
-    const typeLabel = d.type === 'percent' ? `${d.value}% off` : d.type === 'flat' ? `₹${d.value} off` : 'Free Shipping';
+    const typeLabel = d.type === 'percent' ? `${d.value}% off` : d.type === 'flat' ? `&#8377;${d.value} off` : 'Free Shipping';
     const statusBg = !d.active ? '#f1f5f9' : expired ? '#fef2f2' : '#f0fdf4';
     const statusColor = !d.active ? '#64748b' : expired ? '#ef4444' : '#22c55e';
     const statusText = !d.active ? 'Inactive' : expired ? 'Expired' : 'Active';
@@ -5137,7 +5137,7 @@ function renderDiscounts() {
         <div>
           <div style="font-size:.85rem;font-weight:700">${typeLabel}</div>
           <div style="font-size:.75rem;color:var(--m)">
-            ${d.minOrder ? `Min ₹${d.minOrder} | ` : ''}
+            ${d.minOrder ? `Min &#8377;${d.minOrder} | ` : ''}
             Uses: ${d.usedCount||0}${d.maxUses?'/'+d.maxUses:''}
             ${d.expiry ? ` | Expires: ${new Date(d.expiry).toLocaleDateString('en-IN')}` : ''}
           </div>
