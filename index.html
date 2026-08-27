@@ -735,17 +735,26 @@
 <!-- ── TOAST ─────────────────────────────────────────────────────────────── -->
 <div class="toast-wrap" id="toastWrap"></div>
 
-<!-- app.js must be loaded at the very bottom -->
+<!-- DEBUG PANEL - shows live JS status -->
+<div id="_debug" style="position:fixed;bottom:0;left:0;right:0;background:#1e293b;color:#fff;font-size:11px;padding:6px 10px;z-index:99999;font-family:monospace;display:none"></div>
+
 <script>
-window.onerror = function(msg, src, line, col, err) {
-  var d = document.getElementById('_dbg') || document.body;
-  d.insertAdjacentHTML('beforeend',
-    '<div style="position:fixed;bottom:0;left:0;right:0;background:red;color:#fff;font-size:12px;padding:8px;z-index:99999;font-family:monospace;word-break:break-all">'
-    + '<b>JS ERROR:</b> ' + msg + ' | Line: ' + line + ' | ' + src
-    + '</div>');
+// Catch ALL JS errors and show on screen
+window._log = function(msg, color) {
+  var d = document.getElementById('_debug');
+  d.style.display = 'block';
+  d.innerHTML += '<span style="color:'+(color||'#fff')+'">' + msg + '</span> | ';
+};
+window.onerror = function(msg, src, line) {
+  window._log('ERROR: ' + msg + ' (line:' + line + ')', '#ff6b6b');
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  window._log('PROMISE ERR: ' + e.reason, '#ffa500');
+});
   return false;
 };
 </script>
-<script src="app.js?v=fix3" onerror="document.body.insertAdjacentHTML('beforeend','<div style=\'position:fixed;bottom:0;left:0;right:0;background:darkred;color:#fff;padding:10px;z-index:99999\'>FAILED TO LOAD app.js</div>')"></script>
+<script src="app.js?v=dbg1"></script>
 </body>
 </html>

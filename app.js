@@ -606,7 +606,12 @@ function showProducts(){document.getElementById('homeSections').style.display='n
 function showHome(){document.getElementById('homeSections').style.display='block';document.getElementById('productsSection').style.display='none';}
 function goHome(){showHome();currentCat='all';currentBadge='';currentQ='';page=1;closeSearch();}
 // #13 category links working
-function filterCat(cat){currentCat=cat;currentBadge='';currentQ='';page=1;document.getElementById('sectionTitle').textContent=cat==='all'?'All Products':cat;showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});}
+function filterCat(cat){
+  if(window._log) window._log('filterCat:'+cat+' products:'+allProducts.length,'#60a5fa');
+  currentCat=cat;currentBadge='';currentQ='';page=1;
+  document.getElementById('sectionTitle').textContent=cat==='all'?'All Products':cat;
+  showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});
+}
 function filterBadge(b){currentBadge=b;currentCat='all';currentQ='';page=1;document.getElementById('sectionTitle').textContent=b==='deal'?"Today's Deals":b==='new'?'New Arrivals':'Hot Picks';showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});}
 function setSortAndFilter(v){currentSort=v;page=1;renderProducts();}
 function applyFilters(){currentMin=parseFloat(document.getElementById('minPrice').value)||0;currentMax=parseFloat(document.getElementById('maxPrice').value)||Infinity;page=1;renderProducts();}
@@ -984,17 +989,21 @@ function sendMessage(){
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',async()=>{
+  if(window._log) window._log('INIT START','#4ade80');
   updateAuthUI();
   updateCartBadge();
   updateWishBadge();
+  if(window._log) window._log('loading settings...','#94a3b8');
   await loadSettings();
+  if(window._log) window._log('settings OK','#4ade80');
   await loadCategories();
+  if(window._log) window._log('cats OK','#4ade80');
   await loadBanners();
+  if(window._log) window._log('banners OK','#4ade80');
   await loadProducts();
+  if(window._log) window._log('products OK - count:'+allProducts.length,'#4ade80');
   loadPageBlocks();
-  trackVisit(); // record this visit silently
-
-  // Re-fetch page blocks when user returns to this tab (after admin changes)
+  trackVisit();
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') loadPageBlocks();
   });
