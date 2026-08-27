@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 // ── State ─────────────────────────────────────────────────────────────────────
 let allProducts=[], allCategories=[], allBanners=[], storeSettings={};
 let cart=JSON.parse(localStorage.getItem('sh_cart')||'[]');
@@ -8,7 +8,7 @@ let currentCat='all', currentBadge='', currentSort='newest', currentQ='', curren
 let page=1; const PAGE=12;
 let heroIdx=0, heroTimer=null;
 let selectedPayment='cod';
-const CAT_ICONS={'Electronics':'📱','Fashion':'👗','Kitchen':'🍳','Sports':'⚽','Beauty':'💄','Books':'📚','Toys':'🧸','Home':'🏠','Kids':'🧒','Women':'👩','Men':'👨','default':'🛍️'};
+const CAT_ICONS={'Electronics':'[Mobile]','Fashion':'👗','Kitchen':'🍳','Sports':'⚽','Beauty':'💄','Books':'📚','Toys':'🧸','Home':'[Home]','Kids':'🧒','Women':'👩','Men':'👨','default':'🛍️'};
 const CAT_COLORS={'Electronics':['#dbeafe','#1d4ed8'],'Fashion':['#fce7f3','#be185d'],'Kitchen':['#fef3c7','#d97706'],'Sports':['#dcfce7','#16a34a'],'Beauty':['#fdf4ff','#9333ea'],'Books':['#fff7ed','#ea580c'],'Toys':['#fef9c3','#ca8a04'],'Home':['#f0fdf4','#15803d'],'Kids':['#ffe4e6','#e11d48'],'Women':['#fdf2f8','#db2777'],'Men':['#eff6ff','#2563eb'],'default':['#f8fafc','#475569']};
 
 // ── Utility ───────────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@ function doRegister(){
   const newUser={name,username:u,password:p};
   users.push(newUser); localStorage.setItem('sh_users',JSON.stringify(users));
   currentUser=newUser; localStorage.setItem('sh_user',JSON.stringify(newUser));
-  closeLogin(); updateAuthUI(); toast(`Account created! Welcome, ${name} 🎉`);
+  closeLogin(); updateAuthUI(); toast(`Account created! Welcome, ${name} [+]`);
 }
 function showLoginErr(m){const el=document.getElementById('loginErr');el.textContent=m;el.style.display='block';}
 function showRegErr(m){const el=document.getElementById('regErr');el.textContent=m;el.style.display='block';}
@@ -198,7 +198,7 @@ async function loadSettings(){
     const thresh=parseFloat(s.freeShippingThreshold)||0;
     const bar=document.getElementById('topBar');
     if(bar){
-      if(thresh>0) bar.innerHTML=`🎉 Free shipping on orders above <strong>₹${thresh.toLocaleString('en-IN')}</strong>${s.announcementBar?' | '+s.announcementBar:''}`;
+      if(thresh>0) bar.innerHTML=`[+] Free shipping on orders above <strong>₹${thresh.toLocaleString('en-IN')}</strong>${s.announcementBar?' | '+s.announcementBar:''}`;
       else if(s.announcementBar) bar.textContent=s.announcementBar;
     }
     // Scrolling text
@@ -485,14 +485,14 @@ function productCard(p){
   const price = p.price || 0;
   const origPrice = p.originalPrice || 0;
   const disc=origPrice>price?Math.round((1-price/origPrice)*100):0;
-  const stars='★'.repeat(Math.round(p.rating||0))+'☆'.repeat(5-Math.round(p.rating||0));
+  const stars='&#9733;'.repeat(Math.round(p.rating||0))+'&#9734;'.repeat(5-Math.round(p.rating||0));
   const inW=wishlist.includes(p.id);
   const imgHtml=p.images&&p.images.length
     ?`<img src="${p.images[0].url}" alt="${p.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
-    :`<span style="font-size:4rem">📦</span>`;
+    :`<span style="font-size:4rem">[No Image]</span>`;
   return `<div class="product-card">
     ${p.badge?`<span class="pc-badge ${p.badge}">${p.badge}</span>`:''}
-    <button class="pc-wish${inW?' active':''}" onclick="toggleWish(${p.id},event)">${inW?'❤️':'🤍'}</button>
+    <button class="pc-wish${inW?' active':''}" onclick="toggleWish(${p.id},event)">${inW?'&#9829;':'&#9825;'}</button>
     <div class="pc-img" onclick="openProduct(${p.id})">${imgHtml}</div>
     <div class="pc-body">
       <div class="pc-brand">${p.brand||''}</div>
@@ -556,7 +556,7 @@ function renderProducts(){
   if(rc) rc.textContent = `${list.length} product${list.length!==1?'s':''}`;
 
   if(!list.length){
-    pg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">🔍</div><p>No products found</p></div>';
+    pg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">[Search]</div><p>No products found</p></div>';
     return;
   }
 
@@ -621,9 +621,9 @@ async function openProduct(id){
   document.getElementById('pmTitle').textContent=p.name;
   openOverlay('productModal');
   const disc=p.originalPrice>p.price?Math.round((1-p.price/p.originalPrice)*100):0;
-  const stars='★'.repeat(Math.round(p.rating||0))+'☆'.repeat(5-Math.round(p.rating||0));
+  const stars='&#9733;'.repeat(Math.round(p.rating||0))+'&#9734;'.repeat(5-Math.round(p.rating||0));
   const out=p.stock===0;
-  const mainImg=p.images&&p.images.length?`<img id="mgMainImg" src="${p.images[0].url}" style="width:100%;height:100%;object-fit:contain;cursor:zoom-in" onclick="openLightbox('${p.images[0].url}')">`:`<span style="font-size:6rem">📦</span>`;
+  const mainImg=p.images&&p.images.length?`<img id="mgMainImg" src="${p.images[0].url}" style="width:100%;height:100%;object-fit:contain;cursor:zoom-in" onclick="openLightbox('${p.images[0].url}')">`:`<span style="font-size:6rem">[No Image]</span>`;
 
   // Show first 3 thumbnails, then "+ N more colours/designs" expandable
   const THUMB_SHOW = 3;
@@ -645,7 +645,7 @@ async function openProduct(id){
   const videos=p.videos&&p.videos.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">📹 Videos</h4>${p.videos.map(v=>`<video src="${v.url}" controls style="width:100%;border-radius:8px;margin-bottom:6px;max-height:200px"></video>`).join('')}</div>`:'';
   const audios=p.audios&&p.audios.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">🎵 Audio</h4>${p.audios.map(a=>`<div style="margin-bottom:8px"><div style="font-size:.73rem;color:var(--m);margin-bottom:3px">${a.name}</div><audio src="${a.url}" controls style="width:100%"></audio></div>`).join('')}</div>`:'';
   let revs=[]; try{revs=await fetch(`/api/reviews/${id}`).then(r=>r.json());}catch(e){}
-  const revList=revs.length?revs.map(r=>`<div style="border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:8px"><div style="display:flex;justify-content:space-between"><strong style="font-size:.83rem">${r.name}</strong><span style="font-size:.72rem;color:var(--m)">${new Date(r.date).toLocaleDateString('en-IN')}</span></div><div style="color:#f59e0b;font-size:.82rem">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div><p style="font-size:.82rem;margin-top:4px;color:var(--t)">${r.text}</p></div>`).join(''):'<p style="color:var(--m);font-size:.84rem">No reviews yet.</p>';
+  const revList=revs.length?revs.map(r=>`<div style="border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:8px"><div style="display:flex;justify-content:space-between"><strong style="font-size:.83rem">${r.name}</strong><span style="font-size:.72rem;color:var(--m)">${new Date(r.date).toLocaleDateString('en-IN')}</span></div><div style="color:#f59e0b;font-size:.82rem">${'&#9733;'.repeat(r.rating)}${'&#9734;'.repeat(5-r.rating)}</div><p style="font-size:.82rem;margin-top:4px;color:var(--t)">${r.text}</p></div>`).join(''):'<p style="color:var(--m);font-size:.84rem">No reviews yet.</p>';
   document.getElementById('pmBody').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
     <div>
       <div style="aspect-ratio:4/3;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden">${mainImg}</div>
@@ -659,12 +659,12 @@ async function openProduct(id){
         <span style="font-size:1.6rem;font-weight:800">₹${p.price.toLocaleString('en-IN')}</span>
         ${disc?`<span style="text-decoration:line-through;color:var(--m)">₹${p.originalPrice.toLocaleString('en-IN')}</span><span style="color:var(--g);font-weight:700">${disc}% off</span>`:''}
       </div>
-      <div style="margin-bottom:12px">${out?'<span style="color:var(--rd);font-weight:700">Out of Stock</span>':`<span style="color:var(--g);font-weight:700">✅ In Stock (${p.stock} available)</span>`}</div>
+      <div style="margin-bottom:12px">${out?'<span style="color:var(--rd);font-weight:700">Out of Stock</span>':`<span style="color:var(--g);font-weight:700">[OK] In Stock (${p.stock} available)</span>`}</div>
       ${p.description?`<p style="font-size:.84rem;color:var(--m);margin-bottom:14px;line-height:1.6">${p.description}</p>`:''}
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
         <button class="btn btn-primary btn-sm" ${out?'disabled style="opacity:.5"':''} onclick="addToCart(${p.id});closeOverlay('productModal')">Add to Cart</button>
         <button class="btn btn-sec btn-sm" ${out?'disabled style="opacity:.5"':''} onclick="buyNow(${p.id});closeOverlay('productModal')">Buy Now</button>
-        <button class="btn btn-sec btn-sm" onclick="toggleWish(${p.id})">❤️ Wishlist</button>
+        <button class="btn btn-sec btn-sm" onclick="toggleWish(${p.id})">&#9829; Wishlist</button>
       </div>
       <div style="border-top:1px solid var(--b);padding-top:14px">
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:10px">Customer Reviews</h4>
@@ -672,7 +672,7 @@ async function openProduct(id){
         <div style="margin-top:12px;background:var(--bg);border-radius:10px;padding:14px">
           <h5 style="font-size:.82rem;font-weight:700;margin-bottom:8px">Write a Review</h5>
           <input id="rv_name" placeholder="Your name" style="width:100%;padding:8px 12px;border:1.5px solid var(--b);border-radius:7px;font-size:.83rem;margin-bottom:8px;outline:none">
-          <div style="display:flex;gap:4px;margin-bottom:8px">${[1,2,3,4,5].map(n=>`<button onclick="setRevStar(${n})" id="rstar${n}" style="font-size:1.4rem;background:none;border:none;cursor:pointer;color:#d1d5db;transition:color .2s">★</button>`).join('')}</div>
+          <div style="display:flex;gap:4px;margin-bottom:8px">${[1,2,3,4,5].map(n=>`<button onclick="setRevStar(${n})" id="rstar${n}" style="font-size:1.4rem;background:none;border:none;cursor:pointer;color:#d1d5db;transition:color .2s">&#9733;</button>`).join('')}</div>
           <textarea id="rv_text" placeholder="Your review…" style="width:100%;padding:8px 12px;border:1.5px solid var(--b);border-radius:7px;font-size:.83rem;min-height:70px;resize:vertical;outline:none;margin-bottom:8px"></textarea>
           <button class="btn btn-primary btn-sm" onclick="submitReview(${p.id})">Submit Review</button>
         </div>
@@ -706,7 +706,7 @@ function openLightbox(url){const lb=document.getElementById('lightbox');document
 async function submitReview(pid){
   const name=document.getElementById('rv_name').value.trim(), text=document.getElementById('rv_text').value.trim();
   if(!name||!text){toast('Name and review are required');return;}
-  try{const r=await fetch(`/api/reviews/${pid}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,rating:_revStar,text})});if(!r.ok)throw new Error();toast('Review submitted! ⭐');openProduct(pid);}
+  try{const r=await fetch(`/api/reviews/${pid}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,rating:_revStar,text})});if(!r.ok)throw new Error();toast('Review submitted! &#9733;');openProduct(pid);}
   catch(e){toast('Could not submit review');}
 }
 
@@ -721,7 +721,7 @@ function addToCart(id){
   const ex=cart.find(x=>x.id===id);
   if(ex){if(ex.qty>=99){toast('Maximum quantity reached');return;}ex.qty++;}
   else cart.push({id:p.id,name:p.name,price:p.price,image:p.images&&p.images.length?p.images[0].url:'',qty:1});
-  saveCart(); updateCartBadge(); toast(`${p.name} added to cart 🛒`);
+  saveCart(); updateCartBadge(); toast(`${p.name} added to cart [Cart]`);
 }
 function removeFromCart(id){cart=cart.filter(x=>x.id!==id);saveCart();updateCartBadge();renderCartBody();}
 function changeQty(id,d){const i=cart.find(x=>x.id===id);if(!i)return;if(d>0&&i.qty>=99){toast('Max 99 per item');return;}i.qty=Math.max(1,i.qty+d);saveCart();updateCartBadge();renderCartBody();}
@@ -729,9 +729,9 @@ function renderCartBody(){
   const body=document.getElementById('cartBody');
   document.getElementById('cartCount').textContent=cartCount();
   document.getElementById('cartTotal').textContent='₹'+cartTotal().toLocaleString('en-IN',{minimumFractionDigits:2});
-  if(!cart.length){body.innerHTML='<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">🛒</div><h3 style="margin-top:8px">Cart is empty</h3></div>';return;}
+  if(!cart.length){body.innerHTML='<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">[Cart]</div><h3 style="margin-top:8px">Cart is empty</h3></div>';return;}
   body.innerHTML=cart.map(i=>`<div class="cart-item">
-    <div class="ci-img">${i.image?`<img src="${i.image}" alt="" style="width:100%;height:100%;object-fit:cover">`:'<span style="font-size:1.8rem">📦</span>'}</div>
+    <div class="ci-img">${i.image?`<img src="${i.image}" alt="" style="width:100%;height:100%;object-fit:cover">`:'<span style="font-size:1.8rem">[No Image]</span>'}</div>
     <div class="ci-info">
       <div class="ci-name">${i.name}</div>
       <div class="ci-price">₹${(i.price*i.qty).toLocaleString('en-IN')}</div>
@@ -751,10 +751,10 @@ function buyNow(id){addToCart(id);closeCart();startCheckout();}
 // ── Wishlist ──────────────────────────────────────────────────────────────────
 function saveWish(){localStorage.setItem('sh_wish',JSON.stringify(wishlist));}
 function updateWishBadge(){const n=wishlist.length,b=document.getElementById('wishBadge');if(b){b.textContent=n;b.style.display=n?'flex':'none';}}
-function toggleWish(id,ev){if(ev)ev.stopPropagation();const p=allProducts.find(x=>x.id===id);if(!p)return;if(wishlist.includes(id)){wishlist=wishlist.filter(x=>x!==id);toast('Removed from wishlist');}else{if(wishlist.length>=50){toast('Wishlist full (max 50)');return;}wishlist.push(id);toast(`${p.name} added to wishlist ❤️`);}saveWish();updateWishBadge();}
+function toggleWish(id,ev){if(ev)ev.stopPropagation();const p=allProducts.find(x=>x.id===id);if(!p)return;if(wishlist.includes(id)){wishlist=wishlist.filter(x=>x!==id);toast('Removed from wishlist');}else{if(wishlist.length>=50){toast('Wishlist full (max 50)');return;}wishlist.push(id);toast(`${p.name} added to wishlist &#9829;`);}saveWish();updateWishBadge();}
 function openWishlist(){
   const items=allProducts.filter(p=>wishlist.includes(p.id));
-  document.getElementById('wishBody').innerHTML=items.length?`<div class="products-grid">${items.map(p=>productCard(p)).join('')}</div>`:'<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">❤️</div><h3 style="margin-top:8px">Wishlist is empty</h3></div>';
+  document.getElementById('wishBody').innerHTML=items.length?`<div class="products-grid">${items.map(p=>productCard(p)).join('')}</div>`:'<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">&#9829;</div><h3 style="margin-top:8px">Wishlist is empty</h3></div>';
   openOverlay('wishModal');
 }
 
@@ -781,7 +781,7 @@ function startCheckout(){
   document.getElementById('coCartItems').innerHTML=cart.map(i=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--b)">
       <div style="display:flex;align-items:center;gap:10px">
-        ${i.image?`<img src="${i.image}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">`:'<span style="font-size:1.6rem">📦</span>'}
+        ${i.image?`<img src="${i.image}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">`:'<span style="font-size:1.6rem">[No Image]</span>'}
         <div>
           <div style="font-size:.85rem;font-weight:600">${i.name}</div>
           <div style="font-size:.78rem;color:var(--m)">Qty: ${i.qty} × ₹${i.price.toLocaleString('en-IN')}</div>
@@ -952,7 +952,7 @@ function openOrders(){
       <div style="font-size:.78rem;color:var(--m);margin-bottom:6px">${o.date?new Date(o.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):''} · ${(o.payment||'').toUpperCase()}</div>
       <div style="font-size:.82rem;margin-bottom:6px">${(o.items||[]).map(i=>`${i.name} × ${i.qty}`).join(', ')}</div>
       <div style="font-weight:700">₹${(o.total||0).toLocaleString('en-IN')}</div>
-    </div>`).join(''):'<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">📦</div><h3 style="margin-top:8px">No orders yet</h3></div>';
+    </div>`).join(''):'<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">[No Image]</div><h3 style="margin-top:8px">No orders yet</h3></div>';
   openOverlay('ordersModal');
 }
 
@@ -1359,9 +1359,9 @@ async function loadPageBlocks(){
       const zoomBar = document.createElement('div');
       zoomBar.className = 'pb-zoom-bar';
       zoomBar.innerHTML = `
-        <button class="pb-zoom-btn" title="Zoom In"  onclick="pbZoom(this,0.1)">🔍+</button>
+        <button class="pb-zoom-btn" title="Zoom In"  onclick="pbZoom(this,0.1)">[Search]+</button>
         <span   class="pb-zoom-val">100%</span>
-        <button class="pb-zoom-btn" title="Zoom Out" onclick="pbZoom(this,-0.1)">🔍−</button>
+        <button class="pb-zoom-btn" title="Zoom Out" onclick="pbZoom(this,-0.1)">[Search]−</button>
         <button class="pb-zoom-btn" title="Reset"    onclick="pbZoomReset(this)">↺</button>`;
       wrap.appendChild(zoomBar);
 
