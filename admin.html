@@ -1942,15 +1942,17 @@ let allProds = [];
 
 async function loadProducts() {
   try {
-    // Always load custom cols first and wait &mdash; ensures allCustomCols is populated
-    try { await loadCustomCols(); } catch(e) {}
     const prodRes = await fetch('/api/products?limit=500');
     if (!prodRes.ok) throw new Error('HTTP ' + prodRes.status);
     const data = await prodRes.json();
     allProds = data.products || data;
     populateCatDropdown('prodCatFilter', true);
+    // Load custom cols in background - don't block product display
+    try { await loadCustomCols(); } catch(e) {}
     renderProdTable(allProds);
   } catch (e) {
+    const pb = document.getElementById('prodBody');
+    if(pb) pb.innerHTML = '<tr><td colspan="20" style="text-align:center;color:red;padding:32px">Error: ' + e.message + '</td></tr>';
     toast('x Error loading products: ' + e.message);
   }
 }
