@@ -736,6 +736,16 @@
 <div class="toast-wrap" id="toastWrap"></div>
 
 <!-- app.js must be loaded at the very bottom -->
-<script src="app.js?v=fix2"></script>
+<script>
+window.onerror = function(msg, src, line, col, err) {
+  var d = document.getElementById('_dbg') || document.body;
+  d.insertAdjacentHTML('beforeend',
+    '<div style="position:fixed;bottom:0;left:0;right:0;background:red;color:#fff;font-size:12px;padding:8px;z-index:99999;font-family:monospace;word-break:break-all">'
+    + '<b>JS ERROR:</b> ' + msg + ' | Line: ' + line + ' | ' + src
+    + '</div>');
+  return false;
+};
+</script>
+<script src="app.js?v=fix3" onerror="document.body.insertAdjacentHTML('beforeend','<div style=\'position:fixed;bottom:0;left:0;right:0;background:darkred;color:#fff;padding:10px;z-index:99999\'>FAILED TO LOAD app.js</div>')"></script>
 </body>
 </html>
