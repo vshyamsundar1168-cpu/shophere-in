@@ -411,6 +411,11 @@ const server = http.createServer(async (req, res) => {
 
   try {
 
+    // ── VERSION CHECK ─────────────────────────────────────────────────────────
+    if (p === '/api/version') {
+      return sendJSON(res, 200, { version: 'c7f2c06', deployed: new Date().toISOString() });
+    }
+
     // ── AUTH ──────────────────────────────────────────────────────────────────
     if (p === '/api/login' && m === 'POST') {
       const body = await readJSON(req);
