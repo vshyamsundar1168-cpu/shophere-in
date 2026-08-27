@@ -1965,6 +1965,7 @@ function filterProds() {
 }
 
 function renderProdTable(list) {
+  try {
   // Update Products table header with custom cols
   const prodCols = ccForTable('products');
   const prodThead = document.querySelector('#tab-products .data-table thead tr');
@@ -1975,7 +1976,7 @@ function renderProdTable(list) {
       const th = document.createElement('th');
       th.setAttribute('data-cc', c.key);
       th.textContent = c.label;
-      prodThead.insertBefore(th, actionsTh);
+      if (actionsTh) prodThead.insertBefore(th, actionsTh);
     });
   }
 
@@ -2013,11 +2014,15 @@ function renderProdTable(list) {
       ${customCells}
       <td style="white-space:nowrap">
         <button class="btn btn-sm btn-sec" onclick="openEdit(${p.id})">✏️ Edit</button>
-        <button class="btn btn-sm" style="margin-left:4px;background:#e0f2fe;color:#0369a1;border:none;border-radius:7px;padding:7px 10px;font-size:.74rem;font-weight:700;cursor:pointer" onclick="openImgMgr(${p.id})">🖼️ Images</button>
-        <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteProduct(${p.id})">🗑️</button>
+        <button class="btn btn-sm" style="margin-left:4px;background:#e0f2fe;color:#0369a1;border:none;border-radius:7px;padding:7px 10px;font-size:.74rem;font-weight:700;cursor:pointer" onclick="openImgMgr(${p.id})">Images</button>
+        <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteProduct(${p.id})">Delete</button>
       </td>
     </tr>`;
   }).join('') : '<tr><td colspan="20" style="text-align:center;color:var(--m);padding:32px">No products found</td></tr>';
+  } catch(err) {
+    console.error('renderProdTable error:', err);
+    document.getElementById('prodBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:red;padding:32px">Error loading products: ' + err.message + '</td></tr>';
+  }
 }
 
 // Save a single custom field value for a product (called on blur/change in Products table)
