@@ -391,11 +391,11 @@ function readJSON(req) {
 const CUSTOM_DOMAIN = process.env.CUSTOM_DOMAIN || 'shophere.in';
 
 const server = http.createServer(async (req, res) => {
-  // Redirect any onrender.com URL to the real domain — use 302 so browsers don't cache
+  // Redirect any onrender.com URL to the real domain — 301 permanent so browsers never show render.com again
   const host = (req.headers.host || '').toLowerCase().split(':')[0];
-  if (host && (host.endsWith('.onrender.com') || host === 'shophere-in-1.onrender.com' || host === 'shophere-in.onrender.com')) {
+  if (host && host.endsWith('.onrender.com')) {
     const target = 'https://' + CUSTOM_DOMAIN + req.url;
-    res.writeHead(302, { 'Location': target, 'Cache-Control': 'no-store, no-cache, must-revalidate' });
+    res.writeHead(301, { 'Location': target, 'Cache-Control': 'no-store, no-cache, must-revalidate' });
     return res.end();
   }
 

@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>ShopHere.in</title>
 <script>if(window.location.protocol==='file:'){window.location.href='http://localhost:8080/';}</script>
-<link rel="stylesheet" href="style.css?v=zoom6">
+<link rel="stylesheet" href="style.css?v=fix1">
 <style>
 /* ── Scrolling marquee ───────────────── */
 .marquee-bar{background:var(--sec);color:#fff;padding:7px 0;overflow:hidden;white-space:nowrap}
@@ -244,13 +244,13 @@
         <h2 id="sectionTitle">All Products</h2>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <select id="sortSelect" style="padding:7px 12px;border:1.5px solid var(--b);border-radius:7px;font-size:.84rem;outline:none;background:#fff" onchange="setSortAndFilter(this.value)">
-            <option value="">🔀 Sort By</option>
-            <option value="price_asc">💰 Price: Low → High</option>
-            <option value="price_desc">💰 Price: High → Low</option>
-            <option value="rating">⭐ Top Rated</option>
-            <option value="name_asc">🔤 Name: A → Z</option>
-            <option value="newest" selected>🆕 Newest First</option>
-            <option value="discount">🏷️ Best Discount</option>
+            <option value="">Sort By</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
+            <option value="name_asc">Name: A to Z</option>
+            <option value="newest" selected>Newest First</option>
+            <option value="discount">Best Discount</option>
           </select>
         </div>
       </div>
@@ -736,6 +736,6 @@
 <div class="toast-wrap" id="toastWrap"></div>
 
 <!-- app.js must be loaded at the very bottom -->
-<script src="app.js?v=a3"></script>
+<script src="app.js?v=fix1"></script>
 </body>
 </html>
