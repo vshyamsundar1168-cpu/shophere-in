@@ -413,7 +413,7 @@ const server = http.createServer(async (req, res) => {
 
     // ── VERSION CHECK ─────────────────────────────────────────────────────────
     if (p === '/api/version') {
-      return sendJSON(res, 200, { version: 'ee0350c', deployed: new Date().toISOString() });
+      return sendJSON(res, 200, { version: '2731310', deployed: new Date().toISOString() });
     }
 
     // ── AUTH ──────────────────────────────────────────────────────────────────
