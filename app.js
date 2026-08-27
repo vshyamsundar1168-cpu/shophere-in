@@ -1,4 +1,4 @@
-'use strict';
+// ShopHere.in app.js
 // ── State ─────────────────────────────────────────────────────────────────────
 let allProducts=[], allCategories=[], allBanners=[], storeSettings={};
 let cart=JSON.parse(localStorage.getItem('sh_cart')||'[]');
