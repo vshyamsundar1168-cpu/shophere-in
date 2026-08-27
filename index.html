@@ -18,7 +18,7 @@
 .marquee-inner:hover{animation-play-state:paused}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 .marquee-inner span{font-size:.82rem;letter-spacing:.3px;margin-right:60px}
-.marquee-inner span::before{content:'🛍️ '}
+.marquee-inner span::before{content:' '}
 
 /* ── Login modal ─────────────────────── */
 .login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:none;align-items:center;justify-content:center}
@@ -67,7 +67,7 @@
 </div>
 
 <!-- ═══ ANNOUNCEMENT BAR ═══════════════════════════════════════════════════ -->
-<div class="top-bar" id="topBar">🎉 Free shipping on orders above ₹999</div>
+<div class="top-bar" id="topBar"> Free shipping on orders above ₹999</div>
 
 <!-- Page Builder blocks: HEADER zone (below announcement bar, above nav) -->
 
@@ -83,7 +83,7 @@
       <select id="searchCat"><option value="all">All</option></select>
       <input type="text" id="searchInput" placeholder="Search products, brands…"
         oninput="liveSearch()" onkeydown="if(event.key==='Enter')doSearch()">
-      <button onclick="doSearch()">🔍 Search</button>
+      <button onclick="doSearch()"> Search</button>
     </div>
     <div class="hdr-icons">
       <div class="hdr-icon" onclick="openCart()">
@@ -108,10 +108,10 @@
       </div>
       <div id="userChip" style="display:none">
         <div class="user-chip" onclick="toggleUserMenu()">
-          <span>👤</span><span id="userName">User</span><span>▾</span>
+          <span></span><span id="userName">User</span><span>▾</span>
         </div>
         <div id="userMenu" style="display:none;position:absolute;top:100%;right:0;background:#fff;border:1px solid var(--b);border-radius:10px;padding:8px 0;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:300">
-          <div onclick="openOrders()" style="padding:9px 16px;font-size:.83rem;cursor:pointer">📦 My Orders</div>
+          <div onclick="openOrders()" style="padding:9px 16px;font-size:.83rem;cursor:pointer"> My Orders</div>
           <div onclick="logout()" style="padding:9px 16px;font-size:.83rem;cursor:pointer;color:var(--rd)">🚪 Logout</div>
         </div>
       </div>
@@ -170,7 +170,7 @@
       <div><div class="trust-title">Easy Returns</div><div class="trust-sub">24hr exchange policy</div></div>
     </div>
     <div class="trust-item">
-      <div class="trust-icon">🔒</div>
+      <div class="trust-icon"></div>
       <div><div class="trust-title">Secure Payment</div><div class="trust-sub">100% safe checkout</div></div>
     </div>
     <div class="trust-item">
@@ -190,21 +190,21 @@
   <!-- FEATURED -->
   <div class="container" id="featuredSection">
     <div class="section-card">
-      <div class="sec-hdr"><h2>⭐ Featured Products</h2><a onclick="filterCat('all')">View All →</a></div>
+      <div class="sec-hdr"><h2>&#9733; Featured Products</h2><a onclick="filterCat('all')">View All -></a></div>
       <div class="products-grid" id="featuredGrid"></div>
     </div>
   </div>
   <!-- DEALS -->
   <div class="container" id="dealsSection">
     <div class="section-card">
-      <div class="sec-hdr"><h2>🔥 Today's Deals</h2><a onclick="filterBadge('deal')">View All →</a></div>
+      <div class="sec-hdr"><h2>🔥 Today's Deals</h2><a onclick="filterBadge('deal')">View All -></a></div>
       <div class="products-grid" id="dealsGrid"></div>
     </div>
   </div>
   <!-- NEW ARRIVALS -->
   <div class="container" id="newSection">
     <div class="section-card">
-      <div class="sec-hdr"><h2>✨ New Arrivals</h2><a onclick="filterBadge('new')">View All →</a></div>
+      <div class="sec-hdr"><h2>✨ New Arrivals</h2><a onclick="filterBadge('new')">View All -></a></div>
       <div class="products-grid" id="newGrid"></div>
     </div>
   </div>
@@ -231,10 +231,10 @@
       <div class="filter-section">
         <h5>Min Rating</h5>
         <div class="star-btns">
-          <button class="star-btn" onclick="setRating(1)">1★</button>
-          <button class="star-btn" onclick="setRating(2)">2★</button>
-          <button class="star-btn" onclick="setRating(3)">3★</button>
-          <button class="star-btn" onclick="setRating(4)">4★</button>
+          <button class="star-btn" onclick="setRating(1)">1&#9733;</button>
+          <button class="star-btn" onclick="setRating(2)">2&#9733;</button>
+          <button class="star-btn" onclick="setRating(3)">3&#9733;</button>
+          <button class="star-btn" onclick="setRating(4)">4&#9733;</button>
         </div>
       </div>
       <button class="btn btn-sec btn-sm" style="width:100%;margin-top:8px" onclick="clearFilters()">Clear Filters</button>
@@ -270,17 +270,17 @@
     <p style="color:#94a3b8;margin-bottom:28px">We're here to help! Reach out to us anytime.</p>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:700px;margin:0 auto 28px" id="contactCards">
       <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:20px">
-        <div style="font-size:2rem;margin-bottom:8px">📧</div>
+        <div style="font-size:2rem;margin-bottom:8px"></div>
         <div style="font-size:.8rem;color:#94a3b8;margin-bottom:4px">Email</div>
         <div style="font-weight:700;font-size:.9rem" id="cEmail">support@shophere.in</div>
       </div>
       <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:20px">
-        <div style="font-size:2rem;margin-bottom:8px">📱</div>
+        <div style="font-size:2rem;margin-bottom:8px"></div>
         <div style="font-size:.8rem;color:#94a3b8;margin-bottom:4px">Phone</div>
         <div style="font-weight:700;font-size:.9rem" id="cPhone">+91-XXXXXXXXXX</div>
       </div>
       <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:20px">
-        <div style="font-size:2rem;margin-bottom:8px">🏠</div>
+        <div style="font-size:2rem;margin-bottom:8px"></div>
         <div style="font-size:.8rem;color:#94a3b8;margin-bottom:4px">Address</div>
         <div style="font-weight:700;font-size:.9rem" id="cAddr">India</div>
       </div>
@@ -404,9 +404,9 @@
       <div style="text-align:right;margin-bottom:10px">
         <a onclick="showForgot()" style="font-size:.78rem;color:var(--p);cursor:pointer;text-decoration:underline">Forgot Password?</a>
       </div>
-      <button class="btn btn-primary btn-full" onclick="doLogin()">Login →</button>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Login -></button>
       <div style="margin-top:12px;padding:10px;background:#f0fdf4;border-radius:8px;font-size:.75rem;color:#166534;text-align:center;border:1px solid #bbf7d0">
-        🔐 Admin? Enter your admin username &amp; password to go to Admin Panel
+         Admin? Enter your admin username &amp; password to go to Admin Panel
       </div>
     </div>
 
@@ -429,7 +429,7 @@
         </div>
       </div>
       <div id="regErr" style="color:var(--rd);font-size:.78rem;margin-bottom:8px;display:none"></div>
-      <button class="btn btn-primary btn-full" onclick="doRegister()">Create Account →</button>
+      <button class="btn btn-primary btn-full" onclick="doRegister()">Create Account -></button>
     </div>
 
     <!-- #7: Forgot password form -->
@@ -441,7 +441,7 @@
       </div>
       <div id="forgotMsg" style="font-size:.8rem;margin-bottom:10px;min-height:18px"></div>
       <button class="btn btn-primary btn-full" onclick="doForgot()">Retrieve Password</button>
-      <button onclick="switchAuthTab('login',document.querySelector('.login-tab'))" style="width:100%;margin-top:10px;background:none;border:none;color:var(--p);font-size:.82rem;cursor:pointer;text-decoration:underline">← Back to Login</button>
+      <button onclick="switchAuthTab('login',document.querySelector('.login-tab'))" style="width:100%;margin-top:10px;background:none;border:none;color:var(--p);font-size:.82rem;cursor:pointer;text-decoration:underline"><- Back to Login</button>
     </div>
 
     <button onclick="closeLogin()" style="width:100%;margin-top:12px;background:none;border:none;color:var(--m);font-size:.82rem;cursor:pointer">Close</button>
@@ -458,12 +458,12 @@
     <div class="popup-body">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
         <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
-          <div style="font-size:1.6rem">📧</div>
+          <div style="font-size:1.6rem"></div>
           <div style="font-size:.75rem;color:var(--m);margin:4px 0">Email</div>
           <div style="font-weight:700;font-size:.85rem" id="popEmail">support@shophere.in</div>
         </div>
         <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
-          <div style="font-size:1.6rem">📱</div>
+          <div style="font-size:1.6rem"></div>
           <div style="font-size:.75rem;color:var(--m);margin:4px 0">Phone</div>
           <div style="font-weight:700;font-size:.85rem" id="popPhone">—</div>
         </div>
@@ -484,7 +484,7 @@
 <div class="popup-overlay" id="termsPopup">
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
-      <h3>📋 Terms of Use</h3>
+      <h3> Terms of Use</h3>
       <button class="popup-close" onclick="closePopup('termsPopup')">✕</button>
     </div>
     <div class="popup-body">
@@ -497,7 +497,7 @@
 <div class="popup-overlay" id="privacyPopup">
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
-      <h3>🔒 Privacy Policy</h3>
+      <h3> Privacy Policy</h3>
       <button class="popup-close" onclick="closePopup('privacyPopup')">✕</button>
     </div>
     <div class="popup-body">
@@ -541,7 +541,7 @@
     </div>
     <div class="popup-body">
       <div style="text-align:center;margin-bottom:24px">
-        <div style="font-size:3rem;margin-bottom:10px">🚀</div>
+        <div style="font-size:3rem;margin-bottom:10px"></div>
         <h3 style="font-weight:800;margin-bottom:6px">Join Our Team!</h3>
         <p style="color:var(--m);font-size:.88rem">Be part of India's fastest-growing online shopping platform.</p>
       </div>
@@ -567,7 +567,7 @@
         </ul>
       </div>
       <div style="background:#fff7ed;border-radius:12px;padding:16px;border:1px solid #fed7aa">
-        <div style="font-weight:700;font-size:.88rem;margin-bottom:6px">📧 Apply Now</div>
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:6px"> Apply Now</div>
         <p style="font-size:.83rem;color:var(--m);margin-bottom:8px">Send your resume and a brief cover letter to:</p>
         <a href="mailto:careers@shophere.in" style="color:var(--p);font-weight:700;font-size:.88rem">careers@shophere.in</a>
       </div>
@@ -579,12 +579,12 @@
 <div class="popup-overlay" id="aboutPopup">
   <div class="popup-box" style="max-width:580px">
     <div class="popup-hdr">
-      <h3>🏪 About ShopHere.in</h3>
+      <h3> About ShopHere.in</h3>
       <button class="popup-close" onclick="closePopup('aboutPopup')">✕</button>
     </div>
     <div class="popup-body">
       <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:3rem;margin-bottom:8px">🛍️</div>
+        <div style="font-size:3rem;margin-bottom:8px"></div>
         <h3 style="font-weight:800;margin-bottom:8px">ShopHere.in</h3>
         <p style="color:var(--m);font-size:.88rem">India's trusted online shopping destination</p>
       </div>
@@ -598,7 +598,7 @@
 <div class="overlay" id="trackOrderModal">
   <div class="modal" style="max-width:440px">
     <div class="modal-hdr">
-      <h3>📦 Track Your Order</h3>
+      <h3> Track Your Order</h3>
       <button class="modal-close" onclick="closeOverlay('trackOrderModal')">✕</button>
     </div>
     <div class="modal-body">
@@ -608,7 +608,7 @@
         <input id="trackInput" placeholder="e.g. ORD-1234567890" style="text-transform:uppercase"
           onkeydown="if(event.key==='Enter')trackOrder()">
       </div>
-      <button class="btn btn-primary btn-full" onclick="trackOrder()">Track Order →</button>
+      <button class="btn btn-primary btn-full" onclick="trackOrder()">Track Order -></button>
       <div id="trackResult" style="margin-top:14px"></div>
     </div>
   </div>
@@ -618,7 +618,7 @@
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeCart()"></div>
 <div class="drawer" id="cartDrawer">
   <div class="drawer-hdr">
-    <h3>🛒 Cart (<span id="cartCount">0</span>)</h3>
+    <h3> Cart (<span id="cartCount">0</span>)</h3>
     <button class="modal-close" onclick="closeCart()">✕</button>
   </div>
   <div class="drawer-body" id="cartBody"></div>
@@ -626,14 +626,14 @@
     <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:12px;font-size:1.05rem">
       <span>Total</span><span id="cartTotal">₹0.00</span>
     </div>
-    <button class="btn btn-primary btn-full" onclick="startCheckout()">Proceed to Checkout →</button>
+    <button class="btn btn-primary btn-full" onclick="startCheckout()">Proceed to Checkout -></button>
   </div>
 </div>
 
 <!-- ── WISHLIST MODAL ─────────────────────────────────────────────────────── -->
 <div class="overlay" id="wishModal">
   <div class="modal modal-lg">
-    <div class="modal-hdr"><h3>❤️ Wishlist</h3><button class="modal-close" onclick="closeOverlay('wishModal')">✕</button></div>
+    <div class="modal-hdr"><h3> Wishlist</h3><button class="modal-close" onclick="closeOverlay('wishModal')">✕</button></div>
     <div class="modal-body" id="wishBody"></div>
   </div>
 </div>
@@ -649,7 +649,7 @@
 <!-- ── CHECKOUT MODAL ──────────────────────────────────────────────────────── -->
 <div class="overlay" id="checkoutModal">
   <div class="modal modal-lg">
-    <div class="modal-hdr"><h3>🛒 Checkout</h3><button class="modal-close" onclick="closeOverlay('checkoutModal')">✕</button></div>
+    <div class="modal-hdr"><h3> Checkout</h3><button class="modal-close" onclick="closeOverlay('checkoutModal')">✕</button></div>
     <div class="modal-body">
       <div class="checkout-steps">
         <div class="cs-step active" id="cst1"><div class="cs-num">1</div><span>Cart</span></div>
@@ -664,7 +664,7 @@
       <div class="checkout-panel active" id="coP1">
         <div id="coCartItems"></div>
         <div style="display:flex;justify-content:space-between;font-weight:800;font-size:1.1rem;margin-top:16px;padding-top:12px;border-top:2px solid var(--b)"><span>Total</span><span id="coTotal">₹0</span></div>
-        <div style="padding:16px 0 0"><button class="btn btn-primary btn-full" onclick="coGoStep(2)">Continue →</button></div>
+        <div style="padding:16px 0 0"><button class="btn btn-primary btn-full" onclick="coGoStep(2)">Continue -></button></div>
       </div>
       <!-- Step 2: Delivery address -->
       <div class="checkout-panel" id="coP2">
@@ -681,32 +681,32 @@
           <div class="form-group"><label>PIN *</label><input id="co_pin" maxlength="6"><div class="form-error" id="er_pin"></div></div>
         </div>
         <div style="display:flex;gap:8px;padding:16px 0 0">
-          <button class="btn btn-sec" onclick="coGoStep(1)">← Back</button>
-          <button class="btn btn-primary" style="flex:1" onclick="coValidate()">Continue →</button>
+          <button class="btn btn-sec" onclick="coGoStep(1)"><- Back</button>
+          <button class="btn btn-primary" style="flex:1" onclick="coValidate()">Continue -></button>
         </div>
       </div>
       <!-- Step 3: Payment -->
       <div class="checkout-panel" id="coP3">
         <div style="display:grid;gap:10px;margin-bottom:16px">
-          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'cod')"><input type="radio" name="pay" value="cod" checked style="accent-color:var(--p)"><div><div style="font-weight:700">💵 Cash on Delivery</div><div style="font-size:.78rem;color:var(--m)">Pay when order arrives — Free</div></div></label>
-          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--p);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'upi')"><input type="radio" name="pay" value="upi" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">📱 UPI <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Google Pay, PhonePe, Paytm, BHIM</div></div></label>
-          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'card')"><input type="radio" name="pay" value="card" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">💳 Credit / Debit Card <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Visa, Mastercard, RuPay, Amex</div></div></label>
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'cod')"><input type="radio" name="pay" value="cod" checked style="accent-color:var(--p)"><div><div style="font-weight:700"> Cash on Delivery</div><div style="font-size:.78rem;color:var(--m)">Pay when order arrives — Free</div></div></label>
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--p);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'upi')"><input type="radio" name="pay" value="upi" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px"> UPI <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Google Pay, PhonePe, Paytm, BHIM</div></div></label>
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'card')"><input type="radio" name="pay" value="card" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px"> Credit / Debit Card <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Visa, Mastercard, RuPay, Amex</div></div></label>
           <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'netbanking')"><input type="radio" name="pay" value="netbanking" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">🏦 Net Banking <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">SBI, HDFC, ICICI, Axis & 100+ banks</div></div></label>
           <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'wallet')"><input type="radio" name="pay" value="wallet" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">👛 Wallets <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Paytm, Amazon Pay, Mobikwik</div></div></label>
         </div>
         <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.78rem;color:#0369a1;display:flex;align-items:center;gap:8px">
-          🔒 <strong>100% Secure</strong> payments powered by <strong>Razorpay</strong> — PCI DSS Level 1 certified
+           <strong>100% Secure</strong> payments powered by <strong>Razorpay</strong> — PCI DSS Level 1 certified
         </div>
         <div id="payDetail"></div>
         <div style="display:flex;gap:8px;padding:16px 0 0">
-          <button class="btn btn-sec" onclick="coGoStep(2)">← Back</button>
-          <button class="btn btn-primary" style="flex:1" onclick="placeOrder()">Place Order 🎉</button>
+          <button class="btn btn-sec" onclick="coGoStep(2)"><- Back</button>
+          <button class="btn btn-primary" style="flex:1" onclick="placeOrder()">Place Order </button>
         </div>
       </div>
       <!-- Step 4: Confirmation -->
       <div class="checkout-panel" id="coP4">
         <div style="text-align:center;padding:32px 0">
-          <div style="font-size:4rem;margin-bottom:12px">🎉</div>
+          <div style="font-size:4rem;margin-bottom:12px"></div>
           <h3 style="font-size:1.3rem;font-weight:800;color:var(--g);margin-bottom:8px">Order Placed!</h3>
           <p style="color:var(--m);margin-bottom:12px">Order ID: <strong id="coOrderId"></strong></p>
           <p style="font-size:.85rem;color:var(--m);margin-bottom:20px">Estimated delivery: <strong>3–5 business days</strong></p>
@@ -721,7 +721,7 @@
 <!-- ── ORDERS MODAL ───────────────────────────────────────────────────────── -->
 <div class="overlay" id="ordersModal">
   <div class="modal modal-lg">
-    <div class="modal-hdr"><h3>📦 My Orders</h3><button class="modal-close" onclick="closeOverlay('ordersModal')">✕</button></div>
+    <div class="modal-hdr"><h3> My Orders</h3><button class="modal-close" onclick="closeOverlay('ordersModal')">✕</button></div>
     <div class="modal-body" id="ordersBody"></div>
   </div>
 </div>

@@ -89,7 +89,7 @@ if(window.location.protocol==='file:'){
 <!-- SERVER NOT RUNNING ALERT -->
 <div id="serverAlert">
   <div class="alert-box">
-    <h2>⚠️ Server Not Running</h2>
+    <h2>! Server Not Running</h2>
     <p>The ShopHere.in server is not running. You must start the server first, then open this page through the browser — not by double-clicking the file.</p>
     <p><strong>Step 1:</strong> Double-click <code>START_SERVER.bat</code></p>
     <p><strong>Step 2:</strong> Open your browser and go to:</p>
@@ -102,22 +102,22 @@ if(window.location.protocol==='file:'){
 <div class="sidebar">
   <div class="sb-brand"><span class="sh-shop">Shop</span><span class="sh-here">Here</span><span class="sh-in">.in</span><br><small style="font-size:.65rem;color:#64748b;font-weight:400">Admin Panel</small></div>
   <div class="sb-nav">
-    <div class="sb-item active" onclick="showTab('dashboard',this)">📊 Dashboard</div>
-    <div class="sb-item" onclick="showTab('products',this)">📦 Products</div>
+    <div class="sb-item active" onclick="showTab('dashboard',this)"> Dashboard</div>
+    <div class="sb-item" onclick="showTab('products',this)"> Products</div>
     <div class="sb-item" onclick="showTab('addProduct',this)">➕ Add Product</div>
-    <div class="sb-item" onclick="showTab('orders',this)">🛒 Orders</div>
-    <div class="sb-item" onclick="showTab('reviews',this)">⭐ Reviews</div>
-    <div class="sb-item" onclick="showTab('banners',this)">🖼️ Banners</div>
+    <div class="sb-item" onclick="showTab('orders',this)"> Orders</div>
+    <div class="sb-item" onclick="showTab('reviews',this)">&#9733; Reviews</div>
+    <div class="sb-item" onclick="showTab('banners',this)"> Banners</div>
     <div class="sb-item" onclick="showTab('categories',this)">🗂️ Categories</div>
     <div class="sb-item" onclick="showTab('settings',this)">⚙️ Store Settings</div>
-    <div class="sb-item" onclick="showTab('pagebuilder',this)">🏗️ Page Builder</div>
-    <div class="sb-item" onclick="showTab('inventory',this)">📊 Inventory</div>
-    <div class="sb-item" onclick="showTab('discounts',this)">🏷️ Discounts</div>
+    <div class="sb-item" onclick="showTab('pagebuilder',this)"> Page Builder</div>
+    <div class="sb-item" onclick="showTab('inventory',this)"> Inventory</div>
+    <div class="sb-item" onclick="showTab('discounts',this)"> Discounts</div>
     <div class="sb-item" onclick="showTab('customcols',this)">🗃️ Custom Columns</div>
-    <div class="sb-item" onclick="showTab('import',this)">📥 Supplier Import</div>
-    <div class="sb-item" onclick="showTab('extension',this)">🧩 Push Extension</div>
-    <div class="sb-item" onclick="showTab('analytics',this)">📊 Analytics</div>
-    <div class="sb-item sb-bottom"><a href="/" target="_blank">🏠 View Store</a></div>
+    <div class="sb-item" onclick="showTab('import',this)"> Supplier Import</div>
+    <div class="sb-item" onclick="showTab('extension',this)"> Push Extension</div>
+    <div class="sb-item" onclick="showTab('analytics',this)"> Analytics</div>
+    <div class="sb-item sb-bottom"><a href="/" target="_blank"> View Store</a></div>
     <div class="sb-item sb-bottom" style="font-size:.6rem;color:#475569;padding:8px 20px">v8bd1c8c</div>
   </div>
 </div>
@@ -129,7 +129,7 @@ if(window.location.protocol==='file:'){
     <div style="display:flex;align-items:center;gap:14px">
       <span style="font-size:.8rem;color:var(--m)" id="adminTime"></span>
       <div style="display:flex;align-items:center;gap:8px;background:#f1f5f9;padding:6px 14px;border-radius:50px">
-        <span style="font-size:1rem">👤</span>
+        <span style="font-size:1rem"></span>
         <span style="font-size:.82rem;font-weight:700;color:var(--sec)" id="adminUserLabel">Admin</span>
       </div>
       <button onclick="adminLogout()" style="padding:7px 16px;background:var(--rd);color:#fff;border:none;border-radius:50px;font-size:.8rem;font-weight:700;cursor:pointer">🚪 Logout</button>
@@ -139,10 +139,10 @@ if(window.location.protocol==='file:'){
   <!-- DASHBOARD TAB -->
   <div id="tab-dashboard" class="tab active">
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-icon">📦</div><div><div class="stat-val" id="st-p">—</div><div class="stat-lbl">Products</div></div></div>
-      <div class="stat-card"><div class="stat-icon">🛒</div><div><div class="stat-val" id="st-o">—</div><div class="stat-lbl">Orders</div></div></div>
-      <div class="stat-card"><div class="stat-icon">💰</div><div><div class="stat-val" id="st-r">—</div><div class="stat-lbl">Revenue</div></div></div>
-      <div class="stat-card"><div class="stat-icon">⚠️</div><div><div class="stat-val" id="st-ls">—</div><div class="stat-lbl">Low Stock</div></div></div>
+      <div class="stat-card"><div class="stat-icon"></div><div><div class="stat-val" id="st-p">—</div><div class="stat-lbl">Products</div></div></div>
+      <div class="stat-card"><div class="stat-icon"></div><div><div class="stat-val" id="st-o">—</div><div class="stat-lbl">Orders</div></div></div>
+      <div class="stat-card"><div class="stat-icon"></div><div><div class="stat-val" id="st-r">—</div><div class="stat-lbl">Revenue</div></div></div>
+      <div class="stat-card"><div class="stat-icon">!</div><div><div class="stat-val" id="st-ls">—</div><div class="stat-lbl">Low Stock</div></div></div>
     </div>
     <div class="sec">
       <h3 style="font-size:.95rem;font-weight:700;margin-bottom:14px">Recent Orders</h3>
@@ -189,7 +189,7 @@ if(window.location.protocol==='file:'){
         <div class="form-row">
           <div class="form-group"><label>Stock *</label><input id="ap_stock" type="number" placeholder="0" min="0"></div>
           <div class="form-group"><label>Badge</label>
-            <select id="ap_badge"><option value="">None</option><option value="new">🆕 New</option><option value="deal">🔥 Deal</option><option value="hot">⚡ Hot</option></select>
+            <select id="ap_badge"><option value="">None</option><option value="new">NEW New</option><option value="deal">🔥 Deal</option><option value="hot">⚡ Hot</option></select>
           </div>
         </div>
         <div class="form-group">
@@ -200,7 +200,7 @@ if(window.location.protocol==='file:'){
         <div class="form-group">
           <label>Product Images (JPG, PNG, WebP — max 10MB each)</label>
           <div class="upload-area" onclick="document.getElementById('ap_images').click()">
-            📷 Click to select images (multiple allowed)
+             Click to select images (multiple allowed)
             <input type="file" id="ap_images" multiple accept="image/*" style="display:none" onchange="previewImages(this,'ap_imgPrev')">
           </div>
           <div class="img-preview" id="ap_imgPrev"></div>
@@ -214,9 +214,9 @@ if(window.location.protocol==='file:'){
           <div id="ap_vidPrev" style="margin-top:8px;font-size:.8rem;color:var(--m)"></div>
         </div>
         <div class="form-group">
-          <label>🎵 Audio / Background Music (MP3, WAV, OGG — max 50MB each)</label>
+          <label> Audio / Background Music (MP3, WAV, OGG — max 50MB each)</label>
           <div class="upload-area" onclick="document.getElementById('ap_audios').click()">
-            🎵 Click to select audio files
+             Click to select audio files
             <input type="file" id="ap_audios" multiple accept="audio/*" style="display:none" onchange="previewAudios(this,'ap_audPrev')">
           </div>
           <div id="ap_audPrev" style="margin-top:8px;font-size:.8rem;color:var(--m)"></div>
@@ -262,7 +262,7 @@ if(window.location.protocol==='file:'){
     <div class="sec">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
         <div>
-          <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🖼️ Banners</h3>
+          <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Banners</h3>
           <p style="font-size:.8rem;color:var(--m)">Add banners. Use <strong>Grid</strong> mode to show 2–4 banners side by side. Use <strong>Slider</strong> for full-width slideshow.</p>
         </div>
         <button onclick="openAddBannerModal()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Add Banner</button>
@@ -291,7 +291,7 @@ if(window.location.protocol==='file:'){
         <div class="form-group">
           <label>Store Logo</label>
           <div class="upload-area" onclick="document.getElementById('st_logo').click()">
-            🏪 Upload logo (PNG, JPG, SVG — max 2MB)
+             Upload logo (PNG, JPG, SVG — max 2MB)
             <input type="file" id="st_logo" accept="image/*" style="display:none" onchange="previewLogo(this)">
           </div>
           <img id="st_logoPrev" src="" alt="" style="max-height:60px;margin-top:8px;display:none;border-radius:8px">
@@ -328,17 +328,17 @@ if(window.location.protocol==='file:'){
 
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
             <div class="form-group" style="margin:0">
-              <label>🏷️ Product Name Text</label>
+              <label> Product Name Text</label>
               <input type="color" id="st_colorProdName" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Product card title</small>
             </div>
             <div class="form-group" style="margin:0">
-              <label>💰 Product Price Text</label>
+              <label> Product Price Text</label>
               <input type="color" id="st_colorProdPrice" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Price color</small>
             </div>
             <div class="form-group" style="margin:0">
-              <label>🏷️ Product Brand Text</label>
+              <label> Product Brand Text</label>
               <input type="color" id="st_colorProdBrand" value="#64748b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Brand/category label</small>
             </div>
@@ -351,12 +351,12 @@ if(window.location.protocol==='file:'){
               <small style="color:var(--m)">Section titles (H1–H4)</small>
             </div>
             <div class="form-group" style="margin:0">
-              <label>📝 Body / Description Text</label>
+              <label> Body / Description Text</label>
               <input type="color" id="st_colorBody" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">General body text</small>
             </div>
             <div class="form-group" style="margin:0">
-              <label>🔗 Links &amp; Buttons</label>
+              <label> Links &amp; Buttons</label>
               <input type="color" id="st_colorLink" value="#f97316" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">CTA buttons &amp; links</small>
             </div>
@@ -374,7 +374,7 @@ if(window.location.protocol==='file:'){
               <small style="color:var(--m)">Footer column titles</small>
             </div>
             <div class="form-group" style="margin:0">
-              <label>🏠 Nav Bar Text</label>
+              <label> Nav Bar Text</label>
               <input type="color" id="st_colorNavText" value="#94a3b8" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Category nav links</small>
             </div>
@@ -385,7 +385,7 @@ if(window.location.protocol==='file:'){
 
         <!-- BANNER SIZE CONTROLS — multi-unit -->
         <hr style="margin:18px 0;border-color:var(--b)">
-        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px">🖼️ Banner Size &amp; Display Settings</h4>
+        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px"> Banner Size &amp; Display Settings</h4>
         <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:4px">
 
           <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px;align-items:end">
@@ -405,14 +405,14 @@ if(window.location.protocol==='file:'){
             </div>
           </div>
           <div id="bannerSizeHint" style="font-size:.78rem;color:var(--m);margin-bottom:12px;background:#e0f2fe;padding:8px 12px;border-radius:6px">
-            📐 Common sizes: 380px = 10cm = 4in = 40vh
+             Common sizes: 380px = 10cm = 4in = 40vh
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
             <div class="form-group" style="margin:0">
               <label>Banner Image Fit</label>
               <select id="st_bannerFit" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
-                <option value="contain">✅ Fit Full Image — No Crop (recommended)</option>
+                <option value="contain"> Fit Full Image — No Crop (recommended)</option>
                 <option value="cover">🔲 Fill & Zoom — Crops edges</option>
                 <option value="fill">↔️ Stretch — May distort</option>
               </select>
@@ -421,7 +421,7 @@ if(window.location.protocol==='file:'){
               <label>Banner Text Size</label>
               <select id="st_bannerTextSize" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
                 <option value="xlarge">Extra Large — 3rem (~48px)</option>
-                <option value="large">Large — 2.4rem (~38px) ★ Default</option>
+                <option value="large">Large — 2.4rem (~38px) &#9733; Default</option>
                 <option value="medium">Medium — 1.8rem (~29px)</option>
                 <option value="small">Small — 1.4rem (~22px)</option>
               </select>
@@ -445,7 +445,7 @@ if(window.location.protocol==='file:'){
 
           <!-- Product Photo / Video Size -->
           <hr style="margin:14px 0;border-color:var(--b)">
-          <h5 style="font-size:.84rem;font-weight:700;margin-bottom:10px">🛍️ Product Card Sizes</h5>
+          <h5 style="font-size:.84rem;font-weight:700;margin-bottom:10px"> Product Card Sizes</h5>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
             <div class="form-group" style="margin:0">
               <label>Product Image Height (px)</label>
@@ -481,13 +481,13 @@ if(window.location.protocol==='file:'){
           <label>Contact Address</label><input id="st_addr" placeholder="Your store address, city">
         </div>
         <hr style="margin:20px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">📋 Terms &amp; Conditions</h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px"> Terms &amp; Conditions</h4>
         <div class="form-group">
           <label>Terms &amp; Conditions <small style="color:var(--m);font-weight:400">(displayed in Terms of Use popup on store)</small></label>
           <textarea id="st_terms" placeholder="Enter your terms and conditions…" style="min-height:150px;font-size:.84rem"></textarea>
         </div>
         <hr style="margin:20px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">🔒 Privacy Policy</h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px"> Privacy Policy</h4>
         <div class="form-group">
           <label>Privacy Policy <small style="color:var(--m);font-weight:400">(displayed in Privacy Policy popup on store)</small></label>
           <textarea id="st_privacy" placeholder="Enter your privacy policy…" style="min-height:150px;font-size:.84rem"></textarea>
@@ -508,7 +508,7 @@ if(window.location.protocol==='file:'){
 
         <!-- ═══ VISUAL CUSTOMIZER ═══ -->
         <h4 style="font-size:.95rem;font-weight:700;margin-bottom:14px">🎨 Visual Customizer</h4>
-        <div id="vc_unsaved" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;color:#856404;margin-bottom:12px">⚠️ Unsaved changes — click Save All Settings to apply</div>
+        <div id="vc_unsaved" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;color:#856404;margin-bottom:12px">! Unsaved changes — click Save All Settings to apply</div>
 
         <!-- FONTS -->
         <details style="background:#f8fafc;border:1px solid var(--b);border-radius:10px;margin-bottom:10px;overflow:hidden">
@@ -516,7 +516,7 @@ if(window.location.protocol==='file:'){
           <div style="padding:16px;border-top:1px solid var(--b)">
             <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;background:#fff;border:1px solid var(--b);border-radius:8px;padding:12px">
               <div style="flex:1">
-                <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:5px">🌐 Global Font — Apply to All Sections</label>
+                <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:5px"> Global Font — Apply to All Sections</label>
                 <select id="vc_globalFont" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.85rem;outline:none" onchange="vcPreviewGlobal()"></select>
                 <div id="vc_globalFontPrev" style="margin-top:6px;font-size:.9rem;color:#64748b;min-height:22px">The quick brown fox jumps</div>
               </div>
@@ -540,7 +540,7 @@ if(window.location.protocol==='file:'){
               <div class="form-group" style="margin:0"><label>Card Border Radius (px)</label><input type="number" id="vc_prodCardRadius" min="0" max="32" placeholder="12" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" oninput="vcMarkDirty()"><small style="color:var(--m)">Corner roundness (0–32)</small></div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-              <div class="form-group" style="margin:0"><label>🆕 "New" Badge Color</label><input type="color" id="vc_badgeNewBg" value="#22c55e" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
+              <div class="form-group" style="margin:0"><label>NEW "New" Badge Color</label><input type="color" id="vc_badgeNewBg" value="#22c55e" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
               <div class="form-group" style="margin:0"><label>🔥 "Deal" Badge Color</label><input type="color" id="vc_badgeDealBg" value="#f97316" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
               <div class="form-group" style="margin:0"><label>⚡ "Hot" Badge Color</label><input type="color" id="vc_badgeHotBg" value="#e11d48" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
             </div>
@@ -564,7 +564,7 @@ if(window.location.protocol==='file:'){
         </details>
 
         <hr style="margin:20px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">🔐 Admin Credentials</h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px"> Admin Credentials</h4>
         <div class="form-row">
           <div class="form-group">
             <label>New Admin Username</label>
@@ -581,7 +581,7 @@ if(window.location.protocol==='file:'){
 
         <hr style="margin:16px 0;border-color:var(--b)">
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">☁️ Cloudinary Image Storage <small style="font-weight:400;color:var(--m)">(recommended — images survive redeployments)</small></h4>
-        <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Without Cloudinary, uploaded images are lost on every Render redeploy. Sign up free at <a href="https://cloudinary.com" target="_blank" style="color:var(--p)">cloudinary.com</a> → Dashboard → copy your Cloud Name → Settings → Upload → Add upload preset (set to Unsigned).</p>
+        <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Without Cloudinary, uploaded images are lost on every Render redeploy. Sign up free at <a href="https://cloudinary.com" target="_blank" style="color:var(--p)">cloudinary.com</a> -> Dashboard -> copy your Cloud Name -> Settings -> Upload -> Add upload preset (set to Unsigned).</p>
         <div class="form-row">
           <div class="form-group">
             <label>Cloudinary Cloud Name</label>
@@ -596,7 +596,7 @@ if(window.location.protocol==='file:'){
         <button id="btnTestCloudinary" style="padding:7px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:4px" onclick="if(typeof testCloudinary==='function')testCloudinary();else alert('Page not fully loaded, please wait 2 seconds and try again')">🔌 Test Connection</button>
 
         <hr style="margin:16px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">🧩 Chrome Extension — Push to Store</h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px"> Chrome Extension — Push to Store</h4>
         <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Set a Push Token to secure your extension. Copy this token into the extension settings so only you can push products.</p>
         <div class="form-row">
           <div class="form-group">
@@ -608,11 +608,11 @@ if(window.location.protocol==='file:'){
           </div>
           <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end">
             <button onclick="showTab('extension',document.querySelector('.sb-item[onclick*=extension]'))" style="padding:9px 14px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">
-              🧩 Install Extension →
+               Install Extension ->
             </button>
           </div>
         </div>
-        <button class="btn btn-primary" style="margin-top:8px" onclick="saveSettings()">💾 Save All Settings</button>
+        <button class="btn btn-primary" style="margin-top:8px" onclick="saveSettings()"> Save All Settings</button>
       </div>
     </div>
   </div>
@@ -622,7 +622,7 @@ if(window.location.protocol==='file:'){
   <div class="sec">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
       <div>
-        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🏗️ Page Builder</h3>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Page Builder</h3>
         <p style="font-size:.8rem;color:var(--m)">Add, edit or delete any content block on your store pages. Changes are instant.</p>
       </div>
       <button onclick="pbOpenAdd()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Add New Block</button>
@@ -632,13 +632,13 @@ if(window.location.protocol==='file:'){
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button class="pb-page-btn active" onclick="pbFilterPage('all',this)">All</button>
       <button class="pb-page-btn" onclick="pbFilterPage('top',this)">⬆️ Top</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('home',this)">🏠 Home</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('home',this)"> Home</button>
       <button class="pb-page-btn" onclick="pbFilterPage('header',this)">🔝 Header</button>
       <button class="pb-page-btn" onclick="pbFilterPage('between',this)">↕️ Between</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('products',this)">📦 Products</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('products',this)"> Products</button>
       <button class="pb-page-btn" onclick="pbFilterPage('footer',this)">🦶 Footer</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('floating',this)">📌 Floating</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('sidebar',this)">📎 Sidebar</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('floating',this)"> Floating</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('sidebar',this)"> Sidebar</button>
       <button class="pb-page-btn" onclick="pbFilterPage('custom',this)">✨ Custom</button>
     </div>
 
@@ -669,36 +669,36 @@ if(window.location.protocol==='file:'){
         <div class="form-group" style="margin:0">
           <label>Page / Location</label>
           <select id="pb_page" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
-            <option value="home">🏠 Home Page</option>
+            <option value="home"> Home Page</option>
             <option value="header">🔝 Header Area</option>
             <option value="top">⬆️ Top of Page (above header)</option>
             <option value="footer">🦶 Footer Area</option>
-            <option value="products">📦 Products Section</option>
+            <option value="products"> Products Section</option>
             <option value="between">↕️ Between Sections</option>
-            <option value="floating">📌 Floating / Popup Ad</option>
-            <option value="sidebar">📎 Sidebar</option>
+            <option value="floating"> Floating / Popup Ad</option>
+            <option value="sidebar"> Sidebar</option>
             <option value="custom">✨ Custom Section</option>
           </select>
         </div>
         <div class="form-group" style="margin:0">
           <label>Block Type</label>
           <select id="pb_type" onchange="pbTypeChanged()" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
-            <option value="text">📝 Text / HTML</option>
+            <option value="text"> Text / HTML</option>
             <option value="heading">🔤 Heading</option>
-            <option value="image">🖼️ Single Image</option>
-            <option value="image-link">🔗 Image + Link (Ad Banner)</option>
+            <option value="image"> Single Image</option>
+            <option value="image-link"> Image + Link (Ad Banner)</option>
             <option value="mixed">🎨 Mixed — Image + Text + Video</option>
-            <option value="gallery">🖼️🖼️ Gallery (Multiple Images)</option>
+            <option value="gallery"> Gallery (Multiple Images)</option>
             <option value="columns">⬛⬛ Side-by-Side Columns</option>
             <option value="video">🎬 Video</option>
-            <option value="audio">🎵 Audio</option>
+            <option value="audio"> Audio</option>
             <option value="button">🔘 Button / Link</option>
             <option value="marquee">📢 Scrolling Marquee Text</option>
             <option value="countdown">⏳ Countdown Timer</option>
             <option value="notice">📣 Notice / Alert Box</option>
             <option value="divider">➖ Divider</option>
             <option value="spacer">⬜ Spacer</option>
-            <option value="html">🧩 Custom HTML</option>
+            <option value="html"> Custom HTML</option>
           </select>
         </div>
       </div>
@@ -719,9 +719,9 @@ if(window.location.protocol==='file:'){
             <label>🖱️ Click Action <small style="color:var(--m);font-weight:400">(what happens when customer clicks)</small></label>
             <select id="pb_clickAction" onchange="pbToggleClickFields()" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
               <option value="">None (just zoom/lightbox)</option>
-              <option value="product">🛒 Open Product Cart (Add to Cart popup)</option>
-              <option value="link">🔗 Open a Link / Page</option>
-              <option value="category">📦 Filter by Category</option>
+              <option value="product"> Open Product Cart (Add to Cart popup)</option>
+              <option value="link"> Open a Link / Page</option>
+              <option value="category"> Filter by Category</option>
             </select>
           </div>
         </div>
@@ -793,8 +793,8 @@ if(window.location.protocol==='file:'){
             <div class="form-group" style="margin:0">
               <label>Image Fit / Zoom</label>
               <select id="pb_objectFit" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
-                <option value="contain">📐 Show Full — No Crop (default)</option>
-                <option value="cover">🔍 Zoom/Fill — May Crop</option>
+                <option value="contain"> Show Full — No Crop (default)</option>
+                <option value="cover"> Zoom/Fill — May Crop</option>
                 <option value="scale-down">🔲 Shrink to Fit</option>
                 <option value="scale-down">⬇️ Shrink Fit</option>
                 <option value="fill">↔️ Stretch Fill</option>
@@ -864,7 +864,7 @@ if(window.location.protocol==='file:'){
       </details>
 
       <div style="display:flex;gap:10px;margin-top:16px">
-        <button onclick="pbSaveBlock()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Block</button>
+        <button onclick="pbSaveBlock()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer"> Save Block</button>
         <button onclick="closePbModal()" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;font-size:.84rem;cursor:pointer">Cancel</button>
       </div>
     </div>
@@ -876,12 +876,12 @@ if(window.location.protocol==='file:'){
   <div class="sec">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
       <div>
-        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">📊 Inventory Management</h3>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Inventory Management</h3>
         <p style="font-size:.8rem;color:var(--m)">Update stock levels, bulk price changes, and view low stock alerts.</p>
       </div>
       <div style="display:flex;gap:8px">
-        <button onclick="repairImages()" style="padding:9px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">🔧 Repair Images</button>
-        <button onclick="invSaveAll()" style="padding:9px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">💾 Save All Changes</button>
+        <button onclick="repairImages()" style="padding:9px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Repair Images</button>
+        <button onclick="invSaveAll()" style="padding:9px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Save All Changes</button>
         <button onclick="loadInventory()" style="padding:9px 16px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">🔄 Refresh</button>
       </div>
     </div>
@@ -915,7 +915,7 @@ if(window.location.protocol==='file:'){
   <div class="sec">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
       <div>
-        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🏷️ Discount Codes</h3>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Discount Codes</h3>
         <p style="font-size:.8rem;color:var(--m)">Create coupon codes that customers can use at checkout for discounts.</p>
       </div>
       <button onclick="discOpenAdd()" style="padding:9px 16px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Create Discount</button>
@@ -937,7 +937,7 @@ if(window.location.protocol==='file:'){
       <div class="form-group">
         <label>Banner Image</label>
         <div class="upload-area" onclick="document.getElementById('bn_img').click()" style="cursor:pointer">
-          🖼️ Click to upload banner image
+           Click to upload banner image
           <input type="file" id="bn_img" accept="image/*" style="display:none" onchange="bnPreviewImg(this)">
         </div>
         <img id="bn_imgPrev" src="" style="max-height:80px;margin-top:8px;display:none;border-radius:8px;object-fit:contain" alt="">
@@ -987,7 +987,7 @@ if(window.location.protocol==='file:'){
         <div class="form-group" style="margin:0">
           <label>Image Fit</label>
           <select id="bn_fit" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
-            <option value="contain">✅ Fit — No Crop</option>
+            <option value="contain"> Fit — No Crop</option>
             <option value="cover">🔲 Fill — May Crop</option>
             <option value="fill">↔️ Stretch</option>
           </select>
@@ -1025,14 +1025,14 @@ if(window.location.protocol==='file:'){
           <option value="slide-up">⬆️ Slide Up</option>
           <option value="slide-left">◀️ Slide from Left</option>
           <option value="slide-right">▶️ Slide from Right</option>
-          <option value="zoom-in">🔍 Zoom In</option>
+          <option value="zoom-in"> Zoom In</option>
           <option value="pulse">💓 Pulse</option>
           <option value="bounce">🏀 Bounce</option>
         </select>
       </div>
 
       <div style="display:flex;gap:10px;margin-top:16px">
-        <button onclick="saveBannerModal()" style="flex:1;padding:11px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Banner</button>
+        <button onclick="saveBannerModal()" style="flex:1;padding:11px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer"> Save Banner</button>
         <button onclick="closeBannerModal()" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;cursor:pointer">Cancel</button>
       </div>
     </div>
@@ -1043,13 +1043,13 @@ if(window.location.protocol==='file:'){
 <div class="overlay" id="editOrderModal">
   <div class="modal modal-lg">
     <div class="modal-hdr">
-      <h3>✏️ Edit Order <span id="eo_id_label" style="color:var(--p);font-size:.9rem"></span></h3>
+      <h3> Edit Order <span id="eo_id_label" style="color:var(--p);font-size:.9rem"></span></h3>
       <button class="modal-close" onclick="closeEditOrderModal()">✕</button>
     </div>
     <div class="modal-body">
 
       <!-- Customer Details -->
-      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px;color:var(--p)">👤 Customer Details</h4>
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px;color:var(--p)"> Customer Details</h4>
       <div class="form-row">
         <div class="form-group"><label>Customer Name *</label><input id="eo_name" placeholder="Full name"></div>
         <div class="form-group"><label>Phone *</label><input id="eo_phone" placeholder="+91-XXXXXXXXXX"></div>
@@ -1077,7 +1077,7 @@ if(window.location.protocol==='file:'){
 
       <!-- Items -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <h4 style="font-size:.88rem;font-weight:700;color:var(--p)">🛒 Order Items</h4>
+        <h4 style="font-size:.88rem;font-weight:700;color:var(--p)"> Order Items</h4>
         <button onclick="eoAddItem()" style="padding:6px 14px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer">+ Add Item</button>
       </div>
       <div id="eo_items" style="display:grid;gap:8px"></div>
@@ -1108,7 +1108,7 @@ if(window.location.protocol==='file:'){
       </div>
 
       <div style="display:flex;gap:10px;margin-top:16px">
-        <button onclick="saveEditOrder()" style="flex:1;padding:11px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Changes</button>
+        <button onclick="saveEditOrder()" style="flex:1;padding:11px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer"> Save Changes</button>
         <button onclick="closeEditOrderModal()" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;cursor:pointer">Cancel</button>
       </div>
     </div>
@@ -1125,7 +1125,7 @@ if(window.location.protocol==='file:'){
     <div class="modal-body">
 
       <!-- Customer Details -->
-      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px;color:var(--p)">👤 Customer Details</h4>
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px;color:var(--p)"> Customer Details</h4>
       <div class="form-row">
         <div class="form-group"><label>Customer Name *</label><input id="mo_name" placeholder="Full name"></div>
         <div class="form-group"><label>Phone *</label><input id="mo_phone" placeholder="+91-XXXXXXXXXX" type="tel"></div>
@@ -1153,7 +1153,7 @@ if(window.location.protocol==='file:'){
 
       <!-- Products -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <h4 style="font-size:.88rem;font-weight:700;color:var(--p)">🛒 Order Items</h4>
+        <h4 style="font-size:.88rem;font-weight:700;color:var(--p)"> Order Items</h4>
         <button onclick="moAddItem()" style="padding:6px 14px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer">+ Add Item</button>
       </div>
       <div id="mo_items" style="display:grid;gap:8px"></div>
@@ -1183,7 +1183,7 @@ if(window.location.protocol==='file:'){
       </div>
 
       <div style="display:flex;gap:10px;margin-top:16px">
-        <button onclick="saveManualOrder()" style="flex:1;padding:11px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Order</button>
+        <button onclick="saveManualOrder()" style="flex:1;padding:11px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer"> Save Order</button>
         <button onclick="closeAddOrderModal()" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;cursor:pointer">Cancel</button>
       </div>
     </div>
@@ -1216,7 +1216,7 @@ if(window.location.protocol==='file:'){
       </div>
       <div class="form-group"><label><input type="checkbox" id="disc_active" checked style="margin-right:6px"> Active (customers can use this code)</label></div>
       <div style="display:flex;gap:10px;margin-top:16px">
-        <button onclick="discSave()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save</button>
+        <button onclick="discSave()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer"> Save</button>
         <button onclick="closeDiscModal()" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;font-size:.84rem;cursor:pointer">Cancel</button>
       </div>
     </div>
@@ -1239,7 +1239,7 @@ if(window.location.protocol==='file:'){
 
     <!-- Quick preview of where columns appear -->
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px">
-      <h4 style="font-size:.84rem;font-weight:700;margin-bottom:10px;color:#475569">📌 How it works</h4>
+      <h4 style="font-size:.84rem;font-weight:700;margin-bottom:10px;color:#475569"> How it works</h4>
       <ul style="font-size:.8rem;color:#64748b;line-height:1.8;padding-left:18px">
         <li>Create a column once — it appears for <strong>all products</strong> in the chosen table(s).</li>
         <li>Go to <strong>Inventory</strong> tab to fill in values for each product inline.</li>
@@ -1269,18 +1269,18 @@ if(window.location.protocol==='file:'){
         <div class="form-group">
           <label>Field Type</label>
           <select id="cc_type" onchange="ccTypeChanged()" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
-            <option value="text">📝 Text</option>
+            <option value="text"> Text</option>
             <option value="number">🔢 Number</option>
-            <option value="select">📋 Dropdown</option>
-            <option value="date">📅 Date</option>
+            <option value="select"> Dropdown</option>
+            <option value="date"> Date</option>
           </select>
         </div>
         <div class="form-group">
           <label>Show In</label>
           <select id="cc_showin" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
-            <option value="inventory">📊 Inventory only</option>
-            <option value="products">📦 Products only</option>
-            <option value="both">✅ Both tables</option>
+            <option value="inventory"> Inventory only</option>
+            <option value="products"> Products only</option>
+            <option value="both"> Both tables</option>
           </select>
         </div>
       </div>
@@ -1291,7 +1291,7 @@ if(window.location.protocol==='file:'){
         </div>
       </div>
       <div style="display:flex;gap:10px;margin-top:16px">
-        <button onclick="ccSave()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer">💾 Save Column</button>
+        <button onclick="ccSave()" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer"> Save Column</button>
         <button onclick="closeCcModal()" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-weight:600;font-size:.84rem;cursor:pointer">Cancel</button>
       </div>
     </div>
@@ -1303,7 +1303,7 @@ if(window.location.protocol==='file:'){
   <div class="sec">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
       <div>
-        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🧩 Push to ShopHere.in — Chrome Extension</h3>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Push to ShopHere.in — Chrome Extension</h3>
         <p style="font-size:.8rem;color:var(--m)">Browse any supplier website and push products directly to your store with one click. Works on DropshipIndia, CJ Dropshipping, Hubbazaar, AliExpress, Amazon, Flipkart and any other product page.</p>
       </div>
     </div>
@@ -1323,12 +1323,12 @@ if(window.location.protocol==='file:'){
           <div style="font-size:.75rem;color:var(--m)">Enter your store URL and push token in the extension popup</div>
         </div>
         <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
-          <div style="font-size:2rem;margin-bottom:8px">🛍️</div>
+          <div style="font-size:2rem;margin-bottom:8px"></div>
           <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">3. Browse Supplier</div>
           <div style="font-size:.75rem;color:var(--m)">Open any product page on any supplier website</div>
         </div>
         <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
-          <div style="font-size:2rem;margin-bottom:8px">🚀</div>
+          <div style="font-size:2rem;margin-bottom:8px"></div>
           <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">4. Push to Store</div>
           <div style="font-size:.75rem;color:var(--m)">Click the extension icon, set markup, click Push — done!</div>
         </div>
@@ -1341,9 +1341,9 @@ if(window.location.protocol==='file:'){
         <div style="background:#f97316;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">1</div>
         <h4 style="font-size:.88rem;font-weight:700">Set a Push Token (security key)</h4>
       </div>
-      <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Go to <strong>Store Settings → Chrome Extension section</strong> → set a Push Token (any secret word). This prevents unauthorized pushes to your store.</p>
+      <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Go to <strong>Store Settings -> Chrome Extension section</strong> -> set a Push Token (any secret word). This prevents unauthorized pushes to your store.</p>
       <button onclick="showTab('settings', document.querySelector('.sb-item[onclick*=settings]'))" style="padding:9px 18px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">
-        ⚙️ Go to Settings → Set Push Token
+        ⚙️ Go to Settings -> Set Push Token
       </button>
     </div>
 
@@ -1358,12 +1358,12 @@ if(window.location.protocol==='file:'){
         <li>Go to <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px">chrome://extensions</code> in the address bar</li>
         <li>Turn on <strong>Developer mode</strong> (toggle in top-right corner)</li>
         <li>Click <strong>"Load unpacked"</strong> button</li>
-        <li>Navigate to your project folder: <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px">Kiro 1 → extension</code></li>
+        <li>Navigate to your project folder: <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px">Kiro 1 -> extension</code></li>
         <li>Select the <strong>extension</strong> folder and click OK</li>
         <li>The <strong>"Push to ShopHere.in"</strong> extension icon will appear in Chrome toolbar</li>
       </ol>
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:.78rem;color:#166534">
-        💡 <strong>Extension folder location:</strong> <code style="background:#dcfce7;padding:1px 6px;border-radius:4px">C:\Users\Yadadri Manufacturer\Desktop\Kiro 1\extension</code>
+         <strong>Extension folder location:</strong> <code style="background:#dcfce7;padding:1px 6px;border-radius:4px">C:\Users\Yadadri Manufacturer\Desktop\Kiro 1\extension</code>
       </div>
     </div>
 
@@ -1391,21 +1391,21 @@ if(window.location.protocol==='file:'){
       <ol style="font-size:.82rem;color:#475569;line-height:2;padding-left:20px">
         <li>Go to any supplier website — DropshipIndia, CJ Dropshipping, Hubbazaar, AliExpress, Amazon, Flipkart etc.</li>
         <li>Open a <strong>specific product page</strong> (not category or home page)</li>
-        <li>Click the <strong>🧩 Push to ShopHere.in</strong> extension icon</li>
+        <li>Click the <strong> Push to ShopHere.in</strong> extension icon</li>
         <li>It auto-scrapes: product name, price, images, description</li>
         <li>Set your <strong>Markup %</strong> — your selling price is calculated automatically</li>
         <li>Edit name, category, stock as needed</li>
-        <li>Click <strong>🚀 Push to ShopHere.in</strong> — product is added instantly!</li>
+        <li>Click <strong> Push to ShopHere.in</strong> — product is added instantly!</li>
       </ol>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:.78rem;color:#1d4ed8">
-        ✅ <strong>Supported suppliers:</strong> DropshipIndia · CJ Dropshipping · Hubbazaar · AliExpress · Amazon.in · Flipkart · Any Shopify store · Any WooCommerce store · <em>and any other product page on the web</em>
+         <strong>Supported suppliers:</strong> DropshipIndia · CJ Dropshipping · Hubbazaar · AliExpress · Amazon.in · Flipkart · Any Shopify store · Any WooCommerce store · <em>and any other product page on the web</em>
       </div>
     </div>
 
     <!-- Pushed products list -->
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <h4 style="font-size:.88rem;font-weight:700">📦 Recently Pushed Products</h4>
+        <h4 style="font-size:.88rem;font-weight:700"> Recently Pushed Products</h4>
         <button onclick="loadPushedProducts()" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer">🔄 Refresh</button>
       </div>
       <div id="pushedProductsList" style="overflow-x:auto">
@@ -1466,7 +1466,7 @@ if(window.location.protocol==='file:'){
     <!-- Header -->
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
       <div>
-        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">📥 Supplier Import</h3>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Supplier Import</h3>
         <p style="font-size:.8rem;color:var(--m)">Import products from any supplier (DropshipIndia, CJ Dropshipping, Hubbazaar, Shopify, WooCommerce, or any custom CSV/Excel).</p>
       </div>
     </div>
@@ -1479,15 +1479,15 @@ if(window.location.protocol==='file:'){
       </div>
       <p style="font-size:.8rem;color:var(--m);margin-bottom:14px">Select your supplier to download a CSV template in the right format. Export your supplier catalog in this format, then upload below.</p>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-        <button onclick="impDownloadTemplate('generic')"      class="imp-tpl-btn">📄 Generic (any supplier)</button>
+        <button onclick="impDownloadTemplate('generic')"      class="imp-tpl-btn"> Generic (any supplier)</button>
         <button onclick="impDownloadTemplate('dropshipindia')" class="imp-tpl-btn">🇮🇳 DropshipIndia</button>
-        <button onclick="impDownloadTemplate('cjdropshipping')" class="imp-tpl-btn">🌐 CJ Dropshipping</button>
-        <button onclick="impDownloadTemplate('hubbazaar')"    class="imp-tpl-btn">🛒 Hubbazaar</button>
-        <button onclick="impDownloadTemplate('shopify')"      class="imp-tpl-btn">🟢 Shopify Export</button>
+        <button onclick="impDownloadTemplate('cjdropshipping')" class="imp-tpl-btn"> CJ Dropshipping</button>
+        <button onclick="impDownloadTemplate('hubbazaar')"    class="imp-tpl-btn"> Hubbazaar</button>
+        <button onclick="impDownloadTemplate('shopify')"      class="imp-tpl-btn"> Shopify Export</button>
         <button onclick="impDownloadTemplate('woocommerce')"  class="imp-tpl-btn">🔵 WooCommerce Export</button>
       </div>
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:.78rem;color:#166534">
-        💡 <strong>Tip:</strong> Export your supplier catalog as CSV/Excel → open in Excel or Google Sheets → save as CSV → upload below. The column mapper handles any column names.
+         <strong>Tip:</strong> Export your supplier catalog as CSV/Excel -> open in Excel or Google Sheets -> save as CSV -> upload below. The column mapper handles any column names.
       </div>
     </div>
 
@@ -1514,7 +1514,7 @@ if(window.location.protocol==='file:'){
           <label>Price Markup % <small style="color:var(--m);font-weight:400">(applied on top of supplier price)</small></label>
           <div style="display:flex;align-items:center;gap:8px">
             <input type="number" id="imp_markup" value="30" min="0" max="500" style="width:90px;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">
-            <span style="font-size:.82rem;color:var(--m)">% — e.g. supplier price ₹100 → your price ₹130</span>
+            <span style="font-size:.82rem;color:var(--m)">% — e.g. supplier price ₹100 -> your price ₹130</span>
           </div>
         </div>
         <div class="form-group" style="margin:0">
@@ -1525,7 +1525,7 @@ if(window.location.protocol==='file:'){
       <div id="imp_dropzone" onclick="document.getElementById('imp_fileInput').click()"
         style="border:2px dashed #cbd5e1;border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc"
         ondragover="impDragOver(event)" ondragleave="impDragLeave(event)" ondrop="impDrop(event)">
-        <div style="font-size:2.5rem;margin-bottom:8px">📂</div>
+        <div style="font-size:2.5rem;margin-bottom:8px"></div>
         <div style="font-size:.9rem;font-weight:700;color:#475569;margin-bottom:4px">Click to upload or drag &amp; drop</div>
         <div style="font-size:.78rem;color:var(--m)">Supports CSV (.csv) and Excel (.xlsx, .xls) — max 5MB</div>
         <input type="file" id="imp_fileInput" accept=".csv,.xlsx,.xls,text/csv" style="display:none" onchange="impFileSelected(this)">
@@ -1542,7 +1542,7 @@ if(window.location.protocol==='file:'){
       </div>
       <div id="imp_mapperGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px"></div>
       <button onclick="impApplyMapping()" style="padding:10px 24px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:.86rem;font-weight:700;cursor:pointer">
-        👁️ Preview Products →
+        👁️ Preview Products ->
       </button>
     </div>
 
@@ -1581,7 +1581,7 @@ if(window.location.protocol==='file:'){
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <button onclick="impStartImport()" id="imp_importBtn" style="padding:11px 28px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer">
-          📥 Import Selected Products
+           Import Selected Products
         </button>
         <button onclick="impReset()" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;font-weight:600;cursor:pointer">
           🔄 Start Over
@@ -1599,17 +1599,17 @@ if(window.location.protocol==='file:'){
     </div>
 
     <div id="imp_resultSection" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px">
-      <h4 style="font-size:.88rem;font-weight:700;color:#166534;margin-bottom:10px">✅ Import Complete!</h4>
+      <h4 style="font-size:.88rem;font-weight:700;color:#166534;margin-bottom:10px"> Import Complete!</h4>
       <div id="imp_resultBody" style="font-size:.84rem;color:#166534"></div>
       <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
         <button onclick="showTab('products',document.querySelector('.sb-item:nth-child(2)'))" style="padding:9px 18px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">
-          📦 View Products
+           View Products
         </button>
         <button onclick="showTab('inventory',document.querySelector('.sb-item:nth-child(10)'))" style="padding:9px 18px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">
-          📊 View Inventory
+           View Inventory
         </button>
         <button onclick="impReset()" style="padding:9px 18px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;font-weight:600;cursor:pointer">
-          📥 Import More
+           Import More
         </button>
       </div>
     </div>
@@ -1706,7 +1706,7 @@ async function loadAllCats() {
     // Populate all category dropdowns
     ['ap_cat','imp_defCat'].forEach(id => populateCatDropdown(id, false));
   } catch (e) {
-    toast('❌ Could not load categories: ' + e.message);
+    toast('x Could not load categories: ' + e.message);
   }
 }
 
@@ -1784,7 +1784,7 @@ async function repairImages() {
     toast('Repair error: ' + e.message);
     alert('Error: ' + e.message);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '🔧 Repair Images'; }
+    if (btn) { btn.disabled = false; btn.textContent = ' Repair Images'; }
   }
 }
 
@@ -1916,7 +1916,7 @@ async function loadStats() {
     document.getElementById('st-r').textContent = '₹' + (s.totalRevenue || 0).toLocaleString('en-IN');
     document.getElementById('st-ls').textContent = s.lowStock '—';
   } catch (e) {
-    toast('❌ Stats error: ' + e.message);
+    toast('x Stats error: ' + e.message);
   }
   try {
     const res2 = await fetch('/api/orders');
@@ -1933,7 +1933,7 @@ async function loadStats() {
         : `<span style="font-size:.72rem;color:${o.status==='Cancelled'?'#ef4444':'#22c55e'};font-weight:600">${o.status}</span>`}</td>
     </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--m);padding:24px">No orders yet</td></tr>';
   } catch (e) {
-    toast('❌ Recent orders error: ' + e.message);
+    toast('x Recent orders error: ' + e.message);
   }
 }
 
@@ -1951,7 +1951,7 @@ async function loadProducts() {
     populateCatDropdown('prodCatFilter', true);
     renderProdTable(allProds);
   } catch (e) {
-    toast('❌ Error loading products: ' + e.message);
+    toast('x Error loading products: ' + e.message);
   }
 }
 
@@ -1983,7 +1983,7 @@ function renderProdTable(list) {
   document.getElementById('prodBody').innerHTML = list.length ? list.map(p => {
     const img = p.images && p.images.length
       ? `<img src="${p.images[0].url}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">`
-      : `<span style="font-size:1.6rem">📦</span>`;
+      : `<span style="font-size:1.6rem"></span>`;
     const stock = p.stock ?? 0;
     const stockColor = stock === 0 ? 'var(--rd)' : stock <= 10 ? '#f97316' : 'var(--g)';
     const cf = p.customFields || {};
@@ -2013,7 +2013,7 @@ function renderProdTable(list) {
       <td>${p.badge ? `<span class="pc-badge ${p.badge}" style="position:static">${p.badge}</span>` : '—'}</td>
       ${customCells}
       <td style="white-space:nowrap">
-        <button class="btn btn-sm btn-sec" onclick="openEdit(${p.id})">✏️ Edit</button>
+        <button class="btn btn-sm btn-sec" onclick="openEdit(${p.id})"> Edit</button>
         <button class="btn btn-sm" style="margin-left:4px;background:#e0f2fe;color:#0369a1;border:none;border-radius:7px;padding:7px 10px;font-size:.74rem;font-weight:700;cursor:pointer" onclick="openImgMgr(${p.id})">Images</button>
         <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteProduct(${p.id})">Delete</button>
       </td>
@@ -2037,7 +2037,7 @@ async function saveProdCf(prodId, key, value) {
     const p = allProds.find(x => x.id === prodId);
     if (p) { if (!p.customFields) p.customFields = {}; p.customFields[key] = value; }
   } catch(e) {
-    toast('❌ Save failed: ' + e.message);
+    toast('x Save failed: ' + e.message);
   }
 }
 
@@ -2046,11 +2046,11 @@ async function deleteProduct(id) {
   try {
     const res = await fetch('/api/products/' + id, { method: 'DELETE' });
     if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-    toast('✅ Product deleted');
+    toast(' Product deleted');
     loadProducts();
     loadStats();
   } catch (e) {
-    toast('❌ Delete failed: ' + e.message);
+    toast('x Delete failed: ' + e.message);
   }
 }
 </script>
@@ -2080,15 +2080,15 @@ function previewVideos(input, previewId) {
 
 function previewAudios(input, previewId) {
   document.getElementById(previewId).innerHTML = Array.from(input.files)
-    .map(f => `<div>🎵 ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)</div>`).join('');
+    .map(f => `<div> ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)</div>`).join('');
 }
 
 // ── Add Product ───────────────────────────────────────────────────────────────
 async function addProduct() {
   const name = document.getElementById('ap_name').value.trim();
-  if (!name) { toast('❌ Product name is required'); return; }
+  if (!name) { toast('x Product name is required'); return; }
   const price = document.getElementById('ap_price').value;
-  if (!price || parseFloat(price) <= 0) { toast('❌ Please enter a valid price'); return; }
+  if (!price || parseFloat(price) <= 0) { toast('x Please enter a valid price'); return; }
 
   const fd = new FormData();
   fd.append('name', name);
@@ -2109,9 +2109,9 @@ async function addProduct() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
     if (data.uploadErrors && data.uploadErrors.length) {
-      toast('⚠️ Saved with upload issues: ' + data.uploadErrors[0]);
+      toast('! Saved with upload issues: ' + data.uploadErrors[0]);
     } else {
-      toast('✅ Product saved!');
+      toast(' Product saved!');
     }
     // Reset form
     ['ap_name','ap_brand','ap_desc','ap_price','ap_orig','ap_stock'].forEach(id => document.getElementById(id).value = '');
@@ -2124,7 +2124,7 @@ async function addProduct() {
     document.getElementById('ap_vidPrev').innerHTML = '';
     document.getElementById('ap_audPrev').innerHTML = '';
   } catch (e) {
-    toast('❌ Error: ' + e.message);
+    toast('x Error: ' + e.message);
     console.error(e);
   }
 }
@@ -2187,7 +2187,7 @@ async function openEdit(id) {
       <div class="form-group"><label>Badge</label>
         <select id="ep_badge">
           <option value="">None</option>
-          <option value="new"${p.badge === 'new' ? ' selected' : ''}>🆕 New</option>
+          <option value="new"${p.badge === 'new' ? ' selected' : ''}>NEW New</option>
           <option value="deal"${p.badge === 'deal' ? ' selected' : ''}>🔥 Deal</option>
           <option value="hot"${p.badge === 'hot' ? ' selected' : ''}>⚡ Hot</option>
         </select>
@@ -2247,11 +2247,11 @@ async function saveEdit(id) {
         body: JSON.stringify(customFields)
       });
     }
-    toast('✅ Product updated!');
+    toast(' Product updated!');
     closeEdit();
     loadProducts();
   } catch (e) {
-    toast('❌ Error: ' + e.message);
+    toast('x Error: ' + e.message);
   }
 }
 </script>
@@ -2268,14 +2268,14 @@ async function loadOrders() {
     const filterVal = document.getElementById('orderStatusFilter').value;
     filterOrders(filterVal);
   } catch (e) {
-    toast('❌ Error loading orders: ' + e.message);
+    toast('x Error loading orders: ' + e.message);
   }
 }
 
 function filterOrders(status) {
   const list = status ? allOrders.filter(o => o.status === status) : allOrders;
   document.getElementById('ordersBody').innerHTML = list.length ? list.map(o => `<tr>
-    <td><strong>${o.id}</strong>${o.manual ? ' <span style="background:#fef9c3;color:#854d0e;padding:1px 6px;border-radius:4px;font-size:.68rem;font-weight:700">✍️ Manual</span>' : ''}</td>
+    <td><strong>${o.id}</strong>${o.manual ? ' <span style="background:#fef9c3;color:#854d0e;padding:1px 6px;border-radius:4px;font-size:.68rem;font-weight:700"> Manual</span>' : ''}</td>
     <td>${o.name || ''}</td>
     <td>${o.phone || ''}</td>
     <td style="max-width:150px;font-size:.78rem">${[o.address, o.city].filter(Boolean).join(', ')}</td>
@@ -2288,8 +2288,8 @@ function filterOrders(status) {
           ${['Processing','Shipped','Delivered','Cancelled'].map(s => `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}
         </select>
         ${o.status !== 'Cancelled' ? `<button onclick="cancelOrder('${o.id}')" style="padding:4px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">✕ Cancel</button>` : `<span style="font-size:.72rem;color:#ef4444;font-weight:700">Cancelled</span>`}
-        <button onclick="editOrder('${o.id}')" style="padding:4px 10px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">✏️ Edit</button>
-        <button onclick="deleteOrder('${o.id}')" style="padding:4px 10px;background:#fff1f2;color:#be123c;border:1.5px solid #fda4af;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">🗑️</button>
+        <button onclick="editOrder('${o.id}')" style="padding:4px 10px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap"> Edit</button>
+        <button onclick="deleteOrder('${o.id}')" style="padding:4px 10px;background:#fff1f2;color:#be123c;border:1.5px solid #fda4af;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap"></button>
       </div>
     </td>
     <td>${o.date ? new Date(o.date).toLocaleDateString('en-IN') : ''}</td>
@@ -2304,9 +2304,9 @@ async function updateOrderStatus(id, status) {
       body: JSON.stringify({ status })
     });
     if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-    toast('✅ Order status updated');
+    toast(' Order status updated');
   } catch (e) {
-    toast('❌ Status update failed: ' + e.message);
+    toast('x Status update failed: ' + e.message);
   }
 }
 
@@ -2319,10 +2319,10 @@ async function cancelOrder(id) {
       body: JSON.stringify({ status: 'Cancelled' })
     });
     if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-    toast('✅ Order cancelled');
+    toast(' Order cancelled');
     loadOrders();
   } catch (e) {
-    toast('❌ Cancel failed: ' + e.message);
+    toast('x Cancel failed: ' + e.message);
   }
 }
 
@@ -2331,11 +2331,11 @@ async function deleteOrder(id) {
   try {
     const res = await fetch('/api/orders/' + id, { method: 'DELETE' });
     if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-    toast('✅ Order ' + id + ' deleted');
+    toast(' Order ' + id + ' deleted');
     loadOrders();
     loadStats();
   } catch (e) {
-    toast('❌ Delete failed: ' + e.message);
+    toast('x Delete failed: ' + e.message);
   }
 }
 
@@ -2345,7 +2345,7 @@ let eoItemCount = 0;
 
 function editOrder(id) {
   const o = allOrders.find(x => x.id === id);
-  if (!o) { toast('❌ Order not found'); return; }
+  if (!o) { toast('x Order not found'); return; }
   eoEditId = id;
   document.getElementById('eo_id_label').textContent = '— ' + id;
 
@@ -2430,8 +2430,8 @@ async function saveEditOrder() {
   if (!eoEditId) return;
   const name  = document.getElementById('eo_name').value.trim();
   const phone = document.getElementById('eo_phone').value.trim();
-  if (!name)  { toast('❌ Customer name is required'); return; }
-  if (!phone) { toast('❌ Phone is required'); return; }
+  if (!name)  { toast('x Customer name is required'); return; }
+  if (!phone) { toast('x Phone is required'); return; }
 
   // Collect items
   const items = [];
@@ -2469,12 +2469,12 @@ async function saveEditOrder() {
       body:    JSON.stringify(updates),
     });
     if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-    toast('✅ Order ' + eoEditId + ' updated');
+    toast(' Order ' + eoEditId + ' updated');
     closeEditOrderModal();
     loadOrders();
     loadStats();
   } catch (e) {
-    toast('❌ Save failed: ' + e.message);
+    toast('x Save failed: ' + e.message);
   }
 }
 
@@ -2551,10 +2551,10 @@ async function saveManualOrder() {
   const phone   = document.getElementById('mo_phone').value.trim();
   const address = document.getElementById('mo_address').value.trim();
   const city    = document.getElementById('mo_city').value.trim();
-  if (!name)    { toast('❌ Customer name is required'); return; }
-  if (!phone)   { toast('❌ Phone is required'); return; }
-  if (!address) { toast('❌ Address is required'); return; }
-  if (!city)    { toast('❌ City is required'); return; }
+  if (!name)    { toast('x Customer name is required'); return; }
+  if (!phone)   { toast('x Phone is required'); return; }
+  if (!address) { toast('x Address is required'); return; }
+  if (!city)    { toast('x City is required'); return; }
 
   // Collect items
   const items = [];
@@ -2565,7 +2565,7 @@ async function saveManualOrder() {
     const qty   = parseInt((document.getElementById('mo_iqty_'+idx)||{}).value)||1;
     if (iname) items.push({ name:iname, price, qty, id: 0 });
   });
-  if (!items.length) { toast('❌ Add at least one item'); return; }
+  if (!items.length) { toast('x Add at least one item'); return; }
 
   const total   = parseFloat(document.getElementById('mo_total').value) || items.reduce((s,i)=>s+i.price*i.qty, 0);
   const dateVal = document.getElementById('mo_date').value;
@@ -2596,12 +2596,12 @@ async function saveManualOrder() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-    toast('✅ Order ' + data.id + ' created successfully!');
+    toast(' Order ' + data.id + ' created successfully!');
     closeAddOrderModal();
     loadOrders();
     loadStats();
   } catch (e) {
-    toast('❌ Failed to save order: ' + e.message);
+    toast('x Failed to save order: ' + e.message);
   }
 }
 
@@ -2624,12 +2624,12 @@ async function loadReviews() {
     document.getElementById('reviewsBody').innerHTML = rows.length ? rows.map(r => `<tr>
       <td>${r.productName}</td>
       <td>${r.name || 'Anonymous'}</td>
-      <td>${'★'.repeat(r.rating || 0)}${'☆'.repeat(5 - (r.rating || 0))}</td>
+      <td>${'&#9733;'.repeat(r.rating || 0)}${'&#9734;'.repeat(5 - (r.rating || 0))}</td>
       <td style="max-width:200px;font-size:.8rem">${r.text || ''}</td>
       <td>${r.date ? new Date(r.date).toLocaleDateString('en-IN') : ''}</td>
     </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--m);padding:32px">No reviews yet</td></tr>';
   } catch (e) {
-    toast('❌ Error loading reviews: ' + e.message);
+    toast('x Error loading reviews: ' + e.message);
   }
 }
 </script>
@@ -2644,7 +2644,7 @@ async function loadBanners() {
     const res = await fetch('/api/banners');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     allBanners = await res.json();
-    const animLabels = {'':'None','fade-in':'✨ Fade In','slide-up':'⬆️ Slide Up','slide-left':'◀️ Slide Left','slide-right':'▶️ Slide Right','zoom-in':'🔍 Zoom In','pulse':'💓 Pulse','bounce':'🏀 Bounce'};
+    const animLabels = {'':'None','fade-in':'✨ Fade In','slide-up':'⬆️ Slide Up','slide-left':'◀️ Slide Left','slide-right':'▶️ Slide Right','zoom-in':' Zoom In','pulse':'💓 Pulse','bounce':'🏀 Bounce'};
     document.getElementById('bannerList').innerHTML = allBanners.length
       ? allBanners.map(b => {
           const img = b.bgImage ? `<img src="${b.bgImage}" style="width:100%;height:90px;object-fit:${b.objectFit||'contain'};border-radius:6px;display:block" alt="">` : `<div style="height:90px;background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'};border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">${b.headline||''}</div>`;
@@ -2665,14 +2665,14 @@ async function loadBanners() {
               <label style="display:flex;align-items:center;gap:5px;font-size:.76rem;cursor:pointer;white-space:nowrap">
                 <input type="checkbox"${b.active?' checked':''} onchange="toggleBanner(${b.id},this.checked)" style="accent-color:var(--p)"> Active
               </label>
-              <button onclick="openEditBannerModal(${b.id})" style="padding:5px 10px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.74rem;font-weight:600;cursor:pointer">✏️ Edit</button>
-              <button onclick="deleteBanner(${b.id})" style="padding:5px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.74rem;font-weight:600;cursor:pointer">🗑️</button>
+              <button onclick="openEditBannerModal(${b.id})" style="padding:5px 10px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.74rem;font-weight:600;cursor:pointer"> Edit</button>
+              <button onclick="deleteBanner(${b.id})" style="padding:5px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.74rem;font-weight:600;cursor:pointer"></button>
             </div>
           </div>`;
         }).join('')
       : '<p style="color:var(--m);font-size:.84rem">No banners yet. Click "+ Add Banner" above.</p>';
   } catch (e) {
-    toast('❌ Error loading banners: ' + e.message);
+    toast('x Error loading banners: ' + e.message);
   }
 }
 
@@ -2802,11 +2802,11 @@ async function saveBannerModal() {
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-    toast(bnEditId ? '✅ Banner updated!' : '✅ Banner added!');
+    toast(bnEditId ? ' Banner updated!' : ' Banner added!');
     closeBannerModal();
     loadBanners();
   } catch (e) {
-    toast('❌ Banner error: ' + e.message);
+    toast('x Banner error: ' + e.message);
   }
 }
 
@@ -2815,18 +2815,18 @@ async function deleteBanner(id) {
   try {
     const res = await fetch('/api/banners/' + id, { method: 'DELETE' });
     if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-    toast('✅ Banner deleted');
+    toast(' Banner deleted');
     loadBanners();
   } catch (e) {
-    toast('❌ Error: ' + e.message);
+    toast('x Error: ' + e.message);
   }
 }
 
 async function toggleBanner(id, active) {
   try {
     await fetch('/api/banners/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ active }) });
-    toast('✅ Banner ' + (active ? 'activated' : 'deactivated'));
-  } catch (e) { toast('❌ Error: ' + e.message); }
+    toast(' Banner ' + (active ? 'activated' : 'deactivated'));
+  } catch (e) { toast('x Error: ' + e.message); }
 }
 </script>
 
@@ -2850,20 +2850,20 @@ async function loadCategories() {
           return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border:1px solid var(--b);border-radius:8px;margin-bottom:8px">
             <div><strong style="font-size:.88rem">${c}</strong> <span style="font-size:.76rem;color:var(--m)">(${count} product${count !== 1 ? 's' : ''})</span></div>
             <div style="display:flex;gap:6px">
-              <button class="btn btn-sm btn-sec" onclick="renameCategory(${i},'${c.replace(/'/g, "\\'")}')">✏️ Rename</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteCategory(${i},'${c.replace(/'/g, "\\'")}')">🗑️</button>
+              <button class="btn btn-sm btn-sec" onclick="renameCategory(${i},'${c.replace(/'/g, "\\'")}')"> Rename</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteCategory(${i},'${c.replace(/'/g, "\\'")}')"></button>
             </div>
           </div>`;
         }).join('')
       : '<p style="color:var(--m);font-size:.84rem">No categories yet.</p>';
   } catch (e) {
-    toast('❌ Error loading categories: ' + e.message);
+    toast('x Error loading categories: ' + e.message);
   }
 }
 
 async function addCategory() {
   const name = document.getElementById('newCatName').value.trim();
-  if (!name) { toast('❌ Enter a category name'); return; }
+  if (!name) { toast('x Enter a category name'); return; }
   try {
     const res = await fetch('/api/categories', {
       method: 'POST',
@@ -2872,12 +2872,12 @@ async function addCategory() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-    toast('✅ Category added!');
+    toast(' Category added!');
     document.getElementById('newCatName').value = '';
     loadCategories();
     loadAllCats();
   } catch (e) {
-    toast('❌ Error: ' + e.message);
+    toast('x Error: ' + e.message);
   }
 }
 
@@ -2892,11 +2892,11 @@ async function renameCategory(idx, oldName) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-    toast('✅ Category renamed!');
+    toast(' Category renamed!');
     loadCategories();
     loadAllCats();
   } catch (e) {
-    toast('❌ Error: ' + e.message);
+    toast('x Error: ' + e.message);
   }
 }
 
@@ -2906,11 +2906,11 @@ async function deleteCategory(idx, name) {
     const res = await fetch('/api/categories/' + idx, { method: 'DELETE' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-    toast('✅ Category deleted');
+    toast(' Category deleted');
     loadCategories();
     loadAllCats();
   } catch (e) {
-    toast('❌ Error: ' + e.message);
+    toast('x Error: ' + e.message);
   }
 }
 </script>
@@ -2961,7 +2961,7 @@ async function loadSettings() {
     if (s.logo) { const img = document.getElementById('st_logoPrev'); img.src = s.logo; img.style.display = 'block'; }
     vcLoadFromSettings(s);
   } catch (e) {
-    toast('❌ Error loading settings: ' + e.message);
+    toast('x Error loading settings: ' + e.message);
   }
 }
 
@@ -2974,7 +2974,7 @@ function updateBannerPreview(){
     'vh':'Common: 30vh=small, 40vh=medium, 55vh=large (relative to screen)',
     '%':'Percent of parent width (not usually used for height)'};
   const hint=document.getElementById('bannerSizeHint');
-  if(hint) hint.innerHTML=`📐 Current: <strong>${val}${unit}</strong> | ${hints[unit]||''}`;
+  if(hint) hint.innerHTML=` Current: <strong>${val}${unit}</strong> | ${hints[unit]||''}`;
 }
 
 function previewBannerSize(){
@@ -3052,11 +3052,11 @@ async function saveSettings() {
     const res  = await fetch('/api/settings', { method: 'POST', body: fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-    toast('✅ All settings saved to database!');
+    toast(' All settings saved to database!');
     vcClearDirty();
     if (data.primaryColor) document.documentElement.style.setProperty('--p', data.primaryColor);
   } catch (e) {
-    toast('❌ Settings error: ' + e.message);
+    toast('x Settings error: ' + e.message);
     console.error(e);
   }
 }
@@ -3071,7 +3071,7 @@ async function pbLoadBlocks() {
     const res = await fetch('/api/pageblocks');
     pbBlocks = await res.json();
     pbRender();
-  } catch(e) { toast('❌ Could not load page blocks: ' + e.message); }
+  } catch(e) { toast('x Could not load page blocks: ' + e.message); }
 }
 
 function pbRender() {
@@ -3079,16 +3079,16 @@ function pbRender() {
   if (!list) return;
   const filtered = pbCurrentPage === 'all' ? pbBlocks : pbBlocks.filter(b => b.page === pbCurrentPage);
   if (!filtered.length) {
-    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m)"><div style="font-size:3rem;margin-bottom:10px">🏗️</div><p>No blocks yet. Click "+ Add New Block" to get started.</p></div>';
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m)"><div style="font-size:3rem;margin-bottom:10px"></div><p>No blocks yet. Click "+ Add New Block" to get started.</p></div>';
     return;
   }
   list.innerHTML = filtered.map(b => {
-    const icons = {text:'📝',heading:'🔤',image:'🖼️','image-link':'🔗',gallery:'🖼️🖼️',columns:'⬛⬛',video:'🎬',audio:'🎵',button:'🔘',marquee:'📢',countdown:'⏳',notice:'📣',divider:'➖',spacer:'⬜',html:'🧩'};
+    const icons = {text:'',heading:'🔤',image:'','image-link':'',gallery:'',columns:'⬛⬛',video:'🎬',audio:'',button:'🔘',marquee:'📢',countdown:'⏳',notice:'📣',divider:'➖',spacer:'⬜',html:''};
     const preview = (b.type === 'image' || b.type === 'image-link') && b.content
       ? `<img src="${b.content}" style="width:100%;height:100%;object-fit:cover">`
       : b.type === 'gallery' && b.content
-        ? (() => { const urls = b.content.split('\n').filter(Boolean); return urls.length ? `<img src="${urls[0]}" style="width:100%;height:100%;object-fit:cover">` : '🖼️🖼️'; })()
-        : (icons[b.type]||'📝');
+        ? (() => { const urls = b.content.split('\n').filter(Boolean); return urls.length ? `<img src="${urls[0]}" style="width:100%;height:100%;object-fit:cover">` : ''; })()
+        : (icons[b.type]||'');
     const bid = String(b._id||b.id);
     return `<div class="pb-block-card" data-id="${bid}">
       <div class="pb-drag-grip pb-drag-handle"><span>⠿⠿⠿</span> Drag to reorder &nbsp;·&nbsp; ${b.title || 'Untitled Block'} <span style="margin-left:auto;font-size:.68rem;color:#cbd5e1">${b.type} | ${b.page}</span></div>
@@ -3101,8 +3101,8 @@ function pbRender() {
           </label>
         </div>
         <div class="pb-block-actions">
-          <button onclick="pbOpenEdit('${bid}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">✏️ Edit</button>
-          <button onclick="pbDelete('${bid}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">🗑️ Delete</button>
+          <button onclick="pbOpenEdit('${bid}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"> Edit</button>
+          <button onclick="pbDelete('${bid}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"> Delete</button>
           <button onclick="pbMoveUp('${bid}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬆</button>
           <button onclick="pbMoveDown('${bid}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬇</button>
         </div>
@@ -3157,8 +3157,8 @@ function pbTypeChanged() {
     <div class="form-group"><label>Message after countdown ends</label><input id="pb_link" placeholder="Sale ended!" value="${fields._link||''}"></div>`;
   } else if (type === 'notice') {
     fields.innerHTML = `<div class="form-group"><label>Notice Text</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Important notice for your customers…">${fields._val||''}</textarea></div>
-    <div class="form-group"><label>Notice Style</label><select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="info">ℹ️ Info (Blue)</option><option value="success">✅ Success (Green)</option><option value="warning">⚠️ Warning (Orange)</option><option value="error">❌ Alert (Red)</option><option value="promo">🎉 Promo (Purple)</option></select></div>
-    <div class="form-group"><label>Icon / Emoji (optional)</label><input id="pb_link" placeholder="🎁 or 🚨" value="${fields._link||''}"></div>`;
+    <div class="form-group"><label>Notice Style</label><select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="info">ℹ️ Info (Blue)</option><option value="success"> Success (Green)</option><option value="warning">! Warning (Orange)</option><option value="error">x Alert (Red)</option><option value="promo"> Promo (Purple)</option></select></div>
+    <div class="form-group"><label>Icon / Emoji (optional)</label><input id="pb_link" placeholder=" or " value="${fields._link||''}"></div>`;
   } else if (type === 'gallery') {
     fields.innerHTML = `
     <div class="form-group">
@@ -3175,7 +3175,7 @@ function pbTypeChanged() {
       <div class="form-group" style="margin:0">
         <label>Layout</label>
         <select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
-          <option value="row">→ Row (side by side)</option>
+          <option value="row">-> Row (side by side)</option>
           <option value="grid2">⬛⬛ 2 per row</option>
           <option value="grid3">⬛⬛⬛ 3 per row</option>
           <option value="grid4">4 per row</option>
@@ -3190,7 +3190,7 @@ function pbTypeChanged() {
     const savedCols = (() => { try { return JSON.parse(fields._val||'[]'); } catch(e) { return []; } })();
     fields.innerHTML = `
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.78rem;color:#1d4ed8">
-      💡 Creates a <strong>side-by-side columns</strong> layout. Each column can contain text, images, HTML.
+       Creates a <strong>side-by-side columns</strong> layout. Each column can contain text, images, HTML.
     </div>
     <div class="form-group">
       <label>Number of Columns</label>
@@ -3221,13 +3221,13 @@ function pbTypeChanged() {
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.78rem;color:#166534">
       🎨 <strong>Mixed Block</strong> — combine image, text and video in one block. All fields are optional.
     </div>
-    <div class="form-group"><label>🖼️ Image URL (optional)</label><input id="pb_mixed_img" placeholder="/uploads/... or https://..." value="${fields._alt||''}">
+    <div class="form-group"><label> Image URL (optional)</label><input id="pb_mixed_img" placeholder="/uploads/... or https://..." value="${fields._alt||''}">
       <small style="color:var(--m)">Or upload: <input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadMixedImg(this)" style="font-size:.78rem"></small>
     </div>
-    <div class="form-group"><label>🔗 Image Link URL (optional)</label><input id="pb_mixed_imglink" placeholder="https://... (makes image clickable)" value="${fields._link||''}"></div>
-    <div class="form-group"><label>📝 Text / HTML (optional)</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Enter text, headings, HTML...">${fields._val||''}</textarea></div>
+    <div class="form-group"><label> Image Link URL (optional)</label><input id="pb_mixed_imglink" placeholder="https://... (makes image clickable)" value="${fields._link||''}"></div>
+    <div class="form-group"><label> Text / HTML (optional)</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Enter text, headings, HTML...">${fields._val||''}</textarea></div>
     <div class="form-group"><label>🎬 Video URL (optional)</label><input id="pb_mixed_video" placeholder="/uploads/video.mp4 or https://..." value="${fields._link2||''}"></div>
-    <div class="form-group"><label>📐 Layout</label>
+    <div class="form-group"><label> Layout</label>
       <select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
         <option value="img-top">🔼 Image on Top, Text Below</option>
         <option value="img-left">◀️ Image Left, Text Right</option>
@@ -3308,7 +3308,7 @@ function pbOpenAdd() {
 function pbOpenEdit(id) {
   try {
     const b = pbBlocks.find(x => String(x._id||x.id) === String(id));
-    if (!b) { toast('❌ Block not found (id=' + id + ')'); return; }
+    if (!b) { toast('x Block not found (id=' + id + ')'); return; }
 
     const modal = document.getElementById('pbModal');
     if (!modal) { alert('Modal not found. Refresh page.'); return; }
@@ -3500,14 +3500,14 @@ async function pbSaveBlock() {
   try {
     if (pbEditId) {
       await fetch('/api/pageblocks/'+pbEditId, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(block) });
-      toast('✅ Block updated');
+      toast(' Block updated');
     } else {
       await fetch('/api/pageblocks', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(block) });
-      toast('✅ Block added');
+      toast(' Block added');
     }
     closePbModal();
     pbLoadBlocks();
-  } catch(e) { toast('❌ Save failed: ' + e.message); }
+  } catch(e) { toast('x Save failed: ' + e.message); }
 }
 
 // Live preview of block in the modal
@@ -3577,15 +3577,15 @@ async function pbDelete(id) {
   if (!confirm('Delete this block?')) return;
   try {
     await fetch('/api/pageblocks/'+id, { method:'DELETE' });
-    toast('✅ Block deleted');
+    toast(' Block deleted');
     pbLoadBlocks();
-  } catch(e) { toast('❌ Delete failed'); }
+  } catch(e) { toast('x Delete failed'); }
 }
 
 async function pbToggleVisible(id, visible) {
   try {
     await fetch('/api/pageblocks/'+id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ visible }) });
-    toast(visible ? '✅ Block visible on store' : '🙈 Block hidden from store');
+    toast(visible ? ' Block visible on store' : '🙈 Block hidden from store');
     pbLoadBlocks();
   } catch(e) {}
 }
@@ -3638,7 +3638,7 @@ async function pbGalleryPreview(input) {
     textarea.value = existing ? existing + '\n' + newUrls : newUrls;
   }
 
-  toast('✅ ' + uploaded.length + ' images uploaded');
+  toast(' ' + uploaded.length + ' images uploaded');
 }
 
 // ── Drag-to-reorder blocks ────────────────────────────────────────────────────
@@ -3711,7 +3711,7 @@ function pbRenderWithDrag() {
       pbBlocks.splice(toIdx, 0, moved);
       await pbSaveOrder();
       pbRender();
-      toast('✅ Block reordered');
+      toast(' Block reordered');
     });
   });
 }
@@ -3739,8 +3739,8 @@ async function pbUploadMixedImg(input) {
   try {
     const r = await fetch('/api/pageblocks/upload', { method:'POST', body: fd });
     const d = await r.json();
-    if (d.url) { const c = document.getElementById('pb_mixed_img'); if(c) c.value = d.url; toast('✅ Image uploaded'); }
-  } catch(e) { toast('❌ Upload failed: ' + e.message); }
+    if (d.url) { const c = document.getElementById('pb_mixed_img'); if(c) c.value = d.url; toast(' Image uploaded'); }
+  } catch(e) { toast('x Upload failed: ' + e.message); }
 }
 
 async function pbUploadImg(input) {
@@ -3755,9 +3755,9 @@ async function pbUploadImg(input) {
     if (d.url) {
       const c = document.getElementById('pb_content');
       if(c) c.value = d.url;
-      toast('✅ Image uploaded — URL filled in above');
+      toast(' Image uploaded — URL filled in above');
     }
-  } catch(e) { toast('❌ Upload failed: ' + e.message); }
+  } catch(e) { toast('x Upload failed: ' + e.message); }
 }
 async function pbUploadVideo(input) {
   toast('ℹ️ For video, upload via Products then copy the /uploads/... URL here');
@@ -3795,7 +3795,7 @@ function vcBuildSectionRows(s) {
     const wVal = (s && s[wKey]) || '400';
     const cVal = (s && s[cKey]) || '#1e293b';
     return `<div style="background:#fff;border:1px solid var(--b);border-radius:8px;padding:12px">
-      <div style="font-size:.78rem;font-weight:700;color:#475569;margin-bottom:8px">${sec.label} <small style="font-weight:400;color:var(--m)">→ ${sec.css}</small></div>
+      <div style="font-size:.78rem;font-weight:700;color:#475569;margin-bottom:8px">${sec.label} <small style="font-weight:400;color:var(--m)">-> ${sec.css}</small></div>
       <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;align-items:center">
         <div>
           <label style="font-size:.72rem;color:var(--m);display:block;margin-bottom:3px">Font Family</label>
@@ -3858,7 +3858,7 @@ function vcApplyFontToAll() {
   });
   vcLoadGoogleFont(f);
   vcMarkDirty();
-  toast('✅ Font applied to all sections');
+  toast(' Font applied to all sections');
 }
 
 function vcLoadGoogleFont(fontName) {
@@ -3974,7 +3974,7 @@ function renderImgMgr(p) {
           title="Remove">×</button>
         <button onclick="imgMgrTransferOpen('${img.url}', ${i})"
           style="position:absolute;bottom:-7px;right:-7px;background:#3b82f6;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"
-          title="Move to another product">→</button>
+          title="Move to another product">-></button>
       </div>`).join('')
     : '<p style="color:var(--m);font-size:.84rem">No images yet.</p>';
 
@@ -3988,23 +3988,23 @@ function renderImgMgr(p) {
     <div style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <h4 style="font-size:.85rem;font-weight:700">Current Images (${imgs.length}/20)</h4>
-        ${imgs.length > 1 ? '<span style="font-size:.72rem;color:var(--m)">↔ Drag to reorder &nbsp;·&nbsp; → button moves to another product</span>' : ''}
+        ${imgs.length > 1 ? '<span style="font-size:.72rem;color:var(--m)">↔ Drag to reorder &nbsp;·&nbsp; -> button moves to another product</span>' : ''}
       </div>
       <div id="imgMgrThumbs" style="display:flex;flex-wrap:wrap;gap:2px;margin-bottom:14px;min-height:40px;padding:6px;background:#f8fafc;border-radius:8px;border:1px solid var(--b)">
         ${thumbsHtml}
       </div>
-      ${imgs.length > 1 ? `<button onclick="imgMgrSaveOrder()" style="padding:7px 16px;background:#22c55e;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:10px">💾 Save New Order</button>` : ''}
+      ${imgs.length > 1 ? `<button onclick="imgMgrSaveOrder()" style="padding:7px 16px;background:#22c55e;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:10px"> Save New Order</button>` : ''}
     </div>
 
     <!-- Transfer panel -->
     <div id="imgTransferPanel" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:14px">
-      <h4 style="font-size:.82rem;font-weight:700;color:#1d4ed8;margin-bottom:8px">→ Move Image to Another Product</h4>
+      <h4 style="font-size:.82rem;font-weight:700;color:#1d4ed8;margin-bottom:8px">-> Move Image to Another Product</h4>
       <img id="imgTransferThumb" src="" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-bottom:8px" alt="">
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <select id="imgTransferTarget" style="flex:1;padding:7px 10px;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.82rem;outline:none;min-width:200px">
           ${prodOpts}
         </select>
-        <button onclick="imgMgrTransferConfirm()" style="padding:7px 14px;background:#3b82f6;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer">Move →</button>
+        <button onclick="imgMgrTransferConfirm()" style="padding:7px 14px;background:#3b82f6;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer">Move -></button>
         <button onclick="document.getElementById('imgTransferPanel').style.display='none'" style="padding:7px 12px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;cursor:pointer">Cancel</button>
       </div>
     </div>
@@ -4016,7 +4016,7 @@ function renderImgMgr(p) {
       : `<input type="file" id="imgMgrUpload" multiple accept="image/jpeg,image/png,image/webp" style="margin-bottom:10px;font-size:.84rem">
          <small style="display:block;color:var(--m);margin-bottom:12px">JPEG, PNG or WebP — max 10MB each, max ${20-imgs.length} more</small>
          <div id="imgMgrErr" style="color:#ef4444;font-size:.8rem;margin-bottom:8px"></div>
-         <button onclick="imgMgrUpload()" style="padding:9px 20px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">📤 Upload Images</button>`
+         <button onclick="imgMgrUpload()" style="padding:9px 20px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer"> Upload Images</button>`
     }`;
 }
 
@@ -4064,11 +4064,11 @@ async function imgMgrSaveOrder() {
       body: JSON.stringify({ images: p.images })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    toast('✅ Image order saved');
+    toast(' Image order saved');
     await loadProducts();
     const updated = allProds.find(x => x.id === imgMgrProductId);
     if (updated) renderImgMgr(updated);
-  } catch(e) { toast('❌ Save failed: ' + e.message); }
+  } catch(e) { toast('x Save failed: ' + e.message); }
 }
 
 // ── Transfer image to another product ────────────────────────────────────────
@@ -4116,7 +4116,7 @@ async function imgMgrTransferConfirm() {
     });
     if (!r2.ok) throw new Error('Failed to remove from source product');
 
-    toast(`✅ Image moved to "${tgt.name}"`);
+    toast(` Image moved to "${tgt.name}"`);
     document.getElementById('imgTransferPanel').style.display = 'none';
     imgTransferUrl = null;
     imgTransferIdx = null;
@@ -4124,7 +4124,7 @@ async function imgMgrTransferConfirm() {
     await loadProducts();
     const updated = allProds.find(x => x.id === imgMgrProductId);
     if (updated) renderImgMgr(updated);
-  } catch(e) { toast('❌ Transfer failed: ' + e.message); }
+  } catch(e) { toast('x Transfer failed: ' + e.message); }
 }
 
 async function imgMgrUpload() {
@@ -4156,13 +4156,13 @@ async function imgMgrUpload() {
     const res = await fetch(`/api/products/${imgMgrProductId}`, { method: 'PUT', body: fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-    toast('✅ Images updated');
+    toast(' Images updated');
     // Refresh local product cache
     await loadProducts();
     const updated = allProds.find(x => x.id === imgMgrProductId);
     if (updated) renderImgMgr(updated);
   } catch (e) {
-    toast('❌ Upload failed: ' + e.message);
+    toast('x Upload failed: ' + e.message);
   }
 }
 
@@ -4176,12 +4176,12 @@ async function imgMgrRemove(url) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-    toast('✅ Image removed');
+    toast(' Image removed');
     await loadProducts();
     const updated = allProds.find(x => x.id === imgMgrProductId);
     if (updated) renderImgMgr(updated);
   } catch (e) {
-    toast('❌ Remove failed: ' + e.message);
+    toast('x Remove failed: ' + e.message);
   }
 }
 
@@ -4195,7 +4195,7 @@ async function loadCustomCols() {
     const data = await res.json();
     allCustomCols = window.allCustomCols = data;
     renderCustomCols();
-  } catch(e) { toast('❌ Could not load custom columns: ' + e.message); }
+  } catch(e) { toast('x Could not load custom columns: ' + e.message); }
 }
 
 function renderCustomCols() {
@@ -4209,12 +4209,12 @@ function renderCustomCols() {
     </div>`;
     return;
   }
-  const typeIcon = { text:'📝', number:'🔢', select:'📋', date:'📅' };
-  const showLabel = { inventory:'📊 Inventory', products:'📦 Products', both:'✅ Both' };
+  const typeIcon = { text:'', number:'🔢', select:'', date:'' };
+  const showLabel = { inventory:' Inventory', products:' Products', both:' Both' };
   el.innerHTML = allCustomCols.map((c, i) => `
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
       <div style="display:flex;align-items:center;gap:14px">
-        <div style="background:#f1f5f9;border-radius:8px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">${typeIcon[c.type]||'📝'}</div>
+        <div style="background:#f1f5f9;border-radius:8px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">${typeIcon[c.type]||''}</div>
         <div>
           <div style="font-size:.9rem;font-weight:700">${c.label}</div>
           <div style="font-size:.75rem;color:var(--m);margin-top:2px">
@@ -4228,8 +4228,8 @@ function renderCustomCols() {
       <div style="display:flex;align-items:center;gap:8px">
         ${i > 0 ? `<button onclick="ccMoveUp('${c.id}')" title="Move up" style="padding:5px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬆</button>` : ''}
         ${i < allCustomCols.length-1 ? `<button onclick="ccMoveDown('${c.id}')" title="Move down" style="padding:5px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬇</button>` : ''}
-        <button onclick="ccOpenEdit('${c.id}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">✏️ Edit</button>
-        <button onclick="ccDelete('${c.id}','${c.label.replace(/'/g,"\\'")}','${c.key}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">🗑️ Delete</button>
+        <button onclick="ccOpenEdit('${c.id}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"> Edit</button>
+        <button onclick="ccDelete('${c.id}','${c.label.replace(/'/g,"\\'")}','${c.key}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"> Delete</button>
       </div>
     </div>`).join('');
 }
@@ -4296,19 +4296,19 @@ async function ccSave() {
         method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-      toast('✅ Column updated');
+      toast(' Column updated');
     } else {
       // Check for duplicate key
-      if (allCustomCols.find(c => c.key === key)) { toast('❌ A column with that key already exists'); return; }
+      if (allCustomCols.find(c => c.key === key)) { toast('x A column with that key already exists'); return; }
       const res = await fetch('/api/customcolumns', {
         method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-      toast('✅ Column added — go to Inventory to fill in values');
+      toast(' Column added — go to Inventory to fill in values');
     }
     closeCcModal();
     await loadCustomCols();
-  } catch(e) { toast('❌ ' + e.message); }
+  } catch(e) { toast('x ' + e.message); }
 }
 
 async function ccDelete(id, label, key) {
@@ -4316,12 +4316,12 @@ async function ccDelete(id, label, key) {
   try {
     const res = await fetch('/api/customcolumns/' + id, { method: 'DELETE' });
     if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-    toast('✅ Column deleted');
+    toast(' Column deleted');
     await loadCustomCols();
     // Refresh tables if open
     if (invProds.length) renderInventory();
     if (allProds.length) renderProdTable(allProds);
-  } catch(e) { toast('❌ ' + e.message); }
+  } catch(e) { toast('x ' + e.message); }
 }
 
 async function ccMoveUp(id) {
@@ -4442,14 +4442,14 @@ function impProcessFile(file) {
   const ext = file.name.split('.').pop().toLowerCase();
   const info = document.getElementById('imp_fileInfo');
   info.style.display = 'block';
-  info.innerHTML = `📄 <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB) — reading…`;
+  info.innerHTML = ` <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB) — reading…`;
   const reader = new FileReader();
   if (ext === 'csv' || ext === 'txt') {
     reader.onload = e => impParseCSV(e.target.result, file.name);
     reader.readAsText(file);
   } else if (ext === 'xlsx' || ext === 'xls') {
-    toast('💡 Excel detected — please save as CSV (.csv) in Excel/Google Sheets and re-upload. CSV works perfectly.');
-    info.innerHTML = '⚠️ Please save your Excel file as CSV and upload the .csv file.';
+    toast(' Excel detected — please save as CSV (.csv) in Excel/Google Sheets and re-upload. CSV works perfectly.');
+    info.innerHTML = '! Please save your Excel file as CSV and upload the .csv file.';
   } else {
     toast('Unsupported file. Use .csv');
   }
@@ -4480,7 +4480,7 @@ function impParseCSV(text, filename) {
   }).filter(r => Object.values(r).some(v => v));
 
   const info = document.getElementById('imp_fileInfo');
-  info.innerHTML = `✅ <strong>${filename}</strong> — <strong>${impRawRows.length} rows</strong>, ${impHeaders.length} columns detected`;
+  info.innerHTML = ` <strong>${filename}</strong> — <strong>${impRawRows.length} rows</strong>, ${impHeaders.length} columns detected`;
   impCurrentMapping = impAutoDetect(impHeaders);
   impBuildMapper();
 }
@@ -4494,8 +4494,8 @@ function impBuildMapper() {
       ...impHeaders.map(h => `<option value="${h}"${impCurrentMapping[f.key]===h?' selected':''}>${h}</option>`)
     ].join('');
     const hint = impCurrentMapping[f.key]
-      ? `<div class="imp-map-hint">✅ Auto: "${impCurrentMapping[f.key]}"</div>`
-      : `<div class="imp-map-hint" style="color:#f97316">⚠️ Not detected — pick manually</div>`;
+      ? `<div class="imp-map-hint"> Auto: "${impCurrentMapping[f.key]}"</div>`
+      : `<div class="imp-map-hint" style="color:#f97316">! Not detected — pick manually</div>`;
     return `<div class="imp-map-row">
       <label>${f.label}${f.required?' <span style="color:#ef4444">*</span>':''}</label>
       <select onchange="impCurrentMapping['${f.key}']=this.value">${opts}</select>
@@ -4577,10 +4577,10 @@ function impRenderPreview() {
   document.getElementById('imp_previewBody').innerHTML = impFiltered.map((r, i) => {
     const img = r.imageUrl
       ? `<img src="${r.imageUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0" onerror="this.style.display='none'" alt="">`
-      : '<span style="font-size:1.4rem">📦</span>';
+      : '<span style="font-size:1.4rem"></span>';
     const status = r._valid
-      ? '<span style="background:#f0fdf4;color:#22c55e;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">✅ Ready</span>'
-      : '<span style="background:#fef2f2;color:#ef4444;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">❌ Skip</span>';
+      ? '<span style="background:#f0fdf4;color:#22c55e;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700"> Ready</span>'
+      : '<span style="background:#fef2f2;color:#ef4444;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:700">x Skip</span>';
     return `<tr style="opacity:${r._valid?1:.5}">
       <td><input type="checkbox" ${r._selected&&r._valid?'checked':''} ${!r._valid?'disabled':''}
         onchange="impMappedRows[${r._idx}]._selected=this.checked;impFiltered[${i}]._selected=this.checked;impUpdateSelectedCount()"></td>
@@ -4643,13 +4643,13 @@ async function impStartImport() {
   document.getElementById('imp_progressSection').style.display = 'none';
   document.getElementById('imp_resultSection').style.display   = 'block';
   document.getElementById('imp_resultBody').innerHTML = `
-    <p>🎉 <strong>${imported}</strong> products imported from <strong>${supplierName}</strong></p>
-    ${skipped ? `<p>⚠️ ${skipped} rows skipped (missing name or price)</p>` : ''}
-    ${newCats.size ? `<p>📁 New categories created: <strong>${[...newCats].join(', ')}</strong></p>` : ''}
+    <p> <strong>${imported}</strong> products imported from <strong>${supplierName}</strong></p>
+    ${skipped ? `<p>! ${skipped} rows skipped (missing name or price)</p>` : ''}
+    ${newCats.size ? `<p> New categories created: <strong>${[...newCats].join(', ')}</strong></p>` : ''}
     <p style="margin-top:8px;color:#475569">Products are now in Inventory and the Products tab.</p>`;
 
   await loadAllCats();
-  toast(`✅ ${imported} products imported from ${supplierName}!`);
+  toast(` ${imported} products imported from ${supplierName}!`);
 }
 
 function impReset() {
@@ -4673,7 +4673,7 @@ function impDownloadTemplate(supplier) {
   a.href = '/api/import/template/' + supplier;
   a.download = 'shophere_import_' + supplier + '.csv';
   a.click();
-  toast('📄 Template downloaded — fill in your products then upload below');
+  toast(' Template downloaded — fill in your products then upload below');
 }
 
 async function loadPushedProducts() {
@@ -4692,7 +4692,7 @@ async function loadPushedProducts() {
       <tbody>${prods.slice(0,20).map(p => {
         const img = p.images && p.images.length
           ? `<img src="${p.images[0].url}" style="width:40px;height:40px;object-fit:cover;border-radius:6px">`
-          : '📦';
+          : '';
         return `<tr>
           <td>${img}</td>
           <td style="font-size:.82rem"><strong>${p.name}</strong></td>
@@ -4705,7 +4705,7 @@ async function loadPushedProducts() {
       }).join('')}</tbody>
     </table>`;
   } catch(e) {
-    toast('❌ Could not load pushed products: ' + e.message);
+    toast('x Could not load pushed products: ' + e.message);
   }
 }
 
@@ -4956,7 +4956,7 @@ async function loadAnalytics() {
         : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">No visitors yet — data records after first store visit.</td></tr>';
     }
   } catch(e) {
-    toast('❌ Analytics error: ' + e.message);
+    toast('x Analytics error: ' + e.message);
   }
 }
 
@@ -4975,7 +4975,7 @@ async function loadInventory() {
     populateCatDropdown('invBulkCat', true);
     renderInventory();
     showLowStockAlert();
-  } catch(e) { toast('❌ Inventory load failed: ' + e.message); }
+  } catch(e) { toast('x Inventory load failed: ' + e.message); }
 }
 
 function showLowStockAlert() {
@@ -4985,7 +4985,7 @@ function showLowStockAlert() {
   if (!el) return;
   if (low.length || out.length) {
     el.style.display = 'block';
-    el.innerHTML = `⚠️ <strong>Stock Alert:</strong> ${out.length} product(s) <strong>out of stock</strong>, ${low.length} product(s) <strong>low stock (≤10)</strong>. Update below.`;
+    el.innerHTML = `! <strong>Stock Alert:</strong> ${out.length} product(s) <strong>out of stock</strong>, ${low.length} product(s) <strong>low stock (≤10)</strong>. Update below.`;
   } else {
     el.style.display = 'none';
   }
@@ -5071,7 +5071,7 @@ async function invSaveAll() {
       saved++;
     } catch(e) {}
   }
-  toast(`✅ Saved ${saved} products`);
+  toast(` Saved ${saved} products`);
   loadInventory();
   loadStats();
 }
@@ -5099,7 +5099,7 @@ async function invBulkUpdate() {
       saved++;
     } catch(e) {}
   }
-  toast(`✅ Updated ${saved} products`);
+  toast(` Updated ${saved} products`);
   document.getElementById('invBulkPrice').value = '';
   document.getElementById('invBulkStock').value = '';
   loadInventory();
@@ -5114,14 +5114,14 @@ async function loadDiscounts() {
     const res = await fetch('/api/discounts');
     allDiscounts = await res.json();
     renderDiscounts();
-  } catch(e) { toast('❌ Discounts load failed'); }
+  } catch(e) { toast('x Discounts load failed'); }
 }
 
 function renderDiscounts() {
   const el = document.getElementById('discList');
   if (!el) return;
   if (!allDiscounts.length) {
-    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m)"><div style="font-size:3rem;margin-bottom:10px">🏷️</div><p>No discount codes yet. Create one to offer deals to customers.</p></div>';
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m)"><div style="font-size:3rem;margin-bottom:10px"></div><p>No discount codes yet. Create one to offer deals to customers.</p></div>';
     return;
   }
   el.innerHTML = allDiscounts.map(d => {
@@ -5145,8 +5145,8 @@ function renderDiscounts() {
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span style="background:${statusBg};color:${statusColor};padding:4px 12px;border-radius:50px;font-size:.75rem;font-weight:700">${statusText}</span>
-        <button onclick="discEdit('${d._id||d.id}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">✏️ Edit</button>
-        <button onclick="discDelete('${d._id||d.id}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer">🗑️</button>
+        <button onclick="discEdit('${d._id||d.id}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"> Edit</button>
+        <button onclick="discDelete('${d._id||d.id}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"></button>
       </div>
     </div>`;
   }).join('');
@@ -5195,23 +5195,23 @@ async function discSave() {
   try {
     if (editDiscId) {
       await fetch('/api/discounts/'+editDiscId, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(disc) });
-      toast('✅ Discount updated');
+      toast(' Discount updated');
     } else {
       await fetch('/api/discounts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(disc) });
-      toast('✅ Discount created');
+      toast(' Discount created');
     }
     closeDiscModal();
     loadDiscounts();
-  } catch(e) { toast('❌ Save failed: ' + e.message); }
+  } catch(e) { toast('x Save failed: ' + e.message); }
 }
 
 async function discDelete(id) {
   if (!confirm('Delete this discount code?')) return;
   try {
     await fetch('/api/discounts/'+id, { method:'DELETE' });
-    toast('✅ Deleted');
+    toast(' Deleted');
     loadDiscounts();
-  } catch(e) { toast('❌ Delete failed'); }
+  } catch(e) { toast('x Delete failed'); }
 }
 </script>
 </body>

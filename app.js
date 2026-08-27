@@ -8,7 +8,7 @@ let currentCat='all', currentBadge='', currentSort='newest', currentQ='', curren
 let page=1; const PAGE=12;
 let heroIdx=0, heroTimer=null;
 let selectedPayment='cod';
-const CAT_ICONS={'Electronics':'[Mobile]','Fashion':'👗','Kitchen':'🍳','Sports':'⚽','Beauty':'💄','Books':'📚','Toys':'🧸','Home':'[Home]','Kids':'🧒','Women':'👩','Men':'👨','default':'🛍️'};
+const CAT_ICONS={'Electronics':'[Mobile]','Fashion':'[Fashion]','Kitchen':'[Kitchen]','Sports':'[Sports]','Beauty':'[Beauty]','Books':'[Books]','Toys':'[Toys]','Home':'[Home]','Kids':'[Kids]','Women':'[Women]','Men':'[Men]','default':'[Shop]'};
 const CAT_COLORS={'Electronics':['#dbeafe','#1d4ed8'],'Fashion':['#fce7f3','#be185d'],'Kitchen':['#fef3c7','#d97706'],'Sports':['#dcfce7','#16a34a'],'Beauty':['#fdf4ff','#9333ea'],'Books':['#fff7ed','#ea580c'],'Toys':['#fef9c3','#ca8a04'],'Home':['#f0fdf4','#15803d'],'Kids':['#ffe4e6','#e11d48'],'Women':['#fdf2f8','#db2777'],'Men':['#eff6ff','#2563eb'],'default':['#f8fafc','#475569']};
 
 // ── Utility ───────────────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ function doLogin(){
     .then(r=>r.json())
     .then(data=>{
       if(data.success && data.isAdmin){
-        // Admin login → redirect to admin panel
+        // Admin login -> redirect to admin panel
         closeLogin();
         toast('Admin login successful! Redirecting…');
         setTimeout(()=>{ window.location.href='/admin.html'; },800);
@@ -288,7 +288,7 @@ async function loadCategories(){
       cs.innerHTML=sortedCats.map(c=>{
         const [cbg,cc]=CAT_COLORS[c]||CAT_COLORS.default;
         return `<div class="cat-chip" onclick="filterCat('${c.replace(/'/g,"\\'")}');window.scrollTo(0,0)" style="--chip-bg:${cbg};--chip-color:${cc}">
-          <div class="cat-chip-icon" style="background:${cbg};color:${cc}">${CAT_ICONS[c]||'🛍️'}</div>
+          <div class="cat-chip-icon" style="background:${cbg};color:${cc}">${CAT_ICONS[c]||'[Shop]'}</div>
           <span>${c}</span>
         </div>`;
       }).join('');
@@ -315,7 +315,7 @@ async function loadBanners(){
   try{
     let bans=await fetch('/api/banners').then(r=>r.json());
     allBanners=bans.filter(b=>b.active!==false);
-    if(!allBanners.length) allBanners=[{bgGradient:'linear-gradient(135deg,#1e293b,#f97316)',headline:'Welcome to ShopHere.in 🛍️',subtitle:"India's favourite store",ctaLabel:'Shop Now',displayMode:'slider',widthPct:'100',objectFit:'contain'}];
+    if(!allBanners.length) allBanners=[{bgGradient:'linear-gradient(135deg,#1e293b,#f97316)',headline:'Welcome to ShopHere.in [Shop]',subtitle:"India's favourite store",ctaLabel:'Shop Now',displayMode:'slider',widthPct:'100',objectFit:'contain'}];
 
     const slider = document.getElementById('heroSlider');
     const track  = document.getElementById('heroTrack');
@@ -586,7 +586,7 @@ function renderProducts(){
         <div class="cat-section-hdr">
           <h3 class="cat-section-title">${cat}</h3>
           <span class="cat-section-count">${catMap[cat].length} product${catMap[cat].length!==1?'s':''}</span>
-          <button onclick="filterCat('${cat.replace(/'/g,"\\'")}');setSortSelect()" class="cat-see-all">See All →</button>
+          <button onclick="filterCat('${cat.replace(/'/g,"\\'")}');setSortSelect()" class="cat-see-all">See All -></button>
         </div>
         <div class="products-grid">${catMap[cat].map(p=>productCard(p)).join('')}</div>
       </div>`
