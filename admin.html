@@ -1675,7 +1675,11 @@ function showTab(name, el) {
   document.getElementById('tabTitle').textContent = titles[name] || name;
   if (name === 'dashboard') loadStats();
   if (name === 'products') loadProducts();
-  if (name === 'addProduct') populateCatDropdown('ap_cat');
+  if (name === 'addProduct') {
+    populateCatDropdown('ap_cat');
+    // If cats not loaded yet, reload them
+    if (!window.allCats || !window.allCats.length) loadAllCats().then(()=>populateCatDropdown('ap_cat'));
+  }
   if (name === 'orders') loadOrders();
   if (name === 'reviews') loadReviews();
   if (name === 'banners') loadBanners();
@@ -1698,8 +1702,9 @@ async function loadAllCats() {
     const res = await fetch('/api/categories');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     window.allCats = await res.json();
-    populateCatDropdown('ap_cat');
     populateCatDropdown('prodCatFilter', true);
+    // Populate all category dropdowns
+    ['ap_cat','imp_defCat'].forEach(id => populateCatDropdown(id, false));
   } catch (e) {
     toast('❌ Could not load categories: ' + e.message);
   }
