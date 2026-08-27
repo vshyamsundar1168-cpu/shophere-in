@@ -23,7 +23,7 @@ button{font-family:inherit;cursor:pointer}
 .marquee-inner:hover{animation-play-state:paused}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 .marquee-inner span{font-size:.78rem;letter-spacing:.3px;margin-right:60px;color:#94a3b8}
-.marquee-inner span::before{content:'🛍️ '}
+.marquee-inner span::before{content:'️ '}
 
 /* ── HEADER ──────────────────────────────────────────────────────────────── */
 header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.3)}

@@ -70,7 +70,7 @@ function togglePassVis(inputId,btn){
   const inp=document.getElementById(inputId);
   if(!inp) return;
   inp.type=inp.type==='password'?'text':'password';
-  btn.textContent=inp.type==='password'?'👁️':'🙈';
+  btn.textContent=inp.type==='password'?'️':'';
 }
 
 function doLogin(){
@@ -89,14 +89,14 @@ function doLogin(){
         // Normal user API login success
         currentUser={name:u,username:u};
         localStorage.setItem('sh_user',JSON.stringify(currentUser));
-        closeLogin(); updateAuthUI(); toast(`Welcome back, ${u}! 👋`);
+        closeLogin(); updateAuthUI(); toast(`Welcome back, ${u}! `);
       } else {
         // Try local user store
         const users=JSON.parse(localStorage.getItem('sh_users')||'[]');
         const found=users.find(x=>x.username===u&&x.password===p);
         if(!found){showLoginErr('Invalid username or password');return;}
         currentUser=found; localStorage.setItem('sh_user',JSON.stringify(found));
-        closeLogin(); updateAuthUI(); toast(`Welcome back, ${found.name||found.username}! 👋`);
+        closeLogin(); updateAuthUI(); toast(`Welcome back, ${found.name||found.username}! `);
       }
     })
     .catch(()=>{
@@ -105,7 +105,7 @@ function doLogin(){
       const found=users.find(x=>x.username===u&&x.password===p);
       if(!found){showLoginErr('Invalid username or password');return;}
       currentUser=found; localStorage.setItem('sh_user',JSON.stringify(found));
-      closeLogin(); updateAuthUI(); toast(`Welcome back, ${found.name||found.username}! 👋`);
+      closeLogin(); updateAuthUI(); toast(`Welcome back, ${found.name||found.username}! `);
     });
 }
 function doRegister(){
@@ -230,7 +230,7 @@ function buildFAQ(text){
     const lines=b.split('\n');
     const q=lines[0]||''; const a=lines.slice(1).join(' ')||'';
     return `<div style="border:1px solid var(--b);border-radius:10px;margin-bottom:10px;overflow:hidden">
-      <div style="padding:14px 18px;font-weight:700;font-size:.88rem;cursor:pointer;background:#f8fafc" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">❓ ${q}</div>
+      <div style="padding:14px 18px;font-weight:700;font-size:.88rem;cursor:pointer;background:#f8fafc" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'"> ${q}</div>
       <div style="padding:14px 18px;font-size:.85rem;color:var(--m);display:none">${a||q}</div>
     </div>`;
   }).join('');
@@ -637,13 +637,13 @@ async function openProduct(id){
     const hiddenHtml  = hiddenImgs.length
       ? `<div id="mgExtraThumb" style="display:none;display:flex;flex-wrap:wrap;gap:8px;display:none">${hiddenImgs.map((img,i)=>thumbItem(img,i+THUMB_SHOW)).join('')}</div>
          <button onclick="mgToggleMore(this)" style="margin-top:6px;padding:5px 14px;background:#fff7ed;color:var(--p);border:1.5px solid var(--p);border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap">
-           🎨 +${hiddenImgs.length} more colours/designs ▾
+            +${hiddenImgs.length} more colours/designs ▾
          </button>`
       : '';
     thumbs = `<div style="margin-top:8px"><div style="display:flex;gap:8px;flex-wrap:wrap">${visibleHtml}</div>${hiddenHtml}</div>`;
   }
-  const videos=p.videos&&p.videos.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">📹 Videos</h4>${p.videos.map(v=>`<video src="${v.url}" controls style="width:100%;border-radius:8px;margin-bottom:6px;max-height:200px"></video>`).join('')}</div>`:'';
-  const audios=p.audios&&p.audios.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">🎵 Audio</h4>${p.audios.map(a=>`<div style="margin-bottom:8px"><div style="font-size:.73rem;color:var(--m);margin-bottom:3px">${a.name}</div><audio src="${a.url}" controls style="width:100%"></audio></div>`).join('')}</div>`:'';
+  const videos=p.videos&&p.videos.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px"> Videos</h4>${p.videos.map(v=>`<video src="${v.url}" controls style="width:100%;border-radius:8px;margin-bottom:6px;max-height:200px"></video>`).join('')}</div>`:'';
+  const audios=p.audios&&p.audios.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px"> Audio</h4>${p.audios.map(a=>`<div style="margin-bottom:8px"><div style="font-size:.73rem;color:var(--m);margin-bottom:3px">${a.name}</div><audio src="${a.url}" controls style="width:100%"></audio></div>`).join('')}</div>`:'';
   let revs=[]; try{revs=await fetch(`/api/reviews/${id}`).then(r=>r.json());}catch(e){}
   const revList=revs.length?revs.map(r=>`<div style="border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:8px"><div style="display:flex;justify-content:space-between"><strong style="font-size:.83rem">${r.name}</strong><span style="font-size:.72rem;color:var(--m)">${new Date(r.date).toLocaleDateString('en-IN')}</span></div><div style="color:#f59e0b;font-size:.82rem">${'&#9733;'.repeat(r.rating)}${'&#9734;'.repeat(5-r.rating)}</div><p style="font-size:.82rem;margin-top:4px;color:var(--t)">${r.text}</p></div>`).join(''):'<p style="color:var(--m);font-size:.84rem">No reviews yet.</p>';
   document.getElementById('pmBody').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
@@ -695,11 +695,11 @@ function mgToggleMore(btn){
     extra.style.marginTop = '8px';
     // Count remaining
     const count = extra.querySelectorAll('.mg-thumb').length;
-    btn.innerHTML = `🎨 Hide extra colours/designs ▴`;
+    btn.innerHTML = ` Hide extra colours/designs ▴`;
   } else {
     extra.style.display = 'none';
     const count = extra.querySelectorAll('.mg-thumb').length;
-    btn.innerHTML = `🎨 +${count} more colours/designs ▾`;
+    btn.innerHTML = ` +${count} more colours/designs ▾`;
   }
 }
 function openLightbox(url){const lb=document.getElementById('lightbox');document.getElementById('lightboxImg').src=url;lb.style.display='flex';}
@@ -976,7 +976,7 @@ function sendMessage(){
   const subject=encodeURIComponent(`Customer Message from ${name}`);
   const body=encodeURIComponent(`Name: ${name}\nContact: ${contact}\n\nMessage:\n${text}`);
   window.location.href=`mailto:${email}?subject=${subject}&body=${body}`;
-  toast('Opening email client to send your message 📧');
+  toast('Opening email client to send your message ');
   document.getElementById('msg_name').value='';
   document.getElementById('msg_contact').value='';
   document.getElementById('msg_text').value='';

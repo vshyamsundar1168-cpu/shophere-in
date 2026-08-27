@@ -104,16 +104,16 @@ if(window.location.protocol==='file:'){
   <div class="sb-nav">
     <div class="sb-item active" onclick="showTab('dashboard',this)"> Dashboard</div>
     <div class="sb-item" onclick="showTab('products',this)"> Products</div>
-    <div class="sb-item" onclick="showTab('addProduct',this)">➕ Add Product</div>
+    <div class="sb-item" onclick="showTab('addProduct',this)"> Add Product</div>
     <div class="sb-item" onclick="showTab('orders',this)"> Orders</div>
     <div class="sb-item" onclick="showTab('reviews',this)">&#9733; Reviews</div>
     <div class="sb-item" onclick="showTab('banners',this)"> Banners</div>
-    <div class="sb-item" onclick="showTab('categories',this)">🗂️ Categories</div>
-    <div class="sb-item" onclick="showTab('settings',this)">⚙️ Store Settings</div>
+    <div class="sb-item" onclick="showTab('categories',this)">️ Categories</div>
+    <div class="sb-item" onclick="showTab('settings',this)">️ Store Settings</div>
     <div class="sb-item" onclick="showTab('pagebuilder',this)"> Page Builder</div>
     <div class="sb-item" onclick="showTab('inventory',this)"> Inventory</div>
     <div class="sb-item" onclick="showTab('discounts',this)"> Discounts</div>
-    <div class="sb-item" onclick="showTab('customcols',this)">🗃️ Custom Columns</div>
+    <div class="sb-item" onclick="showTab('customcols',this)">️ Custom Columns</div>
     <div class="sb-item" onclick="showTab('import',this)"> Supplier Import</div>
     <div class="sb-item" onclick="showTab('extension',this)"> Push Extension</div>
     <div class="sb-item" onclick="showTab('analytics',this)"> Analytics</div>
@@ -132,7 +132,7 @@ if(window.location.protocol==='file:'){
         <span style="font-size:1rem"></span>
         <span style="font-size:.82rem;font-weight:700;color:var(--sec)" id="adminUserLabel">Admin</span>
       </div>
-      <button onclick="adminLogout()" style="padding:7px 16px;background:var(--rd);color:#fff;border:none;border-radius:50px;font-size:.8rem;font-weight:700;cursor:pointer">🚪 Logout</button>
+      <button onclick="adminLogout()" style="padding:7px 16px;background:var(--rd);color:#fff;border:none;border-radius:50px;font-size:.8rem;font-weight:700;cursor:pointer"> Logout</button>
     </div>
   </div>
 
@@ -189,14 +189,14 @@ if(window.location.protocol==='file:'){
         <div class="form-row">
           <div class="form-group"><label>Stock *</label><input id="ap_stock" type="number" placeholder="0" min="0"></div>
           <div class="form-group"><label>Badge</label>
-            <select id="ap_badge"><option value="">None</option><option value="new">NEW New</option><option value="deal">🔥 Deal</option><option value="hot">⚡ Hot</option></select>
+            <select id="ap_badge"><option value="">None</option><option value="new">NEW New</option><option value="deal"> Deal</option><option value="hot"> Hot</option></select>
           </div>
         </div>
         <div class="form-group">
           <label><input type="checkbox" id="ap_featured" style="margin-right:6px"> Mark as Featured Product</label>
         </div>
         <hr style="margin:18px 0;border-color:var(--b)">
-        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px;color:var(--p)">📸 Media Upload</h4>
+        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px;color:var(--p)"> Media Upload</h4>
         <div class="form-group">
           <label>Product Images (JPG, PNG, WebP — max 10MB each)</label>
           <div class="upload-area" onclick="document.getElementById('ap_images').click()">
@@ -208,7 +208,7 @@ if(window.location.protocol==='file:'){
         <div class="form-group">
           <label>Product Videos (MP4, WebM — max 200MB each)</label>
           <div class="upload-area" onclick="document.getElementById('ap_videos').click()">
-            🎬 Click to select videos
+             Click to select videos
             <input type="file" id="ap_videos" multiple accept="video/mp4,video/webm" style="display:none" onchange="previewVideos(this,'ap_vidPrev')">
           </div>
           <div id="ap_vidPrev" style="margin-top:8px;font-size:.8rem;color:var(--m)"></div>
@@ -234,7 +234,7 @@ if(window.location.protocol==='file:'){
           <option value="">All Statuses</option>
           <option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option>
         </select>
-        <button onclick="openAddOrderModal()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer;margin-left:auto">➕ Add Manual Order</button>
+        <button onclick="openAddOrderModal()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer;margin-left:auto"> Add Manual Order</button>
       </div>
       <div style="overflow-x:auto">
         <table class="data-table">
@@ -265,7 +265,7 @@ if(window.location.protocol==='file:'){
           <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Banners</h3>
           <p style="font-size:.8rem;color:var(--m)">Add banners. Use <strong>Grid</strong> mode to show 2–4 banners side by side. Use <strong>Slider</strong> for full-width slideshow.</p>
         </div>
-        <button onclick="openAddBannerModal()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Add Banner</button>
+        <button onclick="openAddBannerModal()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer"> Add Banner</button>
       </div>
       <div id="bannerList" style="display:grid;gap:12px"></div>
     </div>
@@ -305,22 +305,22 @@ if(window.location.protocol==='file:'){
 
         <!-- #24 TEXT COLOR CONTROLS -->
         <hr style="margin:16px 0;border-color:var(--b)">
-        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px">🎨 Text Colors — Area by Area</h4>
+        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px"> Text Colors — Area by Area</h4>
         <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:4px">
 
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
             <div class="form-group" style="margin:0">
-              <label>📢 Announcement Bar Text</label>
+              <label> Announcement Bar Text</label>
               <input type="color" id="st_colorAnnoText" value="#ffffff" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Scrolling bar text</small>
             </div>
             <div class="form-group" style="margin:0">
-              <label>📢 Announcement Bar BG</label>
+              <label> Announcement Bar BG</label>
               <input type="color" id="st_colorAnnoBg" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Scrolling bar background</small>
             </div>
             <div class="form-group" style="margin:0">
-              <label>🔝 Top Bar Text</label>
+              <label> Top Bar Text</label>
               <input type="color" id="st_colorTopBarText" value="#ffffff" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Announcement bar</small>
             </div>
@@ -346,7 +346,7 @@ if(window.location.protocol==='file:'){
 
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
             <div class="form-group" style="margin:0">
-              <label>📰 Page Headings</label>
+              <label> Page Headings</label>
               <input type="color" id="st_colorHeading" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Section titles (H1–H4)</small>
             </div>
@@ -364,12 +364,12 @@ if(window.location.protocol==='file:'){
 
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
             <div class="form-group" style="margin:0">
-              <label>🦶 Footer Text</label>
+              <label> Footer Text</label>
               <input type="color" id="st_colorFooterText" value="#94a3b8" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Footer body text</small>
             </div>
             <div class="form-group" style="margin:0">
-              <label>🦶 Footer Heading</label>
+              <label> Footer Heading</label>
               <input type="color" id="st_colorFooterHead" value="#ffffff" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
               <small style="color:var(--m)">Footer column titles</small>
             </div>
@@ -381,7 +381,7 @@ if(window.location.protocol==='file:'){
           </div>
 
         </div>
-        <button class="btn btn-sec btn-sm" onclick="previewColors()" style="margin-top:8px">👁️ Preview Colors</button>
+        <button class="btn btn-sec btn-sm" onclick="previewColors()" style="margin-top:8px">️ Preview Colors</button>
 
         <!-- BANNER SIZE CONTROLS — multi-unit -->
         <hr style="margin:18px 0;border-color:var(--b)">
@@ -413,7 +413,7 @@ if(window.location.protocol==='file:'){
               <label>Banner Image Fit</label>
               <select id="st_bannerFit" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
                 <option value="contain"> Fit Full Image — No Crop (recommended)</option>
-                <option value="cover">🔲 Fill & Zoom — Crops edges</option>
+                <option value="cover"> Fill & Zoom — Crops edges</option>
                 <option value="fill">↔️ Stretch — May distort</option>
               </select>
             </div>
@@ -464,7 +464,7 @@ if(window.location.protocol==='file:'){
             </div>
           </div>
         </div>
-        <button class="btn btn-sec btn-sm" onclick="previewBannerSize()" style="margin-top:8px">👁️ Preview Banner Size</button>
+        <button class="btn btn-sec btn-sm" onclick="previewBannerSize()" style="margin-top:8px">️ Preview Banner Size</button>
         <hr style="margin:16px 0;border-color:var(--b)">
         <div class="form-group"><label>Announcement Bar Text</label><input id="st_ann" placeholder="e.g. Free shipping on orders above ₹999"></div>
         <div class="form-row">
@@ -473,7 +473,7 @@ if(window.location.protocol==='file:'){
         </div>
         <div class="form-group"><label>Footer Text</label><input id="st_footer" placeholder="About your store"></div>
         <div class="form-group" style="margin-top:18px">
-          <label>📢 Home Page Scrolling Text <small style="color:var(--m);font-weight:400">(use | to separate messages)</small></label>
+          <label> Home Page Scrolling Text <small style="color:var(--m);font-weight:400">(use | to separate messages)</small></label>
           <textarea id="st_scroll" placeholder="Welcome to ShopHere.in | Delivery at your doorstep | Quality products at reasonable price" style="min-height:70px;font-size:.84rem"></textarea>
           <small style="color:var(--m)">Separate each message with a pipe | symbol</small>
         </div>
@@ -499,7 +499,7 @@ if(window.location.protocol==='file:'){
           <textarea id="st_returns" placeholder="Enter your returns and refund policy…" style="min-height:120px;font-size:.84rem"></textarea>
         </div>
         <hr style="margin:20px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">❓ FAQ (Frequently Asked Questions)</h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px"> FAQ (Frequently Asked Questions)</h4>
         <div class="form-group">
           <label>FAQ Content <small style="color:var(--m);font-weight:400">Format: Question on line 1, Answer on line 2, blank line between each FAQ</small></label>
           <textarea id="st_faq" placeholder="What is your return policy?&#10;We offer 7-day easy returns.&#10;&#10;How long does delivery take?&#10;Delivery in 3-5 business days." style="min-height:180px;font-size:.84rem"></textarea>
@@ -507,12 +507,12 @@ if(window.location.protocol==='file:'){
         <hr style="margin:20px 0;border-color:var(--b)">
 
         <!-- ═══ VISUAL CUSTOMIZER ═══ -->
-        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:14px">🎨 Visual Customizer</h4>
+        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:14px"> Visual Customizer</h4>
         <div id="vc_unsaved" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;color:#856404;margin-bottom:12px">! Unsaved changes — click Save All Settings to apply</div>
 
         <!-- FONTS -->
         <details style="background:#f8fafc;border:1px solid var(--b);border-radius:10px;margin-bottom:10px;overflow:hidden">
-          <summary style="padding:13px 16px;font-size:.88rem;font-weight:700;cursor:pointer;user-select:none">🔡 Fonts &amp; Typography</summary>
+          <summary style="padding:13px 16px;font-size:.88rem;font-weight:700;cursor:pointer;user-select:none"> Fonts &amp; Typography</summary>
           <div style="padding:16px;border-top:1px solid var(--b)">
             <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;background:#fff;border:1px solid var(--b);border-radius:8px;padding:12px">
               <div style="flex:1">
@@ -528,7 +528,7 @@ if(window.location.protocol==='file:'){
 
         <!-- PRODUCT CARDS -->
         <details style="background:#f8fafc;border:1px solid var(--b);border-radius:10px;margin-bottom:10px;overflow:hidden">
-          <summary style="padding:13px 16px;font-size:.88rem;font-weight:700;cursor:pointer;user-select:none">🃏 Product Card Appearance</summary>
+          <summary style="padding:13px 16px;font-size:.88rem;font-weight:700;cursor:pointer;user-select:none"> Product Card Appearance</summary>
           <div style="padding:16px;border-top:1px solid var(--b)">
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
               <div class="form-group" style="margin:0"><label>Image Height (px)</label><input type="number" id="vc_prodImgHeight" min="80" max="600" placeholder="200" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" oninput="vcMarkDirty()"><small style="color:var(--m)">Product card image area</small></div>
@@ -541,15 +541,15 @@ if(window.location.protocol==='file:'){
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
               <div class="form-group" style="margin:0"><label>NEW "New" Badge Color</label><input type="color" id="vc_badgeNewBg" value="#22c55e" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
-              <div class="form-group" style="margin:0"><label>🔥 "Deal" Badge Color</label><input type="color" id="vc_badgeDealBg" value="#f97316" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
-              <div class="form-group" style="margin:0"><label>⚡ "Hot" Badge Color</label><input type="color" id="vc_badgeHotBg" value="#e11d48" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
+              <div class="form-group" style="margin:0"><label> "Deal" Badge Color</label><input type="color" id="vc_badgeDealBg" value="#f97316" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
+              <div class="form-group" style="margin:0"><label> "Hot" Badge Color</label><input type="color" id="vc_badgeHotBg" value="#e11d48" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
             </div>
           </div>
         </details>
 
         <!-- COLOR THEME -->
         <details style="background:#f8fafc;border:1px solid var(--b);border-radius:10px;margin-bottom:10px;overflow:hidden">
-          <summary style="padding:13px 16px;font-size:.88rem;font-weight:700;cursor:pointer;user-select:none">🌈 Extended Color Theme</summary>
+          <summary style="padding:13px 16px;font-size:.88rem;font-weight:700;cursor:pointer;user-select:none"> Extended Color Theme</summary>
           <div style="padding:16px;border-top:1px solid var(--b)">
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
               <div class="form-group" style="margin:0"><label>Page Background</label><input type="color" id="vc_colorBg" value="#f8fafc" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"><small style="color:var(--m)">Body background (--bg)</small></div>
@@ -574,13 +574,13 @@ if(window.location.protocol==='file:'){
             <label>New Admin Password</label>
             <div style="position:relative;display:flex;align-items:center">
               <input id="st_adminpass" type="password" placeholder="Leave blank to keep current password" style="width:100%;padding:10px 40px 10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
-              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈'" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem">👁️</button>
+              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'️':''" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem">️</button>
             </div>
           </div>
         </div>
 
         <hr style="margin:16px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">☁️ Cloudinary Image Storage <small style="font-weight:400;color:var(--m)">(recommended — images survive redeployments)</small></h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">️ Cloudinary Image Storage <small style="font-weight:400;color:var(--m)">(recommended — images survive redeployments)</small></h4>
         <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Without Cloudinary, uploaded images are lost on every Render redeploy. Sign up free at <a href="https://cloudinary.com" target="_blank" style="color:var(--p)">cloudinary.com</a> -> Dashboard -> copy your Cloud Name -> Settings -> Upload -> Add upload preset (set to Unsigned).</p>
         <div class="form-row">
           <div class="form-group">
@@ -593,7 +593,7 @@ if(window.location.protocol==='file:'){
           </div>
         </div>
         <div id="cloudinaryStatus" style="font-size:.78rem;padding:8px 12px;border-radius:7px;display:none"></div>
-        <button id="btnTestCloudinary" style="padding:7px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:4px" onclick="if(typeof testCloudinary==='function')testCloudinary();else alert('Page not fully loaded, please wait 2 seconds and try again')">🔌 Test Connection</button>
+        <button id="btnTestCloudinary" style="padding:7px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:4px" onclick="if(typeof testCloudinary==='function')testCloudinary();else alert('Page not fully loaded, please wait 2 seconds and try again')"> Test Connection</button>
 
         <hr style="margin:16px 0;border-color:var(--b)">
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px"> Chrome Extension — Push to Store</h4>
@@ -603,7 +603,7 @@ if(window.location.protocol==='file:'){
             <label>Push Token <small style="color:var(--m);font-weight:400">(any secret word/phrase you choose)</small></label>
             <div style="position:relative;display:flex;align-items:center">
               <input id="st_pushtoken" type="password" placeholder="e.g. mysecret123" style="width:100%;padding:10px 40px 10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
-              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈'" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem">👁️</button>
+              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'️':''" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem">️</button>
             </div>
           </div>
           <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end">
@@ -625,7 +625,7 @@ if(window.location.protocol==='file:'){
         <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Page Builder</h3>
         <p style="font-size:.8rem;color:var(--m)">Add, edit or delete any content block on your store pages. Changes are instant.</p>
       </div>
-      <button onclick="pbOpenAdd()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Add New Block</button>
+      <button onclick="pbOpenAdd()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer"> Add New Block</button>
     </div>
 
     <!-- Filter by page -->
@@ -633,13 +633,13 @@ if(window.location.protocol==='file:'){
       <button class="pb-page-btn active" onclick="pbFilterPage('all',this)">All</button>
       <button class="pb-page-btn" onclick="pbFilterPage('top',this)">⬆️ Top</button>
       <button class="pb-page-btn" onclick="pbFilterPage('home',this)"> Home</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('header',this)">🔝 Header</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('header',this)"> Header</button>
       <button class="pb-page-btn" onclick="pbFilterPage('between',this)">↕️ Between</button>
       <button class="pb-page-btn" onclick="pbFilterPage('products',this)"> Products</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('footer',this)">🦶 Footer</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('footer',this)"> Footer</button>
       <button class="pb-page-btn" onclick="pbFilterPage('floating',this)"> Floating</button>
       <button class="pb-page-btn" onclick="pbFilterPage('sidebar',this)"> Sidebar</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('custom',this)">✨ Custom</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('custom',this)"> Custom</button>
     </div>
 
     <div id="pbBlocksList" style="display:grid;gap:12px"></div>
@@ -663,40 +663,40 @@ if(window.location.protocol==='file:'){
 <!-- Add/Edit Block Modal -->
 <div class="overlay" id="pbModal">
   <div class="modal modal-lg">
-    <div class="modal-hdr"><h3 id="pbModalTitle">Add Content Block</h3><button class="modal-close" onclick="closePbModal()">✕</button></div>
+    <div class="modal-hdr"><h3 id="pbModalTitle">Add Content Block</h3><button class="modal-close" onclick="closePbModal()"></button></div>
     <div class="modal-body">
       <div class="form-row" style="margin-bottom:14px">
         <div class="form-group" style="margin:0">
           <label>Page / Location</label>
           <select id="pb_page" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
             <option value="home"> Home Page</option>
-            <option value="header">🔝 Header Area</option>
+            <option value="header"> Header Area</option>
             <option value="top">⬆️ Top of Page (above header)</option>
-            <option value="footer">🦶 Footer Area</option>
+            <option value="footer"> Footer Area</option>
             <option value="products"> Products Section</option>
             <option value="between">↕️ Between Sections</option>
             <option value="floating"> Floating / Popup Ad</option>
             <option value="sidebar"> Sidebar</option>
-            <option value="custom">✨ Custom Section</option>
+            <option value="custom"> Custom Section</option>
           </select>
         </div>
         <div class="form-group" style="margin:0">
           <label>Block Type</label>
           <select id="pb_type" onchange="pbTypeChanged()" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
             <option value="text"> Text / HTML</option>
-            <option value="heading">🔤 Heading</option>
+            <option value="heading"> Heading</option>
             <option value="image"> Single Image</option>
             <option value="image-link"> Image + Link (Ad Banner)</option>
-            <option value="mixed">🎨 Mixed — Image + Text + Video</option>
+            <option value="mixed"> Mixed — Image + Text + Video</option>
             <option value="gallery"> Gallery (Multiple Images)</option>
             <option value="columns">⬛⬛ Side-by-Side Columns</option>
-            <option value="video">🎬 Video</option>
+            <option value="video"> Video</option>
             <option value="audio"> Audio</option>
-            <option value="button">🔘 Button / Link</option>
-            <option value="marquee">📢 Scrolling Marquee Text</option>
+            <option value="button"> Button / Link</option>
+            <option value="marquee"> Scrolling Marquee Text</option>
             <option value="countdown">⏳ Countdown Timer</option>
-            <option value="notice">📣 Notice / Alert Box</option>
-            <option value="divider">➖ Divider</option>
+            <option value="notice"> Notice / Alert Box</option>
+            <option value="divider"> Divider</option>
             <option value="spacer">⬜ Spacer</option>
             <option value="html"> Custom HTML</option>
           </select>
@@ -716,7 +716,7 @@ if(window.location.protocol==='file:'){
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-bottom:4px">
         <div class="form-row" style="margin-bottom:8px">
           <div class="form-group" style="margin:0">
-            <label>🖱️ Click Action <small style="color:var(--m);font-weight:400">(what happens when customer clicks)</small></label>
+            <label>️ Click Action <small style="color:var(--m);font-weight:400">(what happens when customer clicks)</small></label>
             <select id="pb_clickAction" onchange="pbToggleClickFields()" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
               <option value="">None (just zoom/lightbox)</option>
               <option value="product"> Open Product Cart (Add to Cart popup)</option>
@@ -750,7 +750,7 @@ if(window.location.protocol==='file:'){
 
       <!-- Rich Style Editor -->
       <details open style="margin-top:14px;background:#f8fafc;border:1px solid var(--b);border-radius:8px;overflow:hidden">
-        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none">🎨 Style &amp; Layout (click to expand)</summary>
+        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none"> Style &amp; Layout (click to expand)</summary>
         <div style="padding:14px;border-top:1px solid var(--b)">
 
           <!-- Row 1: Colors -->
@@ -795,7 +795,7 @@ if(window.location.protocol==='file:'){
               <select id="pb_objectFit" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
                 <option value="contain"> Show Full — No Crop (default)</option>
                 <option value="cover"> Zoom/Fill — May Crop</option>
-                <option value="scale-down">🔲 Shrink to Fit</option>
+                <option value="scale-down"> Shrink to Fit</option>
                 <option value="scale-down">⬇️ Shrink Fit</option>
                 <option value="fill">↔️ Stretch Fill</option>
               </select>
@@ -856,9 +856,9 @@ if(window.location.protocol==='file:'){
 
       <!-- Live Preview -->
       <details style="margin-top:10px;background:#1e293b;border-radius:8px;overflow:hidden">
-        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none;color:#fff">👁️ Live Preview</summary>
+        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none;color:#fff">️ Live Preview</summary>
         <div style="padding:14px;border-top:1px solid rgba(255,255,255,.1)">
-          <button onclick="pbPreview()" style="padding:7px 16px;background:#f97316;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:10px">🔄 Refresh Preview</button>
+          <button onclick="pbPreview()" style="padding:7px 16px;background:#f97316;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:10px"> Refresh Preview</button>
           <div id="pb_preview" style="background:#fff;border-radius:8px;padding:16px;min-height:60px"></div>
         </div>
       </details>
@@ -882,7 +882,7 @@ if(window.location.protocol==='file:'){
       <div style="display:flex;gap:8px">
         <button onclick="repairImages()" style="padding:9px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Repair Images</button>
         <button onclick="invSaveAll()" style="padding:9px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Save All Changes</button>
-        <button onclick="loadInventory()" style="padding:9px 16px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">🔄 Refresh</button>
+        <button onclick="loadInventory()" style="padding:9px 16px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer"> Refresh</button>
       </div>
     </div>
     <!-- Low stock alert -->
@@ -918,7 +918,7 @@ if(window.location.protocol==='file:'){
         <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Discount Codes</h3>
         <p style="font-size:.8rem;color:var(--m)">Create coupon codes that customers can use at checkout for discounts.</p>
       </div>
-      <button onclick="discOpenAdd()" style="padding:9px 16px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Create Discount</button>
+      <button onclick="discOpenAdd()" style="padding:9px 16px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer"> Create Discount</button>
     </div>
     <div id="discList" style="display:grid;gap:10px"></div>
   </div>
@@ -929,7 +929,7 @@ if(window.location.protocol==='file:'){
   <div class="modal modal-lg">
     <div class="modal-hdr">
       <h3 id="bnModalTitle">Add Banner</h3>
-      <button class="modal-close" onclick="closeBannerModal()">✕</button>
+      <button class="modal-close" onclick="closeBannerModal()"></button>
     </div>
     <div class="modal-body">
 
@@ -960,12 +960,12 @@ if(window.location.protocol==='file:'){
       <hr style="margin:14px 0;border-color:var(--b)">
 
       <!-- Display Settings -->
-      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px;color:var(--p)">🎨 Display Settings</h4>
+      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px;color:var(--p)"> Display Settings</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
         <div class="form-group" style="margin:0">
           <label>Display Mode</label>
           <select id="bn_mode" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
-            <option value="slider">🎠 Slider (full width, one at a time)</option>
+            <option value="slider"> Slider (full width, one at a time)</option>
             <option value="grid">⬛⬛ Grid (side by side)</option>
           </select>
         </div>
@@ -988,7 +988,7 @@ if(window.location.protocol==='file:'){
           <label>Image Fit</label>
           <select id="bn_fit" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
             <option value="contain"> Fit — No Crop</option>
-            <option value="cover">🔲 Fill — May Crop</option>
+            <option value="cover"> Fill — May Crop</option>
             <option value="fill">↔️ Stretch</option>
           </select>
         </div>
@@ -1021,13 +1021,13 @@ if(window.location.protocol==='file:'){
         <label>Animation</label>
         <select id="bn_anim" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
           <option value="">None</option>
-          <option value="fade-in">✨ Fade In</option>
+          <option value="fade-in"> Fade In</option>
           <option value="slide-up">⬆️ Slide Up</option>
           <option value="slide-left">◀️ Slide from Left</option>
           <option value="slide-right">▶️ Slide from Right</option>
           <option value="zoom-in"> Zoom In</option>
-          <option value="pulse">💓 Pulse</option>
-          <option value="bounce">🏀 Bounce</option>
+          <option value="pulse"> Pulse</option>
+          <option value="bounce"> Bounce</option>
         </select>
       </div>
 
@@ -1044,7 +1044,7 @@ if(window.location.protocol==='file:'){
   <div class="modal modal-lg">
     <div class="modal-hdr">
       <h3> Edit Order <span id="eo_id_label" style="color:var(--p);font-size:.9rem"></span></h3>
-      <button class="modal-close" onclick="closeEditOrderModal()">✕</button>
+      <button class="modal-close" onclick="closeEditOrderModal()"></button>
     </div>
     <div class="modal-body">
 
@@ -1119,8 +1119,8 @@ if(window.location.protocol==='file:'){
 <div class="overlay" id="manualOrderModal">
   <div class="modal modal-lg">
     <div class="modal-hdr">
-      <h3>➕ Add Manual Order</h3>
-      <button class="modal-close" onclick="closeAddOrderModal()">✕</button>
+      <h3> Add Manual Order</h3>
+      <button class="modal-close" onclick="closeAddOrderModal()"></button>
     </div>
     <div class="modal-body">
 
@@ -1193,7 +1193,7 @@ if(window.location.protocol==='file:'){
 <!-- DISCOUNT ADD/EDIT MODAL -->
 <div class="overlay" id="discModal">
   <div class="modal">
-    <div class="modal-hdr"><h3 id="discModalTitle">Create Discount Code</h3><button class="modal-close" onclick="closeDiscModal()">✕</button></div>
+    <div class="modal-hdr"><h3 id="discModalTitle">Create Discount Code</h3><button class="modal-close" onclick="closeDiscModal()"></button></div>
     <div class="modal-body">
       <div class="form-group"><label>Coupon Code (e.g. SAVE10)</label><input id="disc_code" placeholder="e.g. DIWALI20" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="form-row">
@@ -1201,7 +1201,7 @@ if(window.location.protocol==='file:'){
           <select id="disc_type" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
             <option value="percent">% Percentage off</option>
             <option value="flat">₹ Flat amount off</option>
-            <option value="freeship">🚚 Free Shipping</option>
+            <option value="freeship"> Free Shipping</option>
           </select>
         </div>
         <div class="form-group"><label>Discount Value</label><input id="disc_value" type="number" placeholder="e.g. 10 for 10% or ₹10"></div>
@@ -1228,10 +1228,10 @@ if(window.location.protocol==='file:'){
   <div class="sec">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
       <div>
-        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">🗃️ Custom Columns</h3>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">️ Custom Columns</h3>
         <p style="font-size:.8rem;color:var(--m)">Add extra data fields (SKU, Supplier, Location, HSN Code, etc.) that appear as columns in Inventory and Products tables. Data is saved per product.</p>
       </div>
-      <button onclick="ccOpenAdd()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">➕ Add New Column</button>
+      <button onclick="ccOpenAdd()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer"> Add New Column</button>
     </div>
 
     <!-- Column list -->
@@ -1254,7 +1254,7 @@ if(window.location.protocol==='file:'){
 <!-- ADD / EDIT COLUMN MODAL -->
 <div class="overlay" id="ccModal">
   <div class="modal">
-    <div class="modal-hdr"><h3 id="ccModalTitle">Add Custom Column</h3><button class="modal-close" onclick="closeCcModal()">✕</button></div>
+    <div class="modal-hdr"><h3 id="ccModalTitle">Add Custom Column</h3><button class="modal-close" onclick="closeCcModal()"></button></div>
     <div class="modal-body">
       <div class="form-group">
         <label>Column Label <small style="color:var(--m);font-weight:400">(shown as table header)</small></label>
@@ -1270,7 +1270,7 @@ if(window.location.protocol==='file:'){
           <label>Field Type</label>
           <select id="cc_type" onchange="ccTypeChanged()" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
             <option value="text"> Text</option>
-            <option value="number">🔢 Number</option>
+            <option value="number"> Number</option>
             <option value="select"> Dropdown</option>
             <option value="date"> Date</option>
           </select>
@@ -1310,15 +1310,15 @@ if(window.location.protocol==='file:'){
 
     <!-- How it works -->
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
-      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px">✨ How it works</h4>
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px"> How it works</h4>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
         <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
-          <div style="font-size:2rem;margin-bottom:8px">🔌</div>
+          <div style="font-size:2rem;margin-bottom:8px"></div>
           <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">1. Install Extension</div>
           <div style="font-size:.75rem;color:var(--m)">Load the extension folder into Chrome in Developer mode</div>
         </div>
         <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
-          <div style="font-size:2rem;margin-bottom:8px">⚙️</div>
+          <div style="font-size:2rem;margin-bottom:8px">️</div>
           <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">2. Configure Once</div>
           <div style="font-size:.75rem;color:var(--m)">Enter your store URL and push token in the extension popup</div>
         </div>
@@ -1343,7 +1343,7 @@ if(window.location.protocol==='file:'){
       </div>
       <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Go to <strong>Store Settings -> Chrome Extension section</strong> -> set a Push Token (any secret word). This prevents unauthorized pushes to your store.</p>
       <button onclick="showTab('settings', document.querySelector('.sb-item[onclick*=settings]'))" style="padding:9px 18px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">
-        ⚙️ Go to Settings -> Set Push Token
+        ️ Go to Settings -> Set Push Token
       </button>
     </div>
 
@@ -1375,7 +1375,7 @@ if(window.location.protocol==='file:'){
       </div>
       <ol style="font-size:.82rem;color:#475569;line-height:2;padding-left:20px">
         <li>Click the <strong>"Push to ShopHere.in"</strong> extension icon in Chrome toolbar</li>
-        <li>Click the <strong>⚙️ Settings</strong> icon in the popup</li>
+        <li>Click the <strong>️ Settings</strong> icon in the popup</li>
         <li>Enter your <strong>Store URL:</strong> <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px">https://shophere.in</code></li>
         <li>Enter your <strong>Push Token</strong> (same one you set in Step 1)</li>
         <li>Click <strong>Save &amp; Connect</strong> — it will test the connection</li>
@@ -1406,7 +1406,7 @@ if(window.location.protocol==='file:'){
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <h4 style="font-size:.88rem;font-weight:700"> Recently Pushed Products</h4>
-        <button onclick="loadPushedProducts()" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer">🔄 Refresh</button>
+        <button onclick="loadPushedProducts()" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer"> Refresh</button>
       </div>
       <div id="pushedProductsList" style="overflow-x:auto">
         <p style="font-size:.8rem;color:var(--m)">Click Refresh to see products pushed via the extension.</p>
@@ -1480,11 +1480,11 @@ if(window.location.protocol==='file:'){
       <p style="font-size:.8rem;color:var(--m);margin-bottom:14px">Select your supplier to download a CSV template in the right format. Export your supplier catalog in this format, then upload below.</p>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
         <button onclick="impDownloadTemplate('generic')"      class="imp-tpl-btn"> Generic (any supplier)</button>
-        <button onclick="impDownloadTemplate('dropshipindia')" class="imp-tpl-btn">🇮🇳 DropshipIndia</button>
+        <button onclick="impDownloadTemplate('dropshipindia')" class="imp-tpl-btn"> DropshipIndia</button>
         <button onclick="impDownloadTemplate('cjdropshipping')" class="imp-tpl-btn"> CJ Dropshipping</button>
         <button onclick="impDownloadTemplate('hubbazaar')"    class="imp-tpl-btn"> Hubbazaar</button>
         <button onclick="impDownloadTemplate('shopify')"      class="imp-tpl-btn"> Shopify Export</button>
-        <button onclick="impDownloadTemplate('woocommerce')"  class="imp-tpl-btn">🔵 WooCommerce Export</button>
+        <button onclick="impDownloadTemplate('woocommerce')"  class="imp-tpl-btn"> WooCommerce Export</button>
       </div>
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:.78rem;color:#166534">
          <strong>Tip:</strong> Export your supplier catalog as CSV/Excel -> open in Excel or Google Sheets -> save as CSV -> upload below. The column mapper handles any column names.
@@ -1542,7 +1542,7 @@ if(window.location.protocol==='file:'){
       </div>
       <div id="imp_mapperGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px"></div>
       <button onclick="impApplyMapping()" style="padding:10px 24px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:.86rem;font-weight:700;cursor:pointer">
-        👁️ Preview Products ->
+        ️ Preview Products ->
       </button>
     </div>
 
@@ -1584,7 +1584,7 @@ if(window.location.protocol==='file:'){
            Import Selected Products
         </button>
         <button onclick="impReset()" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;font-weight:600;cursor:pointer">
-          🔄 Start Over
+           Start Over
         </button>
       </div>
     </div>
@@ -1632,7 +1632,7 @@ if(window.location.protocol==='file:'){
 <!-- IMAGE MANAGER MODAL -->
 <div class="overlay" id="imgMgrModal">
   <div class="modal modal-lg">
-    <div class="modal-hdr"><h3 id="imgMgrTitle">Product Images</h3><button class="modal-close" onclick="closeImgMgr()">✕</button></div>
+    <div class="modal-hdr"><h3 id="imgMgrTitle">Product Images</h3><button class="modal-close" onclick="closeImgMgr()"></button></div>
     <div class="modal-body" id="imgMgrBody"></div>
   </div>
 </div>
@@ -1640,7 +1640,7 @@ if(window.location.protocol==='file:'){
 <!-- EDIT PRODUCT MODAL -->
 <div class="overlay" id="editModal">
   <div class="modal modal-lg">
-    <div class="modal-hdr"><h3>Edit Product</h3><button class="modal-close" onclick="closeEdit()">✕</button></div>
+    <div class="modal-hdr"><h3>Edit Product</h3><button class="modal-close" onclick="closeEdit()"></button></div>
     <div class="modal-body" id="editBody"></div>
   </div>
 </div>
@@ -1929,7 +1929,7 @@ async function loadStats() {
       <td><span class="status-badge s-${(o.status || '').toLowerCase()}">${o.status || ''}</span></td>
       <td>${o.date ? new Date(o.date).toLocaleDateString('en-IN') : ''}</td>
       <td>${o.status !== 'Cancelled' && o.status !== 'Delivered'
-        ? `<button onclick="cancelOrder('${o.id}');loadStats();" style="padding:3px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:6px;font-size:.74rem;font-weight:700;cursor:pointer">✕ Cancel</button>`
+        ? `<button onclick="cancelOrder('${o.id}');loadStats();" style="padding:3px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:6px;font-size:.74rem;font-weight:700;cursor:pointer"> Cancel</button>`
         : `<span style="font-size:.72rem;color:${o.status==='Cancelled'?'#ef4444':'#22c55e'};font-weight:600">${o.status}</span>`}</td>
     </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--m);padding:24px">No orders yet</td></tr>';
   } catch (e) {
@@ -2075,7 +2075,7 @@ function previewImages(input, previewId) {
 
 function previewVideos(input, previewId) {
   document.getElementById(previewId).innerHTML = Array.from(input.files)
-    .map(f => `<div>🎬 ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)</div>`).join('');
+    .map(f => `<div> ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)</div>`).join('');
 }
 
 function previewAudios(input, previewId) {
@@ -2152,7 +2152,7 @@ async function openEdit(id) {
   const allCols = window.allCustomCols || [];
   const customFieldsHtml = allCols.length ? `
     <hr style="margin:14px 0;border-color:var(--b)">
-    <h4 style="font-size:.85rem;font-weight:700;margin-bottom:10px;color:#475569">🗃️ Custom Fields</h4>
+    <h4 style="font-size:.85rem;font-weight:700;margin-bottom:10px;color:#475569">️ Custom Fields</h4>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${allCols.map(col => {
         const val = cf[col.key] !== undefined ? cf[col.key] : '';
@@ -2188,8 +2188,8 @@ async function openEdit(id) {
         <select id="ep_badge">
           <option value="">None</option>
           <option value="new"${p.badge === 'new' ? ' selected' : ''}>NEW New</option>
-          <option value="deal"${p.badge === 'deal' ? ' selected' : ''}>🔥 Deal</option>
-          <option value="hot"${p.badge === 'hot' ? ' selected' : ''}>⚡ Hot</option>
+          <option value="deal"${p.badge === 'deal' ? ' selected' : ''}> Deal</option>
+          <option value="hot"${p.badge === 'hot' ? ' selected' : ''}> Hot</option>
         </select>
       </div>
     </div>
@@ -2287,7 +2287,7 @@ function filterOrders(status) {
         <select style="padding:4px 8px;border:1px solid var(--b);border-radius:6px;font-size:.78rem" onchange="updateOrderStatus('${o.id}',this.value)">
           ${['Processing','Shipped','Delivered','Cancelled'].map(s => `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}
         </select>
-        ${o.status !== 'Cancelled' ? `<button onclick="cancelOrder('${o.id}')" style="padding:4px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">✕ Cancel</button>` : `<span style="font-size:.72rem;color:#ef4444;font-weight:700">Cancelled</span>`}
+        ${o.status !== 'Cancelled' ? `<button onclick="cancelOrder('${o.id}')" style="padding:4px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap"> Cancel</button>` : `<span style="font-size:.72rem;color:#ef4444;font-weight:700">Cancelled</span>`}
         <button onclick="editOrder('${o.id}')" style="padding:4px 10px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap"> Edit</button>
         <button onclick="deleteOrder('${o.id}')" style="padding:4px 10px;background:#fff1f2;color:#be123c;border:1.5px solid #fda4af;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap"></button>
       </div>
@@ -2411,7 +2411,7 @@ function eoAddItem(item) {
         style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
     </div>
     <button onclick="document.getElementById('eo_item_${idx}').remove();eoCalcTotal()"
-      style="padding:7px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.84rem;cursor:pointer;height:36px">✕</button>`;
+      style="padding:7px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.84rem;cursor:pointer;height:36px"></button>`;
   document.getElementById('eo_items').appendChild(div);
 }
 
@@ -2531,7 +2531,7 @@ function moAddItem() {
         style="width:100%;padding:7px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
     </div>
     <button onclick="document.getElementById('mo_item_${idx}').remove();moCalcTotal()"
-      style="padding:7px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.84rem;cursor:pointer;height:36px;margin-bottom:0">✕</button>`;
+      style="padding:7px 10px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.84rem;cursor:pointer;height:36px;margin-bottom:0"></button>`;
   document.getElementById('mo_items').appendChild(div);
 }
 
@@ -2644,11 +2644,11 @@ async function loadBanners() {
     const res = await fetch('/api/banners');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     allBanners = await res.json();
-    const animLabels = {'':'None','fade-in':'✨ Fade In','slide-up':'⬆️ Slide Up','slide-left':'◀️ Slide Left','slide-right':'▶️ Slide Right','zoom-in':' Zoom In','pulse':'💓 Pulse','bounce':'🏀 Bounce'};
+    const animLabels = {'':'None','fade-in':' Fade In','slide-up':'⬆️ Slide Up','slide-left':'◀️ Slide Left','slide-right':'▶️ Slide Right','zoom-in':' Zoom In','pulse':' Pulse','bounce':' Bounce'};
     document.getElementById('bannerList').innerHTML = allBanners.length
       ? allBanners.map(b => {
           const img = b.bgImage ? `<img src="${b.bgImage}" style="width:100%;height:90px;object-fit:${b.objectFit||'contain'};border-radius:6px;display:block" alt="">` : `<div style="height:90px;background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'};border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">${b.headline||''}</div>`;
-          const modeLabel = b.displayMode==='grid' ? `⬛⬛ Grid ${b.widthPct||100}%` : '🎠 Slider';
+          const modeLabel = b.displayMode==='grid' ? `⬛⬛ Grid ${b.widthPct||100}%` : ' Slider';
           return `<div style="background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden;display:flex;gap:0">
             <div style="width:160px;flex-shrink:0;padding:8px;border-right:1px solid var(--b)">${img}</div>
             <div style="flex:1;padding:12px 16px">
@@ -3083,7 +3083,7 @@ function pbRender() {
     return;
   }
   list.innerHTML = filtered.map(b => {
-    const icons = {text:'',heading:'🔤',image:'','image-link':'',gallery:'',columns:'⬛⬛',video:'🎬',audio:'',button:'🔘',marquee:'📢',countdown:'⏳',notice:'📣',divider:'➖',spacer:'⬜',html:''};
+    const icons = {text:'',heading:'',image:'','image-link':'',gallery:'',columns:'⬛⬛',video:'',audio:'',button:'',marquee:'',countdown:'⏳',notice:'',divider:'',spacer:'⬜',html:''};
     const preview = (b.type === 'image' || b.type === 'image-link') && b.content
       ? `<img src="${b.content}" style="width:100%;height:100%;object-fit:cover">`
       : b.type === 'gallery' && b.content
@@ -3219,21 +3219,21 @@ function pbTypeChanged() {
   } else if (type === 'mixed') {
     fields.innerHTML = `
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.78rem;color:#166534">
-      🎨 <strong>Mixed Block</strong> — combine image, text and video in one block. All fields are optional.
+       <strong>Mixed Block</strong> — combine image, text and video in one block. All fields are optional.
     </div>
     <div class="form-group"><label> Image URL (optional)</label><input id="pb_mixed_img" placeholder="/uploads/... or https://..." value="${fields._alt||''}">
       <small style="color:var(--m)">Or upload: <input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadMixedImg(this)" style="font-size:.78rem"></small>
     </div>
     <div class="form-group"><label> Image Link URL (optional)</label><input id="pb_mixed_imglink" placeholder="https://... (makes image clickable)" value="${fields._link||''}"></div>
     <div class="form-group"><label> Text / HTML (optional)</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Enter text, headings, HTML...">${fields._val||''}</textarea></div>
-    <div class="form-group"><label>🎬 Video URL (optional)</label><input id="pb_mixed_video" placeholder="/uploads/video.mp4 or https://..." value="${fields._link2||''}"></div>
+    <div class="form-group"><label> Video URL (optional)</label><input id="pb_mixed_video" placeholder="/uploads/video.mp4 or https://..." value="${fields._link2||''}"></div>
     <div class="form-group"><label> Layout</label>
       <select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
-        <option value="img-top">🔼 Image on Top, Text Below</option>
+        <option value="img-top"> Image on Top, Text Below</option>
         <option value="img-left">◀️ Image Left, Text Right</option>
         <option value="img-right">▶️ Image Right, Text Left</option>
-        <option value="text-top">🔡 Text on Top, Image Below</option>
-        <option value="video-top">🎬 Video on Top, Text Below</option>
+        <option value="text-top"> Text on Top, Image Below</option>
+        <option value="video-top"> Video on Top, Text Below</option>
       </select>
     </div>
     <input type="hidden" id="pb_mixed_video_hidden" value="">`;
@@ -3585,7 +3585,7 @@ async function pbDelete(id) {
 async function pbToggleVisible(id, visible) {
   try {
     await fetch('/api/pageblocks/'+id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ visible }) });
-    toast(visible ? ' Block visible on store' : '🙈 Block hidden from store');
+    toast(visible ? ' Block visible on store' : ' Block hidden from store');
     pbLoadBlocks();
   } catch(e) {}
 }
@@ -4203,13 +4203,13 @@ function renderCustomCols() {
   if (!el) return;
   if (!allCustomCols.length) {
     el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--m);background:#fff;border:1px solid #e2e8f0;border-radius:12px">
-      <div style="font-size:3rem;margin-bottom:10px">🗃️</div>
+      <div style="font-size:3rem;margin-bottom:10px">️</div>
       <p style="font-weight:600;margin-bottom:6px">No custom columns yet</p>
       <p style="font-size:.8rem">Add columns like SKU, Supplier, Warehouse Location, HSN Code, Reorder Level, etc.</p>
     </div>`;
     return;
   }
-  const typeIcon = { text:'', number:'🔢', select:'', date:'' };
+  const typeIcon = { text:'', number:'', select:'', date:'' };
   const showLabel = { inventory:' Inventory', products:' Products', both:' Both' };
   el.innerHTML = allCustomCols.map((c, i) => `
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">

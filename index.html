@@ -112,7 +112,7 @@
         </div>
         <div id="userMenu" style="display:none;position:absolute;top:100%;right:0;background:#fff;border:1px solid var(--b);border-radius:10px;padding:8px 0;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:300">
           <div onclick="openOrders()" style="padding:9px 16px;font-size:.83rem;cursor:pointer"> My Orders</div>
-          <div onclick="logout()" style="padding:9px 16px;font-size:.83rem;cursor:pointer;color:var(--rd)">🚪 Logout</div>
+          <div onclick="logout()" style="padding:9px 16px;font-size:.83rem;cursor:pointer;color:var(--rd)"> Logout</div>
         </div>
       </div>
     </div>
@@ -144,7 +144,7 @@
   <div style="max-width:1300px;margin:0 auto;padding:16px 24px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <h3 id="searchTitle" style="font-size:1rem;font-weight:700">Search Results</h3>
-      <button onclick="closeSearch()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--m)">✕</button>
+      <button onclick="closeSearch()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--m)"></button>
     </div>
     <div class="products-grid" id="searchGrid"></div>
   </div>
@@ -162,11 +162,11 @@
 <div class="trust-strip">
   <div class="trust-inner">
     <div class="trust-item">
-      <div class="trust-icon">🚚</div>
+      <div class="trust-icon"></div>
       <div><div class="trust-title">Free Delivery</div><div class="trust-sub">On orders above ₹999</div></div>
     </div>
     <div class="trust-item">
-      <div class="trust-icon">🔄</div>
+      <div class="trust-icon"></div>
       <div><div class="trust-title">Easy Returns</div><div class="trust-sub">24hr exchange policy</div></div>
     </div>
     <div class="trust-item">
@@ -174,7 +174,7 @@
       <div><div class="trust-title">Secure Payment</div><div class="trust-sub">100% safe checkout</div></div>
     </div>
     <div class="trust-item">
-      <div class="trust-icon">🎧</div>
+      <div class="trust-icon"></div>
       <div><div class="trust-title">24/7 Support</div><div class="trust-sub">Always here to help</div></div>
     </div>
   </div>
@@ -197,14 +197,14 @@
   <!-- DEALS -->
   <div class="container" id="dealsSection">
     <div class="section-card">
-      <div class="sec-hdr"><h2>🔥 Today's Deals</h2><a onclick="filterBadge('deal')">View All -></a></div>
+      <div class="sec-hdr"><h2> Today's Deals</h2><a onclick="filterBadge('deal')">View All -></a></div>
       <div class="products-grid" id="dealsGrid"></div>
     </div>
   </div>
   <!-- NEW ARRIVALS -->
   <div class="container" id="newSection">
     <div class="section-card">
-      <div class="sec-hdr"><h2>✨ New Arrivals</h2><a onclick="filterBadge('new')">View All -></a></div>
+      <div class="sec-hdr"><h2> New Arrivals</h2><a onclick="filterBadge('new')">View All -></a></div>
       <div class="products-grid" id="newGrid"></div>
     </div>
   </div>
@@ -216,7 +216,7 @@
 <div class="container" id="productsSection" style="display:none">
   <div class="shop-layout">
     <div class="sidebar-filters">
-      <h4>🔽 Filters</h4>
+      <h4> Filters</h4>
       <div class="filter-section">
         <h5>Category</h5>
         <div id="filterCats"></div>
@@ -266,7 +266,7 @@
 <!-- ═══ CONTACT SECTION ════════════════════════════════════════════════════ -->
 <div id="contactSection" style="background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:48px 24px;margin-top:60px">
   <div style="max-width:1000px;margin:0 auto;text-align:center">
-    <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:10px">📞 Contact Us</h2>
+    <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:10px"> Contact Us</h2>
     <p style="color:#94a3b8;margin-bottom:28px">We're here to help! Reach out to us anytime.</p>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:700px;margin:0 auto 28px" id="contactCards">
       <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:20px">
@@ -378,7 +378,7 @@
 <!-- ── LOGIN MODAL (#7 forgot form, #8 eye toggles) ──────────────────────── -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
-    <h2>👋 Welcome Back</h2>
+    <h2> Welcome Back</h2>
     <p>Login to track orders and get personalised deals</p>
     <div class="login-tabs">
       <div class="login-tab active" onclick="switchAuthTab('login',this)">Login</div>
@@ -396,7 +396,7 @@
         <!-- #8: password eye toggle -->
         <div class="pass-wrap">
           <input id="l_pass" type="password" placeholder="Your password">
-          <button class="pass-eye" type="button" onclick="togglePassVis('l_pass',this)" title="Show/hide password">👁️</button>
+          <button class="pass-eye" type="button" onclick="togglePassVis('l_pass',this)" title="Show/hide password">️</button>
         </div>
       </div>
       <div id="loginErr" style="color:var(--rd);font-size:.78rem;margin-bottom:8px;display:none"></div>
@@ -425,7 +425,7 @@
         <!-- #8: password eye toggle on register -->
         <div class="pass-wrap">
           <input id="r_pass" type="password" placeholder="Create password">
-          <button class="pass-eye" type="button" onclick="togglePassVis('r_pass',this)" title="Show/hide password">👁️</button>
+          <button class="pass-eye" type="button" onclick="togglePassVis('r_pass',this)" title="Show/hide password">️</button>
         </div>
       </div>
       <div id="regErr" style="color:var(--rd);font-size:.78rem;margin-bottom:8px;display:none"></div>
@@ -452,8 +452,8 @@
 <div class="popup-overlay" id="contactPopup">
   <div class="popup-box">
     <div class="popup-hdr">
-      <h3>📞 Contact Us</h3>
-      <button class="popup-close" onclick="closePopup('contactPopup')">✕</button>
+      <h3> Contact Us</h3>
+      <button class="popup-close" onclick="closePopup('contactPopup')"></button>
     </div>
     <div class="popup-body">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
@@ -485,7 +485,7 @@
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
       <h3> Terms of Use</h3>
-      <button class="popup-close" onclick="closePopup('termsPopup')">✕</button>
+      <button class="popup-close" onclick="closePopup('termsPopup')"></button>
     </div>
     <div class="popup-body">
       <div id="termsContent" style="font-size:.88rem;line-height:1.8;color:var(--t);white-space:pre-wrap"></div>
@@ -498,7 +498,7 @@
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
       <h3> Privacy Policy</h3>
-      <button class="popup-close" onclick="closePopup('privacyPopup')">✕</button>
+      <button class="popup-close" onclick="closePopup('privacyPopup')"></button>
     </div>
     <div class="popup-body">
       <div id="privacyContent" style="font-size:.88rem;line-height:1.8;color:var(--t);white-space:pre-wrap"></div>
@@ -510,8 +510,8 @@
 <div class="popup-overlay" id="returnsPopup">
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
-      <h3>🔄 Returns Policy</h3>
-      <button class="popup-close" onclick="closePopup('returnsPopup')">✕</button>
+      <h3> Returns Policy</h3>
+      <button class="popup-close" onclick="closePopup('returnsPopup')"></button>
     </div>
     <div class="popup-body">
       <div id="returnContent" style="font-size:.88rem;line-height:1.8;color:var(--t);white-space:pre-wrap">Loading returns policy…</div>
@@ -523,8 +523,8 @@
 <div class="popup-overlay" id="faqPopup">
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
-      <h3>❓ Frequently Asked Questions</h3>
-      <button class="popup-close" onclick="closePopup('faqPopup')">✕</button>
+      <h3> Frequently Asked Questions</h3>
+      <button class="popup-close" onclick="closePopup('faqPopup')"></button>
     </div>
     <div class="popup-body">
       <div id="faqContent">Loading FAQs…</div>
@@ -536,8 +536,8 @@
 <div class="popup-overlay" id="careersPopup">
   <div class="popup-box" style="max-width:580px">
     <div class="popup-hdr">
-      <h3>💼 Careers at ShopHere.in</h3>
-      <button class="popup-close" onclick="closePopup('careersPopup')">✕</button>
+      <h3> Careers at ShopHere.in</h3>
+      <button class="popup-close" onclick="closePopup('careersPopup')"></button>
     </div>
     <div class="popup-body">
       <div style="text-align:center;margin-bottom:24px">
@@ -580,7 +580,7 @@
   <div class="popup-box" style="max-width:580px">
     <div class="popup-hdr">
       <h3> About ShopHere.in</h3>
-      <button class="popup-close" onclick="closePopup('aboutPopup')">✕</button>
+      <button class="popup-close" onclick="closePopup('aboutPopup')"></button>
     </div>
     <div class="popup-body">
       <div style="text-align:center;margin-bottom:20px">
@@ -599,7 +599,7 @@
   <div class="modal" style="max-width:440px">
     <div class="modal-hdr">
       <h3> Track Your Order</h3>
-      <button class="modal-close" onclick="closeOverlay('trackOrderModal')">✕</button>
+      <button class="modal-close" onclick="closeOverlay('trackOrderModal')"></button>
     </div>
     <div class="modal-body">
       <p style="font-size:.85rem;color:var(--m);margin-bottom:16px">Enter your Order ID to see the current delivery status.</p>
@@ -619,7 +619,7 @@
 <div class="drawer" id="cartDrawer">
   <div class="drawer-hdr">
     <h3> Cart (<span id="cartCount">0</span>)</h3>
-    <button class="modal-close" onclick="closeCart()">✕</button>
+    <button class="modal-close" onclick="closeCart()"></button>
   </div>
   <div class="drawer-body" id="cartBody"></div>
   <div class="drawer-foot">
@@ -633,7 +633,7 @@
 <!-- ── WISHLIST MODAL ─────────────────────────────────────────────────────── -->
 <div class="overlay" id="wishModal">
   <div class="modal modal-lg">
-    <div class="modal-hdr"><h3> Wishlist</h3><button class="modal-close" onclick="closeOverlay('wishModal')">✕</button></div>
+    <div class="modal-hdr"><h3> Wishlist</h3><button class="modal-close" onclick="closeOverlay('wishModal')"></button></div>
     <div class="modal-body" id="wishBody"></div>
   </div>
 </div>
@@ -641,7 +641,7 @@
 <!-- ── PRODUCT DETAIL MODAL ───────────────────────────────────────────────── -->
 <div class="overlay" id="productModal">
   <div class="modal modal-xl">
-    <div class="modal-hdr"><h3 id="pmTitle">Product</h3><button class="modal-close" onclick="closeOverlay('productModal')">✕</button></div>
+    <div class="modal-hdr"><h3 id="pmTitle">Product</h3><button class="modal-close" onclick="closeOverlay('productModal')"></button></div>
     <div class="modal-body" id="pmBody"></div>
   </div>
 </div>
@@ -649,7 +649,7 @@
 <!-- ── CHECKOUT MODAL ──────────────────────────────────────────────────────── -->
 <div class="overlay" id="checkoutModal">
   <div class="modal modal-lg">
-    <div class="modal-hdr"><h3> Checkout</h3><button class="modal-close" onclick="closeOverlay('checkoutModal')">✕</button></div>
+    <div class="modal-hdr"><h3> Checkout</h3><button class="modal-close" onclick="closeOverlay('checkoutModal')"></button></div>
     <div class="modal-body">
       <div class="checkout-steps">
         <div class="cs-step active" id="cst1"><div class="cs-num">1</div><span>Cart</span></div>
@@ -691,8 +691,8 @@
           <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'cod')"><input type="radio" name="pay" value="cod" checked style="accent-color:var(--p)"><div><div style="font-weight:700"> Cash on Delivery</div><div style="font-size:.78rem;color:var(--m)">Pay when order arrives — Free</div></div></label>
           <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--p);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'upi')"><input type="radio" name="pay" value="upi" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px"> UPI <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Google Pay, PhonePe, Paytm, BHIM</div></div></label>
           <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'card')"><input type="radio" name="pay" value="card" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px"> Credit / Debit Card <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Visa, Mastercard, RuPay, Amex</div></div></label>
-          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'netbanking')"><input type="radio" name="pay" value="netbanking" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">🏦 Net Banking <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">SBI, HDFC, ICICI, Axis & 100+ banks</div></div></label>
-          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'wallet')"><input type="radio" name="pay" value="wallet" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px">👛 Wallets <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Paytm, Amazon Pay, Mobikwik</div></div></label>
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'netbanking')"><input type="radio" name="pay" value="netbanking" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px"> Net Banking <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">SBI, HDFC, ICICI, Axis & 100+ banks</div></div></label>
+          <label style="display:flex;align-items:center;gap:12px;border:2px solid var(--b);border-radius:10px;padding:14px;cursor:pointer" onclick="selectPay(this,'wallet')"><input type="radio" name="pay" value="wallet" style="accent-color:var(--p)"><div><div style="font-weight:700;display:flex;align-items:center;gap:8px"> Wallets <span style="background:#072654;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:800">via Razorpay</span></div><div style="font-size:.78rem;color:var(--m)">Paytm, Amazon Pay, Mobikwik</div></div></label>
         </div>
         <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.78rem;color:#0369a1;display:flex;align-items:center;gap:8px">
            <strong>100% Secure</strong> payments powered by <strong>Razorpay</strong> — PCI DSS Level 1 certified
@@ -721,7 +721,7 @@
 <!-- ── ORDERS MODAL ───────────────────────────────────────────────────────── -->
 <div class="overlay" id="ordersModal">
   <div class="modal modal-lg">
-    <div class="modal-hdr"><h3> My Orders</h3><button class="modal-close" onclick="closeOverlay('ordersModal')">✕</button></div>
+    <div class="modal-hdr"><h3> My Orders</h3><button class="modal-close" onclick="closeOverlay('ordersModal')"></button></div>
     <div class="modal-body" id="ordersBody"></div>
   </div>
 </div>
@@ -729,7 +729,7 @@
 <!-- ── LIGHTBOX ──────────────────────────────────────────────────────────── -->
 <div id="lightbox" style="position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:none;align-items:center;justify-content:center" onclick="document.getElementById('lightbox').style.display='none'">
   <img id="lightboxImg" src="" style="max-width:92vw;max-height:92vh;object-fit:contain;border-radius:8px">
-  <button onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute;top:18px;right:18px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:1.3rem;cursor:pointer">✕</button>
+  <button onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute;top:18px;right:18px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:1.3rem;cursor:pointer"></button>
 </div>
 
 <!-- ── TOAST ─────────────────────────────────────────────────────────────── -->
