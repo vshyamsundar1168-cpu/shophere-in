@@ -81,7 +81,7 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   min-height:120px;
   transition:height .3s;
 }
-/* Sliding track — all slides sit side by side */
+/* Sliding track &mdash; all slides sit side by side */
 .hero-track{
   display:flex;
   height:100%;
@@ -96,7 +96,7 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   position:relative;
   overflow:hidden;
 }
-/* Banner image — fills slide, no crop with contain, full zoom with cover */
+/* Banner image &mdash; fills slide, no crop with contain, full zoom with cover */
 .hero-slide img.banner-img{
   position:absolute;
   inset:0;
@@ -106,7 +106,7 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   object-position:center;
   display:block;
 }
-/* Text overlay — sits at bottom of banner, NO background shade */
+/* Text overlay &mdash; sits at bottom of banner, NO background shade */
 .hero-slide .slide-overlay{
   position:absolute;
   left:0;right:0;bottom:0;
@@ -425,7 +425,7 @@ footer{background:var(--sec);color:#94a3b8;margin-top:60px}
   position:relative;
   overflow:visible;
 }
-/* Image zoom — wrapper scales on hover, no overflow clip */
+/* Image zoom &mdash; wrapper scales on hover, no overflow clip */
 .pb-img-zoom{
   display:inline-block;
   transition:transform .3s ease, box-shadow .3s ease;

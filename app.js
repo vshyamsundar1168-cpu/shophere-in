@@ -83,7 +83,7 @@ function doLogin(){
       if(data.success && data.isAdmin){
         // Admin login -> redirect to admin panel
         closeLogin();
-        toast('Admin login successful! Redirecting…');
+        toast('Admin login successful! Redirecting...');
         setTimeout(()=>{ window.location.href='/admin.html'; },800);
       } else if(data.success){
         // Normal user API login success
@@ -100,7 +100,7 @@ function doLogin(){
       }
     })
     .catch(()=>{
-      // Offline fallback — check local users
+      // Offline fallback &mdash; check local users
       const users=JSON.parse(localStorage.getItem('sh_users')||'[]');
       const found=users.find(x=>x.username===u&&x.password===p);
       if(!found){showLoginErr('Invalid username or password');return;}
@@ -143,12 +143,12 @@ async function loadSettings(){
   try{
     const s=await fetch('/api/settings').then(r=>r.json());
     storeSettings=s;
-    // Store name + logo in header — preserve new design colors
+    // Store name + logo in header &mdash; preserve new design colors
     const logoText=document.getElementById('logoText');
     const logoImg=document.getElementById('headerLogo');
     if(s.storeName){
       document.title=s.storeName;
-      // Don't override logo HTML — let HTML/CSS control colors
+      // Don't override logo HTML &mdash; let HTML/CSS control colors
     }
     if(s.logo&&s.logo.trim()&&s.logo.startsWith('http')){
       if(logoImg){logoImg.src=s.logo;logoImg.style.display='block';}
@@ -158,7 +158,7 @@ async function loadSettings(){
     // Apply essential dynamic settings from admin Store Settings
     let dynCSS = '';
 
-    // Extended Color Theme — applies colors set in admin Visual Customizer
+    // Extended Color Theme &mdash; applies colors set in admin Visual Customizer
     if(s.colorBg)        { dynCSS += `body{background:${s.colorBg}}:root{--bg:${s.colorBg}}`; }
     if(s.colorBtnCart)   { dynCSS += `.btn-cart{background:${s.colorBtnCart}!important;}`; }
     if(s.colorBtnBuy)    { dynCSS += `.btn-buy{background:${s.colorBtnBuy}}`; }
@@ -176,7 +176,7 @@ async function loadSettings(){
     if(s.colorProdName)  { dynCSS += `.pc-name{color:${s.colorProdName}}`; }
     if(s.colorProdPrice) { dynCSS += `.pc-price .cur{color:${s.colorProdPrice}}`; }
     if(s.colorProdBrand) { dynCSS += `.pc-brand{color:${s.colorProdBrand}}`; }
-    // Banner text color — only applied if explicitly set in store settings
+    // Banner text color &mdash; only applied if explicitly set in store settings
     // Per-banner textColor is applied directly on h1/p via inline style so no override needed
     if(s.bannerTextColor) dynCSS += `.hero-slide h1,.hero-slide p{color:${s.bannerTextColor}}`;
 
@@ -210,7 +210,7 @@ async function loadSettings(){
     const ft=document.getElementById('footerText'); if(ft&&s.footerText) ft.textContent=s.footerText;
     // #15 copyright 2026
     const fc=document.getElementById('footerCopy');
-    if(fc) fc.textContent=`© 2026 ${s.storeName||'ShopHere.in'} — All rights reserved`;
+    if(fc) fc.textContent=`&copy; 2026 ${s.storeName||'ShopHere.in'} &mdash; All rights reserved`;
     if(s.contactEmail){const e1=document.getElementById('cEmail'),e2=document.getElementById('popEmail');if(e1)e1.textContent=s.contactEmail;if(e2)e2.textContent=s.contactEmail;}
     if(s.contactPhone){const p1=document.getElementById('cPhone'),p2=document.getElementById('popPhone');if(p1)p1.textContent=s.contactPhone;if(p2)p2.textContent=s.contactPhone;}
     if(s.contactAddress){const a1=document.getElementById('cAddr'),a2=document.getElementById('popAddr');if(a1)a1.textContent=s.contactAddress;if(a2)a2.textContent=s.contactAddress;}
@@ -262,7 +262,7 @@ async function loadCategories(){
       return a.localeCompare(b); // alphabetical for same group
     });
 
-    // Nav bar — append dynamic DB categories AFTER the fixed hardcoded items in index.html
+    // Nav bar &mdash; append dynamic DB categories AFTER the fixed hardcoded items in index.html
     // Fixed items: Home, All Products, Women, Men, Kids, Fashion, Deals, Home/Office, Electricals, Electronics, Vehicle Accessories
     const fixedCats = ['all','women','man','men','kids','fashion','deal','home','home/office','electricals','electronics','vehicle'];
     const nav = document.getElementById('mainNav');
@@ -282,7 +282,7 @@ async function loadCategories(){
       }
     }
 
-    // Category strip below hero — same sorted order
+    // Category strip below hero &mdash; same sorted order
     const cs=document.getElementById('catStrip');
     if(cs){
       cs.innerHTML=sortedCats.map(c=>{
@@ -297,14 +297,14 @@ async function loadCategories(){
     // Keep catGrid for backward compatibility (hidden now)
     const cg=document.getElementById('catGrid');
     if(cg) cg.style.display='none';
-    // Search dropdown — sorted order
+    // Search dropdown &mdash; sorted order
     const sel=document.getElementById('searchCat');
     if(sel) sel.innerHTML='<option value="all">All</option>'+sortedCats.map(c=>`<option value="${c}">${c}</option>`).join('');
-    // Filter sidebar — sorted order
+    // Filter sidebar &mdash; sorted order
     const fc=document.getElementById('filterCats');
     if(fc) fc.innerHTML=`<label><input type="checkbox" value="all" checked onchange="catCkChange(this)"> All Categories</label>`+
       sortedCats.map(c=>`<label><input type="checkbox" value="${c}" onchange="catCkChange(this)"> ${c}</label>`).join('');
-    // Footer shop links — sorted order
+    // Footer shop links &mdash; sorted order
     const fl=document.getElementById('footerCatLinks');
     if(fl) fl.innerHTML=sortedCats.slice(0,6).map(c=>`<li><a onclick="filterCat('${c.replace(/'/g,"\\'")}');window.scrollTo(0,0)" style="cursor:pointer">${c}</a></li>`).join('');
   }catch(e){console.warn('Categories failed',e.message);}
@@ -348,7 +348,7 @@ async function loadBanners(){
     const sliderBans = allBanners.filter(b=>!b.displayMode||b.displayMode==='slider');
     const gridBans   = allBanners.filter(b=>b.displayMode==='grid');
 
-    // ── GRID banners — shown side by side above or below slider ────────────────
+    // ── GRID banners &mdash; shown side by side above or below slider ────────────────
     let gridEl = document.getElementById('banner-grid-row');
     if(!gridEl){
       gridEl = document.createElement('div');
@@ -397,7 +397,7 @@ async function loadBanners(){
     track.innerHTML = sliderBans.map((b,i)=>{
       const fit  = b.objectFit||globalFit;
       const hSz  = ({'xlarge':'3rem','large':'2.4rem','medium':'1.8rem','small':'1.4rem','none':'0'})[b.textSize||(storeSettings&&storeSettings.bannerTextSize)||'large']||'2.4rem';
-      // Use per-banner color directly — not inherited from parent (avoids store-level CSS override)
+      // Use per-banner color directly &mdash; not inherited from parent (avoids store-level CSS override)
       const tClr = b.textColor||(storeSettings&&storeSettings.bannerTextColor)||'#ffffff';
       const hasBg  = b.bgImage&&b.bgImage.trim();
       const gradBg = b.bgGradient||'linear-gradient(135deg,#1e293b 0%,#f97316 100%)';
@@ -405,7 +405,7 @@ async function loadBanners(){
       const imgTag = hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};" loading="lazy" alt="">` : '';
       const showText = b.textSize !== 'none';
 
-      // Text position — actually move the overlay vertically
+      // Text position &mdash; actually move the overlay vertically
       const pos = b.textPosition || (storeSettings&&storeSettings.bannerPos) || 'center';
       let overlayStyle = 'position:absolute;left:0;right:0;display:flex;flex-direction:column;background:none;padding:16px 32px;';
       if(pos==='top')         overlayStyle += 'top:0;bottom:auto;justify-content:flex-start;align-items:center;text-align:center;';
@@ -453,7 +453,7 @@ async function loadProducts(){
   }catch(e){console.warn('Products failed',e.message);}
 }
 
-// ── Search #9 — searches ALL fields including description, tags ────────────────
+// ── Search #9 &mdash; searches ALL fields including description, tags ────────────────
 function liveSearch(){
   const q=document.getElementById('searchInput').value.trim().toLowerCase();
   if(!q){closeSearch();return;}
@@ -565,7 +565,7 @@ function renderProducts(){
     return;
   }
 
-  // If filtering/searching a specific category or badge — show flat grid (no grouping)
+  // If filtering/searching a specific category or badge &mdash; show flat grid (no grouping)
   const showGrouped = (currentCat==='all' || !currentCat) && !currentBadge && !currentQ;
 
   if(showGrouped){
@@ -661,7 +661,7 @@ async function openProduct(id){
       ${thumbs}${videos}${audios}
     </div>
     <div>
-      <div style="font-size:.72rem;color:var(--m);text-transform:uppercase;margin-bottom:4px">${p.brand} · ${p.category}</div>
+      <div style="font-size:.72rem;color:var(--m);text-transform:uppercase;margin-bottom:4px">${p.brand} &middot; ${p.category}</div>
       <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:8px">${p.name}</h2>
       <div style="color:#f59e0b;font-size:.88rem;margin-bottom:8px">${stars} <span style="color:var(--m);font-size:.78rem">(${p.reviewCount||0})</span></div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
@@ -682,7 +682,7 @@ async function openProduct(id){
           <h5 style="font-size:.82rem;font-weight:700;margin-bottom:8px">Write a Review</h5>
           <input id="rv_name" placeholder="Your name" style="width:100%;padding:8px 12px;border:1.5px solid var(--b);border-radius:7px;font-size:.83rem;margin-bottom:8px;outline:none">
           <div style="display:flex;gap:4px;margin-bottom:8px">${[1,2,3,4,5].map(n=>`<button onclick="setRevStar(${n})" id="rstar${n}" style="font-size:1.4rem;background:none;border:none;cursor:pointer;color:#d1d5db;transition:color .2s">&#9733;</button>`).join('')}</div>
-          <textarea id="rv_text" placeholder="Your review…" style="width:100%;padding:8px 12px;border:1.5px solid var(--b);border-radius:7px;font-size:.83rem;min-height:70px;resize:vertical;outline:none;margin-bottom:8px"></textarea>
+          <textarea id="rv_text" placeholder="Your review..." style="width:100%;padding:8px 12px;border:1.5px solid var(--b);border-radius:7px;font-size:.83rem;min-height:70px;resize:vertical;outline:none;margin-bottom:8px"></textarea>
           <button class="btn btn-primary btn-sm" onclick="submitReview(${p.id})">Submit Review</button>
         </div>
       </div>
@@ -771,7 +771,7 @@ function openWishlist(){
 let coStep=1;
 function startCheckout(){
   if(!cart.length){toast('Cart is empty!');return;}
-  // #28 — Reset all checkout form fields before opening
+  // #28 &mdash; Reset all checkout form fields before opening
   coStep=1; updateCoSteps();
   // Clear delivery fields
   ['co_name','co_phone','co_email','co_addr1','co_addr2','co_city','co_state','co_pin'].forEach(id=>{
@@ -793,7 +793,7 @@ function startCheckout(){
         ${i.image?`<img src="${i.image}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">`:'<span style="font-size:1.6rem">[No Image]</span>'}
         <div>
           <div style="font-size:.85rem;font-weight:600">${i.name}</div>
-          <div style="font-size:.78rem;color:var(--m)">Qty: ${i.qty} × &#8377;${i.price.toLocaleString('en-IN')}</div>
+          <div style="font-size:.78rem;color:var(--m)">Qty: ${i.qty} &times; &#8377;${i.price.toLocaleString('en-IN')}</div>
         </div>
       </div>
       <span style="font-weight:700">&#8377;${(i.price*i.qty).toLocaleString('en-IN')}</span>
@@ -842,7 +842,7 @@ async function placeOrder(){
     payment:selectedPayment
   };
 
-  // COD — place directly without Razorpay
+  // COD &mdash; place directly without Razorpay
   if(selectedPayment === 'cod'){
     try{
       const res=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -853,7 +853,7 @@ async function placeOrder(){
     return;
   }
 
-  // RAZORPAY — for UPI, Card, NetBanking, Wallet
+  // RAZORPAY &mdash; for UPI, Card, NetBanking, Wallet
   try{
     // Step 1: Create Razorpay order on server
     const rzpRes=await fetch('/api/razorpay/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:total})});
@@ -866,7 +866,7 @@ async function placeOrder(){
       amount: rzpData.amount,
       currency: 'INR',
       name: storeSettings.storeName || 'ShopHere.in',
-      description: `Order — ${cart.length} item(s)`,
+      description: `Order &mdash; ${cart.length} item(s)`,
       order_id: rzpData.orderId,
       prefill:{
         name: payload.name,
@@ -918,7 +918,7 @@ function _confirmOrder(order, paymentLabel){
   cart=[]; saveCart(); updateCartBadge();
   document.getElementById('coOrderId').textContent=order.id;
   document.getElementById('coConfirmItems').innerHTML=
-    `${(order.items||[]).map(i=>`${i.name} × ${i.qty} — &#8377;${(i.price*i.qty).toLocaleString('en-IN')}`).join('<br>')}`+
+    `${(order.items||[]).map(i=>`${i.name} &times; ${i.qty} &mdash; &#8377;${(i.price*i.qty).toLocaleString('en-IN')}`).join('<br>')}`+
     `<br><strong style="margin-top:6px;display:block">Total: &#8377;${order.total.toLocaleString('en-IN')}</strong>`+
     `<br>Payment: ${paymentLabel}`;
   coGoStep(4);
@@ -944,8 +944,8 @@ function trackOrder(){
       <span style="background:${clr};color:#fff;padding:4px 12px;border-radius:50px;font-size:.78rem;font-weight:700">${order.status}</span>
     </div>
     <div style="font-size:.82rem;color:var(--m);margin-bottom:8px">Ordered: ${new Date(order.date).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
-    <div style="font-size:.84rem;margin-bottom:8px">${(order.items||[]).map(i=>`${i.name} × ${i.qty}`).join(', ')}</div>
-    <div style="font-weight:700">&#8377;${(order.total||0).toLocaleString('en-IN')} · ${(order.payment||'').toUpperCase()}</div>
+    <div style="font-size:.84rem;margin-bottom:8px">${(order.items||[]).map(i=>`${i.name} &times; ${i.qty}`).join(', ')}</div>
+    <div style="font-weight:700">&#8377;${(order.total||0).toLocaleString('en-IN')} &middot; ${(order.payment||'').toUpperCase()}</div>
     <div style="margin-top:10px;font-size:.82rem;color:var(--m)">Delivery to: ${order.address||''}, ${order.city||''} ${order.pin||''}</div>
   </div>`;
 }
@@ -958,8 +958,8 @@ function openOrders(){
         <strong>${o.id}</strong>
         <span class="status-badge s-${(o.status||'').toLowerCase()}">${o.status||'Processing'}</span>
       </div>
-      <div style="font-size:.78rem;color:var(--m);margin-bottom:6px">${o.date?new Date(o.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):''} · ${(o.payment||'').toUpperCase()}</div>
-      <div style="font-size:.82rem;margin-bottom:6px">${(o.items||[]).map(i=>`${i.name} × ${i.qty}`).join(', ')}</div>
+      <div style="font-size:.78rem;color:var(--m);margin-bottom:6px">${o.date?new Date(o.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):''} &middot; ${(o.payment||'').toUpperCase()}</div>
+      <div style="font-size:.82rem;margin-bottom:6px">${(o.items||[]).map(i=>`${i.name} &times; ${i.qty}`).join(', ')}</div>
       <div style="font-weight:700">&#8377;${(o.total||0).toLocaleString('en-IN')}</div>
     </div>`).join(''):'<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">[No Image]</div><h3 style="margin-top:8px">No orders yet</h3></div>';
   openOverlay('ordersModal');
@@ -1108,7 +1108,7 @@ async function loadPageBlocks(){
     visible.forEach(b=>{
       const s = b.style || {};
 
-      // Build full CSS string from style object — apply ALL non-empty values
+      // Build full CSS string from style object &mdash; apply ALL non-empty values
       const styleStr = Object.entries({
         'color':            s.color,
         'background':       s.background,
@@ -1138,16 +1138,16 @@ async function loadPageBlocks(){
       } else if(b.type==='heading'){
         html=`<h2 class="${animClass.trim()}" style="font-weight:800;${styleStr}">${b.content||''}</h2>`;
       } else if(b.type==='image'||b.type==='image-link'){
-        // CLEAN IMAGE BLOCK — no cropping, zoom on hover, click opens lightbox
+        // CLEAN IMAGE BLOCK &mdash; no cropping, zoom on hover, click opens lightbox
         const imgW  = s.width  || '100%';
         const imgH  = s.minHeight || '';  // height the user set in admin
         const fit   = s.objectFit || 'contain';
         const rad   = s.borderRadius || '8px';
         const src   = (b.content||'').replace(/'/g,"\\'");
 
-        // The image tag — scales to fit its container, never overflows or crops
+        // The image tag &mdash; scales to fit its container, never overflows or crops
         // If height is set:  image fills that height using object-fit
-        // If no height set:  image is natural size (width:100%, height:auto) — never crops
+        // If no height set:  image is natural size (width:100%, height:auto) &mdash; never crops
         let imgCSS;
         if(imgH){
           imgCSS = `width:100%;height:${imgH};object-fit:${fit};object-position:center;display:block;border-radius:${rad};`;
@@ -1155,11 +1155,11 @@ async function loadPageBlocks(){
           imgCSS = `width:100%;height:auto;display:block;border-radius:${rad};`;
         }
 
-        // Wrapper: only sets width, background, padding — NO overflow:hidden so zoom is visible
+        // Wrapper: only sets width, background, padding &mdash; NO overflow:hidden so zoom is visible
         const wrapCSS = `display:block;width:${imgW};max-width:100%;${imgH?'':''}${s.background?'background:'+s.background+';':''}${s.padding?'padding:'+s.padding+';':''}${s.margin?'margin:'+s.margin+';':''}border-radius:${rad};line-height:0;`;
 
         const imgTag  = `<img src="${b.content||''}" alt="${b.alt||''}" style="${imgCSS}" loading="lazy" onerror="this.style.display='none'">`;
-        // Build click handler — product modal, link, category filter, or lightbox
+        // Build click handler &mdash; product modal, link, category filter, or lightbox
         const clickFn = b.clickAction==='product'&&b.productId ? `openProduct(${b.productId})`
           : b.clickAction==='link'&&b.clickLink ? `window.open('${b.clickLink}','_blank')`
           : b.clickAction==='category'&&b.clickCat ? `filterCat('${b.clickCat}');showProducts()`
@@ -1213,7 +1213,7 @@ async function loadPageBlocks(){
             <img src="${url}" style="width:100%;height:${imgH};object-fit:${fit};object-position:center;display:block;border-radius:${rad};" loading="lazy" onerror="this.parentElement.style.display='none'">
           </div>`;
         }).join('');
-        // Gallery always fills its wrap — use width:100%, ignore fixed px width from styleStr
+        // Gallery always fills its wrap &mdash; use width:100%, ignore fixed px width from styleStr
         const galleryStyle = Object.entries({
           'background':    s.background,
           'padding':       s.padding,
@@ -1299,7 +1299,7 @@ async function loadPageBlocks(){
       const isSticky = s.position==='sticky';
 
       if(isFixed || b.page==='floating'){
-        // Floating/fixed — inject directly into body
+        // Floating/fixed &mdash; inject directly into body
         const wrap=document.createElement('div');
         wrap.className='pb-floating-block';
         wrap.style.cssText=`position:fixed;z-index:${s.zIndex||9990};top:${s.top||'auto'};right:${s.right||'20px'};bottom:${(!s.top||s.top==='auto')?'20px':'auto'}`;
@@ -1343,8 +1343,8 @@ async function loadPageBlocks(){
       // s.width controls the wrap width (e.g. 50% = 2 per row, 33% = 3 per row)
       const wrapW = s.width || '100%';
       const isPercent = wrapW.includes('%');
-      // If width is a percentage — use it as flex-basis so blocks sit side by side
-      // If width is px — use max-width so it doesn't overflow
+      // If width is a percentage &mdash; use it as flex-basis so blocks sit side by side
+      // If width is px &mdash; use max-width so it doesn't overflow
       if(isPercent){
         wrap.style.flex = `0 0 calc(${wrapW} - 8px)`;
         wrap.style.maxWidth = `calc(${wrapW} - 8px)`;

@@ -10,7 +10,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <!-- cache-bust: 667e82a -->
-<title>ShopHere.in – Admin</title>
+<title>ShopHere.in &ndash; Admin</title>
 <script>
 // #26: If opened as file:// redirect to server automatically
 if(window.location.protocol==='file:'){
@@ -90,7 +90,7 @@ if(window.location.protocol==='file:'){
 <div id="serverAlert">
   <div class="alert-box">
     <h2>! Server Not Running</h2>
-    <p>The ShopHere.in server is not running. You must start the server first, then open this page through the browser — not by double-clicking the file.</p>
+    <p>The ShopHere.in server is not running. You must start the server first, then open this page through the browser &mdash; not by double-clicking the file.</p>
     <p><strong>Step 1:</strong> Double-click <code>START_SERVER.bat</code></p>
     <p><strong>Step 2:</strong> Open your browser and go to:</p>
     <code>http://localhost:8080/admin.html</code>
@@ -139,10 +139,10 @@ if(window.location.protocol==='file:'){
   <!-- DASHBOARD TAB -->
   <div id="tab-dashboard" class="tab active">
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-icon"></div><div><div class="stat-val" id="st-p">—</div><div class="stat-lbl">Products</div></div></div>
-      <div class="stat-card"><div class="stat-icon"></div><div><div class="stat-val" id="st-o">—</div><div class="stat-lbl">Orders</div></div></div>
-      <div class="stat-card"><div class="stat-icon"></div><div><div class="stat-val" id="st-r">—</div><div class="stat-lbl">Revenue</div></div></div>
-      <div class="stat-card"><div class="stat-icon">!</div><div><div class="stat-val" id="st-ls">—</div><div class="stat-lbl">Low Stock</div></div></div>
+      <div class="stat-card"><div class="stat-icon"></div><div><div class="stat-val" id="st-p">&mdash;</div><div class="stat-lbl">Products</div></div></div>
+      <div class="stat-card"><div class="stat-icon"></div><div><div class="stat-val" id="st-o">&mdash;</div><div class="stat-lbl">Orders</div></div></div>
+      <div class="stat-card"><div class="stat-icon"></div><div><div class="stat-val" id="st-r">&mdash;</div><div class="stat-lbl">Revenue</div></div></div>
+      <div class="stat-card"><div class="stat-icon">!</div><div><div class="stat-val" id="st-ls">&mdash;</div><div class="stat-lbl">Low Stock</div></div></div>
     </div>
     <div class="sec">
       <h3 style="font-size:.95rem;font-weight:700;margin-bottom:14px">Recent Orders</h3>
@@ -157,7 +157,7 @@ if(window.location.protocol==='file:'){
   <div id="tab-products" class="tab">
     <div class="sec">
       <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-        <input type="text" id="prodSearch" placeholder="Search products…" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;flex:1;min-width:180px" oninput="filterProds()">
+        <input type="text" id="prodSearch" placeholder="Search products..." style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;flex:1;min-width:180px" oninput="filterProds()">
         <select id="prodCatFilter" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" onchange="filterProds()">
           <option value="">All Categories</option>
         </select>
@@ -179,9 +179,9 @@ if(window.location.protocol==='file:'){
         <div class="form-group"><label>Product Name *</label><input id="ap_name" placeholder="Enter product name"></div>
         <div class="form-row">
           <div class="form-group"><label>Brand *</label><input id="ap_brand" placeholder="Enter brand name"></div>
-          <div class="form-group"><label>Category *</label><select id="ap_cat"><option value="">Loading…</option></select></div>
+          <div class="form-group"><label>Category *</label><select id="ap_cat"><option value="">Loading...</option></select></div>
         </div>
-        <div class="form-group"><label>Description</label><textarea id="ap_desc" placeholder="Product description…"></textarea></div>
+        <div class="form-group"><label>Description</label><textarea id="ap_desc" placeholder="Product description..."></textarea></div>
         <div class="form-row">
           <div class="form-group"><label>Price (&#8377;) *</label><input id="ap_price" type="number" placeholder="0" min="0"></div>
           <div class="form-group"><label>Original Price (&#8377;)</label><input id="ap_orig" type="number" placeholder="0" min="0"></div>
@@ -198,7 +198,7 @@ if(window.location.protocol==='file:'){
         <hr style="margin:18px 0;border-color:var(--b)">
         <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px;color:var(--p)"> Media Upload</h4>
         <div class="form-group">
-          <label>Product Images (JPG, PNG, WebP — max 10MB each)</label>
+          <label>Product Images (JPG, PNG, WebP &mdash; max 10MB each)</label>
           <div class="upload-area" onclick="document.getElementById('ap_images').click()">
              Click to select images (multiple allowed)
             <input type="file" id="ap_images" multiple accept="image/*" style="display:none" onchange="previewImages(this,'ap_imgPrev')">
@@ -206,7 +206,7 @@ if(window.location.protocol==='file:'){
           <div class="img-preview" id="ap_imgPrev"></div>
         </div>
         <div class="form-group">
-          <label>Product Videos (MP4, WebM — max 200MB each)</label>
+          <label>Product Videos (MP4, WebM &mdash; max 200MB each)</label>
           <div class="upload-area" onclick="document.getElementById('ap_videos').click()">
              Click to select videos
             <input type="file" id="ap_videos" multiple accept="video/mp4,video/webm" style="display:none" onchange="previewVideos(this,'ap_vidPrev')">
@@ -214,7 +214,7 @@ if(window.location.protocol==='file:'){
           <div id="ap_vidPrev" style="margin-top:8px;font-size:.8rem;color:var(--m)"></div>
         </div>
         <div class="form-group">
-          <label> Audio / Background Music (MP3, WAV, OGG — max 50MB each)</label>
+          <label> Audio / Background Music (MP3, WAV, OGG &mdash; max 50MB each)</label>
           <div class="upload-area" onclick="document.getElementById('ap_audios').click()">
              Click to select audio files
             <input type="file" id="ap_audios" multiple accept="audio/*" style="display:none" onchange="previewAudios(this,'ap_audPrev')">
@@ -263,7 +263,7 @@ if(window.location.protocol==='file:'){
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
         <div>
           <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Banners</h3>
-          <p style="font-size:.8rem;color:var(--m)">Add banners. Use <strong>Grid</strong> mode to show 2–4 banners side by side. Use <strong>Slider</strong> for full-width slideshow.</p>
+          <p style="font-size:.8rem;color:var(--m)">Add banners. Use <strong>Grid</strong> mode to show 2&ndash;4 banners side by side. Use <strong>Slider</strong> for full-width slideshow.</p>
         </div>
         <button onclick="openAddBannerModal()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer"> Add Banner</button>
       </div>
@@ -291,7 +291,7 @@ if(window.location.protocol==='file:'){
         <div class="form-group">
           <label>Store Logo</label>
           <div class="upload-area" onclick="document.getElementById('st_logo').click()">
-             Upload logo (PNG, JPG, SVG — max 2MB)
+             Upload logo (PNG, JPG, SVG &mdash; max 2MB)
             <input type="file" id="st_logo" accept="image/*" style="display:none" onchange="previewLogo(this)">
           </div>
           <img id="st_logoPrev" src="" alt="" style="max-height:60px;margin-top:8px;display:none;border-radius:8px">
@@ -305,7 +305,7 @@ if(window.location.protocol==='file:'){
 
         <!-- #24 TEXT COLOR CONTROLS -->
         <hr style="margin:16px 0;border-color:var(--b)">
-        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px"> Text Colors — Area by Area</h4>
+        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px"> Text Colors &mdash; Area by Area</h4>
         <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:4px">
 
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
@@ -348,7 +348,7 @@ if(window.location.protocol==='file:'){
             <div class="form-group" style="margin:0">
               <label> Page Headings</label>
               <input type="color" id="st_colorHeading" value="#1e293b" style="height:38px;border-radius:8px;border:1.5px solid var(--b);padding:3px;width:100%">
-              <small style="color:var(--m)">Section titles (H1–H4)</small>
+              <small style="color:var(--m)">Section titles (H1&ndash;H4)</small>
             </div>
             <div class="form-group" style="margin:0">
               <label> Body / Description Text</label>
@@ -383,7 +383,7 @@ if(window.location.protocol==='file:'){
         </div>
         <button class="btn btn-sec btn-sm" onclick="previewColors()" style="margin-top:8px">️ Preview Colors</button>
 
-        <!-- BANNER SIZE CONTROLS — multi-unit -->
+        <!-- BANNER SIZE CONTROLS &mdash; multi-unit -->
         <hr style="margin:18px 0;border-color:var(--b)">
         <h4 style="font-size:.88rem;font-weight:700;margin-bottom:12px"> Banner Size &amp; Display Settings</h4>
         <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:4px">
@@ -412,18 +412,18 @@ if(window.location.protocol==='file:'){
             <div class="form-group" style="margin:0">
               <label>Banner Image Fit</label>
               <select id="st_bannerFit" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
-                <option value="contain"> Fit Full Image — No Crop (recommended)</option>
-                <option value="cover"> Fill & Zoom — Crops edges</option>
-                <option value="fill">↔️ Stretch — May distort</option>
+                <option value="contain"> Fit Full Image &mdash; No Crop (recommended)</option>
+                <option value="cover"> Fill & Zoom &mdash; Crops edges</option>
+                <option value="fill">↔️ Stretch &mdash; May distort</option>
               </select>
             </div>
             <div class="form-group" style="margin:0">
               <label>Banner Text Size</label>
               <select id="st_bannerTextSize" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
-                <option value="xlarge">Extra Large — 3rem (~48px)</option>
-                <option value="large">Large — 2.4rem (~38px) &#9733; Default</option>
-                <option value="medium">Medium — 1.8rem (~29px)</option>
-                <option value="small">Small — 1.4rem (~22px)</option>
+                <option value="xlarge">Extra Large &mdash; 3rem (~48px)</option>
+                <option value="large">Large &mdash; 2.4rem (~38px) &#9733; Default</option>
+                <option value="medium">Medium &mdash; 1.8rem (~29px)</option>
+                <option value="small">Small &mdash; 1.4rem (~22px)</option>
               </select>
             </div>
           </div>
@@ -484,19 +484,19 @@ if(window.location.protocol==='file:'){
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px"> Terms &amp; Conditions</h4>
         <div class="form-group">
           <label>Terms &amp; Conditions <small style="color:var(--m);font-weight:400">(displayed in Terms of Use popup on store)</small></label>
-          <textarea id="st_terms" placeholder="Enter your terms and conditions…" style="min-height:150px;font-size:.84rem"></textarea>
+          <textarea id="st_terms" placeholder="Enter your terms and conditions..." style="min-height:150px;font-size:.84rem"></textarea>
         </div>
         <hr style="margin:20px 0;border-color:var(--b)">
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px"> Privacy Policy</h4>
         <div class="form-group">
           <label>Privacy Policy <small style="color:var(--m);font-weight:400">(displayed in Privacy Policy popup on store)</small></label>
-          <textarea id="st_privacy" placeholder="Enter your privacy policy…" style="min-height:150px;font-size:.84rem"></textarea>
+          <textarea id="st_privacy" placeholder="Enter your privacy policy..." style="min-height:150px;font-size:.84rem"></textarea>
         </div>
         <hr style="margin:20px 0;border-color:var(--b)">
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px">- Returns &amp; Refund Policy</h4>
         <div class="form-group">
           <label>Returns Policy <small style="color:var(--m);font-weight:400">(shows in Returns popup on store)</small></label>
-          <textarea id="st_returns" placeholder="Enter your returns and refund policy…" style="min-height:120px;font-size:.84rem"></textarea>
+          <textarea id="st_returns" placeholder="Enter your returns and refund policy..." style="min-height:120px;font-size:.84rem"></textarea>
         </div>
         <hr style="margin:20px 0;border-color:var(--b)">
         <h4 style="font-size:.9rem;font-weight:700;margin-bottom:14px"> FAQ (Frequently Asked Questions)</h4>
@@ -508,7 +508,7 @@ if(window.location.protocol==='file:'){
 
         <!-- ═══ VISUAL CUSTOMIZER ═══ -->
         <h4 style="font-size:.95rem;font-weight:700;margin-bottom:14px"> Visual Customizer</h4>
-        <div id="vc_unsaved" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;color:#856404;margin-bottom:12px">! Unsaved changes — click Save All Settings to apply</div>
+        <div id="vc_unsaved" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;color:#856404;margin-bottom:12px">! Unsaved changes &mdash; click Save All Settings to apply</div>
 
         <!-- FONTS -->
         <details style="background:#f8fafc;border:1px solid var(--b);border-radius:10px;margin-bottom:10px;overflow:hidden">
@@ -516,7 +516,7 @@ if(window.location.protocol==='file:'){
           <div style="padding:16px;border-top:1px solid var(--b)">
             <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;background:#fff;border:1px solid var(--b);border-radius:8px;padding:12px">
               <div style="flex:1">
-                <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:5px"> Global Font — Apply to All Sections</label>
+                <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:5px"> Global Font &mdash; Apply to All Sections</label>
                 <select id="vc_globalFont" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.85rem;outline:none" onchange="vcPreviewGlobal()"></select>
                 <div id="vc_globalFontPrev" style="margin-top:6px;font-size:.9rem;color:#64748b;min-height:22px">The quick brown fox jumps</div>
               </div>
@@ -537,7 +537,7 @@ if(window.location.protocol==='file:'){
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
               <div class="form-group" style="margin:0"><label>Card Background</label><input type="color" id="vc_prodCardBg" value="#ffffff" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"><small style="color:var(--m)">Product card bg color</small></div>
-              <div class="form-group" style="margin:0"><label>Card Border Radius (px)</label><input type="number" id="vc_prodCardRadius" min="0" max="32" placeholder="12" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" oninput="vcMarkDirty()"><small style="color:var(--m)">Corner roundness (0–32)</small></div>
+              <div class="form-group" style="margin:0"><label>Card Border Radius (px)</label><input type="number" id="vc_prodCardRadius" min="0" max="32" placeholder="12" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none" oninput="vcMarkDirty()"><small style="color:var(--m)">Corner roundness (0&ndash;32)</small></div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
               <div class="form-group" style="margin:0"><label>NEW "New" Badge Color</label><input type="color" id="vc_badgeNewBg" value="#22c55e" style="height:42px;width:100%;border-radius:8px;border:1.5px solid var(--b);padding:4px" oninput="vcMarkDirty()"></div>
@@ -580,7 +580,7 @@ if(window.location.protocol==='file:'){
         </div>
 
         <hr style="margin:16px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">️ Cloudinary Image Storage <small style="font-weight:400;color:var(--m)">(recommended — images survive redeployments)</small></h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">️ Cloudinary Image Storage <small style="font-weight:400;color:var(--m)">(recommended &mdash; images survive redeployments)</small></h4>
         <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Without Cloudinary, uploaded images are lost on every Render redeploy. Sign up free at <a href="https://cloudinary.com" target="_blank" style="color:var(--p)">cloudinary.com</a> -> Dashboard -> copy your Cloud Name -> Settings -> Upload -> Add upload preset (set to Unsigned).</p>
         <div class="form-row">
           <div class="form-group">
@@ -596,7 +596,7 @@ if(window.location.protocol==='file:'){
         <button id="btnTestCloudinary" style="padding:7px 16px;background:#f1f5f9;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:4px" onclick="if(typeof testCloudinary==='function')testCloudinary();else alert('Page not fully loaded, please wait 2 seconds and try again')"> Test Connection</button>
 
         <hr style="margin:16px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px"> Chrome Extension — Push to Store</h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px"> Chrome Extension &mdash; Push to Store</h4>
         <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Set a Push Token to secure your extension. Copy this token into the extension settings so only you can push products.</p>
         <div class="form-row">
           <div class="form-group">
@@ -687,7 +687,7 @@ if(window.location.protocol==='file:'){
             <option value="heading"> Heading</option>
             <option value="image"> Single Image</option>
             <option value="image-link"> Image + Link (Ad Banner)</option>
-            <option value="mixed"> Mixed — Image + Text + Video</option>
+            <option value="mixed"> Mixed &mdash; Image + Text + Video</option>
             <option value="gallery"> Gallery (Multiple Images)</option>
             <option value="columns">⬛⬛ Side-by-Side Columns</option>
             <option value="video"> Video</option>
@@ -705,10 +705,10 @@ if(window.location.protocol==='file:'){
 
       <div class="form-group">
         <label>Block Title <small style="color:var(--m);font-weight:400">(shown on store above the block)</small></label>
-        <input id="pb_title" placeholder="e.g. Independence Day Special — Tiranga Sarees">
+        <input id="pb_title" placeholder="e.g. Independence Day Special &mdash; Tiranga Sarees">
       </div>
       <div class="form-group">
-        <label>Block Caption / Text <small style="color:var(--m);font-weight:400">(shown below the block on store — optional)</small></label>
+        <label>Block Caption / Text <small style="color:var(--m);font-weight:400">(shown below the block on store &mdash; optional)</small></label>
         <textarea id="pb_caption" style="min-height:60px;font-size:.84rem" placeholder="Add a description, offer text, or any message to show below this block..."></textarea>
       </div>
 
@@ -727,7 +727,7 @@ if(window.location.protocol==='file:'){
         </div>
         <div id="pb_clickProductRow" style="display:none">
           <div class="form-group" style="margin:0">
-            <label>Product ID <small style="color:var(--m);font-weight:400">(find it in Products tab — shown as #ID)</small></label>
+            <label>Product ID <small style="color:var(--m);font-weight:400">(find it in Products tab &mdash; shown as #ID)</small></label>
             <input id="pb_productId" type="number" placeholder="e.g. 1001" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
           </div>
         </div>
@@ -782,9 +782,9 @@ if(window.location.protocol==='file:'){
               <label>Block Width (for side by side)</label>
               <select id="pb_widthPreset" onchange="pbApplyWidthPreset(this.value)" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
                 <option value="">Full Width (default)</option>
-                <option value="50%">50% — 2 side by side</option>
-                <option value="33%">33% — 3 side by side</option>
-                <option value="25%">25% — 4 side by side</option>
+                <option value="50%">50% &mdash; 2 side by side</option>
+                <option value="33%">33% &mdash; 3 side by side</option>
+                <option value="25%">25% &mdash; 4 side by side</option>
                 <option value="custom">Custom...</option>
               </select>
             </div>
@@ -793,8 +793,8 @@ if(window.location.protocol==='file:'){
             <div class="form-group" style="margin:0">
               <label>Image Fit / Zoom</label>
               <select id="pb_objectFit" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
-                <option value="contain"> Show Full — No Crop (default)</option>
-                <option value="cover"> Zoom/Fill — May Crop</option>
+                <option value="contain"> Show Full &mdash; No Crop (default)</option>
+                <option value="cover"> Zoom/Fill &mdash; May Crop</option>
                 <option value="scale-down"> Shrink to Fit</option>
                 <option value="scale-down">⬇️ Shrink Fit</option>
                 <option value="fill">↔️ Stretch Fill</option>
@@ -817,7 +817,7 @@ if(window.location.protocol==='file:'){
 
           <!-- Row 5: Effects -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
-            <div class="form-group" style="margin:0"><label>Opacity (0–1)</label><input type="number" id="pb_opacity" placeholder="1" min="0" max="1" step="0.1" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0"><label>Opacity (0&ndash;1)</label><input type="number" id="pb_opacity" placeholder="1" min="0" max="1" step="0.1" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
             <div class="form-group" style="margin:0"><label>Bg Image URL</label><input id="pb_bgImage" placeholder="https://... or /uploads/..." style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
             <div class="form-group" style="margin:0"><label>Bg Size</label>
               <select id="pb_bgSize" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
@@ -972,10 +972,10 @@ if(window.location.protocol==='file:'){
         <div class="form-group" style="margin:0">
           <label>Width % (for Grid mode)</label>
           <select id="bn_width" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
-            <option value="100">100% — Full width</option>
-            <option value="50">50% — 2 side by side</option>
-            <option value="33">33% — 3 side by side</option>
-            <option value="25">25% — 4 side by side</option>
+            <option value="100">100% &mdash; Full width</option>
+            <option value="50">50% &mdash; 2 side by side</option>
+            <option value="33">33% &mdash; 3 side by side</option>
+            <option value="25">25% &mdash; 4 side by side</option>
           </select>
         </div>
         <div class="form-group" style="margin:0">
@@ -987,8 +987,8 @@ if(window.location.protocol==='file:'){
         <div class="form-group" style="margin:0">
           <label>Image Fit</label>
           <select id="bn_fit" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
-            <option value="contain"> Fit — No Crop</option>
-            <option value="cover"> Fill — May Crop</option>
+            <option value="contain"> Fit &mdash; No Crop</option>
+            <option value="cover"> Fill &mdash; May Crop</option>
             <option value="fill">↔️ Stretch</option>
           </select>
         </div>
@@ -1104,7 +1104,7 @@ if(window.location.protocol==='file:'){
         </div>
       </div>
       <div class="form-group"><label>Notes</label>
-        <textarea id="eo_notes" placeholder="Internal notes…" style="min-height:60px;font-size:.84rem"></textarea>
+        <textarea id="eo_notes" placeholder="Internal notes..." style="min-height:60px;font-size:.84rem"></textarea>
       </div>
 
       <div style="display:flex;gap:10px;margin-top:16px">
@@ -1241,7 +1241,7 @@ if(window.location.protocol==='file:'){
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px">
       <h4 style="font-size:.84rem;font-weight:700;margin-bottom:10px;color:#475569"> How it works</h4>
       <ul style="font-size:.8rem;color:#64748b;line-height:1.8;padding-left:18px">
-        <li>Create a column once — it appears for <strong>all products</strong> in the chosen table(s).</li>
+        <li>Create a column once &mdash; it appears for <strong>all products</strong> in the chosen table(s).</li>
         <li>Go to <strong>Inventory</strong> tab to fill in values for each product inline.</li>
         <li>Go to <strong>Products</strong> tab to see the columns alongside standard product data.</li>
         <li>Column types: <strong>Text</strong>, <strong>Number</strong>, <strong>Dropdown</strong>, <strong>Date</strong>.</li>
@@ -1303,7 +1303,7 @@ if(window.location.protocol==='file:'){
   <div class="sec">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
       <div>
-        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Push to ShopHere.in — Chrome Extension</h3>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Push to ShopHere.in &mdash; Chrome Extension</h3>
         <p style="font-size:.8rem;color:var(--m)">Browse any supplier website and push products directly to your store with one click. Works on DropshipIndia, CJ Dropshipping, Hubbazaar, AliExpress, Amazon, Flipkart and any other product page.</p>
       </div>
     </div>
@@ -1330,7 +1330,7 @@ if(window.location.protocol==='file:'){
         <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
           <div style="font-size:2rem;margin-bottom:8px"></div>
           <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">4. Push to Store</div>
-          <div style="font-size:.75rem;color:var(--m)">Click the extension icon, set markup, click Push — done!</div>
+          <div style="font-size:.75rem;color:var(--m)">Click the extension icon, set markup, click Push &mdash; done!</div>
         </div>
       </div>
     </div>
@@ -1371,14 +1371,14 @@ if(window.location.protocol==='file:'){
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
         <div style="background:#f97316;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0">3</div>
-        <h4 style="font-size:.88rem;font-weight:700">Configure Extension — Store URL &amp; Token</h4>
+        <h4 style="font-size:.88rem;font-weight:700">Configure Extension &mdash; Store URL &amp; Token</h4>
       </div>
       <ol style="font-size:.82rem;color:#475569;line-height:2;padding-left:20px">
         <li>Click the <strong>"Push to ShopHere.in"</strong> extension icon in Chrome toolbar</li>
         <li>Click the <strong>️ Settings</strong> icon in the popup</li>
         <li>Enter your <strong>Store URL:</strong> <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px">https://shophere.in</code></li>
         <li>Enter your <strong>Push Token</strong> (same one you set in Step 1)</li>
-        <li>Click <strong>Save &amp; Connect</strong> — it will test the connection</li>
+        <li>Click <strong>Save &amp; Connect</strong> &mdash; it will test the connection</li>
       </ol>
     </div>
 
@@ -1389,16 +1389,16 @@ if(window.location.protocol==='file:'){
         <h4 style="font-size:.88rem;font-weight:700">Browse Any Supplier &amp; Push Products</h4>
       </div>
       <ol style="font-size:.82rem;color:#475569;line-height:2;padding-left:20px">
-        <li>Go to any supplier website — DropshipIndia, CJ Dropshipping, Hubbazaar, AliExpress, Amazon, Flipkart etc.</li>
+        <li>Go to any supplier website &mdash; DropshipIndia, CJ Dropshipping, Hubbazaar, AliExpress, Amazon, Flipkart etc.</li>
         <li>Open a <strong>specific product page</strong> (not category or home page)</li>
         <li>Click the <strong> Push to ShopHere.in</strong> extension icon</li>
         <li>It auto-scrapes: product name, price, images, description</li>
-        <li>Set your <strong>Markup %</strong> — your selling price is calculated automatically</li>
+        <li>Set your <strong>Markup %</strong> &mdash; your selling price is calculated automatically</li>
         <li>Edit name, category, stock as needed</li>
-        <li>Click <strong> Push to ShopHere.in</strong> — product is added instantly!</li>
+        <li>Click <strong> Push to ShopHere.in</strong> &mdash; product is added instantly!</li>
       </ol>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:.78rem;color:#1d4ed8">
-         <strong>Supported suppliers:</strong> DropshipIndia · CJ Dropshipping · Hubbazaar · AliExpress · Amazon.in · Flipkart · Any Shopify store · Any WooCommerce store · <em>and any other product page on the web</em>
+         <strong>Supported suppliers:</strong> DropshipIndia &middot; CJ Dropshipping &middot; Hubbazaar &middot; AliExpress &middot; Amazon.in &middot; Flipkart &middot; Any Shopify store &middot; Any WooCommerce store &middot; <em>and any other product page on the web</em>
       </div>
     </div>
 
@@ -1514,7 +1514,7 @@ if(window.location.protocol==='file:'){
           <label>Price Markup % <small style="color:var(--m);font-weight:400">(applied on top of supplier price)</small></label>
           <div style="display:flex;align-items:center;gap:8px">
             <input type="number" id="imp_markup" value="30" min="0" max="500" style="width:90px;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">
-            <span style="font-size:.82rem;color:var(--m)">% — e.g. supplier price &#8377;100 -> your price &#8377;130</span>
+            <span style="font-size:.82rem;color:var(--m)">% &mdash; e.g. supplier price &#8377;100 -> your price &#8377;130</span>
           </div>
         </div>
         <div class="form-group" style="margin:0">
@@ -1527,7 +1527,7 @@ if(window.location.protocol==='file:'){
         ondragover="impDragOver(event)" ondragleave="impDragLeave(event)" ondrop="impDrop(event)">
         <div style="font-size:2.5rem;margin-bottom:8px"></div>
         <div style="font-size:.9rem;font-weight:700;color:#475569;margin-bottom:4px">Click to upload or drag &amp; drop</div>
-        <div style="font-size:.78rem;color:var(--m)">Supports CSV (.csv) and Excel (.xlsx, .xls) — max 5MB</div>
+        <div style="font-size:.78rem;color:var(--m)">Supports CSV (.csv) and Excel (.xlsx, .xls) &mdash; max 5MB</div>
         <input type="file" id="imp_fileInput" accept=".csv,.xlsx,.xls,text/csv" style="display:none" onchange="impFileSelected(this)">
       </div>
       <div id="imp_fileInfo" style="display:none;margin-top:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:.82rem;color:#166534"></div>
@@ -1558,7 +1558,7 @@ if(window.location.protocol==='file:'){
 
       <!-- Filter bar -->
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
-        <input type="text" id="imp_previewSearch" placeholder="Search products…" oninput="impFilterPreview()" style="padding:7px 11px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none;flex:1;min-width:160px">
+        <input type="text" id="imp_previewSearch" placeholder="Search products..." oninput="impFilterPreview()" style="padding:7px 11px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none;flex:1;min-width:160px">
         <label style="font-size:.78rem;display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap">
           <input type="checkbox" id="imp_selectAllPrev" onchange="impToggleAllPreview(this)"> Select All
         </label>
@@ -1591,7 +1591,7 @@ if(window.location.protocol==='file:'){
 
     <!-- Progress / Result -->
     <div id="imp_progressSection" style="display:none;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
-      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px">⏳ Importing…</h4>
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px">⏳ Importing...</h4>
       <div style="background:#f1f5f9;border-radius:8px;height:18px;overflow:hidden;margin-bottom:10px">
         <div id="imp_progressBar" style="height:100%;background:#22c55e;width:0%;transition:width .3s;border-radius:8px"></div>
       </div>
@@ -1722,7 +1722,7 @@ function populateCatDropdown(selectId, includeAll) {
 </script>
 
 <script>
-// ── Custom Columns stubs — real implementations loaded later in this file ─────
+// ── Custom Columns stubs &mdash; real implementations loaded later in this file ─────
 // These ensure renderProdTable and renderInventory never crash with "not defined"
 // even though the full CC code lives in a later <script> block.
 var allCustomCols = [];
@@ -1736,12 +1736,12 @@ function ccRenderInput(col, value) {
   var v = (value !== undefined && value !== null) ? value : '';
   var s = 'width:100px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none';
   if (col.type === 'select') {
-    var opts = '<option value="">—</option>' + (col.options||[]).map(function(o){return '<option'+(o===v?' selected':'')+'>'+o+'</option>';}).join('');
+    var opts = '<option value="">&mdash;</option>' + (col.options||[]).map(function(o){return '<option'+(o===v?' selected':'')+'>'+o+'</option>';}).join('');
     return '<select class="cc-field" data-key="'+col.key+'" style="'+s+'">'+opts+'</select>';
   }
   if (col.type === 'number') return '<input type="number" class="cc-field" data-key="'+col.key+'" value="'+v+'" style="'+s+'">';
   if (col.type === 'date')   return '<input type="date"   class="cc-field" data-key="'+col.key+'" value="'+v+'" style="width:120px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none">';
-  return '<input type="text" class="cc-field" data-key="'+col.key+'" value="'+v+'" placeholder="—" style="'+s+'">';
+  return '<input type="text" class="cc-field" data-key="'+col.key+'" value="'+v+'" placeholder="&mdash;" style="'+s+'">';
 }
 async function loadCustomCols() {
   try {
@@ -1775,7 +1775,7 @@ async function repairImages() {
       data.skipped + ' already OK\n' +
       (data.failed ? data.failed + ' failed' : '');
     alert(msg);
-    toast('Image repair complete — ' + data.fixed + ' products updated');
+    toast('Image repair complete &mdash; ' + data.fixed + ' products updated');
 
     // Reload inventory and products
     if (typeof loadInventory === 'function') loadInventory();
@@ -1788,7 +1788,7 @@ async function repairImages() {
   }
 }
 
-// saveSettings stub — ensures button works even if page hasn't fully parsed yet
+// saveSettings stub &mdash; ensures button works even if page hasn't fully parsed yet
 // The real saveSettings is defined later and overwrites this stub
 async function saveSettings() {
   // If the real saveSettings isn't loaded yet, wait briefly and retry
@@ -1911,10 +1911,10 @@ async function loadStats() {
     const res = await fetch('/api/stats');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const s = await res.json();
-    document.getElementById('st-p').textContent = s.totalProducts '—';
-    document.getElementById('st-o').textContent = s.totalOrders '—';
+    document.getElementById('st-p').textContent = s.totalProducts '&mdash;';
+    document.getElementById('st-o').textContent = s.totalOrders '&mdash;';
     document.getElementById('st-r').textContent = '&#8377;' + (s.totalRevenue || 0).toLocaleString('en-IN');
-    document.getElementById('st-ls').textContent = s.lowStock '—';
+    document.getElementById('st-ls').textContent = s.lowStock '&mdash;';
   } catch (e) {
     toast('x Stats error: ' + e.message);
   }
@@ -1942,7 +1942,7 @@ let allProds = [];
 
 async function loadProducts() {
   try {
-    // Always load custom cols first and wait — ensures allCustomCols is populated
+    // Always load custom cols first and wait &mdash; ensures allCustomCols is populated
     try { await loadCustomCols(); } catch(e) {}
     const prodRes = await fetch('/api/products?limit=500');
     if (!prodRes.ok) throw new Error('HTTP ' + prodRes.status);
@@ -1991,14 +1991,14 @@ function renderProdTable(list) {
       const val = cf[c.key] !== undefined && cf[c.key] !== '' ? cf[c.key] : '';
       let inputEl = '';
       if (c.type === 'select') {
-        const opts = `<option value="">—</option>` + (c.options||[]).map(o => `<option${o===val?' selected':''}>${o}</option>`).join('');
+        const opts = `<option value="">&mdash;</option>` + (c.options||[]).map(o => `<option${o===val?' selected':''}>${o}</option>`).join('');
         inputEl = `<select class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" onchange="saveProdCf(${p.id},'${c.key}',this.value)" style="padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none;max-width:110px">${opts}</select>`;
       } else if (c.type === 'number') {
         inputEl = `<input type="number" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="width:90px;padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
       } else if (c.type === 'date') {
         inputEl = `<input type="date" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
       } else {
-        inputEl = `<input type="text" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" placeholder="—" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="width:100px;padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
+        inputEl = `<input type="text" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" placeholder="&mdash;" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="width:100px;padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
       }
       return `<td>${inputEl}</td>`;
     }).join('');
@@ -2066,7 +2066,7 @@ function previewImages(input, previewId) {
       const wrap = document.createElement('div');
       wrap.style.position = 'relative';
       wrap.innerHTML = `<img src="${e.target.result}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--b)" alt="">
-        <button style="position:absolute;top:-6px;right:-6px;background:var(--rd);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0" onclick="this.parentNode.remove()">×</button>`;
+        <button style="position:absolute;top:-6px;right:-6px;background:var(--rd);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0" onclick="this.parentNode.remove()">&times;</button>`;
       prev.appendChild(wrap);
     };
     r.readAsDataURL(f);
@@ -2158,7 +2158,7 @@ async function openEdit(id) {
         const val = cf[col.key] !== undefined ? cf[col.key] : '';
         let input = '';
         if (col.type === 'select') {
-          const opts = `<option value="">—</option>` + (col.options||[]).map(o => `<option${o===val?' selected':''}>${o}</option>`).join('');
+          const opts = `<option value="">&mdash;</option>` + (col.options||[]).map(o => `<option${o===val?' selected':''}>${o}</option>`).join('');
           input = `<select id="ep_cf_${col.key}" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">${opts}</select>`;
         } else if (col.type === 'number') {
           input = `<input type="number" id="ep_cf_${col.key}" value="${val}" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.86rem;outline:none">`;
@@ -2279,7 +2279,7 @@ function filterOrders(status) {
     <td>${o.name || ''}</td>
     <td>${o.phone || ''}</td>
     <td style="max-width:150px;font-size:.78rem">${[o.address, o.city].filter(Boolean).join(', ')}</td>
-    <td style="font-size:.78rem;max-width:180px">${(o.items||[]).map(i=>`<div style="padding:2px 0;border-bottom:1px solid #f1f5f9;line-height:1.4"><strong>${i.name||'Item'}</strong> × ${i.qty||1} <span style="color:var(--p);font-weight:700">&#8377;${((i.price||0)*(i.qty||1)).toLocaleString('en-IN')}</span></div>`).join('') || '—'}</td>
+    <td style="font-size:.78rem;max-width:180px">${(o.items||[]).map(i=>`<div style="padding:2px 0;border-bottom:1px solid #f1f5f9;line-height:1.4"><strong>${i.name||'Item'}</strong> &times; ${i.qty||1} <span style="color:var(--p);font-weight:700">&#8377;${((i.price||0)*(i.qty||1)).toLocaleString('en-IN')}</span></div>`).join('') || '&mdash;'}</td>
     <td>&#8377;${(o.total || 0).toLocaleString('en-IN')}</td>
     <td style="text-transform:capitalize">${o.payment || ''}</td>
     <td>
@@ -2347,7 +2347,7 @@ function editOrder(id) {
   const o = allOrders.find(x => x.id === id);
   if (!o) { toast('x Order not found'); return; }
   eoEditId = id;
-  document.getElementById('eo_id_label').textContent = '— ' + id;
+  document.getElementById('eo_id_label').textContent = '&mdash; ' + id;
 
   // Fill customer fields
   const sv = (elId, val) => { const e = document.getElementById(elId); if (e) e.value = val || ''; };
@@ -2760,7 +2760,7 @@ async function saveBannerModal() {
       };
 
       if (imgFile) {
-        // New file uploaded — upload it first via POST multipart then update
+        // New file uploaded &mdash; upload it first via POST multipart then update
         const fd = new FormData();
         fd.append('bgImage', imgFile);
         fd.append('_uploadOnly', 'true');
@@ -2939,7 +2939,7 @@ async function loadSettings() {
     if (s.pushToken !== undefined) { const el = document.getElementById('st_pushtoken'); if(el) el.value = s.pushToken; }
     if (s.cloudName !== undefined) { const el = document.getElementById('st_cloudName'); if(el) el.value = s.cloudName; }
     if (s.uploadPreset !== undefined) { const el = document.getElementById('st_uploadPreset'); if(el) el.value = s.uploadPreset; }
-    // Text colors — area by area
+    // Text colors &mdash; area by area
     const colorMap = {
       'st_colorAnnoText':'colorAnnoText','st_colorAnnoBg':'colorAnnoBg',
       'st_colorTopBarText':'colorTopBarText','st_colorProdName':'colorProdName',
@@ -2980,7 +2980,7 @@ function updateBannerPreview(){
 function previewBannerSize(){
   const val=document.getElementById('st_bannerSizeVal').value||'380';
   const unit=document.getElementById('st_bannerSizeUnit').value||'px';
-  toast(`Banner height set to ${val}${unit} — save settings and reload the store to see changes`);
+  toast(`Banner height set to ${val}${unit} &mdash; save settings and reload the store to see changes`);
 }
 
 function previewColors(){
@@ -3091,7 +3091,7 @@ function pbRender() {
         : (icons[b.type]||'');
     const bid = String(b._id||b.id);
     return `<div class="pb-block-card" data-id="${bid}">
-      <div class="pb-drag-grip pb-drag-handle"><span>⠿⠿⠿</span> Drag to reorder &nbsp;·&nbsp; ${b.title || 'Untitled Block'} <span style="margin-left:auto;font-size:.68rem;color:#cbd5e1">${b.type} | ${b.page}</span></div>
+      <div class="pb-drag-grip pb-drag-handle"><span>⠿⠿⠿</span> Drag to reorder &nbsp;&middot;&nbsp; ${b.title || 'Untitled Block'} <span style="margin-left:auto;font-size:.68rem;color:#cbd5e1">${b.type} | ${b.page}</span></div>
       <div class="pb-block-body">
         <div class="pb-block-preview">${preview}</div>
         <div class="pb-block-info">
@@ -3129,7 +3129,7 @@ function pbTypeChanged() {
     fields.innerHTML = `<div class="form-group"><label>Image URL</label><input id="pb_content" placeholder="/uploads/... or https://..." value="${fields._val||''}"><small style="color:var(--m)">Or upload below</small></div>
     <div class="form-group"><label>Caption / Text to show below image</label><input id="pb_alt" placeholder="e.g. Express your Patriotism" value="${fields._alt||''}"></div>
     <div class="form-group"><label>Upload Image</label><input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadImg(this)"></div>
-    <div class="form-group"><label>Link URL (optional — makes image clickable)</label><input id="pb_link" placeholder="https://..." value="${fields._link||''}"></div>`;
+    <div class="form-group"><label>Link URL (optional &mdash; makes image clickable)</label><input id="pb_link" placeholder="https://..." value="${fields._link||''}"></div>`;
   } else if (type === 'image-link') {
     fields.innerHTML = `<div class="form-group"><label>Ad Image URL *</label><input id="pb_content" placeholder="https://... or /uploads/..." value="${fields._val||''}"></div>
     <div class="form-group"><label>Caption / Text to show below image</label><input id="pb_alt" placeholder="e.g. Shop Now! 50% Off" value="${fields._alt||''}"></div>
@@ -3156,7 +3156,7 @@ function pbTypeChanged() {
     <div class="form-group"><label>End Date &amp; Time</label><input type="datetime-local" id="pb_content" value="${fields._val||''}"></div>
     <div class="form-group"><label>Message after countdown ends</label><input id="pb_link" placeholder="Sale ended!" value="${fields._link||''}"></div>`;
   } else if (type === 'notice') {
-    fields.innerHTML = `<div class="form-group"><label>Notice Text</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Important notice for your customers…">${fields._val||''}</textarea></div>
+    fields.innerHTML = `<div class="form-group"><label>Notice Text</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Important notice for your customers...">${fields._val||''}</textarea></div>
     <div class="form-group"><label>Notice Style</label><select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="info">ℹ️ Info (Blue)</option><option value="success"> Success (Green)</option><option value="warning">! Warning (Orange)</option><option value="error">x Alert (Red)</option><option value="promo"> Promo (Purple)</option></select></div>
     <div class="form-group"><label>Icon / Emoji (optional)</label><input id="pb_link" placeholder=" or " value="${fields._link||''}"></div>`;
   } else if (type === 'gallery') {
@@ -3164,7 +3164,7 @@ function pbTypeChanged() {
     <div class="form-group">
       <label>Upload Multiple Images (select all at once)</label>
       <input type="file" id="pb_gallery_files" multiple accept="image/jpeg,image/png,image/webp" onchange="pbGalleryPreview(this)" style="margin-bottom:8px;width:100%">
-      <small style="color:var(--m);display:block;margin-bottom:8px">Select 2–12 images at once. They display side by side on your store.</small>
+      <small style="color:var(--m);display:block;margin-bottom:8px">Select 2&ndash;12 images at once. They display side by side on your store.</small>
     </div>
     <div id="pb_gallery_preview" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;min-height:20px"></div>
     <div class="form-group">
@@ -3219,7 +3219,7 @@ function pbTypeChanged() {
   } else if (type === 'mixed') {
     fields.innerHTML = `
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.78rem;color:#166534">
-       <strong>Mixed Block</strong> — combine image, text and video in one block. All fields are optional.
+       <strong>Mixed Block</strong> &mdash; combine image, text and video in one block. All fields are optional.
     </div>
     <div class="form-group"><label> Image URL (optional)</label><input id="pb_mixed_img" placeholder="/uploads/... or https://..." value="${fields._alt||''}">
       <small style="color:var(--m)">Or upload: <input type="file" id="pb_imgfile" accept="image/jpeg,image/png,image/webp" onchange="pbUploadMixedImg(this)" style="font-size:.78rem"></small>
@@ -3452,7 +3452,7 @@ async function pbSaveBlock() {
   const target  = (document.getElementById('pb_target') ||{}).value || '_self';
   const btnColor= (document.getElementById('pb_btnColor')||{}).value || '';
 
-  // Collect full style object — auto-add px units where needed
+  // Collect full style object &mdash; auto-add px units where needed
   const gv = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
   const addPx = v => v ? (isNaN(v) ? v : v + 'px') : '';
   const bgImg = gv('pb_bgImage');
@@ -3542,7 +3542,7 @@ function pbPreview() {
 
   let html = '';
   if (type === 'text') {
-    html = `<div${animClass} style="${style}">${content || '<em style="color:#94a3b8">Your text here…</em>'}</div>`;
+    html = `<div${animClass} style="${style}">${content || '<em style="color:#94a3b8">Your text here...</em>'}</div>`;
   } else if (type === 'heading') {
     html = `<h2${animClass} style="${style};font-weight:700">${content || 'Heading Text'}</h2>`;
   } else if (type === 'image' || type === 'image-link') {
@@ -3564,7 +3564,7 @@ function pbPreview() {
   } else if (type === 'spacer') {
     html = `<div style="height:${content||40}px;background:repeating-linear-gradient(45deg,#f8fafc 0,#f8fafc 10px,#e2e8f0 10px,#e2e8f0 11px);display:flex;align-items:center;justify-content:center"><span style="font-size:.72rem;color:#94a3b8">Spacer: ${content||40}px</span></div>`;
   } else if (type === 'html') {
-    html = content || '<em style="color:#94a3b8">Custom HTML preview…</em>';
+    html = content || '<em style="color:#94a3b8">Custom HTML preview...</em>';
   } else {
     html = `<div style="${style}">${content||'Block preview'}</div>`;
   }
@@ -3590,7 +3590,7 @@ async function pbToggleVisible(id, visible) {
   } catch(e) {}
 }
 
-// ── pbColumnsUpdate — show/hide column textareas based on selection ──────────
+// ── pbColumnsUpdate &mdash; show/hide column textareas based on selection ──────────
 function pbColumnsUpdate(val) {
   const n = parseInt(val) || 2;
   const c3 = document.getElementById('col3wrap');
@@ -3755,7 +3755,7 @@ async function pbUploadImg(input) {
     if (d.url) {
       const c = document.getElementById('pb_content');
       if(c) c.value = d.url;
-      toast(' Image uploaded — URL filled in above');
+      toast(' Image uploaded &mdash; URL filled in above');
     }
   } catch(e) { toast('x Upload failed: ' + e.message); }
 }
@@ -3769,7 +3769,7 @@ async function pbUploadAudio(input) {
 // ── Visual Customizer ────────────────────────────────────────────────────────
 const VC_FONTS = ['Inter','Roboto','Open Sans','Lato','Poppins','Montserrat','Raleway','Nunito','Merriweather','Playfair Display'];
 const VC_SECTIONS = [
-  { key:'heading',      label:'Headings (H1–H6)',         css:'h1,h2,h3,h4,h5,h6' },
+  { key:'heading',      label:'Headings (H1&ndash;H6)',         css:'h1,h2,h3,h4,h5,h6' },
   { key:'body',         label:'Body / General Text',       css:'body' },
   { key:'productName',  label:'Product Card Name',         css:'.pc-name' },
   { key:'productPrice', label:'Product Card Price',        css:'.pc-price .cur' },
@@ -3800,13 +3800,13 @@ function vcBuildSectionRows(s) {
         <div>
           <label style="font-size:.72rem;color:var(--m);display:block;margin-bottom:3px">Font Family</label>
           <select data-vckey="${fKey}" onchange="vcMarkDirty();vcPreviewSection(this,'prev_${sec.key}')" style="width:100%;padding:7px 9px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
-            <option value="">— Default —</option>${vcBuildFontOptions(fVal)}
+            <option value="">&mdash; Default &mdash;</option>${vcBuildFontOptions(fVal)}
           </select>
           <div id="prev_${sec.key}" style="font-size:.82rem;color:var(--m);margin-top:3px;min-height:18px;font-family:'${fVal||'inherit'}',sans-serif">${fVal?'The quick brown fox':''}</div>
         </div>
         <div>
           <label style="font-size:.72rem;color:var(--m);display:block;margin-bottom:3px">Size (px)</label>
-          <input type="number" data-vckey="${szKey}" value="${szVal}" min="10" max="72" placeholder="—" style="width:100%;padding:7px 9px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none" oninput="vcMarkDirty()">
+          <input type="number" data-vckey="${szKey}" value="${szVal}" min="10" max="72" placeholder="&mdash;" style="width:100%;padding:7px 9px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none" oninput="vcMarkDirty()">
         </div>
         <div>
           <label style="font-size:.72rem;color:var(--m);display:block;margin-bottom:3px">Weight</label>
@@ -3828,7 +3828,7 @@ function vcBuildSectionRows(s) {
 
   // Populate global font selector
   const gf = document.getElementById('vc_globalFont');
-  if (gf) gf.innerHTML = `<option value="">— Choose a font —</option>` + vcBuildFontOptions('');
+  if (gf) gf.innerHTML = `<option value="">&mdash; Choose a font &mdash;</option>` + vcBuildFontOptions('');
 }
 
 function vcPreviewSection(sel, prevId) {
@@ -3939,7 +3939,7 @@ function openImgMgr(prodId) {
   const p = allProds.find(x => x.id === prodId);
   if (!p) return;
   imgMgrProductId = prodId;
-  document.getElementById('imgMgrTitle').textContent = `Images — ${p.name}`;
+  document.getElementById('imgMgrTitle').textContent = `Images &mdash; ${p.name}`;
   renderImgMgr(p);
   document.getElementById('imgMgrModal').classList.add('open');
 }
@@ -3971,7 +3971,7 @@ function renderImgMgr(p) {
         <span style="font-size:.65rem;color:var(--m);margin-top:3px">#${i+1}</span>
         <button onclick="imgMgrRemove('${img.url}')"
           style="position:absolute;top:-7px;right:-7px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"
-          title="Remove">×</button>
+          title="Remove">&times;</button>
         <button onclick="imgMgrTransferOpen('${img.url}', ${i})"
           style="position:absolute;bottom:-7px;right:-7px;background:#3b82f6;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"
           title="Move to another product">-></button>
@@ -3988,7 +3988,7 @@ function renderImgMgr(p) {
     <div style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <h4 style="font-size:.85rem;font-weight:700">Current Images (${imgs.length}/20)</h4>
-        ${imgs.length > 1 ? '<span style="font-size:.72rem;color:var(--m)">↔ Drag to reorder &nbsp;·&nbsp; -> button moves to another product</span>' : ''}
+        ${imgs.length > 1 ? '<span style="font-size:.72rem;color:var(--m)">↔ Drag to reorder &nbsp;&middot;&nbsp; -> button moves to another product</span>' : ''}
       </div>
       <div id="imgMgrThumbs" style="display:flex;flex-wrap:wrap;gap:2px;margin-bottom:14px;min-height:40px;padding:6px;background:#f8fafc;border-radius:8px;border:1px solid var(--b)">
         ${thumbsHtml}
@@ -4014,7 +4014,7 @@ function renderImgMgr(p) {
     ${imgs.length >= 20
       ? '<p style="color:#ef4444;font-size:.84rem;font-weight:600">Maximum 20 images reached.</p>'
       : `<input type="file" id="imgMgrUpload" multiple accept="image/jpeg,image/png,image/webp" style="margin-bottom:10px;font-size:.84rem">
-         <small style="display:block;color:var(--m);margin-bottom:12px">JPEG, PNG or WebP — max 10MB each, max ${20-imgs.length} more</small>
+         <small style="display:block;color:var(--m);margin-bottom:12px">JPEG, PNG or WebP &mdash; max 10MB each, max ${20-imgs.length} more</small>
          <div id="imgMgrErr" style="color:#ef4444;font-size:.8rem;margin-bottom:8px"></div>
          <button onclick="imgMgrUpload()" style="padding:9px 20px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer"> Upload Images</button>`
     }`;
@@ -4141,10 +4141,10 @@ async function imgMgrUpload() {
   const fd = new FormData();
   files.forEach(f => {
     if (!['image/jpeg','image/png','image/webp'].includes(f.type)) {
-      errors.push(`"${f.name}" — must be JPEG, PNG or WebP`); return;
+      errors.push(`"${f.name}" &mdash; must be JPEG, PNG or WebP`); return;
     }
     if (f.size > 10*1024*1024) {
-      errors.push(`"${f.name}" — exceeds 10MB`); return;
+      errors.push(`"${f.name}" &mdash; exceeds 10MB`); return;
     }
     fd.append('images', f);
   });
@@ -4219,9 +4219,9 @@ function renderCustomCols() {
           <div style="font-size:.9rem;font-weight:700">${c.label}</div>
           <div style="font-size:.75rem;color:var(--m);margin-top:2px">
             Key: <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;font-size:.75rem">${c.key}</code>
-            &nbsp;·&nbsp; Type: <strong>${c.type}</strong>
-            &nbsp;·&nbsp; Shows in: <strong>${showLabel[Array.isArray(c.showIn) ? c.showIn.join(',') : c.showIn] || c.showIn}</strong>
-            ${c.type === 'select' && c.options && c.options.length ? `&nbsp;·&nbsp; Options: ${c.options.slice(0,4).join(', ')}${c.options.length>4?'…':''}` : ''}
+            &nbsp;&middot;&nbsp; Type: <strong>${c.type}</strong>
+            &nbsp;&middot;&nbsp; Shows in: <strong>${showLabel[Array.isArray(c.showIn) ? c.showIn.join(',') : c.showIn] || c.showIn}</strong>
+            ${c.type === 'select' && c.options && c.options.length ? `&nbsp;&middot;&nbsp; Options: ${c.options.slice(0,4).join(', ')}${c.options.length>4?'...':''}` : ''}
           </div>
         </div>
       </div>
@@ -4304,7 +4304,7 @@ async function ccSave() {
         method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'HTTP ' + res.status); }
-      toast(' Column added — go to Inventory to fill in values');
+      toast(' Column added &mdash; go to Inventory to fill in values');
     }
     closeCcModal();
     await loadCustomCols();
@@ -4360,7 +4360,7 @@ function ccRenderInput(col, value, extraStyle) {
   const s = extraStyle || 'width:100px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none';
   if (col.type === 'select') {
     const opts = (col.options || []).map(o => `<option${o===v?' selected':''}>${o}</option>`).join('');
-    return `<select class="cc-field" data-key="${col.key}" data-colid="${col.id}" style="${s}">\n<option value="">—</option>${opts}</select>`;
+    return `<select class="cc-field" data-key="${col.key}" data-colid="${col.id}" style="${s}">\n<option value="">&mdash;</option>${opts}</select>`;
   }
   if (col.type === 'number') {
     return `<input type="number" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" style="${s}">`;
@@ -4368,7 +4368,7 @@ function ccRenderInput(col, value, extraStyle) {
   if (col.type === 'date') {
     return `<input type="date" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" style="width:120px;padding:5px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.8rem;outline:none">`;
   }
-  return `<input type="text" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" placeholder="—" style="${s}">`;
+  return `<input type="text" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" placeholder="&mdash;" style="${s}">`;
 }
 
 // ── Supplier Import ───────────────────────────────────────────────────────────
@@ -4438,17 +4438,17 @@ function impFileSelected(input) {
 }
 
 function impProcessFile(file) {
-  if (file.size > 5 * 1024 * 1024) { toast('File too large — max 5MB'); return; }
+  if (file.size > 5 * 1024 * 1024) { toast('File too large &mdash; max 5MB'); return; }
   const ext = file.name.split('.').pop().toLowerCase();
   const info = document.getElementById('imp_fileInfo');
   info.style.display = 'block';
-  info.innerHTML = ` <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB) — reading…`;
+  info.innerHTML = ` <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB) &mdash; reading...`;
   const reader = new FileReader();
   if (ext === 'csv' || ext === 'txt') {
     reader.onload = e => impParseCSV(e.target.result, file.name);
     reader.readAsText(file);
   } else if (ext === 'xlsx' || ext === 'xls') {
-    toast(' Excel detected — please save as CSV (.csv) in Excel/Google Sheets and re-upload. CSV works perfectly.');
+    toast(' Excel detected &mdash; please save as CSV (.csv) in Excel/Google Sheets and re-upload. CSV works perfectly.');
     info.innerHTML = '! Please save your Excel file as CSV and upload the .csv file.';
   } else {
     toast('Unsupported file. Use .csv');
@@ -4480,7 +4480,7 @@ function impParseCSV(text, filename) {
   }).filter(r => Object.values(r).some(v => v));
 
   const info = document.getElementById('imp_fileInfo');
-  info.innerHTML = ` <strong>${filename}</strong> — <strong>${impRawRows.length} rows</strong>, ${impHeaders.length} columns detected`;
+  info.innerHTML = ` <strong>${filename}</strong> &mdash; <strong>${impRawRows.length} rows</strong>, ${impHeaders.length} columns detected`;
   impCurrentMapping = impAutoDetect(impHeaders);
   impBuildMapper();
 }
@@ -4490,12 +4490,12 @@ let impCurrentMapping = {};
 function impBuildMapper() {
   const grid = document.getElementById('imp_mapperGrid');
   grid.innerHTML = IMP_FIELDS.map(f => {
-    const opts = ['<option value="">— Skip —</option>',
+    const opts = ['<option value="">&mdash; Skip &mdash;</option>',
       ...impHeaders.map(h => `<option value="${h}"${impCurrentMapping[f.key]===h?' selected':''}>${h}</option>`)
     ].join('');
     const hint = impCurrentMapping[f.key]
       ? `<div class="imp-map-hint"> Auto: "${impCurrentMapping[f.key]}"</div>`
-      : `<div class="imp-map-hint" style="color:#f97316">! Not detected — pick manually</div>`;
+      : `<div class="imp-map-hint" style="color:#f97316">! Not detected &mdash; pick manually</div>`;
     return `<div class="imp-map-row">
       <label>${f.label}${f.required?' <span style="color:#ef4444">*</span>':''}</label>
       <select onchange="impCurrentMapping['${f.key}']=this.value">${opts}</select>
@@ -4572,7 +4572,7 @@ function impRenderPreview() {
   const invalid = impFiltered.filter(r => !r._valid).length;
   document.getElementById('imp_previewStats').innerHTML =
     `<span style="color:#22c55e;font-weight:700">${valid} valid</span>` +
-    (invalid ? ` &nbsp;·&nbsp; <span style="color:#ef4444;font-weight:700">${invalid} invalid (skipped)</span>` : '');
+    (invalid ? ` &nbsp;&middot;&nbsp; <span style="color:#ef4444;font-weight:700">${invalid} invalid (skipped)</span>` : '');
 
   document.getElementById('imp_previewBody').innerHTML = impFiltered.map((r, i) => {
     const img = r.imageUrl
@@ -4585,14 +4585,14 @@ function impRenderPreview() {
       <td><input type="checkbox" ${r._selected&&r._valid?'checked':''} ${!r._valid?'disabled':''}
         onchange="impMappedRows[${r._idx}]._selected=this.checked;impFiltered[${i}]._selected=this.checked;impUpdateSelectedCount()"></td>
       <td>${img}</td>
-      <td style="max-width:180px;font-size:.82rem"><strong>${r.name||'—'}</strong></td>
-      <td style="font-size:.78rem">${r.brand||'—'}</td>
+      <td style="max-width:180px;font-size:.82rem"><strong>${r.name||'&mdash;'}</strong></td>
+      <td style="font-size:.78rem">${r.brand||'&mdash;'}</td>
       <td style="font-size:.78rem">${r.category}</td>
       <td style="font-size:.82rem">&#8377;${r.supplierPrice.toLocaleString('en-IN')}</td>
       <td style="font-size:.82rem;font-weight:700;color:#22c55e">&#8377;${r.price.toLocaleString('en-IN')}</td>
       <td style="font-size:.78rem;color:var(--m)">&#8377;${r.originalPrice.toLocaleString('en-IN')}</td>
       <td style="font-size:.78rem">${r.stock}</td>
-      <td style="font-size:.75rem;color:var(--m)">${r.sku||'—'}</td>
+      <td style="font-size:.75rem;color:var(--m)">${r.sku||'&mdash;'}</td>
       <td>${status}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--m)">No products match</td></tr>';
@@ -4624,7 +4624,7 @@ async function impStartImport() {
     const pct = Math.round((i / selected.length) * 100);
     document.getElementById('imp_progressBar').style.width  = pct + '%';
     document.getElementById('imp_progressText').textContent =
-      `Importing ${Math.min(i + BATCH, selected.length)} of ${selected.length} products…`;
+      `Importing ${Math.min(i + BATCH, selected.length)} of ${selected.length} products...`;
 
     try {
       const res  = await fetch('/api/import/products', {
@@ -4673,7 +4673,7 @@ function impDownloadTemplate(supplier) {
   a.href = '/api/import/template/' + supplier;
   a.download = 'shophere_import_' + supplier + '.csv';
   a.click();
-  toast(' Template downloaded — fill in your products then upload below');
+  toast(' Template downloaded &mdash; fill in your products then upload below');
 }
 
 async function loadPushedProducts() {
@@ -4696,11 +4696,11 @@ async function loadPushedProducts() {
         return `<tr>
           <td>${img}</td>
           <td style="font-size:.82rem"><strong>${p.name}</strong></td>
-          <td style="font-size:.78rem;color:var(--m)">${p.supplier||'—'}</td>
+          <td style="font-size:.78rem;color:var(--m)">${p.supplier||'&mdash;'}</td>
           <td style="font-size:.82rem">&#8377;${(p.supplierPrice||0).toLocaleString('en-IN')}</td>
           <td style="font-size:.82rem;font-weight:700;color:#22c55e">&#8377;${(p.price||0).toLocaleString('en-IN')}</td>
           <td style="font-size:.78rem">${p.stock}</td>
-          <td style="font-size:.75rem;color:var(--m)">${p.importedAt ? new Date(p.importedAt).toLocaleDateString('en-IN') : '—'}</td>
+          <td style="font-size:.75rem;color:var(--m)">${p.importedAt ? new Date(p.importedAt).toLocaleDateString('en-IN') : '&mdash;'}</td>
         </tr>`;
       }).join('')}</tbody>
     </table>`;
@@ -4715,12 +4715,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const test = await fetch('/api/stats', { signal: AbortSignal.timeout(4000) });
     if (!test.ok) throw new Error('Server returned ' + test.status);
   } catch(e) {
-    // Server not reachable — show alert
+    // Server not reachable &mdash; show alert
     document.getElementById('serverAlert').classList.add('show');
     return; // Stop all further loading
   }
 
-  // Server OK — load everything
+  // Server OK &mdash; load everything
   loadStats();
   loadAllCats();
   if (typeof loadCustomCols === 'function') loadCustomCols();
@@ -4770,10 +4770,10 @@ async function loadAnalytics() {
     const d = await res.json();
 
     // Summary cards
-    document.getElementById('an-live').textContent   = d.live   ?? '—';
-    document.getElementById('an-today').textContent  = d.today  ?? '—';
-    document.getElementById('an-recent').textContent = d.recent ?? '—';
-    document.getElementById('an-total').textContent  = d.total  ?? '—';
+    document.getElementById('an-live').textContent   = d.live   ?? '&mdash;';
+    document.getElementById('an-today').textContent  = d.today  ?? '&mdash;';
+    document.getElementById('an-recent').textContent = d.recent ?? '&mdash;';
+    document.getElementById('an-total').textContent  = d.total  ?? '&mdash;';
 
     // ── Leaflet map ──────────────────────────────────────────────────────────
     const visitors = d.recentVisitors || [];
@@ -4785,7 +4785,7 @@ async function loadAnalytics() {
           zoomControl: true,
           scrollWheelZoom: true
         }).setView([20, 78], 4);
-        // Use CartoDB Voyager — sky blue, Google Maps style, very attractive
+        // Use CartoDB Voyager &mdash; sky blue, Google Maps style, very attractive
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
           attribution:'&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/">OSM</a>',
           maxZoom:19
@@ -4830,7 +4830,7 @@ async function loadAnalytics() {
         markers[key].count++;
         markers[key].visits.push(v);
       });
-      const CC2 = {}; // not needed for map — using flagcdn images
+      const CC2 = {}; // not needed for map &mdash; using flagcdn images
       const countryNames = {'IN':'India','US':'USA','GB':'UK','AE':'UAE','SG':'Singapore','AU':'Australia','CA':'Canada','DE':'Germany','FR':'France','JP':'Japan','SA':'Saudi Arabia','QA':'Qatar','KW':'Kuwait','PK':'Pakistan','BD':'Bangladesh','LK':'Sri Lanka','NP':'Nepal','MY':'Malaysia'};
       Object.values(markers).forEach(m=>{
         const r = Math.min(28, 8 + m.count * 5);
@@ -4935,25 +4935,25 @@ async function loadAnalytics() {
     if(tbody){
       tbody.innerHTML = visitors.length
         ? visitors.map((v,i)=>{
-            const time = v.ts ? new Date(v.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+            const time = v.ts ? new Date(v.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '&mdash;';
             const flagHtml = flagImg2(v.country);
             const cname = countryNames2[v.country]||v.country||'Unknown';
-            const loc = [v.city,v.region].filter(x=>x&&x!=='Unknown'&&x).join(', ')||'—';
+            const loc = [v.city,v.region].filter(x=>x&&x!=='Unknown'&&x).join(', ')||'&mdash;';
             const ref = v.ref ? `<span title="${v.ref}" style="color:var(--p);font-size:.7rem">${v.ref.replace(/https?:\/\/(www\.)?/,'').substring(0,22)}</span>` : '<span style="color:var(--m);font-size:.7rem">Direct</span>';
             const isLive = (Date.now()-new Date(v.ts).getTime()) < 5*60*1000;
             return `<tr>
               <td style="font-size:.74rem;white-space:nowrap">${isLive?'<span style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-weight:700;font-size:.7rem">LIVE</span> ':''}${time}</td>
               <td style="font-size:.8rem;font-weight:600">${flagHtml}${cname}</td>
               <td style="font-size:.76rem">${loc}</td>
-              <td style="font-size:.76rem">${deviceIcon(v.device)} ${v.device||'—'}</td>
-              <td style="font-size:.74rem">${v.os||'—'}</td>
-              <td style="font-size:.74rem">${v.browser||'—'}</td>
-              <td style="font-size:.68rem;color:var(--m)">${v.tz||'—'}</td>
+              <td style="font-size:.76rem">${deviceIcon(v.device)} ${v.device||'&mdash;'}</td>
+              <td style="font-size:.74rem">${v.os||'&mdash;'}</td>
+              <td style="font-size:.74rem">${v.browser||'&mdash;'}</td>
+              <td style="font-size:.68rem;color:var(--m)">${v.tz||'&mdash;'}</td>
               <td style="font-size:.68rem;color:var(--m);font-family:monospace">${(v.ip||'').substring(0,14)}</td>
               <td>${ref}</td>
             </tr>`;
           }).join('')
-        : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">No visitors yet — data records after first store visit.</td></tr>';
+        : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">No visitors yet &mdash; data records after first store visit.</td></tr>';
     }
   } catch(e) {
     toast('x Analytics error: ' + e.message);
