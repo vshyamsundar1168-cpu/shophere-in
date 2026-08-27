@@ -482,7 +482,9 @@ function closeSearch(){const p=document.getElementById('searchPanel');if(p)p.sty
 
 // ── Product Card ──────────────────────────────────────────────────────────────
 function productCard(p){
-  const disc=p.originalPrice>p.price?Math.round((1-p.price/p.originalPrice)*100):0;
+  const price = p.price || 0;
+  const origPrice = p.originalPrice || 0;
+  const disc=origPrice>price?Math.round((1-price/origPrice)*100):0;
   const stars='★'.repeat(Math.round(p.rating||0))+'☆'.repeat(5-Math.round(p.rating||0));
   const inW=wishlist.includes(p.id);
   const imgHtml=p.images&&p.images.length
@@ -493,12 +495,12 @@ function productCard(p){
     <button class="pc-wish${inW?' active':''}" onclick="toggleWish(${p.id},event)">${inW?'❤️':'🤍'}</button>
     <div class="pc-img" onclick="openProduct(${p.id})">${imgHtml}</div>
     <div class="pc-body">
-      <div class="pc-brand">${p.brand}</div>
-      <div class="pc-name" onclick="openProduct(${p.id})">${p.name}</div>
+      <div class="pc-brand">${p.brand||''}</div>
+      <div class="pc-name" onclick="openProduct(${p.id})">${p.name||''}</div>
       <div class="pc-stars">${stars} <span>(${p.reviewCount||0})</span></div>
       <div class="pc-price">
-        <span class="cur">₹${p.price.toLocaleString('en-IN')}</span>
-        ${disc?`<span class="orig">₹${p.originalPrice.toLocaleString('en-IN')}</span><span class="off">${disc}% off</span>`:''}
+        <span class="cur">₹${price.toLocaleString('en-IN')}</span>
+        ${disc?`<span class="orig">₹${origPrice.toLocaleString('en-IN')}</span><span class="off">${disc}% off</span>`:''}
       </div>
       <div class="pc-btns">
         <button class="btn-cart" onclick="addToCart(${p.id})">Add to Cart</button>

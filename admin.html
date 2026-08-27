@@ -1983,7 +1983,8 @@ function renderProdTable(list) {
     const img = p.images && p.images.length
       ? `<img src="${p.images[0].url}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">`
       : `<span style="font-size:1.6rem">📦</span>`;
-    const stockColor = p.stock === 0 ? 'var(--rd)' : p.stock <= 10 ? '#f97316' : 'var(--g)';
+    const stock = p.stock ?? 0;
+    const stockColor = stock === 0 ? 'var(--rd)' : stock <= 10 ? '#f97316' : 'var(--g)';
     const cf = p.customFields || {};
     const customCells = prodCols.map(c => {
       const val = cf[c.key] !== undefined && cf[c.key] !== '' ? cf[c.key] : '';
@@ -2006,8 +2007,8 @@ function renderProdTable(list) {
       <td style="max-width:180px"><strong>${p.name}</strong></td>
       <td>${p.category || ''}</td>
       <td>₹${(p.price || 0).toLocaleString('en-IN')}</td>
-      <td style="color:${stockColor};font-weight:700">${p.stock}${p.stock <= 10 && p.stock > 0 ? ' ⚠️' : ''}</td>
-      <td>⭐ ${p.rating || 0}</td>
+      <td style="color:${stockColor};font-weight:700">${stock}${stock <= 10 && stock > 0 ? ' low' : ''}</td>
+      <td>${p.rating || 0}</td>
       <td>${p.badge ? `<span class="pc-badge ${p.badge}" style="position:static">${p.badge}</span>` : '—'}</td>
       ${customCells}
       <td style="white-space:nowrap">
