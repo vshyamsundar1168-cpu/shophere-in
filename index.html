@@ -735,26 +735,28 @@
 <!-- ── TOAST ─────────────────────────────────────────────────────────────── -->
 <div class="toast-wrap" id="toastWrap"></div>
 
-<!-- DEBUG PANEL - shows live JS status -->
-<div id="_debug" style="position:fixed;bottom:0;left:0;right:0;background:#1e293b;color:#fff;font-size:11px;padding:6px 10px;z-index:99999;font-family:monospace;display:none"></div>
+<!-- DEBUG PANEL -->
+<div id="_debug" style="position:fixed;bottom:0;left:0;right:0;background:#1e293b;color:#4ade80;font-size:11px;padding:6px 10px;z-index:99999;font-family:monospace">JS: loading...</div>
 
 <script>
-// Catch ALL JS errors and show on screen
 window._log = function(msg, color) {
   var d = document.getElementById('_debug');
-  d.style.display = 'block';
-  d.innerHTML += '<span style="color:'+(color||'#fff')+'">' + msg + '</span> | ';
+  d.innerHTML += ' | <span style="color:'+(color||'#4ade80')+'">' + msg + '</span>';
 };
 window.onerror = function(msg, src, line) {
-  window._log('ERROR: ' + msg + ' (line:' + line + ')', '#ff6b6b');
+  var d = document.getElementById('_debug');
+  d.style.background = '#7f1d1d';
+  d.innerHTML += ' | <span style="color:#fca5a5">ERR: ' + msg + ' L:' + line + '</span>';
   return false;
 };
 window.addEventListener('unhandledrejection', function(e) {
-  window._log('PROMISE ERR: ' + e.reason, '#ffa500');
+  window._log('REJECT:' + e.reason, '#fb923c');
 });
-  return false;
-};
+document.getElementById('_debug').innerHTML = 'HTML loaded OK | app.js loading...';
 </script>
-<script src="app.js?v=dbg1"></script>
+<script src="app.js?v=dbg2"></script>
+<script>
+document.getElementById('_debug').innerHTML += ' | app.js loaded OK';
+</script>
 </body>
 </html>
