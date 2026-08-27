@@ -514,14 +514,19 @@ function renderHomeGrids(){
   const featured=allProducts.filter(p=>p.featured).slice(0,10);
   const deals=allProducts.filter(p=>p.badge==='deal').slice(0,10);
   const newA=allProducts.filter(p=>p.badge==='new').slice(0,10);
+  // If no featured products, show newest 10 as featured
+  const featuredShow = featured.length ? featured : allProducts.slice(0,10);
+  // If no deals, show nothing (hide section)
+  // If no new arrivals, show newest 10
+  const newShow = newA.length ? newA : allProducts.slice(0,10);
   const fill=(arr,id,sec)=>{
     const el=document.getElementById(id); if(!el)return;
     el.innerHTML=arr.length?arr.map(p=>productCard(p)).join(''):'<p style="color:var(--m);padding:20px">None available</p>';
     const secEl=document.getElementById(sec); if(secEl) secEl.style.display=arr.length?'block':'none';
   };
-  fill(featured,'featuredGrid','featuredSection');
+  fill(featuredShow,'featuredGrid','featuredSection');
   fill(deals,'dealsGrid','dealsSection');
-  fill(newA,'newGrid','newSection');
+  fill(newShow,'newGrid','newSection');
 }
 
 function getFiltered(){
@@ -607,7 +612,6 @@ function showHome(){document.getElementById('homeSections').style.display='block
 function goHome(){showHome();currentCat='all';currentBadge='';currentQ='';page=1;closeSearch();}
 // #13 category links working
 function filterCat(cat){
-  if(window._log) window._log('filterCat:'+cat+' products:'+allProducts.length,'#60a5fa');
   currentCat=cat;currentBadge='';currentQ='';page=1;
   document.getElementById('sectionTitle').textContent=cat==='all'?'All Products':cat;
   showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});
@@ -989,19 +993,13 @@ function sendMessage(){
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',async()=>{
-  if(window._log) window._log('INIT START','#4ade80');
   updateAuthUI();
   updateCartBadge();
   updateWishBadge();
-  if(window._log) window._log('loading settings...','#94a3b8');
   await loadSettings();
-  if(window._log) window._log('settings OK','#4ade80');
   await loadCategories();
-  if(window._log) window._log('cats OK','#4ade80');
   await loadBanners();
-  if(window._log) window._log('banners OK','#4ade80');
   await loadProducts();
-  if(window._log) window._log('products OK - count:'+allProducts.length,'#4ade80');
   loadPageBlocks();
   trackVisit();
   document.addEventListener('visibilitychange', () => {
