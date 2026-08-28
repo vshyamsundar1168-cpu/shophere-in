@@ -1,5 +1,5 @@
 // ShopHere.in app.js
-// ── State ─────────────────────────────────────────────────────────────────────
+// -- State ---------------------------------------------------------------------
 let allProducts=[], allCategories=[], allBanners=[], storeSettings={};
 let cart=JSON.parse(localStorage.getItem('sh_cart')||'[]');
 let wishlist=JSON.parse(localStorage.getItem('sh_wish')||'[]');
@@ -11,7 +11,7 @@ let selectedPayment='cod';
 const CAT_ICONS={'Electronics':'[Mobile]','Fashion':'[Fashion]','Kitchen':'[Kitchen]','Sports':'[Sports]','Beauty':'[Beauty]','Books':'[Books]','Toys':'[Toys]','Home':'[Home]','Kids':'[Kids]','Women':'[Women]','Men':'[Men]','default':'[Shop]'};
 const CAT_COLORS={'Electronics':['#dbeafe','#1d4ed8'],'Fashion':['#fce7f3','#be185d'],'Kitchen':['#fef3c7','#d97706'],'Sports':['#dcfce7','#16a34a'],'Beauty':['#fdf4ff','#9333ea'],'Books':['#fff7ed','#ea580c'],'Toys':['#fef9c3','#ca8a04'],'Home':['#f0fdf4','#15803d'],'Kids':['#ffe4e6','#e11d48'],'Women':['#fdf2f8','#db2777'],'Men':['#eff6ff','#2563eb'],'default':['#f8fafc','#475569']};
 
-// ── Utility ───────────────────────────────────────────────────────────────────
+// -- Utility -------------------------------------------------------------------
 function toast(msg,dur=3000){
   const w=document.getElementById('toastWrap'),el=document.createElement('div');
   el.className='toast';el.textContent=msg;w.appendChild(el);
@@ -21,7 +21,7 @@ function toast(msg,dur=3000){
 function closeOverlay(id){const el=document.getElementById(id);if(el)el.classList.remove('open');}
 function openOverlay(id){const el=document.getElementById(id);if(el)el.classList.add('open');}
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
+// -- Auth ----------------------------------------------------------------------
 let currentUser=JSON.parse(localStorage.getItem('sh_user')||'null');
 
 function updateAuthUI(){
@@ -70,7 +70,7 @@ function togglePassVis(inputId,btn){
   const inp=document.getElementById(inputId);
   if(!inp) return;
   inp.type=inp.type==='password'?'text':'password';
-  btn.textContent=inp.type==='password'?'️':'';
+  btn.textContent=inp.type==='password'?'':'';
 }
 
 function doLogin(){
@@ -138,7 +138,7 @@ document.addEventListener('click',e=>{
   }
 });
 
-// ── Settings ──────────────────────────────────────────────────────────────────
+// -- Settings ------------------------------------------------------------------
 async function loadSettings(){
   try{
     const s=await fetch('/api/settings').then(r=>r.json());
@@ -236,12 +236,12 @@ function buildFAQ(text){
   }).join('');
 }
 
-// ── Categories ────────────────────────────────────────────────────────────────
+// -- Categories ----------------------------------------------------------------
 async function loadCategories(){
   try{
     allCategories=await fetch('/api/categories').then(r=>r.json());
 
-    // ── Preferred nav order ───────────────────────────────────────────────────
+    // -- Preferred nav order ---------------------------------------------------
     const NAV_ORDER = [
       'Women','Woman','Women\'s','Ladies',
       'Men','Man','Men\'s','Gents',
@@ -310,7 +310,7 @@ async function loadCategories(){
   }catch(e){console.warn('Categories failed',e.message);}
 }
 
-// ── Banners ───────────────────────────────────────────────────────────────────
+// -- Banners -------------------------------------------------------------------
 async function loadBanners(){
   try{
     let bans=await fetch('/api/banners').then(r=>r.json());
@@ -348,7 +348,7 @@ async function loadBanners(){
     const sliderBans = allBanners.filter(b=>!b.displayMode||b.displayMode==='slider');
     const gridBans   = allBanners.filter(b=>b.displayMode==='grid');
 
-    // ── GRID banners &mdash; shown side by side above or below slider ────────────────
+    // -- GRID banners &mdash; shown side by side above or below slider ----------------
     let gridEl = document.getElementById('banner-grid-row');
     if(!gridEl){
       gridEl = document.createElement('div');
@@ -382,7 +382,7 @@ async function loadBanners(){
       gridEl.style.display='none';
     }
 
-    // ── SLIDER banners ─────────────────────────────────────────────────────────
+    // -- SLIDER banners ---------------------------------------------------------
     // Apply height from first slider banner or store settings
     const bSzVal  = storeSettings&&storeSettings.bannerSizeVal;
     const bSzUnit = storeSettings&&storeSettings.bannerSizeUnit || 'px';
@@ -444,7 +444,7 @@ function heroGo(i){
 function heroNext(){ if(allBanners.length>1) heroGo((heroIdx+1)%allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length); }
 function heroPrev(){ if(allBanners.length>1) heroGo((heroIdx-1+allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length)%allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length); }
 
-// ── Products ──────────────────────────────────────────────────────────────────
+// -- Products ------------------------------------------------------------------
 async function loadProducts(){
   try{
     const res=await fetch('/api/products?limit=500').then(r=>r.json());
@@ -453,7 +453,7 @@ async function loadProducts(){
   }catch(e){console.warn('Products failed',e.message);}
 }
 
-// ── Search #9 &mdash; searches ALL fields including description, tags ────────────────
+// -- Search #9 &mdash; searches ALL fields including description, tags ----------------
 function liveSearch(){
   const q=document.getElementById('searchInput').value.trim().toLowerCase();
   if(!q){closeSearch();return;}
@@ -480,7 +480,7 @@ function doSearch(){
 }
 function closeSearch(){const p=document.getElementById('searchPanel');if(p)p.style.display='none';}
 
-// ── Product Card ──────────────────────────────────────────────────────────────
+// -- Product Card --------------------------------------------------------------
 function productCard(p){
   const price = p.price || 0;
   const origPrice = p.originalPrice || 0;
@@ -624,7 +624,7 @@ function clearFilters(){currentMin=0;currentMax=Infinity;currentRating=0;current
 function catCkChange(el){currentCat=el.value;page=1;renderProducts();}
 function setActive(el){document.querySelectorAll('.nav-inner a').forEach(a=>a.classList.remove('active'));el.classList.add('active');}
 
-// ── Product Detail ────────────────────────────────────────────────────────────
+// -- Product Detail ------------------------------------------------------------
 async function openProduct(id){
   const p=allProducts.find(x=>x.id===id); if(!p) return;
   document.getElementById('pmTitle').textContent=p.name;
@@ -646,7 +646,7 @@ async function openProduct(id){
     const hiddenHtml  = hiddenImgs.length
       ? `<div id="mgExtraThumb" style="display:none;display:flex;flex-wrap:wrap;gap:8px;display:none">${hiddenImgs.map((img,i)=>thumbItem(img,i+THUMB_SHOW)).join('')}</div>
          <button onclick="mgToggleMore(this)" style="margin-top:6px;padding:5px 14px;background:#fff7ed;color:var(--p);border:1.5px solid var(--p);border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap">
-            +${hiddenImgs.length} more colours/designs ▾
+            +${hiddenImgs.length} more colours/designs 
          </button>`
       : '';
     thumbs = `<div style="margin-top:8px"><div style="display:flex;gap:8px;flex-wrap:wrap">${visibleHtml}</div>${hiddenHtml}</div>`;
@@ -704,11 +704,11 @@ function mgToggleMore(btn){
     extra.style.marginTop = '8px';
     // Count remaining
     const count = extra.querySelectorAll('.mg-thumb').length;
-    btn.innerHTML = ` Hide extra colours/designs ▴`;
+    btn.innerHTML = ` Hide extra colours/designs `;
   } else {
     extra.style.display = 'none';
     const count = extra.querySelectorAll('.mg-thumb').length;
-    btn.innerHTML = ` +${count} more colours/designs ▾`;
+    btn.innerHTML = ` +${count} more colours/designs `;
   }
 }
 function openLightbox(url){const lb=document.getElementById('lightbox');document.getElementById('lightboxImg').src=url;lb.style.display='flex';}
@@ -719,7 +719,7 @@ async function submitReview(pid){
   catch(e){toast('Could not submit review');}
 }
 
-// ── Cart ──────────────────────────────────────────────────────────────────────
+// -- Cart ----------------------------------------------------------------------
 function saveCart(){localStorage.setItem('sh_cart',JSON.stringify(cart));}
 function cartCount(){return cart.reduce((s,i)=>s+i.qty,0);}
 function cartTotal(){return cart.reduce((s,i)=>s+i.price*i.qty,0);}
@@ -745,7 +745,7 @@ function renderCartBody(){
       <div class="ci-name">${i.name}</div>
       <div class="ci-price">&#8377;${(i.price*i.qty).toLocaleString('en-IN')}</div>
       <div class="ci-qty">
-        <button class="qty-btn" onclick="changeQty(${i.id},-1)">−</button>
+        <button class="qty-btn" onclick="changeQty(${i.id},-1)"></button>
         <span class="qty-num">${i.qty}</span>
         <button class="qty-btn" onclick="changeQty(${i.id},+1)">+</button>
         <button class="rm-btn" onclick="removeFromCart(${i.id})">Remove</button>
@@ -757,7 +757,7 @@ function openCart(){renderCartBody();document.getElementById('cartDrawer').class
 function closeCart(){document.getElementById('cartDrawer').classList.remove('open');document.getElementById('drawerOverlay').classList.remove('open');}
 function buyNow(id){addToCart(id);closeCart();startCheckout();}
 
-// ── Wishlist ──────────────────────────────────────────────────────────────────
+// -- Wishlist ------------------------------------------------------------------
 function saveWish(){localStorage.setItem('sh_wish',JSON.stringify(wishlist));}
 function updateWishBadge(){const n=wishlist.length,b=document.getElementById('wishBadge');if(b){b.textContent=n;b.style.display=n?'flex':'none';}}
 function toggleWish(id,ev){if(ev)ev.stopPropagation();const p=allProducts.find(x=>x.id===id);if(!p)return;if(wishlist.includes(id)){wishlist=wishlist.filter(x=>x!==id);toast('Removed from wishlist');}else{if(wishlist.length>=50){toast('Wishlist full (max 50)');return;}wishlist.push(id);toast(`${p.name} added to wishlist &#9829;`);}saveWish();updateWishBadge();}
@@ -767,7 +767,7 @@ function openWishlist(){
   openOverlay('wishModal');
 }
 
-// ── Checkout ──────────────────────────────────────────────────────────────────
+// -- Checkout ------------------------------------------------------------------
 let coStep=1;
 function startCheckout(){
   if(!cart.length){toast('Cart is empty!');return;}
@@ -814,7 +814,7 @@ function selectPay(el,val){
   el.style.borderColor='var(--p)'; selectedPayment=val;
   const det=document.getElementById('payDetail');
   if(val==='upi') det.innerHTML='<div class="form-group"><label>UPI ID</label><input id="co_upi" placeholder="name@upi"></div>';
-  else if(val==='card') det.innerHTML='<div class="form-row"><div class="form-group"><label>Card Number</label><input id="co_card" placeholder="XXXX XXXX XXXX XXXX" maxlength="19"></div><div class="form-group"><label>Expiry</label><input id="co_exp" placeholder="MM/YY" maxlength="5"></div></div><div class="form-group"><label>CVV</label><input id="co_cvv" type="password" placeholder="•••" maxlength="3"></div>';
+  else if(val==='card') det.innerHTML='<div class="form-row"><div class="form-group"><label>Card Number</label><input id="co_card" placeholder="XXXX XXXX XXXX XXXX" maxlength="19"></div><div class="form-group"><label>Expiry</label><input id="co_exp" placeholder="MM/YY" maxlength="5"></div></div><div class="form-group"><label>CVV</label><input id="co_cvv" type="password" placeholder="" maxlength="3"></div>';
   else if(val==='netbanking') det.innerHTML='<div class="form-group"><label>Select Bank</label><select id="co_bank"><option>SBI</option><option>HDFC Bank</option><option>ICICI Bank</option><option>Axis Bank</option><option>Kotak Bank</option></select></div>';
   else det.innerHTML='';
 }
@@ -965,7 +965,7 @@ function openOrders(){
   openOverlay('ordersModal');
 }
 
-// ── Popups ────────────────────────────────────────────────────────────────────
+// -- Popups --------------------------------------------------------------------
 function openContactPopup(){openOverlay('contactPopup');}
 function openTerms(){openOverlay('termsPopup');}
 function openPrivacy(){openOverlay('privacyPopup');}
@@ -991,7 +991,7 @@ function sendMessage(){
   document.getElementById('msg_text').value='';
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// -- Init ----------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded',async()=>{
   updateAuthUI();
   updateCartBadge();
@@ -1007,7 +1007,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   });
 });
 
-// ── Visitor Tracking ──────────────────────────────────────────────────────────
+// -- Visitor Tracking ----------------------------------------------------------
 function trackVisit(){
   try{
     let sid = sessionStorage.getItem('sh_sid');
@@ -1056,7 +1056,7 @@ function trackVisit(){
 // extra popup
 function openAbout(){openOverlay('aboutPopup');}
 
-// ── Page Builder click action handler ─────────────────────────────────────────
+// -- Page Builder click action handler -----------------------------------------
 function pbBlockClick(b, imgUrl) {
   if (b.clickAction === 'product' && b.productId) {
     openProduct(b.productId);
@@ -1070,7 +1070,7 @@ function pbBlockClick(b, imgUrl) {
   }
 }
 
-// ── Page Builder Renderer ─────────────────────────────────────────────────────
+// -- Page Builder Renderer -----------------------------------------------------
 async function loadPageBlocks(){
   try{
     const blocks = await fetch('/api/pageblocks').then(r=>r.json());
@@ -1243,7 +1243,7 @@ async function loadPageBlocks(){
         html=`<div class="${animClass.trim()}" style="text-align:${s.textAlign||'center'};${styleStr}"><a href="${b.link||'#'}" style="${btnS}">${b.content||'Click Here'}</a></div>`;
       } else if(b.type==='marquee'){
         const speed={'slow':'20s','normal':'12s','fast':'6s'}[b.alt||'normal']||'12s';
-        const parts=(b.content||'').split('|').map(t=>t.trim()).filter(Boolean).join(' &nbsp;•&nbsp; ');
+        const parts=(b.content||'').split('|').map(t=>t.trim()).filter(Boolean).join(' &nbsp;&nbsp; ');
         html=`<div style="overflow:hidden;${styleStr}"><div style="white-space:nowrap;display:inline-block;animation:pb-marquee ${speed} linear infinite">${parts}&nbsp;&nbsp;&nbsp;&nbsp;${parts}</div></div>`;
       } else if(b.type==='countdown'){
         const endDate=b.content;
@@ -1355,27 +1355,27 @@ async function loadPageBlocks(){
         wrap.style.width = '100%';
       }
 
-      // ── Block title + caption shown on store ────────────────────────────────
+      // -- Block title + caption shown on store --------------------------------
       const titleHtml = (b.title && b.title !== 'Untitled Block')
         ? `<div style="font-size:1.05rem;font-weight:800;color:#1e293b;padding:8px 4px 6px;font-family:'Poppins',sans-serif;border-bottom:2px solid #f97316;margin-bottom:8px;display:block;">${b.title}</div>` : '';
       const captionHtml = b.caption
         ? `<div style="font-size:.88rem;color:#475569;padding:8px 4px 4px;line-height:1.6;display:block;">${b.caption}</div>` : '';
       wrap.innerHTML = titleHtml + html + captionHtml;
 
-      // ── Per-block zoom toolbar ──────────────────────────────────────────────
+      // -- Per-block zoom toolbar ----------------------------------------------
       const zoomBar = document.createElement('div');
       zoomBar.className = 'pb-zoom-bar';
       zoomBar.innerHTML = `
         <button class="pb-zoom-btn" title="Zoom In"  onclick="pbZoom(this,0.1)">[Search]+</button>
         <span   class="pb-zoom-val">100%</span>
-        <button class="pb-zoom-btn" title="Zoom Out" onclick="pbZoom(this,-0.1)">[Search]−</button>
-        <button class="pb-zoom-btn" title="Reset"    onclick="pbZoomReset(this)">↺</button>`;
+        <button class="pb-zoom-btn" title="Zoom Out" onclick="pbZoom(this,-0.1)">[Search]</button>
+        <button class="pb-zoom-btn" title="Reset"    onclick="pbZoomReset(this)"></button>`;
       wrap.appendChild(zoomBar);
 
       zone.appendChild(wrap);
     });
 
-    // ── Drag & drop reorder within each zone ─────────────────────────────────
+    // -- Drag & drop reorder within each zone ---------------------------------
     document.querySelectorAll('.pb-zone').forEach(zone=>{
       const blocks = zone.querySelectorAll('.pb-block-wrap');
       if(blocks.length < 2) return; // nothing to reorder
@@ -1386,7 +1386,7 @@ async function loadPageBlocks(){
         const grip = document.createElement('div');
         grip.title = 'Drag to reorder';
         grip.style.cssText = 'position:absolute;top:4px;right:4px;z-index:9;background:rgba(0,0,0,.45);color:#fff;border-radius:4px;padding:2px 6px;font-size:.65rem;cursor:grab;user-select:none;opacity:0;transition:opacity .2s;pointer-events:auto;';
-        grip.textContent = '⠿ drag';
+        grip.textContent = ' drag';
         block.appendChild(grip);
         block.addEventListener('mouseenter', ()=>{ grip.style.opacity='1'; });
         block.addEventListener('mouseleave', ()=>{ grip.style.opacity='0'; });
@@ -1435,7 +1435,7 @@ async function loadPageBlocks(){
   }catch(e){console.warn('Page blocks failed',e.message);}
 }
 
-// ── Per-block zoom controls ───────────────────────────────────────────────────
+// -- Per-block zoom controls ---------------------------------------------------
 function pbZoom(btn, delta) {
   const wrap = btn.closest('.pb-block-wrap');
   if (!wrap) return;

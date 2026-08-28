@@ -12,7 +12,7 @@
 <script>if(window.location.protocol==='file:'){window.location.href='http://localhost:8080/';}</script>
 <link rel="stylesheet" href="style.css?v=fix1">
 <style>
-/* ── Scrolling marquee ───────────────── */
+/* -- Scrolling marquee ----------------- */
 .marquee-bar{background:var(--sec);color:#fff;padding:7px 0;overflow:hidden;white-space:nowrap}
 .marquee-inner{display:inline-block;animation:marquee 28s linear infinite;padding-left:100%}
 .marquee-inner:hover{animation-play-state:paused}
@@ -20,7 +20,7 @@
 .marquee-inner span{font-size:.82rem;letter-spacing:.3px;margin-right:60px}
 .marquee-inner span::before{content:' '}
 
-/* ── Login modal ─────────────────────── */
+/* -- Login modal ----------------------- */
 .login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:none;align-items:center;justify-content:center}
 .login-overlay.open{display:flex}
 .login-box{background:#fff;border-radius:16px;padding:36px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
@@ -30,12 +30,12 @@
 .login-tab{flex:1;padding:10px;text-align:center;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--m);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
 .login-tab.active{color:var(--p);border-bottom-color:var(--p)}
 
-/* ── Password field with eye toggle ─── */
+/* -- Password field with eye toggle --- */
 .pass-wrap{position:relative;display:flex;align-items:center}
 .pass-wrap input{width:100%;padding-right:42px}
 .pass-eye{position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1.05rem;padding:0;color:var(--m);line-height:1}
 
-/* ── Contact popup ───────────────────── */
+/* -- Contact popup --------------------- */
 .popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1500;display:none;align-items:center;justify-content:center;padding:16px}
 .popup-overlay.open{display:flex}
 .popup-box{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
@@ -44,17 +44,17 @@
 .popup-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--m)}
 .popup-body{padding:20px 24px}
 
-/* ── User avatar ─────────────────────── */
+/* -- User avatar ----------------------- */
 .user-chip{display:flex;align-items:center;gap:7px;padding:5px 14px;background:#fff7ed;border-radius:50px;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--p);border:1.5px solid var(--p);transition:all .2s}
 .user-chip:hover{background:var(--p);color:#fff}
 
-/* ── Track Order Modal ───────────────── */
+/* -- Track Order Modal ----------------- */
 #trackOrderModal .modal{max-width:440px}
 </style>
 </head>
 <body>
 
-<!-- ═══ SCROLLING TEXT BAR ══════════════════════════════════════════════════ -->
+<!-- --- SCROLLING TEXT BAR -------------------------------------------------- -->
 <div class="marquee-bar" id="marqueeBar">
   <div class="marquee-inner" id="marqueeText">
     <span>Welcome to ShopHere.in</span>
@@ -66,12 +66,12 @@
   </div>
 </div>
 
-<!-- ═══ ANNOUNCEMENT BAR ═══════════════════════════════════════════════════ -->
+<!-- --- ANNOUNCEMENT BAR --------------------------------------------------- -->
 <div class="top-bar" id="topBar"> Free shipping on orders above &#8377;999</div>
 
 <!-- Page Builder blocks: HEADER zone (below announcement bar, above nav) -->
 
-<!-- ═══ HEADER ══════════════════════════════════════════════════════════════ -->
+<!-- --- HEADER -------------------------------------------------------------- -->
 <header>
   <div class="hdr">
     <!-- #21: logo image + store name text always visible -->
@@ -108,7 +108,7 @@
       </div>
       <div id="userChip" style="display:none">
         <div class="user-chip" onclick="toggleUserMenu()">
-          <span></span><span id="userName">User</span><span>▾</span>
+          <span></span><span id="userName">User</span><span></span>
         </div>
         <div id="userMenu" style="display:none;position:absolute;top:100%;right:0;background:#fff;border:1px solid var(--b);border-radius:10px;padding:8px 0;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:300">
           <div onclick="openOrders()" style="padding:9px 16px;font-size:.83rem;cursor:pointer"> My Orders</div>
@@ -119,7 +119,7 @@
   </div>
 </header>
 
-<!-- ═══ NAV ═══════════════════════════════════════════════════════════════ -->
+<!-- --- NAV --------------------------------------------------------------- -->
 <!-- Page Builder blocks: HEADER zone (between header and nav) -->
 <div id="pb-zone-header" class="pb-zone"></div>
 <nav class="main-nav">
@@ -139,7 +139,7 @@
   </div>
 </nav>
 
-<!-- ═══ SEARCH RESULTS PANEL ══════════════════════════════════════════════ -->
+<!-- --- SEARCH RESULTS PANEL ---------------------------------------------- -->
 <div id="searchPanel" style="display:none;background:#fff;border-bottom:2px solid var(--p)">
   <div style="max-width:1300px;margin:0 auto;padding:16px 24px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -150,15 +150,15 @@
   </div>
 </div>
 
-<!-- ═══ HERO BANNER SLIDER ══════════════════════════════════════════════════ -->
+<!-- --- HERO BANNER SLIDER -------------------------------------------------- -->
 <div class="hero-slider" id="heroSlider">
   <div class="hero-track" id="heroTrack"></div>
-  <button class="hero-arrow hero-prev" onclick="heroPrev()">‹</button>
-  <button class="hero-arrow hero-next" onclick="heroNext()">›</button>
+  <button class="hero-arrow hero-prev" onclick="heroPrev()"></button>
+  <button class="hero-arrow hero-next" onclick="heroNext()"></button>
   <div class="hero-dots" id="heroDots"></div>
 </div>
 
-<!-- ═══ TRUST BADGES ═══════════════════════════════════════════════════════ -->
+<!-- --- TRUST BADGES ------------------------------------------------------- -->
 <div class="trust-strip">
   <div class="trust-inner">
     <div class="trust-item">
@@ -180,7 +180,7 @@
   </div>
 </div>
 
-<!-- ═══ HOME SECTIONS ══════════════════════════════════════════════════════ -->
+<!-- --- HOME SECTIONS ------------------------------------------------------ -->
 <!-- Page Builder blocks: HOME zone (top) -->
 <div id="pb-zone-home-top" class="pb-zone"></div>
 <!-- Page Builder blocks: BETWEEN sections zone -->
@@ -212,7 +212,7 @@
   <div id="pb-zone-home-bottom" class="pb-zone"></div>
 </div>
 
-<!-- ═══ PRODUCTS SECTION ═══════════════════════════════════════════════════ -->
+<!-- --- PRODUCTS SECTION --------------------------------------------------- -->
 <div class="container" id="productsSection" style="display:none">
   <div class="shop-layout">
     <div class="sidebar-filters">
@@ -263,7 +263,7 @@
   </div>
 </div>
 
-<!-- ═══ CONTACT SECTION ════════════════════════════════════════════════════ -->
+<!-- --- CONTACT SECTION ---------------------------------------------------- -->
 <div id="contactSection" style="background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:48px 24px;margin-top:60px">
   <div style="max-width:1000px;margin:0 auto;text-align:center">
     <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:10px"> Contact Us</h2>
@@ -290,7 +290,7 @@
   </div>
 </div>
 
-<!-- ═══ FOOTER ════════════════════════════════════════════════════════════ -->
+<!-- --- FOOTER ------------------------------------------------------------ -->
 <!-- Page Builder blocks: CUSTOM zone (above footer) -->
 <div id="pb-zone-custom" class="pb-zone"></div>
 <footer>
@@ -302,9 +302,9 @@
       <!-- #16: real social URLs -->
       <div class="social-row">
         <a href="https://www.facebook.com" target="_blank" rel="noopener" title="Facebook">f</a>
-        <a href="https://www.twitter.com" target="_blank" rel="noopener" title="Twitter">𝕏</a>
+        <a href="https://www.twitter.com" target="_blank" rel="noopener" title="Twitter"></a>
         <a href="https://www.linkedin.com" target="_blank" rel="noopener" title="LinkedIn">in</a>
-        <a href="https://www.youtube.com" target="_blank" rel="noopener" title="YouTube">▶</a>
+        <a href="https://www.youtube.com" target="_blank" rel="noopener" title="YouTube"></a>
       </div>
     </div>
 
@@ -373,9 +373,9 @@
 <!-- Page Builder blocks: FOOTER zone -->
 <div id="pb-zone-footer" class="pb-zone"></div>
 
-<!-- ═══ MODALS & DRAWERS ════════════════════════════════════════════════════ -->
+<!-- --- MODALS & DRAWERS ---------------------------------------------------- -->
 
-<!-- ── LOGIN MODAL (#7 forgot form, #8 eye toggles) ──────────────────────── -->
+<!-- -- LOGIN MODAL (#7 forgot form, #8 eye toggles) ------------------------ -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <h2> Welcome Back</h2>
@@ -396,7 +396,7 @@
         <!-- #8: password eye toggle -->
         <div class="pass-wrap">
           <input id="l_pass" type="password" placeholder="Your password">
-          <button class="pass-eye" type="button" onclick="togglePassVis('l_pass',this)" title="Show/hide password">️</button>
+          <button class="pass-eye" type="button" onclick="togglePassVis('l_pass',this)" title="Show/hide password"></button>
         </div>
       </div>
       <div id="loginErr" style="color:var(--rd);font-size:.78rem;margin-bottom:8px;display:none"></div>
@@ -425,7 +425,7 @@
         <!-- #8: password eye toggle on register -->
         <div class="pass-wrap">
           <input id="r_pass" type="password" placeholder="Create password">
-          <button class="pass-eye" type="button" onclick="togglePassVis('r_pass',this)" title="Show/hide password">️</button>
+          <button class="pass-eye" type="button" onclick="togglePassVis('r_pass',this)" title="Show/hide password"></button>
         </div>
       </div>
       <div id="regErr" style="color:var(--rd);font-size:.78rem;margin-bottom:8px;display:none"></div>
@@ -448,7 +448,7 @@
   </div>
 </div>
 
-<!-- ── CONTACT POPUP (#10: sends mailto) ─────────────────────────────────── -->
+<!-- -- CONTACT POPUP (#10: sends mailto) ----------------------------------- -->
 <div class="popup-overlay" id="contactPopup">
   <div class="popup-box">
     <div class="popup-hdr">
@@ -480,7 +480,7 @@
   </div>
 </div>
 
-<!-- ── TERMS OF USE POPUP ─────────────────────────────────────────────────── -->
+<!-- -- TERMS OF USE POPUP --------------------------------------------------- -->
 <div class="popup-overlay" id="termsPopup">
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
@@ -493,7 +493,7 @@
   </div>
 </div>
 
-<!-- ── PRIVACY POLICY POPUP ──────────────────────────────────────────────── -->
+<!-- -- PRIVACY POLICY POPUP ------------------------------------------------ -->
 <div class="popup-overlay" id="privacyPopup">
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
@@ -506,7 +506,7 @@
   </div>
 </div>
 
-<!-- ── RETURNS POPUP (#12) ────────────────────────────────────────────────── -->
+<!-- -- RETURNS POPUP (#12) -------------------------------------------------- -->
 <div class="popup-overlay" id="returnsPopup">
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
@@ -519,7 +519,7 @@
   </div>
 </div>
 
-<!-- ── FAQ POPUP (#19) ────────────────────────────────────────────────────── -->
+<!-- -- FAQ POPUP (#19) ------------------------------------------------------ -->
 <div class="popup-overlay" id="faqPopup">
   <div class="popup-box" style="max-width:640px">
     <div class="popup-hdr">
@@ -532,7 +532,7 @@
   </div>
 </div>
 
-<!-- ── CAREERS POPUP (#17) ────────────────────────────────────────────────── -->
+<!-- -- CAREERS POPUP (#17) -------------------------------------------------- -->
 <div class="popup-overlay" id="careersPopup">
   <div class="popup-box" style="max-width:580px">
     <div class="popup-hdr">
@@ -575,7 +575,7 @@
   </div>
 </div>
 
-<!-- ── ABOUT US POPUP ─────────────────────────────────────────────────────── -->
+<!-- -- ABOUT US POPUP ------------------------------------------------------- -->
 <div class="popup-overlay" id="aboutPopup">
   <div class="popup-box" style="max-width:580px">
     <div class="popup-hdr">
@@ -594,7 +594,7 @@
   </div>
 </div>
 
-<!-- ── TRACK ORDER MODAL (#11) ────────────────────────────────────────────── -->
+<!-- -- TRACK ORDER MODAL (#11) ---------------------------------------------- -->
 <div class="overlay" id="trackOrderModal">
   <div class="modal" style="max-width:440px">
     <div class="modal-hdr">
@@ -614,7 +614,7 @@
   </div>
 </div>
 
-<!-- ── CART DRAWER ────────────────────────────────────────────────────────── -->
+<!-- -- CART DRAWER ---------------------------------------------------------- -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeCart()"></div>
 <div class="drawer" id="cartDrawer">
   <div class="drawer-hdr">
@@ -630,7 +630,7 @@
   </div>
 </div>
 
-<!-- ── WISHLIST MODAL ─────────────────────────────────────────────────────── -->
+<!-- -- WISHLIST MODAL ------------------------------------------------------- -->
 <div class="overlay" id="wishModal">
   <div class="modal modal-lg">
     <div class="modal-hdr"><h3> Wishlist</h3><button class="modal-close" onclick="closeOverlay('wishModal')"></button></div>
@@ -638,7 +638,7 @@
   </div>
 </div>
 
-<!-- ── PRODUCT DETAIL MODAL ───────────────────────────────────────────────── -->
+<!-- -- PRODUCT DETAIL MODAL ------------------------------------------------- -->
 <div class="overlay" id="productModal">
   <div class="modal modal-xl">
     <div class="modal-hdr"><h3 id="pmTitle">Product</h3><button class="modal-close" onclick="closeOverlay('productModal')"></button></div>
@@ -646,7 +646,7 @@
   </div>
 </div>
 
-<!-- ── CHECKOUT MODAL ──────────────────────────────────────────────────────── -->
+<!-- -- CHECKOUT MODAL -------------------------------------------------------- -->
 <div class="overlay" id="checkoutModal">
   <div class="modal modal-lg">
     <div class="modal-hdr"><h3> Checkout</h3><button class="modal-close" onclick="closeOverlay('checkoutModal')"></button></div>
@@ -718,7 +718,7 @@
   </div>
 </div>
 
-<!-- ── ORDERS MODAL ───────────────────────────────────────────────────────── -->
+<!-- -- ORDERS MODAL --------------------------------------------------------- -->
 <div class="overlay" id="ordersModal">
   <div class="modal modal-lg">
     <div class="modal-hdr"><h3> My Orders</h3><button class="modal-close" onclick="closeOverlay('ordersModal')"></button></div>
@@ -726,15 +726,28 @@
   </div>
 </div>
 
-<!-- ── LIGHTBOX ──────────────────────────────────────────────────────────── -->
+<!-- -- LIGHTBOX ------------------------------------------------------------ -->
 <div id="lightbox" style="position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:none;align-items:center;justify-content:center" onclick="document.getElementById('lightbox').style.display='none'">
   <img id="lightboxImg" src="" style="max-width:92vw;max-height:92vh;object-fit:contain;border-radius:8px">
   <button onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute;top:18px;right:18px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:1.3rem;cursor:pointer"></button>
 </div>
 
-<!-- ── TOAST ─────────────────────────────────────────────────────────────── -->
+<!-- -- TOAST --------------------------------------------------------------- -->
 <div class="toast-wrap" id="toastWrap"></div>
 
-<script src="app.js?v=fix4"></script>
+<script src="app.js?v=fix5"></script>
+<script>
+// Test: 2 seconds after load, force products to show
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    try {
+      if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
+        document.getElementById('homeSections').style.display = 'block';
+        if (typeof renderHomeGrids === 'function') renderHomeGrids();
+      }
+    } catch(e) {}
+  }, 3000);
+});
+</script>
 </body>
 </html>

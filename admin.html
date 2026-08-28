@@ -52,7 +52,7 @@ if(window.location.protocol==='file:'){
 .data-table tr:last-child td{border:none}
 .data-table tr:hover td{background:#fafafa}
 .tab{display:none}.tab.active{display:block}
-/* ── MODALS ──────────────────────────────────────────────────────────────── */
+/* -- MODALS ---------------------------------------------------------------- */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);display:flex;flex-direction:column}
@@ -61,16 +61,16 @@ if(window.location.protocol==='file:'){
 .modal-hdr h3{font-size:1.05rem;font-weight:700}
 .modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--m);line-height:1;padding:0}
 .modal-body{padding:20px 24px;overflow-y:auto}
-/* ── FORMS ───────────────────────────────────────────────────────────────── */
+/* -- FORMS ----------------------------------------------------------------- */
 .form-group{margin-bottom:14px}
 .form-group label{display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px}
 .form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;font-family:inherit;transition:border-color .2s;box-sizing:border-box}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--p)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-/* ── TOAST ───────────────────────────────────────────────────────────────── */
+/* -- TOAST ----------------------------------------------------------------- */
 #toast{position:fixed;bottom:28px;right:24px;background:#1e293b;color:#fff;padding:12px 22px;border-radius:10px;font-size:.85rem;font-weight:600;z-index:9999;opacity:0;transform:translateY(16px);transition:all .3s;pointer-events:none;max-width:340px}
 #toast.show{opacity:1;transform:none}
-/* ── PAGE BUILDER BLOCK CARDS ────────────────────────────────────────────── */
+/* -- PAGE BUILDER BLOCK CARDS ---------------------------------------------- */
 .pb-block-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,opacity .2s;margin-bottom:2px}
 .pb-block-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
 .pb-drag-grip{background:#f1f5f9;border-bottom:1px solid #e2e8f0;padding:6px 14px;display:flex;align-items:center;gap:8px;cursor:grab;user-select:none;font-size:.72rem;color:#64748b;font-weight:600}
@@ -108,12 +108,12 @@ if(window.location.protocol==='file:'){
     <div class="sb-item" onclick="showTab('orders',this)"> Orders</div>
     <div class="sb-item" onclick="showTab('reviews',this)">&#9733; Reviews</div>
     <div class="sb-item" onclick="showTab('banners',this)"> Banners</div>
-    <div class="sb-item" onclick="showTab('categories',this)">️ Categories</div>
-    <div class="sb-item" onclick="showTab('settings',this)">️ Store Settings</div>
+    <div class="sb-item" onclick="showTab('categories',this)"> Categories</div>
+    <div class="sb-item" onclick="showTab('settings',this)"> Store Settings</div>
     <div class="sb-item" onclick="showTab('pagebuilder',this)"> Page Builder</div>
     <div class="sb-item" onclick="showTab('inventory',this)"> Inventory</div>
     <div class="sb-item" onclick="showTab('discounts',this)"> Discounts</div>
-    <div class="sb-item" onclick="showTab('customcols',this)">️ Custom Columns</div>
+    <div class="sb-item" onclick="showTab('customcols',this)"> Custom Columns</div>
     <div class="sb-item" onclick="showTab('import',this)"> Supplier Import</div>
     <div class="sb-item" onclick="showTab('extension',this)"> Push Extension</div>
     <div class="sb-item" onclick="showTab('analytics',this)"> Analytics</div>
@@ -381,7 +381,7 @@ if(window.location.protocol==='file:'){
           </div>
 
         </div>
-        <button class="btn btn-sec btn-sm" onclick="previewColors()" style="margin-top:8px">️ Preview Colors</button>
+        <button class="btn btn-sec btn-sm" onclick="previewColors()" style="margin-top:8px"> Preview Colors</button>
 
         <!-- BANNER SIZE CONTROLS &mdash; multi-unit -->
         <hr style="margin:18px 0;border-color:var(--b)">
@@ -414,7 +414,7 @@ if(window.location.protocol==='file:'){
               <select id="st_bannerFit" style="width:100%;padding:10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
                 <option value="contain"> Fit Full Image &mdash; No Crop (recommended)</option>
                 <option value="cover"> Fill & Zoom &mdash; Crops edges</option>
-                <option value="fill">↔️ Stretch &mdash; May distort</option>
+                <option value="fill"> Stretch &mdash; May distort</option>
               </select>
             </div>
             <div class="form-group" style="margin:0">
@@ -464,7 +464,7 @@ if(window.location.protocol==='file:'){
             </div>
           </div>
         </div>
-        <button class="btn btn-sec btn-sm" onclick="previewBannerSize()" style="margin-top:8px">️ Preview Banner Size</button>
+        <button class="btn btn-sec btn-sm" onclick="previewBannerSize()" style="margin-top:8px"> Preview Banner Size</button>
         <hr style="margin:16px 0;border-color:var(--b)">
         <div class="form-group"><label>Announcement Bar Text</label><input id="st_ann" placeholder="e.g. Free shipping on orders above &#8377;999"></div>
         <div class="form-row">
@@ -506,7 +506,7 @@ if(window.location.protocol==='file:'){
         </div>
         <hr style="margin:20px 0;border-color:var(--b)">
 
-        <!-- ═══ VISUAL CUSTOMIZER ═══ -->
+        <!-- --- VISUAL CUSTOMIZER --- -->
         <h4 style="font-size:.95rem;font-weight:700;margin-bottom:14px"> Visual Customizer</h4>
         <div id="vc_unsaved" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;color:#856404;margin-bottom:12px">! Unsaved changes &mdash; click Save All Settings to apply</div>
 
@@ -520,7 +520,7 @@ if(window.location.protocol==='file:'){
                 <select id="vc_globalFont" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.85rem;outline:none" onchange="vcPreviewGlobal()"></select>
                 <div id="vc_globalFontPrev" style="margin-top:6px;font-size:.9rem;color:#64748b;min-height:22px">The quick brown fox jumps</div>
               </div>
-              <button onclick="vcApplyFontToAll()" style="padding:9px 16px;background:var(--sec,#1e293b);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;flex-shrink:0">Apply to All ↓</button>
+              <button onclick="vcApplyFontToAll()" style="padding:9px 16px;background:var(--sec,#1e293b);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;flex-shrink:0">Apply to All </button>
             </div>
             <div id="vc_sectionRows" style="display:grid;gap:10px"></div>
           </div>
@@ -574,13 +574,13 @@ if(window.location.protocol==='file:'){
             <label>New Admin Password</label>
             <div style="position:relative;display:flex;align-items:center">
               <input id="st_adminpass" type="password" placeholder="Leave blank to keep current password" style="width:100%;padding:10px 40px 10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
-              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'️':''" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem">️</button>
+              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'':''" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem"></button>
             </div>
           </div>
         </div>
 
         <hr style="margin:16px 0;border-color:var(--b)">
-        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px">️ Cloudinary Image Storage <small style="font-weight:400;color:var(--m)">(recommended &mdash; images survive redeployments)</small></h4>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:6px"> Cloudinary Image Storage <small style="font-weight:400;color:var(--m)">(recommended &mdash; images survive redeployments)</small></h4>
         <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Without Cloudinary, uploaded images are lost on every Render redeploy. Sign up free at <a href="https://cloudinary.com" target="_blank" style="color:var(--p)">cloudinary.com</a> -> Dashboard -> copy your Cloud Name -> Settings -> Upload -> Add upload preset (set to Unsigned).</p>
         <div class="form-row">
           <div class="form-group">
@@ -603,7 +603,7 @@ if(window.location.protocol==='file:'){
             <label>Push Token <small style="color:var(--m);font-weight:400">(any secret word/phrase you choose)</small></label>
             <div style="position:relative;display:flex;align-items:center">
               <input id="st_pushtoken" type="password" placeholder="e.g. mysecret123" style="width:100%;padding:10px 40px 10px 13px;border:1.5px solid var(--b);border-radius:8px;font-size:.88rem;outline:none">
-              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'️':''" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem">️</button>
+              <button type="button" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'':''" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:1rem"></button>
             </div>
           </div>
           <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end">
@@ -631,10 +631,10 @@ if(window.location.protocol==='file:'){
     <!-- Filter by page -->
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button class="pb-page-btn active" onclick="pbFilterPage('all',this)">All</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('top',this)">⬆️ Top</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('top',this)"> Top</button>
       <button class="pb-page-btn" onclick="pbFilterPage('home',this)"> Home</button>
       <button class="pb-page-btn" onclick="pbFilterPage('header',this)"> Header</button>
-      <button class="pb-page-btn" onclick="pbFilterPage('between',this)">↕️ Between</button>
+      <button class="pb-page-btn" onclick="pbFilterPage('between',this)"> Between</button>
       <button class="pb-page-btn" onclick="pbFilterPage('products',this)"> Products</button>
       <button class="pb-page-btn" onclick="pbFilterPage('footer',this)"> Footer</button>
       <button class="pb-page-btn" onclick="pbFilterPage('floating',this)"> Floating</button>
@@ -671,10 +671,10 @@ if(window.location.protocol==='file:'){
           <select id="pb_page" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
             <option value="home"> Home Page</option>
             <option value="header"> Header Area</option>
-            <option value="top">⬆️ Top of Page (above header)</option>
+            <option value="top"> Top of Page (above header)</option>
             <option value="footer"> Footer Area</option>
             <option value="products"> Products Section</option>
-            <option value="between">↕️ Between Sections</option>
+            <option value="between"> Between Sections</option>
             <option value="floating"> Floating / Popup Ad</option>
             <option value="sidebar"> Sidebar</option>
             <option value="custom"> Custom Section</option>
@@ -689,15 +689,15 @@ if(window.location.protocol==='file:'){
             <option value="image-link"> Image + Link (Ad Banner)</option>
             <option value="mixed"> Mixed &mdash; Image + Text + Video</option>
             <option value="gallery"> Gallery (Multiple Images)</option>
-            <option value="columns">⬛⬛ Side-by-Side Columns</option>
+            <option value="columns"> Side-by-Side Columns</option>
             <option value="video"> Video</option>
             <option value="audio"> Audio</option>
             <option value="button"> Button / Link</option>
             <option value="marquee"> Scrolling Marquee Text</option>
-            <option value="countdown">⏳ Countdown Timer</option>
+            <option value="countdown"> Countdown Timer</option>
             <option value="notice"> Notice / Alert Box</option>
             <option value="divider"> Divider</option>
-            <option value="spacer">⬜ Spacer</option>
+            <option value="spacer"> Spacer</option>
             <option value="html"> Custom HTML</option>
           </select>
         </div>
@@ -716,7 +716,7 @@ if(window.location.protocol==='file:'){
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-bottom:4px">
         <div class="form-row" style="margin-bottom:8px">
           <div class="form-group" style="margin:0">
-            <label>️ Click Action <small style="color:var(--m);font-weight:400">(what happens when customer clicks)</small></label>
+            <label> Click Action <small style="color:var(--m);font-weight:400">(what happens when customer clicks)</small></label>
             <select id="pb_clickAction" onchange="pbToggleClickFields()" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
               <option value="">None (just zoom/lightbox)</option>
               <option value="product"> Open Product Cart (Add to Cart popup)</option>
@@ -796,8 +796,8 @@ if(window.location.protocol==='file:'){
                 <option value="contain"> Show Full &mdash; No Crop (default)</option>
                 <option value="cover"> Zoom/Fill &mdash; May Crop</option>
                 <option value="scale-down"> Shrink to Fit</option>
-                <option value="scale-down">⬇️ Shrink Fit</option>
-                <option value="fill">↔️ Stretch Fill</option>
+                <option value="scale-down"> Shrink Fit</option>
+                <option value="fill"> Stretch Fill</option>
               </select>
             </div>
             <div class="form-group" style="margin:0"><label>Padding</label><input id="pb_padding" placeholder="10px 20px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
@@ -856,7 +856,7 @@ if(window.location.protocol==='file:'){
 
       <!-- Live Preview -->
       <details style="margin-top:10px;background:#1e293b;border-radius:8px;overflow:hidden">
-        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none;color:#fff">️ Live Preview</summary>
+        <summary style="padding:10px 14px;font-size:.82rem;font-weight:700;cursor:pointer;list-style:none;color:#fff"> Live Preview</summary>
         <div style="padding:14px;border-top:1px solid rgba(255,255,255,.1)">
           <button onclick="pbPreview()" style="padding:7px 16px;background:#f97316;color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:10px"> Refresh Preview</button>
           <div id="pb_preview" style="background:#fff;border-radius:8px;padding:16px;min-height:60px"></div>
@@ -966,7 +966,7 @@ if(window.location.protocol==='file:'){
           <label>Display Mode</label>
           <select id="bn_mode" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
             <option value="slider"> Slider (full width, one at a time)</option>
-            <option value="grid">⬛⬛ Grid (side by side)</option>
+            <option value="grid"> Grid (side by side)</option>
           </select>
         </div>
         <div class="form-group" style="margin:0">
@@ -989,7 +989,7 @@ if(window.location.protocol==='file:'){
           <select id="bn_fit" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
             <option value="contain"> Fit &mdash; No Crop</option>
             <option value="cover"> Fill &mdash; May Crop</option>
-            <option value="fill">↔️ Stretch</option>
+            <option value="fill"> Stretch</option>
           </select>
         </div>
         <div class="form-group" style="margin:0">
@@ -1022,9 +1022,9 @@ if(window.location.protocol==='file:'){
         <select id="bn_anim" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
           <option value="">None</option>
           <option value="fade-in"> Fade In</option>
-          <option value="slide-up">⬆️ Slide Up</option>
-          <option value="slide-left">◀️ Slide from Left</option>
-          <option value="slide-right">▶️ Slide from Right</option>
+          <option value="slide-up"> Slide Up</option>
+          <option value="slide-left"> Slide from Left</option>
+          <option value="slide-right"> Slide from Right</option>
           <option value="zoom-in"> Zoom In</option>
           <option value="pulse"> Pulse</option>
           <option value="bounce"> Bounce</option>
@@ -1228,7 +1228,7 @@ if(window.location.protocol==='file:'){
   <div class="sec">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
       <div>
-        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">️ Custom Columns</h3>
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px"> Custom Columns</h3>
         <p style="font-size:.8rem;color:var(--m)">Add extra data fields (SKU, Supplier, Location, HSN Code, etc.) that appear as columns in Inventory and Products tables. Data is saved per product.</p>
       </div>
       <button onclick="ccOpenAdd()" style="padding:9px 18px;background:var(--p,#f97316);color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer"> Add New Column</button>
@@ -1318,7 +1318,7 @@ if(window.location.protocol==='file:'){
           <div style="font-size:.75rem;color:var(--m)">Load the extension folder into Chrome in Developer mode</div>
         </div>
         <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center">
-          <div style="font-size:2rem;margin-bottom:8px">️</div>
+          <div style="font-size:2rem;margin-bottom:8px"></div>
           <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">2. Configure Once</div>
           <div style="font-size:.75rem;color:var(--m)">Enter your store URL and push token in the extension popup</div>
         </div>
@@ -1343,7 +1343,7 @@ if(window.location.protocol==='file:'){
       </div>
       <p style="font-size:.78rem;color:var(--m);margin-bottom:12px">Go to <strong>Store Settings -> Chrome Extension section</strong> -> set a Push Token (any secret word). This prevents unauthorized pushes to your store.</p>
       <button onclick="showTab('settings', document.querySelector('.sb-item[onclick*=settings]'))" style="padding:9px 18px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer">
-        ️ Go to Settings -> Set Push Token
+         Go to Settings -> Set Push Token
       </button>
     </div>
 
@@ -1375,7 +1375,7 @@ if(window.location.protocol==='file:'){
       </div>
       <ol style="font-size:.82rem;color:#475569;line-height:2;padding-left:20px">
         <li>Click the <strong>"Push to ShopHere.in"</strong> extension icon in Chrome toolbar</li>
-        <li>Click the <strong>️ Settings</strong> icon in the popup</li>
+        <li>Click the <strong> Settings</strong> icon in the popup</li>
         <li>Enter your <strong>Store URL:</strong> <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px">https://shophere.in</code></li>
         <li>Enter your <strong>Push Token</strong> (same one you set in Step 1)</li>
         <li>Click <strong>Save &amp; Connect</strong> &mdash; it will test the connection</li>
@@ -1542,7 +1542,7 @@ if(window.location.protocol==='file:'){
       </div>
       <div id="imp_mapperGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px"></div>
       <button onclick="impApplyMapping()" style="padding:10px 24px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:.86rem;font-weight:700;cursor:pointer">
-        ️ Preview Products ->
+         Preview Products ->
       </button>
     </div>
 
@@ -1591,7 +1591,7 @@ if(window.location.protocol==='file:'){
 
     <!-- Progress / Result -->
     <div id="imp_progressSection" style="display:none;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
-      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px">⏳ Importing...</h4>
+      <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px"> Importing...</h4>
       <div style="background:#f1f5f9;border-radius:8px;height:18px;overflow:hidden;margin-bottom:10px">
         <div id="imp_progressBar" style="height:100%;background:#22c55e;width:0%;transition:width .3s;border-radius:8px"></div>
       </div>
@@ -1648,7 +1648,7 @@ if(window.location.protocol==='file:'){
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-// ── Toast ─────────────────────────────────────────────────────────────────────
+// -- Toast ---------------------------------------------------------------------
 function toast(msg) {
   const w = document.getElementById('toastWrap');
   const el = document.createElement('div');
@@ -1659,7 +1659,7 @@ function toast(msg) {
   setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3500);
 }
 
-// ── Tab switching ─────────────────────────────────────────────────────────────
+// -- Tab switching -------------------------------------------------------------
 function showTab(name, el) {
 
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1694,7 +1694,7 @@ function showTab(name, el) {
   if (name === 'analytics')   loadAnalytics();
 }
 
-// ── Global categories store ───────────────────────────────────────────────────
+// -- Global categories store ---------------------------------------------------
 window.allCats = [];
 
 async function loadAllCats() {
@@ -1722,7 +1722,7 @@ function populateCatDropdown(selectId, includeAll) {
 </script>
 
 <script>
-// ── Custom Columns stubs &mdash; real implementations loaded later in this file ─────
+// -- Custom Columns stubs &mdash; real implementations loaded later in this file -----
 // These ensure renderProdTable and renderInventory never crash with "not defined"
 // even though the full CC code lives in a later <script> block.
 var allCustomCols = [];
@@ -1762,7 +1762,7 @@ async function repairImages() {
   if (!confirm('This will scan all products and re-upload broken/supplier images to Cloudinary.\n\nThis may take 1-5 minutes depending on number of products.\n\nContinue?')) return;
 
   const btn = document.querySelector('button[onclick="repairImages()"]');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Repairing...'; }
+  if (btn) { btn.disabled = true; btn.textContent = ' Repairing...'; }
   toast('Repairing images... this may take a few minutes');
 
   try {
@@ -1905,7 +1905,7 @@ async function testCloudinary() {
 </script>
 
 <script>
-// ── Stats / Dashboard ─────────────────────────────────────────────────────────
+// -- Stats / Dashboard ---------------------------------------------------------
 async function loadStats() {
   try {
     const res = await fetch('/api/stats');
@@ -1937,7 +1937,7 @@ async function loadStats() {
   }
 }
 
-// ── Products ──────────────────────────────────────────────────────────────────
+// -- Products ------------------------------------------------------------------
 let allProds = [];
 
 async function loadProducts() {
@@ -2058,7 +2058,7 @@ async function deleteProduct(id) {
 </script>
 
 <script>
-// ── Media previews ────────────────────────────────────────────────────────────
+// -- Media previews ------------------------------------------------------------
 function previewImages(input, previewId) {
   const prev = document.getElementById(previewId);
   prev.innerHTML = '';
@@ -2085,7 +2085,7 @@ function previewAudios(input, previewId) {
     .map(f => `<div> ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)</div>`).join('');
 }
 
-// ── Add Product ───────────────────────────────────────────────────────────────
+// -- Add Product ---------------------------------------------------------------
 async function addProduct() {
   const name = document.getElementById('ap_name').value.trim();
   if (!name) { toast('x Product name is required'); return; }
@@ -2133,7 +2133,7 @@ async function addProduct() {
 </script>
 
 <script>
-// ── Edit Product Modal ────────────────────────────────────────────────────────
+// -- Edit Product Modal --------------------------------------------------------
 async function openEdit(id) {
   const p = allProds.find(x => x.id === id);
   if (!p) { toast('Product not found'); return; }
@@ -2154,7 +2154,7 @@ async function openEdit(id) {
   const allCols = window.allCustomCols || [];
   const customFieldsHtml = allCols.length ? `
     <hr style="margin:14px 0;border-color:var(--b)">
-    <h4 style="font-size:.85rem;font-weight:700;margin-bottom:10px;color:#475569">️ Custom Fields</h4>
+    <h4 style="font-size:.85rem;font-weight:700;margin-bottom:10px;color:#475569"> Custom Fields</h4>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${allCols.map(col => {
         const val = cf[col.key] !== undefined ? cf[col.key] : '';
@@ -2259,7 +2259,7 @@ async function saveEdit(id) {
 </script>
 
 <script>
-// ── Orders ────────────────────────────────────────────────────────────────────
+// -- Orders --------------------------------------------------------------------
 let allOrders = [];
 
 async function loadOrders() {
@@ -2341,7 +2341,7 @@ async function deleteOrder(id) {
   }
 }
 
-// ── Edit Order ────────────────────────────────────────────────────────────────
+// -- Edit Order ----------------------------------------------------------------
 let eoEditId = null;
 let eoItemCount = 0;
 
@@ -2480,7 +2480,7 @@ async function saveEditOrder() {
   }
 }
 
-// ── Manual Order ──────────────────────────────────────────────────────────────
+// -- Manual Order --------------------------------------------------------------
 let moItemCount = 0;
 
 function openAddOrderModal() {
@@ -2607,7 +2607,7 @@ async function saveManualOrder() {
   }
 }
 
-// ── Reviews ───────────────────────────────────────────────────────────────────
+// -- Reviews -------------------------------------------------------------------
 async function loadReviews() {
   try {
     const res = await fetch('/api/products?limit=500');
@@ -2637,7 +2637,7 @@ async function loadReviews() {
 </script>
 
 <script>
-// ── Banners ───────────────────────────────────────────────────────────────────
+// -- Banners -------------------------------------------------------------------
 let allBanners = [];
 let bnEditId = null;
 
@@ -2646,11 +2646,11 @@ async function loadBanners() {
     const res = await fetch('/api/banners');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     allBanners = await res.json();
-    const animLabels = {'':'None','fade-in':' Fade In','slide-up':'⬆️ Slide Up','slide-left':'◀️ Slide Left','slide-right':'▶️ Slide Right','zoom-in':' Zoom In','pulse':' Pulse','bounce':' Bounce'};
+    const animLabels = {'':'None','fade-in':' Fade In','slide-up':' Slide Up','slide-left':' Slide Left','slide-right':' Slide Right','zoom-in':' Zoom In','pulse':' Pulse','bounce':' Bounce'};
     document.getElementById('bannerList').innerHTML = allBanners.length
       ? allBanners.map(b => {
           const img = b.bgImage ? `<img src="${b.bgImage}" style="width:100%;height:90px;object-fit:${b.objectFit||'contain'};border-radius:6px;display:block" alt="">` : `<div style="height:90px;background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'};border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">${b.headline||''}</div>`;
-          const modeLabel = b.displayMode==='grid' ? `⬛⬛ Grid ${b.widthPct||100}%` : ' Slider';
+          const modeLabel = b.displayMode==='grid' ? ` Grid ${b.widthPct||100}%` : ' Slider';
           return `<div style="background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden;display:flex;gap:0">
             <div style="width:160px;flex-shrink:0;padding:8px;border-right:1px solid var(--b)">${img}</div>
             <div style="flex:1;padding:12px 16px">
@@ -2744,7 +2744,7 @@ async function saveBannerModal() {
     let res;
 
     if (bnEditId) {
-      // ── EDIT: send as JSON, preserve existing bgImage unless new one provided ──
+      // -- EDIT: send as JSON, preserve existing bgImage unless new one provided --
       const existing = allBanners.find(x => x.id === bnEditId) || {};
       const obj = {
         headline:     head,
@@ -2783,7 +2783,7 @@ async function saveBannerModal() {
       });
 
     } else {
-      // ── ADD: send as FormData with file upload ──
+      // -- ADD: send as FormData with file upload --
       const fd = new FormData();
       if (imgFile) fd.append('bgImage', imgFile);
       if (imgUrl && !imgFile) fd.append('bgImageUrl', imgUrl);
@@ -2833,7 +2833,7 @@ async function toggleBanner(id, active) {
 </script>
 
 <script>
-// ── Categories ────────────────────────────────────────────────────────────────
+// -- Categories ----------------------------------------------------------------
 async function loadCategories() {
   try {
     const [catsRes, prodsRes] = await Promise.all([
@@ -2918,7 +2918,7 @@ async function deleteCategory(idx, name) {
 </script>
 
 <script>
-// ── Settings ──────────────────────────────────────────────────────────────────
+// -- Settings ------------------------------------------------------------------
 async function loadSettings() {
   try {
     const res = await fetch('/api/settings');
@@ -3063,7 +3063,7 @@ async function saveSettings() {
   }
 }
 
-// ── Page Builder ──────────────────────────────────────────────────────────────
+// -- Page Builder --------------------------------------------------------------
 let pbBlocks = [];
 let pbEditId = null;
 let pbCurrentPage = 'all';
@@ -3085,7 +3085,7 @@ function pbRender() {
     return;
   }
   list.innerHTML = filtered.map(b => {
-    const icons = {text:'',heading:'',image:'','image-link':'',gallery:'',columns:'⬛⬛',video:'',audio:'',button:'',marquee:'',countdown:'⏳',notice:'',divider:'',spacer:'⬜',html:''};
+    const icons = {text:'',heading:'',image:'','image-link':'',gallery:'',columns:'',video:'',audio:'',button:'',marquee:'',countdown:'',notice:'',divider:'',spacer:'',html:''};
     const preview = (b.type === 'image' || b.type === 'image-link') && b.content
       ? `<img src="${b.content}" style="width:100%;height:100%;object-fit:cover">`
       : b.type === 'gallery' && b.content
@@ -3093,7 +3093,7 @@ function pbRender() {
         : (icons[b.type]||'');
     const bid = String(b._id||b.id);
     return `<div class="pb-block-card" data-id="${bid}">
-      <div class="pb-drag-grip pb-drag-handle"><span>⠿⠿⠿</span> Drag to reorder &nbsp;&middot;&nbsp; ${b.title || 'Untitled Block'} <span style="margin-left:auto;font-size:.68rem;color:#cbd5e1">${b.type} | ${b.page}</span></div>
+      <div class="pb-drag-grip pb-drag-handle"><span></span> Drag to reorder &nbsp;&middot;&nbsp; ${b.title || 'Untitled Block'} <span style="margin-left:auto;font-size:.68rem;color:#cbd5e1">${b.type} | ${b.page}</span></div>
       <div class="pb-block-body">
         <div class="pb-block-preview">${preview}</div>
         <div class="pb-block-info">
@@ -3105,8 +3105,8 @@ function pbRender() {
         <div class="pb-block-actions">
           <button onclick="pbOpenEdit('${bid}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"> Edit</button>
           <button onclick="pbDelete('${bid}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"> Delete</button>
-          <button onclick="pbMoveUp('${bid}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬆</button>
-          <button onclick="pbMoveDown('${bid}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬇</button>
+          <button onclick="pbMoveUp('${bid}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer"></button>
+          <button onclick="pbMoveDown('${bid}')" style="padding:4px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer"></button>
         </div>
       </div>
     </div>`;
@@ -3159,7 +3159,7 @@ function pbTypeChanged() {
     <div class="form-group"><label>Message after countdown ends</label><input id="pb_link" placeholder="Sale ended!" value="${fields._link||''}"></div>`;
   } else if (type === 'notice') {
     fields.innerHTML = `<div class="form-group"><label>Notice Text</label><textarea id="pb_content" style="min-height:80px;font-size:.84rem" placeholder="Important notice for your customers...">${fields._val||''}</textarea></div>
-    <div class="form-group"><label>Notice Style</label><select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="info">ℹ️ Info (Blue)</option><option value="success"> Success (Green)</option><option value="warning">! Warning (Orange)</option><option value="error">x Alert (Red)</option><option value="promo"> Promo (Purple)</option></select></div>
+    <div class="form-group"><label>Notice Style</label><select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none"><option value="info"> Info (Blue)</option><option value="success"> Success (Green)</option><option value="warning">! Warning (Orange)</option><option value="error">x Alert (Red)</option><option value="promo"> Promo (Purple)</option></select></div>
     <div class="form-group"><label>Icon / Emoji (optional)</label><input id="pb_link" placeholder=" or " value="${fields._link||''}"></div>`;
   } else if (type === 'gallery') {
     fields.innerHTML = `
@@ -3178,8 +3178,8 @@ function pbTypeChanged() {
         <label>Layout</label>
         <select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
           <option value="row">-> Row (side by side)</option>
-          <option value="grid2">⬛⬛ 2 per row</option>
-          <option value="grid3">⬛⬛⬛ 3 per row</option>
+          <option value="grid2"> 2 per row</option>
+          <option value="grid3"> 3 per row</option>
           <option value="grid4">4 per row</option>
         </select>
       </div>
@@ -3232,8 +3232,8 @@ function pbTypeChanged() {
     <div class="form-group"><label> Layout</label>
       <select id="pb_alt" style="width:100%;padding:9px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none">
         <option value="img-top"> Image on Top, Text Below</option>
-        <option value="img-left">◀️ Image Left, Text Right</option>
-        <option value="img-right">▶️ Image Right, Text Left</option>
+        <option value="img-left"> Image Left, Text Right</option>
+        <option value="img-right"> Image Right, Text Left</option>
         <option value="text-top"> Text on Top, Image Below</option>
         <option value="video-top"> Video on Top, Text Below</option>
       </select>
@@ -3554,7 +3554,7 @@ function pbPreview() {
   } else if (type === 'button') {
     html = `<a href="${link||'#'}" style="display:inline-block;padding:${gv('pb_padding')||'10px 24px'};background:${gv('pb_bgColor')||'#f97316'};color:${gv('pb_textColor')||'#fff'};border-radius:${gv('pb_radius')||'8px'};font-weight:700;text-decoration:none;font-size:${gv('pb_fontSize')||'16'}px${animClass?';animation:'+anim+' 1s infinite':''}">${content||'Button'}</a>`;
   } else if (type === 'marquee') {
-    html = `<div style="overflow:hidden;white-space:nowrap;${style}"><span style="display:inline-block;animation:pb-marquee 12s linear infinite">${(content||'').split('|').join(' &nbsp;&nbsp;•&nbsp;&nbsp; ')}</span></div>`;
+    html = `<div style="overflow:hidden;white-space:nowrap;${style}"><span style="display:inline-block;animation:pb-marquee 12s linear infinite">${(content||'').split('|').join(' &nbsp;&nbsp;&nbsp;&nbsp; ')}</span></div>`;
   } else if (type === 'countdown') {
     html = `<div style="${style};text-align:center"><div style="font-size:.9rem;font-weight:600;margin-bottom:6px">${alt||'Sale ends in:'}</div><div style="display:flex;gap:10px;justify-content:center"><span style="background:#1e293b;color:#fff;padding:8px 14px;border-radius:8px;font-size:1.4rem;font-weight:800">00</span><span style="font-size:1.4rem;font-weight:800;line-height:2.2">:</span><span style="background:#1e293b;color:#fff;padding:8px 14px;border-radius:8px;font-size:1.4rem;font-weight:800">00</span><span style="font-size:1.4rem;font-weight:800;line-height:2.2">:</span><span style="background:#1e293b;color:#fff;padding:8px 14px;border-radius:8px;font-size:1.4rem;font-weight:800">00</span></div><small style="color:var(--m)">HH : MM : SS</small></div>`;
   } else if (type === 'notice') {
@@ -3592,7 +3592,7 @@ async function pbToggleVisible(id, visible) {
   } catch(e) {}
 }
 
-// ── pbColumnsUpdate &mdash; show/hide column textareas based on selection ──────────
+// -- pbColumnsUpdate &mdash; show/hide column textareas based on selection ----------
 function pbColumnsUpdate(val) {
   const n = parseInt(val) || 2;
   const c3 = document.getElementById('col3wrap');
@@ -3601,7 +3601,7 @@ function pbColumnsUpdate(val) {
   if (c4) c4.style.display = n >= 4 ? 'block' : 'none';
 }
 
-// ── Gallery image upload preview ─────────────────────────────────────────────
+// -- Gallery image upload preview ---------------------------------------------
 window._pbGalleryUrls = [];
 
 async function pbGalleryPreview(input) {
@@ -3611,7 +3611,7 @@ async function pbGalleryPreview(input) {
   if (!preview) return;
 
   // Show uploading state
-  preview.innerHTML = '<span style="font-size:.78rem;color:#94a3b8">⏳ Uploading ' + files.length + ' images...</span>';
+  preview.innerHTML = '<span style="font-size:.78rem;color:#94a3b8"> Uploading ' + files.length + ' images...</span>';
 
   const uploaded = [];
   for (const file of files) {
@@ -3643,7 +3643,7 @@ async function pbGalleryPreview(input) {
   toast(' ' + uploaded.length + ' images uploaded');
 }
 
-// ── Drag-to-reorder blocks ────────────────────────────────────────────────────
+// -- Drag-to-reorder blocks ----------------------------------------------------
 let pbDragId = null;
 
 function pbRenderWithDrag() {
@@ -3736,7 +3736,7 @@ async function pbSaveOrder() {
 
 async function pbUploadMixedImg(input) {
   const file = input.files[0]; if (!file) return;
-  toast('⏳ Uploading image...');
+  toast(' Uploading image...');
   const fd = new FormData(); fd.append('image', file);
   try {
     const r = await fetch('/api/pageblocks/upload', { method:'POST', body: fd });
@@ -3747,7 +3747,7 @@ async function pbUploadMixedImg(input) {
 
 async function pbUploadImg(input) {
   const file = input.files[0]; if (!file) return;
-  toast('⏳ Uploading image...');
+  toast(' Uploading image...');
   const fd = new FormData();
   fd.append('image', file);
   try {
@@ -3762,13 +3762,13 @@ async function pbUploadImg(input) {
   } catch(e) { toast('x Upload failed: ' + e.message); }
 }
 async function pbUploadVideo(input) {
-  toast('ℹ️ For video, upload via Products then copy the /uploads/... URL here');
+  toast(' For video, upload via Products then copy the /uploads/... URL here');
 }
 async function pbUploadAudio(input) {
-  toast('ℹ️ For audio, upload via Products then copy the /uploads/... URL here');
+  toast(' For audio, upload via Products then copy the /uploads/... URL here');
 }
 
-// ── Visual Customizer ────────────────────────────────────────────────────────
+// -- Visual Customizer --------------------------------------------------------
 const VC_FONTS = ['Inter','Roboto','Open Sans','Lato','Poppins','Montserrat','Raleway','Nunito','Merriweather','Playfair Display'];
 const VC_SECTIONS = [
   { key:'heading',      label:'Headings (H1&ndash;H6)',         css:'h1,h2,h3,h4,h5,h6' },
@@ -3934,7 +3934,7 @@ function vcLoadFromSettings(s) {
   });
 }
 
-// ── Image Manager ─────────────────────────────────────────────────────────────
+// -- Image Manager -------------------------------------------------------------
 let imgMgrProductId = null;
 
 function openImgMgr(prodId) {
@@ -3951,7 +3951,7 @@ function closeImgMgr() {
   imgMgrProductId = null;
 }
 
-// ── Drag state for image reorder ──────────────────────────────────────────────
+// -- Drag state for image reorder ----------------------------------------------
 let imgDragIdx = null;
 
 function renderImgMgr(p) {
@@ -3990,7 +3990,7 @@ function renderImgMgr(p) {
     <div style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <h4 style="font-size:.85rem;font-weight:700">Current Images (${imgs.length}/20)</h4>
-        ${imgs.length > 1 ? '<span style="font-size:.72rem;color:var(--m)">↔ Drag to reorder &nbsp;&middot;&nbsp; -> button moves to another product</span>' : ''}
+        ${imgs.length > 1 ? '<span style="font-size:.72rem;color:var(--m)"> Drag to reorder &nbsp;&middot;&nbsp; -> button moves to another product</span>' : ''}
       </div>
       <div id="imgMgrThumbs" style="display:flex;flex-wrap:wrap;gap:2px;margin-bottom:14px;min-height:40px;padding:6px;background:#f8fafc;border-radius:8px;border:1px solid var(--b)">
         ${thumbsHtml}
@@ -4022,7 +4022,7 @@ function renderImgMgr(p) {
     }`;
 }
 
-// ── Drag to reorder ───────────────────────────────────────────────────────────
+// -- Drag to reorder -----------------------------------------------------------
 function imgDragStart(e, idx) {
   imgDragIdx = idx;
   e.currentTarget.style.opacity = '0.5';
@@ -4073,7 +4073,7 @@ async function imgMgrSaveOrder() {
   } catch(e) { toast('x Save failed: ' + e.message); }
 }
 
-// ── Transfer image to another product ────────────────────────────────────────
+// -- Transfer image to another product ----------------------------------------
 let imgTransferUrl = null;
 let imgTransferIdx = null;
 
@@ -4187,7 +4187,7 @@ async function imgMgrRemove(url) {
   }
 }
 
-// ── Custom Columns ────────────────────────────────────────────────────────────
+// -- Custom Columns ------------------------------------------------------------
 var allCustomCols = [];
 var ccEditId = null;
 
@@ -4205,7 +4205,7 @@ function renderCustomCols() {
   if (!el) return;
   if (!allCustomCols.length) {
     el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--m);background:#fff;border:1px solid #e2e8f0;border-radius:12px">
-      <div style="font-size:3rem;margin-bottom:10px">️</div>
+      <div style="font-size:3rem;margin-bottom:10px"></div>
       <p style="font-weight:600;margin-bottom:6px">No custom columns yet</p>
       <p style="font-size:.8rem">Add columns like SKU, Supplier, Warehouse Location, HSN Code, Reorder Level, etc.</p>
     </div>`;
@@ -4228,8 +4228,8 @@ function renderCustomCols() {
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        ${i > 0 ? `<button onclick="ccMoveUp('${c.id}')" title="Move up" style="padding:5px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬆</button>` : ''}
-        ${i < allCustomCols.length-1 ? `<button onclick="ccMoveDown('${c.id}')" title="Move down" style="padding:5px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer">⬇</button>` : ''}
+        ${i > 0 ? `<button onclick="ccMoveUp('${c.id}')" title="Move up" style="padding:5px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer"></button>` : ''}
+        ${i < allCustomCols.length-1 ? `<button onclick="ccMoveDown('${c.id}')" title="Move down" style="padding:5px 10px;background:#f8fafc;color:#475569;border:1.5px solid var(--b);border-radius:7px;font-size:.76rem;cursor:pointer"></button>` : ''}
         <button onclick="ccOpenEdit('${c.id}')" style="padding:6px 12px;background:#eff6ff;color:#3b82f6;border:1.5px solid #bfdbfe;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"> Edit</button>
         <button onclick="ccDelete('${c.id}','${c.label.replace(/'/g,"\\'")}','${c.key}')" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer"> Delete</button>
       </div>
@@ -4373,7 +4373,7 @@ function ccRenderInput(col, value, extraStyle) {
   return `<input type="text" class="cc-field" data-key="${col.key}" data-colid="${col.id}" value="${v}" placeholder="&mdash;" style="${s}">`;
 }
 
-// ── Supplier Import ───────────────────────────────────────────────────────────
+// -- Supplier Import -----------------------------------------------------------
 // State
 let impRawRows    = [];
 let impHeaders    = [];
@@ -4751,7 +4751,7 @@ function adminLogout() {
 </script>
 
 <script>
-// ── Analytics ─────────────────────────────────────────────────────────────────
+// -- Analytics -----------------------------------------------------------------
 async function reGeoVisits(){
   toast('Looking up unknown locations... please wait');
   try{
@@ -4777,7 +4777,7 @@ async function loadAnalytics() {
     document.getElementById('an-recent').textContent = d.recent ?? '&mdash;';
     document.getElementById('an-total').textContent  = d.total  ?? '&mdash;';
 
-    // ── Leaflet map ──────────────────────────────────────────────────────────
+    // -- Leaflet map ----------------------------------------------------------
     const visitors = d.recentVisitors || [];
     const mapEl = document.getElementById('an-map');
     if(mapEl && typeof L !== 'undefined'){
@@ -4873,7 +4873,7 @@ async function loadAnalytics() {
       }
       setTimeout(()=>_anMap.invalidateSize(),200);
     } else if(mapEl && typeof L === 'undefined'){
-      mapEl.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#64748b;font-size:.84rem">⏳ Loading map library...</div>';
+      mapEl.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#64748b;font-size:.84rem"> Loading map library...</div>';
       // Load Leaflet JS dynamically
       const script = document.createElement('script');
       script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
@@ -4882,7 +4882,7 @@ async function loadAnalytics() {
       return;
     }
 
-    // ── Bar lists ────────────────────────────────────────────────────────────
+    // -- Bar lists ------------------------------------------------------------
     const barList = (items, labelKey, total) => items.length
       ? items.map(x=>{
           const pct = total ? Math.round((x.count/total)*100) : 0;
@@ -4962,7 +4962,7 @@ async function loadAnalytics() {
   }
 }
 
-// ── Inventory ─────────────────────────────────────────────────────────────────
+// -- Inventory -----------------------------------------------------------------
 let invProds = [];
 
 async function loadInventory() {
@@ -4987,7 +4987,7 @@ function showLowStockAlert() {
   if (!el) return;
   if (low.length || out.length) {
     el.style.display = 'block';
-    el.innerHTML = `! <strong>Stock Alert:</strong> ${out.length} product(s) <strong>out of stock</strong>, ${low.length} product(s) <strong>low stock (≤10)</strong>. Update below.`;
+    el.innerHTML = `! <strong>Stock Alert:</strong> ${out.length} product(s) <strong>out of stock</strong>, ${low.length} product(s) <strong>low stock (10)</strong>. Update below.`;
   } else {
     el.style.display = 'none';
   }
@@ -5107,7 +5107,7 @@ async function invBulkUpdate() {
   loadInventory();
 }
 
-// ── Discounts ─────────────────────────────────────────────────────────────────
+// -- Discounts -----------------------------------------------------------------
 let allDiscounts = [];
 let editDiscId   = null;
 
