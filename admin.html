@@ -1946,20 +1946,15 @@ async function loadStats() {
 let allProds = [];
 
 async function loadProducts() {
+  var pb = document.getElementById('prodBody');
+  if(pb) pb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#64748b">Loading...</td></tr>';
   try {
-    const prodRes = await fetch('/api/products?limit=500');
-    if (!prodRes.ok) throw new Error('HTTP ' + prodRes.status);
-    const data = await prodRes.json();
+    var res = await fetch('/api/products?limit=500');
+    var data = await res.json();
     allProds = data.products || data;
     populateCatDropdown('prodCatFilter', true);
-    // Render products IMMEDIATELY - don't wait for custom cols
     renderProdTable(allProds);
-    // Load custom cols in background AFTER rendering
-    loadCustomCols().then(function() {
-      renderProdTable(allProds);
-    }).catch(function() {});
   } catch (e) {
-    var pb = document.getElementById('prodBody');
     if(pb) pb.innerHTML = '<tr><td colspan="9" style="padding:20px;color:red;text-align:center">Error: ' + e.message + '</td></tr>';
   }
 }
@@ -1974,64 +1969,39 @@ function filterProds() {
 }
 
 function renderProdTable(list) {
-  try {
-  // Update Products table header with custom cols
-  const prodCols = ccForTable('products');
-  const prodThead = document.querySelector('#tab-products .data-table thead tr');
-  if (prodThead) {
-    prodThead.querySelectorAll('[data-cc]').forEach(th => th.remove());
-    const actionsTh = prodThead.querySelector('th:last-child');
-    prodCols.forEach(c => {
-      const th = document.createElement('th');
-      th.setAttribute('data-cc', c.key);
-      th.textContent = c.label;
-      if (actionsTh) prodThead.insertBefore(th, actionsTh);
-    });
+  var pb = document.getElementById('prodBody');
+  if (!pb) return;
+  if (!list || !list.length) {
+    pb.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#64748b;padding:32px">No products found</td></tr>';
+    return;
   }
-
-  document.getElementById('prodBody').innerHTML = list.length ? list.map(p => {
-    const img = p.images && p.images.length
-      ? `<img src="${p.images[0].url}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">`
-      : `<span style="font-size:1.6rem"></span>`;
-    const stock = p.stock ?? 0;
-    const stockColor = stock === 0 ? 'var(--rd)' : stock <= 10 ? '#f97316' : 'var(--g)';
-    const cf = p.customFields || {};
-    const customCells = prodCols.map(c => {
-      const val = cf[c.key] !== undefined && cf[c.key] !== '' ? cf[c.key] : '';
-      let inputEl = '';
-      if (c.type === 'select') {
-        const opts = `<option value="">&mdash;</option>` + (c.options||[]).map(o => `<option${o===val?' selected':''}>${o}</option>`).join('');
-        inputEl = `<select class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" onchange="saveProdCf(${p.id},'${c.key}',this.value)" style="padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none;max-width:110px">${opts}</select>`;
-      } else if (c.type === 'number') {
-        inputEl = `<input type="number" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="width:90px;padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
-      } else if (c.type === 'date') {
-        inputEl = `<input type="date" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
-      } else {
-        inputEl = `<input type="text" class="prod-cf-field" data-id="${p.id}" data-key="${c.key}" value="${val}" placeholder="&mdash;" onblur="saveProdCf(${p.id},'${c.key}',this.value)" style="width:100px;padding:4px 7px;border:1.5px solid var(--b);border-radius:6px;font-size:.78rem;outline:none">`;
-      }
-      return `<td>${inputEl}</td>`;
-    }).join('');
-    return `<tr>
-      <td>#${p.id}</td>
-      <td>${img}</td>
-      <td style="max-width:180px"><strong>${(p.name||'').replace(/`/g,"'")}</strong></td>
-      <td>${p.category || ''}</td>
-      <td>&#8377;${(p.price || 0).toLocaleString('en-IN')}</td>
-      <td style="color:${stockColor};font-weight:700">${stock}${stock <= 10 && stock > 0 ? ' low' : ''}</td>
-      <td>${p.rating || 0}</td>
-      <td>${p.badge ? `<span class="pc-badge ${p.badge}" style="position:static">${p.badge}</span>` : '&mdash;'}</td>
-      ${customCells}
-      <td style="white-space:nowrap">
-        <button class="btn btn-sm btn-sec" onclick="openEdit(${p.id})">Edit</button>
-        <button class="btn btn-sm" style="margin-left:4px;background:#e0f2fe;color:#0369a1;border:none;border-radius:7px;padding:7px 10px;font-size:.74rem;font-weight:700;cursor:pointer" onclick="openImgMgr(${p.id})">Images</button>
-        <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteProduct(${p.id})">Delete</button>
-      </td>
-    </tr>`;
-  }).join('') : '<tr><td colspan="20" style="text-align:center;color:var(--m);padding:32px">No products found</td></tr>';
-  } catch(err) {
-    console.error('renderProdTable error:', err);
-    document.getElementById('prodBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:red;padding:32px">Error loading products: ' + err.message + '</td></tr>';
+  var rows = '';
+  for (var i = 0; i < list.length; i++) {
+    var p = list[i];
+    var img = (p.images && p.images.length)
+      ? '<img src="' + p.images[0].url + '" style="width:44px;height:44px;object-fit:cover;border-radius:6px">'
+      : '';
+    var stock = (p.stock == null ? 0 : p.stock);
+    var stockColor = stock === 0 ? 'var(--rd)' : stock <= 10 ? '#f97316' : 'var(--g)';
+    var price = p.price || 0;
+    var badge = p.badge ? '<span class="pc-badge ' + p.badge + '" style="position:static">' + p.badge + '</span>' : '-';
+    rows += '<tr>'
+      + '<td>#' + p.id + '</td>'
+      + '<td>' + img + '</td>'
+      + '<td style="max-width:180px"><strong>' + (p.name || '') + '</strong></td>'
+      + '<td>' + (p.category || '') + '</td>'
+      + '<td>Rs.' + price.toLocaleString('en-IN') + '</td>'
+      + '<td style="color:' + stockColor + ';font-weight:700">' + stock + '</td>'
+      + '<td>' + (p.rating || 0) + '</td>'
+      + '<td>' + badge + '</td>'
+      + '<td style="white-space:nowrap">'
+      + '<button class="btn btn-sm btn-sec" onclick="openEdit(' + p.id + ')">Edit</button> '
+      + '<button class="btn btn-sm" style="background:#e0f2fe;color:#0369a1;border:none;border-radius:7px;padding:7px 10px;font-size:.74rem;font-weight:700;cursor:pointer" onclick="openImgMgr(' + p.id + ')">Images</button> '
+      + '<button class="btn btn-sm btn-danger" onclick="deleteProduct(' + p.id + ')">Delete</button>'
+      + '</td>'
+      + '</tr>';
   }
+  pb.innerHTML = rows;
 }
 
 // Save a single custom field value for a product (called on blur/change in Products table)
