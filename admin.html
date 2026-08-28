@@ -1946,8 +1946,7 @@ async function loadStats() {
 let allProds = [];
 
 async function loadProducts() {
-  var pb = document.getElementById('prodBody');
-  if(pb) pb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#64748b">Loading...</td></tr>';
+  document.getElementById('prodBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#64748b">Loading...</td></tr>';
   try {
     var res = await fetch('/api/products?limit=500');
     var data = await res.json();
@@ -1955,7 +1954,7 @@ async function loadProducts() {
     populateCatDropdown('prodCatFilter', true);
     renderProdTable(allProds);
   } catch (e) {
-    if(pb) pb.innerHTML = '<tr><td colspan="9" style="padding:20px;color:red;text-align:center">Error: ' + e.message + '</td></tr>';
+    document.getElementById('prodBody').innerHTML = '<tr><td colspan="9" style="padding:20px;color:red;text-align:center">Error: ' + e.message + '</td></tr>';
   }
 }
 
