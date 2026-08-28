@@ -1714,10 +1714,15 @@ function populateCatDropdown(selectId, includeAll) {
   const sel = document.getElementById(selectId);
   if (!sel) return;
   const currentVal = sel.value;
+  // Temporarily remove onchange to prevent firing during innerHTML update
+  const savedOnchange = sel.onchange;
+  sel.onchange = null;
   let html = includeAll ? '<option value="">All Categories</option>' : '';
-  html += window.allCats.map(c => `<option value="${c}">${c}</option>`).join('');
+  html += window.allCats.map(c => '<option value="' + c + '">' + c + '</option>').join('');
   sel.innerHTML = html;
   if (currentVal) sel.value = currentVal;
+  // Restore onchange
+  sel.onchange = savedOnchange;
 }
 </script>
 
@@ -1947,13 +1952,15 @@ async function loadProducts() {
     const data = await prodRes.json();
     allProds = data.products || data;
     populateCatDropdown('prodCatFilter', true);
-    // Load custom cols in background - don't block product display
-    try { await loadCustomCols(); } catch(e) {}
+    // Render products IMMEDIATELY - don't wait for custom cols
     renderProdTable(allProds);
+    // Load custom cols in background AFTER rendering
+    loadCustomCols().then(function() {
+      renderProdTable(allProds);
+    }).catch(function() {});
   } catch (e) {
-    const pb = document.getElementById('prodBody');
-    if(pb) pb.innerHTML = '<tr><td colspan="20" style="text-align:center;color:red;padding:32px">Error: ' + e.message + '</td></tr>';
-    toast('x Error loading products: ' + e.message);
+    var pb = document.getElementById('prodBody');
+    if(pb) pb.innerHTML = '<tr><td colspan="9" style="padding:20px;color:red;text-align:center">Error: ' + e.message + '</td></tr>';
   }
 }
 
