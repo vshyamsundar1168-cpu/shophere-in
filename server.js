@@ -12,7 +12,7 @@ const UPLOAD_DIR = path.join(BASE_DIR, 'uploads');
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-// ── MIME ──────────────────────────────────────────────────────────────────────
+// -- MIME ----------------------------------------------------------------------
 const MIME_MAP = {
   '.html':'text/html','.css':'text/css','.js':'application/javascript',
   '.json':'application/json','.png':'image/png','.jpg':'image/jpeg',
@@ -28,11 +28,11 @@ const EXT_TO_MIME = {
   '.mp3':'audio/mpeg','.wav':'audio/wav','.ogg':'audio/ogg',
 };
 
-// ── Default data ──────────────────────────────────────────────────────────────
+// -- Default data --------------------------------------------------------------
 const DEF_SETTINGS = {
   storeName: 'ShopHere.in', logo: '', primaryColor: '#f97316',
-  announcementBar: 'Free shipping on orders above ₹999',
-  scrollingText: 'Welcome to ShopHere.in 🛍️  |  Delivery at your doorstep 🚚  |  We maintain quality products with reasonable price ✅',
+  announcementBar: 'Free shipping on orders above Rs.999',
+  scrollingText: 'Welcome to ShopHere.in   |  Delivery at your doorstep   |  We maintain quality products with reasonable price ',
   contactEmail: '', contactPhone: '', contactAddress: '',
   freeShippingThreshold: 999, footerText: '',
   termsAndConditions: 'These are the terms and conditions for ShopHere.in. By using this website you agree to our terms.',
@@ -47,7 +47,7 @@ const DEF_CATS    = ['Electronics','Fashion','Kitchen','Sports','Beauty','Books'
 
 const DEF_BANNERS = [
   { id:1, bgGradient:'linear-gradient(135deg,#1e293b,#f97316)', bgImage:'',
-    headline:'Welcome to ShopHere.in 🛍️', subtitle:"India's favourite online store",
+    headline:'Welcome to ShopHere.in ', subtitle:"India's favourite online store",
     ctaLabel:'Shop Now', ctaUrl:'#', active:true },
 ];
 
@@ -66,12 +66,12 @@ const DEF_PRODUCTS = [
   {id:12,name:'JBL Flip 6 Speaker',brand:'JBL',category:'Electronics',price:8999,originalPrice:12999,rating:4.5,reviewCount:1500,stock:55,badge:'',featured:false,images:[],videos:[],audios:[],description:'Portable waterproof bluetooth speaker.'},
 ];
 
-// ── Counters (set by deriveCounters after DB init) ────────────────────────────
+// -- Counters (set by deriveCounters after DB init) ----------------------------
 let nextPid = 1;
 let nextOid = 1;
 let nextBid = 1;
 
-// ── Database seeding (runs once when collections are empty) ───────────────────
+// -- Database seeding (runs once when collections are empty) -------------------
 async function seedCollections() {
   const db = getDb();
   const prodCount = await db.collection('products').countDocuments();
@@ -96,7 +96,7 @@ async function seedCollections() {
   }
 }
 
-// ── Counter derivation ────────────────────────────────────────────────────────
+// -- Counter derivation --------------------------------------------------------
 async function deriveCounters() {
   const db = getDb();
   // nextPid
@@ -111,7 +111,7 @@ async function deriveCounters() {
   ]).toArray();
   nextBid = bidAgg.length > 0 ? (bidAgg[0].maxId || 0) + 1 : 1;
 
-  // nextOid — parse numeric suffix from "ORDnnnnnn"
+  // nextOid -- parse numeric suffix from "ORDnnnnnn"
   const allOrders = await db.collection('orders').find({}, { projection: { id: 1 } }).toArray();
   const maxONum = allOrders.reduce((m, o) => {
     const n = parseInt(String(o.id || '').replace(/\D+/g, '') || '0');
@@ -122,8 +122,8 @@ async function deriveCounters() {
   console.log(`[DB] nextPid:${nextPid} nextOid:${nextOid} nextBid:${nextBid}`);
 }
 
-// ── Multipart parser ──────────────────────────────────────────────────────────
-// Reads entire body then splits on boundary — handles multiple files per field name
+// -- Multipart parser ----------------------------------------------------------
+// Reads entire body then splits on boundary -- handles multiple files per field name
 function parseMultipart(req) {
   return new Promise((resolve) => {
     const ct = req.headers['content-type'] || '';
@@ -187,7 +187,7 @@ function parseMultipart(req) {
             if (!mime || mime === 'application/octet-stream') mime = EXT_TO_MIME[ext] || 'application/octet-stream';
             files.push({ fieldName, filename: fileM[1], mimeType: mime, data: content });
           } else {
-            // text field — append if repeated key
+            // text field -- append if repeated key
             const val = content.toString('utf8');
             if (fields[fieldName] !== undefined) {
               if (!Array.isArray(fields[fieldName])) fields[fieldName] = [fields[fieldName]];
@@ -206,15 +206,15 @@ function parseMultipart(req) {
   });
 }
 
-// ── Cloudinary ────────────────────────────────────────────────────────────────
-// Uses Cloudinary's unsigned upload API — no SDK needed, pure HTTPS POST.
+// -- Cloudinary ----------------------------------------------------------------
+// Uses Cloudinary's unsigned upload API -- no SDK needed, pure HTTPS POST.
 // Set CLOUDINARY_CLOUD_NAME + CLOUDINARY_UPLOAD_PRESET in Render env vars.
-// Free tier: 25GB storage, 25GB bandwidth/month — plenty for a store.
+// Free tier: 25GB storage, 25GB bandwidth/month -- plenty for a store.
 
 const CLOUDINARY_CLOUD_NAME   = process.env.CLOUDINARY_CLOUD_NAME   || '';
 const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'shophere_uploads';
 
-// Live config — updated from DB settings at startup and on settings save
+// Live config -- updated from DB settings at startup and on settings save
 let _cloudName   = CLOUDINARY_CLOUD_NAME;
 let _uploadPreset = CLOUDINARY_UPLOAD_PRESET;
 
@@ -224,13 +224,13 @@ async function loadCloudinaryConfig() {
     const s  = await db.collection('settings').findOne({}, { projection: { cloudName:1, uploadPreset:1 } }) || {};
     if (s.cloudName)   _cloudName    = s.cloudName;
     if (s.uploadPreset) _uploadPreset = s.uploadPreset;
-    if (_cloudName) console.log('[CLOUDINARY] configured — cloud:', _cloudName, 'preset:', _uploadPreset);
-    else console.log('[CLOUDINARY] not configured — images saved locally');
+    if (_cloudName) console.log('[CLOUDINARY] configured -- cloud:', _cloudName, 'preset:', _uploadPreset);
+    else console.log('[CLOUDINARY] not configured -- images saved locally');
   } catch(e) {}
 }
 
 async function uploadToCloudinary(fileData, mimeType, filename) {
-  if (!_cloudName) return null; // Cloudinary not configured — fall back to local
+  if (!_cloudName) return null; // Cloudinary not configured -- fall back to local
 
   return new Promise((resolve) => {
     try {
@@ -328,7 +328,7 @@ async function mirrorImageToCloudinary(imageUrl) {
   });
 }
 
-// ── Upload helper ─────────────────────────────────────────────────────────────
+// -- Upload helper -------------------------------------------------------------
 const MAX = { image:10*1024*1024, video:200*1024*1024, audio:50*1024*1024 };
 
 function mimeKind(m) {
@@ -371,7 +371,7 @@ async function processMedia(files) {
   return { images, videos, audios, errors };
 }
 
-// ── HTTP helpers ──────────────────────────────────────────────────────────────
+// -- HTTP helpers --------------------------------------------------------------
 function sendJSON(res, code, data) {
   const body = JSON.stringify(data);
   res.writeHead(code, { 'Content-Type':'application/json', 'Access-Control-Allow-Origin':'*' });
@@ -387,11 +387,11 @@ function readJSON(req) {
   });
 }
 
-// ── Server ────────────────────────────────────────────────────────────────────
+// -- Server --------------------------------------------------------------------
 const CUSTOM_DOMAIN = process.env.CUSTOM_DOMAIN || 'shophere.in';
 
 const server = http.createServer(async (req, res) => {
-  // Redirect any onrender.com URL to the real domain — 301 permanent so browsers never show render.com again
+  // Redirect any onrender.com URL to the real domain -- 301 permanent so browsers never show render.com again
   const host = (req.headers.host || '').toLowerCase().split(':')[0];
   if (host && host.endsWith('.onrender.com')) {
     const target = 'https://' + CUSTOM_DOMAIN + req.url;
@@ -411,12 +411,12 @@ const server = http.createServer(async (req, res) => {
 
   try {
 
-    // ── VERSION CHECK ─────────────────────────────────────────────────────────
+    // -- VERSION CHECK ---------------------------------------------------------
     if (p === '/api/version') {
       return sendJSON(res, 200, { version: 'fix-admin-products', deployed: new Date().toISOString() });
     }
 
-    // ── AUTH ──────────────────────────────────────────────────────────────────
+    // -- AUTH ------------------------------------------------------------------
     if (p === '/api/login' && m === 'POST') {
       const body = await readJSON(req);
       const db = getDb();
@@ -427,7 +427,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { success: false, isAdmin: false, message: 'Invalid credentials' });
     }
 
-    // ── SETTINGS ──────────────────────────────────────────────────────────────
+    // -- SETTINGS --------------------------------------------------------------
     if (p==='/api/settings' && m==='GET') {
       const db = getDb();
       const doc = await db.collection('settings').findOne({}, { projection: { _id: 0 } }) || {};
@@ -457,13 +457,13 @@ const server = http.createServer(async (req, res) => {
         { $set },
         { upsert: true, returnDocument: 'after', projection: { _id: 0 } }
       );
-      console.log('[SAVE] settings OK —', updated.storeName);
+      console.log('[SAVE] settings OK --', updated.storeName);
       // Reload Cloudinary config if updated
       if ($set.cloudName || $set.uploadPreset) await loadCloudinaryConfig();
       return sendJSON(res, 200, updated);
     }
 
-    // ── PRODUCTS ──────────────────────────────────────────────────────────────
+    // -- PRODUCTS --------------------------------------------------------------
     if (p==='/api/products' && m==='GET') {
       const db = getDb();
       const cat=sp.get('category'), q=(sp.get('q')||'').toLowerCase();
@@ -514,7 +514,7 @@ const server = http.createServer(async (req, res) => {
       };
       await db.collection('products').insertOne(prod);
       const { _id, ...prodOut } = prod;
-      console.log(`[SAVE] product "${prod.name}" — images:${media.images.length} videos:${media.videos.length} audios:${media.audios.length}`);
+      console.log(`[SAVE] product "${prod.name}" -- images:${media.images.length} videos:${media.videos.length} audios:${media.audios.length}`);
       return sendJSON(res,201,{...prodOut, uploadErrors:media.errors});
     }
 
@@ -586,14 +586,14 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res,200,result);
     }
 
-    // ── RAZORPAY ─────────────────────────────────────────────────────────────
+    // -- RAZORPAY -------------------------------------------------------------
     const RAZORPAY_KEY_ID     = process.env.RAZORPAY_KEY_ID     || '';
     const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
 
     // Create Razorpay order
     if (p==='/api/razorpay/order' && m==='POST') {
       const body = await readJSON(req);
-      const amountPaise = Math.round((body.amount||0) * 100); // convert ₹ to paise
+      const amountPaise = Math.round((body.amount||0) * 100); // convert Rs. to paise
       const authStr = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
       const payload = JSON.stringify({
         amount: amountPaise, currency: 'INR',
@@ -632,7 +632,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { success: true, paymentId: body.razorpay_payment_id });
     }
 
-    // ── ORDERS ────────────────────────────────────────────────────────────────
+    // -- ORDERS ----------------------------------------------------------------
     if (p==='/api/orders' && m==='GET') {
       const db = getDb();
       const filter = {};
@@ -682,7 +682,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res,200,result);
     }
 
-    // ── REVIEWS ───────────────────────────────────────────────────────────────
+    // -- REVIEWS ---------------------------------------------------------------
     const rm=p.match(/^\/api\/reviews\/(\d+)$/);
     if(rm && m==='GET') {
       const db = getDb();
@@ -707,7 +707,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res,201,rev);
     }
 
-    // ── BANNERS ───────────────────────────────────────────────────────────────
+    // -- BANNERS ---------------------------------------------------------------
     if(p==='/api/banners' && m==='GET') {
       const db = getDb();
       const list = await db.collection('banners').find({}, { projection: { _id: 0 } }).toArray();
@@ -766,7 +766,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res,200,{deleted:true});
     }
 
-    // ── CATEGORIES ────────────────────────────────────────────────────────────
+    // -- CATEGORIES ------------------------------------------------------------
     if(p==='/api/categories'&&m==='GET') {
       const db = getDb();
       const docs = await db.collection('categories').find({}, { projection: { _id: 0 } }).toArray();
@@ -810,7 +810,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res,200,{deleted:true});
     }
 
-    // ── DISCOUNTS ─────────────────────────────────────────────────────────────
+    // -- DISCOUNTS -------------------------------------------------------------
     if(p==='/api/discounts' && m==='GET') {
       const db = getDb();
       const docs = await db.collection('discounts').find({}).sort({ createdAt: -1 }).toArray();
@@ -833,7 +833,7 @@ const server = http.createServer(async (req, res) => {
       if (!d.active) return sendJSON(res, 400, { error: 'This coupon is inactive' });
       if (d.expiry && new Date(d.expiry) < new Date()) return sendJSON(res, 400, { error: 'Coupon has expired' });
       if (d.maxUses > 0 && d.usedCount >= d.maxUses) return sendJSON(res, 400, { error: 'Coupon usage limit reached' });
-      if (d.minOrder > 0 && (body.orderTotal||0) < d.minOrder) return sendJSON(res, 400, { error: `Min order ₹${d.minOrder} required` });
+      if (d.minOrder > 0 && (body.orderTotal||0) < d.minOrder) return sendJSON(res, 400, { error: `Min order Rs.${d.minOrder} required` });
       return sendJSON(res, 200, { valid: true, type: d.type, value: d.value, code: d.code });
     }
     const discid = p.match(/^\/api\/discounts\/([a-f0-9]{24})$/);
@@ -851,7 +851,7 @@ const server = http.createServer(async (req, res) => {
       catch(e) { return sendJSON(res, 400, { error: e.message }); }
     }
 
-    // ── REPAIR IMAGES — re-mirror broken URLs through Cloudinary ────────────────
+    // -- REPAIR IMAGES -- re-mirror broken URLs through Cloudinary ----------------
     if (p === '/api/repair-images' && m === 'POST') {
       const db   = getDb();
       const all  = await db.collection('products').find({}, { projection: { id:1, name:1, images:1 } }).toArray();
@@ -869,11 +869,11 @@ const server = http.createServer(async (req, res) => {
         const newImages = [];
         for (const img of prod.images) {
           if (!img.url) continue;
-          // Already on Cloudinary — keep
+          // Already on Cloudinary -- keep
           if (img.url.includes('cloudinary.com')) { newImages.push(img); continue; }
-          // Dead local /uploads/ path — skip but DON'T remove (can't recover anyway)
+          // Dead local /uploads/ path -- skip but DON'T remove (can't recover anyway)
           if (img.url.startsWith('/uploads/')) { continue; }
-          // External URL — try mirror, ALWAYS keep original if mirror fails
+          // External URL -- try mirror, ALWAYS keep original if mirror fails
           try {
             const cloudUrl = await mirrorImageToCloudinary(img.url);
             newImages.push({ ...img, url: cloudUrl }); // cloudUrl is always set (falls back to original)
@@ -895,15 +895,15 @@ const server = http.createServer(async (req, res) => {
         }
       }
 
-      console.log(`[REPAIR] done — fixed:${fixed} skipped:${skipped}`);
+      console.log(`[REPAIR] done -- fixed:${fixed} skipped:${skipped}`);
       return sendJSON(res, 200, { fixed, skipped, results: results.slice(0, 50) });
     }
 
-    // ── PUSH PRODUCT (from Chrome extension) ─────────────────────────────────
+    // -- PUSH PRODUCT (from Chrome extension) ---------------------------------
     if (p === '/api/push-product' && m === 'POST') {
       const body = await readJSON(req);
 
-      // Token check — if a push token is configured in settings, verify it
+      // Token check -- if a push token is configured in settings, verify it
       const db      = getDb();
       const settings = await db.collection('settings').findOne({}, { projection: { pushToken: 1 } }) || {};
       if (settings.pushToken && settings.pushToken.trim()) {
@@ -922,7 +922,7 @@ const server = http.createServer(async (req, res) => {
       const catExists = await db.collection('categories').findOne({ name: cat });
       if (!catExists) await db.collection('categories').insertOne({ name: cat });
 
-      // Build images array from URLs — mirror through Cloudinary to avoid hotlink blocking
+      // Build images array from URLs -- mirror through Cloudinary to avoid hotlink blocking
       const imageUrls = Array.isArray(body.imageUrls) ? body.imageUrls : [];
       const images = [];
       for (const url of imageUrls.slice(0, 5)) {
@@ -956,12 +956,12 @@ const server = http.createServer(async (req, res) => {
 
       await db.collection('products').insertOne(prod);
       const { _id, ...prodOut } = prod;
-      console.log(`[PUSH] "${prod.name}" from ${prod.supplier} — id:${prod.id}`);
+      console.log(`[PUSH] "${prod.name}" from ${prod.supplier} -- id:${prod.id}`);
       return sendJSON(res, 201, prodOut);
     }
 
-    // ── SUPPLIER IMPORT ───────────────────────────────────────────────────────
-    // POST /api/import/products — bulk insert products from parsed CSV rows
+    // -- SUPPLIER IMPORT -------------------------------------------------------
+    // POST /api/import/products -- bulk insert products from parsed CSV rows
     if (p === '/api/import/products' && m === 'POST') {
       const body = await readJSON(req);
       const rows = body.products;
@@ -994,7 +994,7 @@ const server = http.createServer(async (req, res) => {
           }
         }
 
-        // Build images array from URL string — mirror through Cloudinary
+        // Build images array from URL string -- mirror through Cloudinary
         const imageUrls = (row.imageUrl || row.image || row.images || '')
           .split(/[,|;]+/).map(s => s.trim()).filter(Boolean);
         const images = [];
@@ -1038,7 +1038,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // GET /api/import/template/:supplier — download CSV template
+    // GET /api/import/template/:supplier -- download CSV template
     const tplm = p.match(/^\/api\/import\/template\/(\w+)$/);
     if (tplm && m === 'GET') {
       const tpl = tplm[1];
@@ -1058,7 +1058,7 @@ const server = http.createServer(async (req, res) => {
       return res.end(csv);
     }
 
-    // ── CUSTOM COLUMNS ────────────────────────────────────────────────────────
+    // -- CUSTOM COLUMNS --------------------------------------------------------
     // GET all column definitions
     if (p === '/api/customcolumns' && m === 'GET') {
       const db = getDb();
@@ -1119,7 +1119,7 @@ const server = http.createServer(async (req, res) => {
       }
       return sendJSON(res, 200, { ok: true });
     }
-    // POST /api/products/:id/customfields — save custom field values for a product
+    // POST /api/products/:id/customfields -- save custom field values for a product
     const cfm = p.match(/^\/api\/products\/(\d+)\/customfields$/);
     if (cfm && m === 'POST') {
       const body = await readJSON(req);
@@ -1132,8 +1132,8 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    // ── PAGE BLOCK IMAGE UPLOAD ───────────────────────────────────────────────
-    // POST /api/pageblocks/upload — upload an image for use in a page block
+    // -- PAGE BLOCK IMAGE UPLOAD -----------------------------------------------
+    // POST /api/pageblocks/upload -- upload an image for use in a page block
     if (p === '/api/pageblocks/upload' && m === 'POST') {
       const {files} = await parseMultipart(req);
       const imgFile = files.find(f => f.fieldName === 'image' && f.data && f.data.length > 0);
@@ -1148,7 +1148,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { url });
     }
 
-    // ── PAGE BLOCKS (Page Builder) ────────────────────────────────────────────
+    // -- PAGE BLOCKS (Page Builder) --------------------------------------------
     if(p==='/api/pageblocks' && m==='GET') {
       const db = getDb();
       const blocks = await db.collection('pageblocks').find({}).sort({ order:1 }).toArray();
@@ -1195,7 +1195,7 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return sendJSON(res, 400, { error: e.message }); }
     }
 
-    // ── ONE-TIME FIX: reset all blocks objectFit to contain, remove bad heights ─
+    // -- ONE-TIME FIX: reset all blocks objectFit to contain, remove bad heights -
     if(p==='/api/pageblocks/fixall' && m==='POST') {
       const db = getDb();
       const blocks = await db.collection('pageblocks').find({}).toArray();
@@ -1206,7 +1206,7 @@ const server = http.createServer(async (req, res) => {
           if(b.style.objectFit === 'cover') upd['style.objectFit'] = 'contain';
           if(b.style.minHeight) upd['style.minHeight'] = '';
         }
-        // For gallery blocks: link stores the image height — keep it but set objectFit
+        // For gallery blocks: link stores the image height -- keep it but set objectFit
         if(b.type === 'gallery'){
           if(!b.style) upd['style'] = {};
           upd['style.objectFit'] = 'contain';
@@ -1219,7 +1219,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { fixed, total: blocks.length });
     }
 
-    // ── STATS ─────────────────────────────────────────────────────────────────
+    // -- STATS -----------------------------------------------------------------
     if(p==='/api/stats'&&m==='GET') {
       const db = getDb();
       const [totalProducts, totalOrders, revAgg, lowStock, processing] = await Promise.all([
@@ -1236,8 +1236,8 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // ── VISITOR TRACKING ─────────────────────────────────────────────────────
-    // POST /api/visit — record a page visit (geo done client-side)
+    // -- VISITOR TRACKING -----------------------------------------------------
+    // POST /api/visit -- record a page visit (geo done client-side)
     if(p==='/api/visit' && m==='POST'){
       try{
         const body = await readJSON(req);
@@ -1268,7 +1268,7 @@ const server = http.createServer(async (req, res) => {
       }catch(e){ console.warn('[visit]',e.message); return sendJSON(res,200,{ok:false}); }
     }
 
-    // GET /api/analytics/regeo — fix old Unknown visits by re-looking up IPs
+    // GET /api/analytics/regeo -- fix old Unknown visits by re-looking up IPs
     if(p==='/api/analytics/regeo' && m==='POST'){
       const db = getDb();
       const unknowns = await db.collection('visits').find({country:'Unknown',ip:{$exists:true,$ne:''}},{projection:{_id:1,ip:1}}).limit(20).toArray();
@@ -1295,7 +1295,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res,200,{fixed,total:unknowns.length});
     }
 
-    // GET /api/analytics — get visit stats for admin
+    // GET /api/analytics -- get visit stats for admin
     if(p==='/api/analytics' && m==='GET'){
       const db = getDb();
       const range = sp.get('range')||'7';
@@ -1323,7 +1323,7 @@ const server = http.createServer(async (req, res) => {
         devices, browsers, daily:dailyAgg, recentVisitors });
     }
 
-    // ── UPLOADED FILES ────────────────────────────────────────────────────────
+    // -- UPLOADED FILES --------------------------------------------------------
     if(p.startsWith('/uploads/')){
       const fn=decodeURIComponent(p.slice(9));
       const fp=path.join(UPLOAD_DIR,fn);
@@ -1333,14 +1333,14 @@ const server = http.createServer(async (req, res) => {
       return fs.createReadStream(fp).pipe(res);
     }
 
-    // ── STATIC HTML/CSS/JS ────────────────────────────────────────────────────
+    // -- STATIC HTML/CSS/JS ----------------------------------------------------
     let fp = p==='/' ? '/index.html' : p;
     fp = path.join(BASE_DIR, fp);
     fs.readFile(fp,(err,data)=>{
       if(err){res.writeHead(404,{'Content-Type':'text/html'});return res.end('<h1>404 Not Found</h1>');}
       const ext=path.extname(fp).toLowerCase();
       const mime = MIME_MAP[ext]||'text/plain';
-      // Never cache HTML, CSS, JS — always serve fresh after deploy
+      // Never cache HTML, CSS, JS -- always serve fresh after deploy
       const noCache = ['.html','.css','.js'].includes(ext);
       const cacheHdr = noCache
         ? {'Cache-Control':'no-store,no-cache,must-revalidate','Pragma':'no-cache','Expires':'0'}
@@ -1361,8 +1361,8 @@ async function startServer() {
   await deriveCounters();
   await loadCloudinaryConfig();
   server.listen(PORT, () => {
-    console.log(`\n  ✅  ShopHere.in  →  http://localhost:${PORT}`);
-    console.log(`  ⚙️   Admin Panel  →  http://localhost:${PORT}/admin.html\n`);
+    console.log(`\n    ShopHere.in    http://localhost:${PORT}`);
+    console.log(`     Admin Panel    http://localhost:${PORT}/admin.html\n`);
 
     // Keep-alive ping every 14 minutes to prevent Render free tier sleep
     if (process.env.RENDER) {
@@ -1371,7 +1371,7 @@ async function startServer() {
       setInterval(() => {
         try {
           https.get(`https://${domain}/api/stats`, res => {
-            console.log(`[KEEP-ALIVE] ping ${domain} → ${res.statusCode}`);
+            console.log(`[KEEP-ALIVE] ping ${domain}  ${res.statusCode}`);
           }).on('error', () => {});
         } catch(e) {}
       }, 14 * 60 * 1000); // 14 minutes
