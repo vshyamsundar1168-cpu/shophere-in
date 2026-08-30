@@ -665,8 +665,8 @@ async function openProduct(id){
       <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:8px">${p.name}</h2>
       <div style="color:#f59e0b;font-size:.88rem;margin-bottom:8px">${stars} <span style="color:var(--m);font-size:.78rem">(${p.reviewCount||0})</span></div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <span style="font-size:1.6rem;font-weight:800">&#8377;${p.price.toLocaleString('en-IN')}</span>
-        ${disc?`<span style="text-decoration:line-through;color:var(--m)">&#8377;${p.originalPrice.toLocaleString('en-IN')}</span><span style="color:var(--g);font-weight:700">${disc}% off</span>`:''}
+        <span style="font-size:1.6rem;font-weight:800">&#8377;${(p.price||0).toLocaleString('en-IN')}</span>
+        ${disc?`<span style="text-decoration:line-through;color:var(--m)">&#8377;${(p.originalPrice||0).toLocaleString('en-IN')}</span><span style="color:var(--g);font-weight:700">${disc}% off</span>`:''}
       </div>
       <div style="margin-bottom:12px">${out?'<span style="color:var(--rd);font-weight:700">Out of Stock</span>':`<span style="color:var(--g);font-weight:700">[OK] In Stock (${p.stock} available)</span>`}</div>
       ${p.description?`<p style="font-size:.84rem;color:var(--m);margin-bottom:14px;line-height:1.6">${p.description}</p>`:''}
@@ -737,7 +737,7 @@ function changeQty(id,d){const i=cart.find(x=>x.id===id);if(!i)return;if(d>0&&i.
 function renderCartBody(){
   const body=document.getElementById('cartBody');
   document.getElementById('cartCount').textContent=cartCount();
-  document.getElementById('cartTotal').textContent='&#8377;'+cartTotal().toLocaleString('en-IN',{minimumFractionDigits:2});
+  document.getElementById('cartTotal').innerHTML='&#8377;'+cartTotal().toLocaleString('en-IN',{minimumFractionDigits:2});
   if(!cart.length){body.innerHTML='<div style="text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">[Cart]</div><h3 style="margin-top:8px">Cart is empty</h3></div>';return;}
   body.innerHTML=cart.map(i=>`<div class="cart-item">
     <div class="ci-img">${i.image?`<img src="${i.image}" alt="" style="width:100%;height:100%;object-fit:cover">`:'<span style="font-size:1.8rem">[No Image]</span>'}</div>
@@ -798,7 +798,7 @@ function startCheckout(){
       </div>
       <span style="font-weight:700">&#8377;${(i.price*i.qty).toLocaleString('en-IN')}</span>
     </div>`).join('');
-  document.getElementById('coTotal').textContent='&#8377;'+cartTotal().toLocaleString('en-IN',{minimumFractionDigits:2});
+  document.getElementById('coTotal').innerHTML='&#8377;'+cartTotal().toLocaleString('en-IN',{minimumFractionDigits:2});
   openOverlay('checkoutModal');
 }
 function coGoStep(n){coStep=n;updateCoSteps();}

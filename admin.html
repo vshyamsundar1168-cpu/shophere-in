@@ -1918,7 +1918,7 @@ async function loadStats() {
     const s = await res.json();
     document.getElementById('st-p').textContent = s.totalProducts || 0;
     document.getElementById('st-o').textContent = s.totalOrders || 0;
-    document.getElementById('st-r').textContent = '&#8377;' + (s.totalRevenue || 0).toLocaleString('en-IN');
+    document.getElementById('st-r').innerHTML = '&#8377;' + (s.totalRevenue || 0).toLocaleString('en-IN');
     document.getElementById('st-ls').textContent = s.lowStock || 0;
   } catch (e) {
     toast('x Stats error: ' + e.message);
