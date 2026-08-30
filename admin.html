@@ -1727,9 +1727,9 @@ function populateCatDropdown(selectId, includeAll) {
 </script>
 
 <script>
-// -- Custom Columns stubs &mdash; real implementations loaded later in this file -----
+// -- Custom Columns stubs -- real implementations loaded later in this file -----
 // These ensure renderProdTable and renderInventory never crash with "not defined"
-// even though the full CC code lives in a later <script> block.
+// even though the full CC code lives in a later script block.
 var allCustomCols = [];
 function ccForTable(context) {
   return (window.allCustomCols || []).filter(function(c) {
