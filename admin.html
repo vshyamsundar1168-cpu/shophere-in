@@ -1916,10 +1916,10 @@ async function loadStats() {
     const res = await fetch('/api/stats');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const s = await res.json();
-    document.getElementById('st-p').textContent = s.totalProducts '&mdash;';
-    document.getElementById('st-o').textContent = s.totalOrders '&mdash;';
+    document.getElementById('st-p').textContent = s.totalProducts || 0;
+    document.getElementById('st-o').textContent = s.totalOrders || 0;
     document.getElementById('st-r').textContent = '&#8377;' + (s.totalRevenue || 0).toLocaleString('en-IN');
-    document.getElementById('st-ls').textContent = s.lowStock '&mdash;';
+    document.getElementById('st-ls').textContent = s.lowStock || 0;
   } catch (e) {
     toast('x Stats error: ' + e.message);
   }
