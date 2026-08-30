@@ -371,6 +371,60 @@ async function processMedia(files) {
   return { images, videos, audios, errors };
 }
 
+// -- SMS Alert (Fast2SMS) -------------------------------------------------------
+// Sends order alert to owner mobiles when a new order arrives
+async function sendOrderSmsAlert(order) {
+  const apiKey = process.env.FAST2SMS_API_KEY;
+  if (!apiKey) return; // skip if not configured
+
+  const phones = '9866966904,7093217367';
+  const items = (order.items || []).map(i => i.name + ' x' + (i.qty||1)).join(', ');
+  const msg = 'New Order ' + order.id + '! Customer: ' + (order.name||'Unknown') +
+    ', Total: Rs.' + (order.total||0) + ', Items: ' + items +
+    ', Pay: ' + (order.payment||'COD').toUpperCase() +
+    ' - ShopHere.in';
+
+  const postData = JSON.stringify({
+    route: 'q',
+    numbers: phones,
+    message: msg,
+    language: 'english',
+    flash: 0
+  });
+
+  return new Promise((resolve) => {
+    try {
+      const https = require('https');
+      const req = https.request({
+        hostname: 'www.fast2sms.com',
+        path: '/dev/bulkV2',
+        method: 'POST',
+        headers: {
+          'authorization': apiKey,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      }, (res) => {
+        let d = '';
+        res.on('data', c => d += c);
+        res.on('end', () => {
+          console.log('[SMS] Alert sent for order ' + order.id + ':', d.substring(0, 100));
+          resolve();
+        });
+      });
+      req.on('error', (e) => {
+        console.warn('[SMS] Alert failed:', e.message);
+        resolve();
+      });
+      req.write(postData);
+      req.end();
+    } catch(e) {
+      console.warn('[SMS] Alert error:', e.message);
+      resolve();
+    }
+  });
+}
+
 // -- HTTP helpers --------------------------------------------------------------
 function sendJSON(res, code, data) {
   const body = JSON.stringify(data);
@@ -660,6 +714,8 @@ const server = http.createServer(async (req, res) => {
         notes:body.notes||'',manual:body.manual||false,
         date:body.date||new Date().toISOString()};
       await db.collection('orders').insertOne(order);
+      // Send SMS alert to owner
+      sendOrderSmsAlert(order).catch(() => {});
       const { _id, ...orderOut } = order;
       return sendJSON(res,201,orderOut);
     }
