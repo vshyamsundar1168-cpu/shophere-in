@@ -413,7 +413,7 @@ const server = http.createServer(async (req, res) => {
 
     // -- VERSION CHECK ---------------------------------------------------------
     if (p === '/api/version') {
-      return sendJSON(res, 200, { version: 'fix-admin-products', deployed: new Date().toISOString() });
+      return sendJSON(res, 200, { version: '0507823', deployed: new Date().toISOString() });
     }
 
     // -- AUTH ------------------------------------------------------------------
@@ -1334,6 +1334,15 @@ const server = http.createServer(async (req, res) => {
     }
 
     // -- STATIC HTML/CSS/JS ----------------------------------------------------
+    // Force fresh admin.html with version check
+    if (p === '/admin.html' || p === '/admin') {
+      const ver = '0507823';
+      if (sp.get('v') !== ver) {
+        res.writeHead(302, { 'Location': '/admin.html?v=' + ver, 'Cache-Control': 'no-store' });
+        return res.end();
+      }
+    }
+
     let fp = p==='/' ? '/index.html' : p;
     fp = path.join(BASE_DIR, fp);
     fs.readFile(fp,(err,data)=>{
