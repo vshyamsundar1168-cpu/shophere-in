@@ -2036,25 +2036,80 @@ async function deleteProduct(id) {
 
 <script>
 // -- Media previews ------------------------------------------------------------
+// Use a Map to accumulate files across multiple selections
+var _imageFiles = {};  // keyed by inputId
+
 function previewImages(input, previewId) {
-  const prev = document.getElementById(previewId);
+  var inputId = input.id;
+  if (!_imageFiles[inputId]) _imageFiles[inputId] = [];
+
+  // Add new files to accumulated list (avoid duplicates by name+size)
+  Array.from(input.files).forEach(function(f) {
+    var exists = _imageFiles[inputId].some(function(x) {
+      return x.name === f.name && x.size === f.size;
+    });
+    if (!exists) _imageFiles[inputId].push(f);
+  });
+
+  // Rebuild DataTransfer so input.files reflects all accumulated files
+  try {
+    var dt = new DataTransfer();
+    _imageFiles[inputId].forEach(function(f) { dt.items.add(f); });
+    input.files = dt.files;
+  } catch(e) {}
+
+  // Re-render previews
+  var prev = document.getElementById(previewId);
   prev.innerHTML = '';
-  Array.from(input.files).forEach(f => {
-    const r = new FileReader();
-    r.onload = e => {
-      const wrap = document.createElement('div');
-      wrap.style.position = 'relative';
-      wrap.innerHTML = `<img src="${e.target.result}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--b)" alt="">
-        <button style="position:absolute;top:-6px;right:-6px;background:var(--rd);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0" onclick="this.parentNode.remove()">&times;</button>`;
+  _imageFiles[inputId].forEach(function(f, idx) {
+    var r = new FileReader();
+    r.onload = function(e) {
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;display:inline-block;margin:2px';
+      wrap.innerHTML = '<img src="' + e.target.result + '" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--b)" alt="">'
+        + '<button style="position:absolute;top:-6px;right:-6px;background:var(--rd);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer;line-height:1;padding:0" onclick="removeImagePreview(\'' + inputId + '\',' + idx + ',\'' + previewId + '\')">x</button>';
       prev.appendChild(wrap);
     };
     r.readAsDataURL(f);
   });
 }
 
+function removeImagePreview(inputId, idx, previewId) {
+  if (_imageFiles[inputId]) {
+    _imageFiles[inputId].splice(idx, 1);
+    // Rebuild input.files
+    var input = document.getElementById(inputId);
+    try {
+      var dt = new DataTransfer();
+      _imageFiles[inputId].forEach(function(f) { dt.items.add(f); });
+      input.files = dt.files;
+    } catch(e) {}
+    // Re-render
+    previewImages({ id: inputId, files: [] }, previewId);
+    // Remove the empty file list trigger -- just re-render from accumulated
+    var prev = document.getElementById(previewId);
+    prev.innerHTML = '';
+    _imageFiles[inputId].forEach(function(f, i) {
+      var r = new FileReader();
+      r.onload = function(e) {
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'position:relative;display:inline-block;margin:2px';
+        wrap.innerHTML = '<img src="' + e.target.result + '" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--b)" alt="">'
+          + '<button style="position:absolute;top:-6px;right:-6px;background:var(--rd);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer;line-height:1;padding:0" onclick="removeImagePreview(\'' + inputId + '\',' + i + ',\'' + previewId + '\')">x</button>';
+        prev.appendChild(wrap);
+      };
+      r.readAsDataURL(f);
+    });
+  }
+}
+
+function clearImageFiles(inputId) {
+  _imageFiles[inputId] = [];
+}
+
 function previewVideos(input, previewId) {
   document.getElementById(previewId).innerHTML = Array.from(input.files)
-    .map(f => `<div> ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)</div>`).join('');
+    .map(function(f) { return '<div>' + f.name + ' (' + (f.size/1024/1024).toFixed(1) + ' MB)</div>'; }).join('');
 }
 
 function previewAudios(input, previewId) {
@@ -2099,6 +2154,7 @@ async function addProduct() {
     document.getElementById('ap_images').value = '';
     document.getElementById('ap_videos').value = '';
     document.getElementById('ap_audios').value = '';
+    clearImageFiles('ap_images');
     document.getElementById('ap_imgPrev').innerHTML = '';
     document.getElementById('ap_vidPrev').innerHTML = '';
     document.getElementById('ap_audPrev').innerHTML = '';
@@ -2192,6 +2248,8 @@ async function openEdit(id) {
       <button class="btn btn-sec" onclick="closeEdit()">Cancel</button>
     </div>`;
   document.getElementById('editModal').classList.add('open');
+  // Clear accumulated image files when opening edit modal
+  clearImageFiles('ep_images');
 }
 
 function closeEdit() { document.getElementById('editModal').classList.remove('open'); }

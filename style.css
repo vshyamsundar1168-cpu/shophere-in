@@ -255,6 +255,7 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
 .modal-hdr{padding:18px 24px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;border-radius:14px 14px 0 0}
 .modal-hdr h3{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px}
 .modal-close{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--m);line-height:1;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background .2s}
+.modal-close::after{content:'x';font-size:1.2rem;font-weight:700;}
 .modal-close:hover{background:var(--bg);color:var(--t)}
 .modal-body{padding:20px 24px}
 .modal-foot{padding:16px 24px;border-top:1px solid var(--b);display:flex;gap:10px}
