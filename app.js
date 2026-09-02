@@ -367,11 +367,13 @@ async function loadBanners(){
         const posMap={'center':'center','left':'flex-start','right':'flex-end','top':'flex-start','bottom':'flex-end'};
         const aPos = posMap[b.textPosition||'center']||'center';
         const animClass = b.animation ? 'bn-'+b.animation : '';
-        const hasVideo = b.bgVideo && b.bgVideo.trim();
+        const hasVideo = b.bgVideo && b.bgVideo.trim() && b.bgVideo !== 'NONE';
+        const videoMuted = b.videoMuted !== false;
+        const audioTag = b.bgAudio ? '<audio id="bn-aud-' + b.id + '" src="' + b.bgAudio + '"' + (videoMuted ? ' muted' : '') + ' autoplay loop></audio>' : '';
         const imgTag = hasVideo
-          ? `<video id="bn-vid-${b.id}" src="${b.bgVideo}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" ${b.videoMuted!==false?'muted':''} autoplay playsinline loop preload="auto"></video>${b.bgAudio?`<audio id="bn-aud-${b.id}" src="${b.bgAudio}" ${b.videoMuted!==false?'muted':''} autoplay loop></audio>`:''}`
+          ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0;" ' + (videoMuted ? 'muted' : '') + ' autoplay playsinline loop preload="auto"></video>' + audioTag
           : (b.bgImage||b.bgImageUrl) ? `<img class="banner-img" src="${b.bgImage||b.bgImageUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:${fit};object-position:center;display:block;" loading="lazy">` : '';
-        const gradBg = (!b.bgImage&&!b.bgImageUrl&&!hasVideo) ? `background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'}` : 'background:#1e293b';
+        const gradBg = (!b.bgImage&&!b.bgImageUrl&&!hasVideo) ? `background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'}` : 'background:#000';
         const showText = b.textSize !== 'none';
         const unmuteBtn = (hasVideo || b.bgAudio) ? `<button onclick="event.stopPropagation();bnToggleMute(${b.id})" id="bn-mute-btn-${b.id}" style="position:absolute;top:12px;right:12px;z-index:10;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Toggle sound">${b.videoMuted!==false?'[mute]':'[sound]'}</button>` : '';
         return `<div class="${animClass}" style="${gradBg};position:relative;flex:0 0 ${w}%;width:${w}%;height:${h};overflow:hidden;cursor:pointer;" onclick="filterCat('all');showProducts()">
