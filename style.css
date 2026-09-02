@@ -96,15 +96,25 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   position:relative;
   overflow:hidden;
 }
-/* Banner image &mdash; fills slide, no crop with contain, full zoom with cover */
+/* Banner image -- fills slide */
 .hero-slide img.banner-img{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
-  object-fit:contain;   /* default: show full image, no crop */
+  object-fit:contain;
   object-position:center;
   display:block;
+}
+/* Banner VIDEO -- fills slide */
+.hero-slide video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  z-index:0;
 }
 /* Text overlay &mdash; sits at bottom of banner, NO background shade */
 .hero-slide .slide-overlay{
