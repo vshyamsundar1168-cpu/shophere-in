@@ -2827,6 +2827,9 @@ async function saveBannerModal() {
         textPosition: document.getElementById('bn_textpos').value,
         animation:    document.getElementById('bn_anim').value,
         active:       true,
+        bgVideo:      document.getElementById('bn_videoUrl') ? (document.getElementById('bn_videoUrl').value.trim() || existing.bgVideo || '') : (existing.bgVideo || ''),
+        bgAudio:      document.getElementById('bn_audioUrl') ? (document.getElementById('bn_audioUrl').value.trim() || existing.bgAudio || '') : (existing.bgAudio || ''),
+        videoMuted:   document.getElementById('bn_muted') ? document.getElementById('bn_muted').checked : true,
       };
 
       if (imgFile) {
@@ -2867,6 +2870,18 @@ async function saveBannerModal() {
       fd.append('textPosition', document.getElementById('bn_textpos').value);
       fd.append('animation',    document.getElementById('bn_anim').value);
       fd.append('active', 'true');
+      // Video and audio for banner
+      var bnVideoUrl = document.getElementById('bn_videoUrl') ? document.getElementById('bn_videoUrl').value.trim() : '';
+      var bnAudioUrl = document.getElementById('bn_audioUrl') ? document.getElementById('bn_audioUrl').value.trim() : '';
+      var bnMuted    = document.getElementById('bn_muted') ? String(document.getElementById('bn_muted').checked) : 'true';
+      if(bnVideoUrl) fd.append('bgVideo', bnVideoUrl);
+      if(bnAudioUrl) fd.append('bgAudio', bnAudioUrl);
+      fd.append('videoMuted', bnMuted);
+      // Video file upload
+      var bnVidFile = document.getElementById('bn_video') ? document.getElementById('bn_video').files[0] : null;
+      if(bnVidFile) fd.append('bannerVideo', bnVidFile);
+      var bnAudFile = document.getElementById('bn_audio') ? document.getElementById('bn_audio').files[0] : null;
+      if(bnAudFile) fd.append('bannerAudio', bnAudFile);
       res = await fetch('/api/banners', { method: 'POST', body: fd });
     }
 

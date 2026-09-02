@@ -791,6 +791,9 @@ const server = http.createServer(async (req, res) => {
         textPosition:  fields.textPosition  ||'center',
         animation:     fields.animation     ||'',         // fade-in, slide-up, pulse, bounce
         objectFit:     fields.objectFit     ||'contain',  // contain | cover
+        bgVideo:       fields.bgVideo        ||'',
+        bgAudio:       fields.bgAudio        ||'',
+        videoMuted:    fields.videoMuted !== 'false',
       };
       const bg=files.find(f=>f.fieldName==='bgImage'&&f.data&&f.data.length>0);
       if(bg) {
