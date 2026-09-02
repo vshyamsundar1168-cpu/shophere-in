@@ -945,6 +945,34 @@ if(window.location.protocol==='file:'){
         <input id="bn_imgUrl" placeholder="https://... image URL" style="width:100%;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;margin-top:4px" oninput="bnPreviewUrl(this.value)">
       </div>
 
+      <!-- Video Banner -->
+      <div class="form-group">
+        <label style="font-weight:700;color:var(--p)">OR Banner Video (MP4 - plays in slider with audio)</label>
+        <div class="upload-area" onclick="document.getElementById('bn_video').click()" style="cursor:pointer">
+           Click to upload banner video (MP4, WebM - plays for at least 30 seconds)
+          <input type="file" id="bn_video" accept="video/mp4,video/webm" style="display:none" onchange="bnPreviewVideo(this)">
+        </div>
+        <video id="bn_vidPrev" src="" style="max-height:100px;margin-top:8px;display:none;border-radius:8px;width:100%" controls></video>
+        <small style="color:var(--m)">Or paste video URL:</small>
+        <input id="bn_videoUrl" placeholder="https://... video URL (.mp4)" style="width:100%;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;margin-top:4px">
+      </div>
+
+      <!-- Audio/Music for Banner -->
+      <div class="form-group">
+        <label style="font-weight:700;color:var(--p)">Banner Background Audio / Music (optional)</label>
+        <div class="upload-area" onclick="document.getElementById('bn_audio').click()" style="cursor:pointer">
+           Click to upload background music (MP3, WAV, OGG - plays with banner)
+          <input type="file" id="bn_audio" accept="audio/*" style="display:none" onchange="bnPreviewAudio(this)">
+        </div>
+        <div id="bn_audPrev" style="font-size:.8rem;color:var(--m);margin-top:6px"></div>
+        <small style="color:var(--m)">Or paste audio URL:</small>
+        <input id="bn_audioUrl" placeholder="https://... audio URL (.mp3)" style="width:100%;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:.84rem;cursor:pointer">
+          <input type="checkbox" id="bn_muted" style="accent-color:var(--p)">
+          Start muted (user can unmute) - recommended for autoplay
+        </label>
+      </div>
+
       <div class="form-group"><label>OR Background Gradient CSS (if no image)</label>
         <input id="bn_grad" placeholder="linear-gradient(135deg,#1e293b,#f97316)">
       </div>
@@ -2716,7 +2744,12 @@ async function loadBanners() {
 function openAddBannerModal() {
   bnEditId = null;
   document.getElementById('bnModalTitle').textContent = 'Add Banner';
-  ['bn_head','bn_sub','bn_grad','bn_imgUrl','bn_height'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['bn_head','bn_sub','bn_grad','bn_imgUrl','bn_height','bn_videoUrl','bn_audioUrl'].forEach(id=>{var e=document.getElementById(id);if(e)e.value='';});
+  var vp=document.getElementById('bn_vidPrev');if(vp){vp.src='';vp.style.display='none';}
+  var ap=document.getElementById('bn_audPrev');if(ap)ap.textContent='';
+  var mc=document.getElementById('bn_muted');if(mc)mc.checked=true;
+  var bvi=document.getElementById('bn_video');if(bvi)bvi.value='';
+  var bai=document.getElementById('bn_audio');if(bai)bai.value='';
   document.getElementById('bn_img').value='';
   document.getElementById('bn_imgPrev').style.display='none';
   document.getElementById('bn_mode').value='slider';

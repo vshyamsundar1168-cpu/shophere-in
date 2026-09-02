@@ -367,11 +367,15 @@ async function loadBanners(){
         const posMap={'center':'center','left':'flex-start','right':'flex-end','top':'flex-start','bottom':'flex-end'};
         const aPos = posMap[b.textPosition||'center']||'center';
         const animClass = b.animation ? 'bn-'+b.animation : '';
-        const imgTag = (b.bgImage||b.bgImageUrl) ? `<img class="banner-img" src="${b.bgImage||b.bgImageUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:${fit};object-position:center;display:block;" loading="lazy">` : '';
-        const gradBg = (!b.bgImage&&!b.bgImageUrl) ? `background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'}` : 'background:#1e293b';
+        const hasVideo = b.bgVideo && b.bgVideo.trim();
+        const imgTag = hasVideo
+          ? `<video id="bn-vid-${b.id}" src="${b.bgVideo}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" ${b.videoMuted!==false?'muted':''} autoplay playsinline loop preload="auto"></video>${b.bgAudio?`<audio id="bn-aud-${b.id}" src="${b.bgAudio}" ${b.videoMuted!==false?'muted':''} autoplay loop></audio>`:''}`
+          : (b.bgImage||b.bgImageUrl) ? `<img class="banner-img" src="${b.bgImage||b.bgImageUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:${fit};object-position:center;display:block;" loading="lazy">` : '';
+        const gradBg = (!b.bgImage&&!b.bgImageUrl&&!hasVideo) ? `background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'}` : 'background:#1e293b';
         const showText = b.textSize !== 'none';
+        const unmuteBtn = (hasVideo || b.bgAudio) ? `<button onclick="event.stopPropagation();bnToggleMute(${b.id})" id="bn-mute-btn-${b.id}" style="position:absolute;top:12px;right:12px;z-index:10;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Toggle sound">${b.videoMuted!==false?'[mute]':'[sound]'}</button>` : '';
         return `<div class="${animClass}" style="${gradBg};position:relative;flex:0 0 ${w}%;width:${w}%;height:${h};overflow:hidden;cursor:pointer;" onclick="filterCat('all');showProducts()">
-          ${imgTag}
+          ${imgTag}${unmuteBtn}
           ${showText?`<div class="slide-overlay" style="align-items:${aPos};text-align:${b.textPosition==='center'?'center':b.textPosition==='right'?'right':'left'};background:none;">
             <h2 style="font-size:${hSz};font-weight:800;margin-bottom:4px;line-height:1.3;color:${tClr};text-shadow:0 2px 6px rgba(0,0,0,.5)">${b.headline||''}</h2>
             ${b.subtitle?`<p style="font-size:clamp(.7rem,.88rem,.9rem);margin-bottom:0;line-height:1.5;color:${tClr};opacity:.92">${b.subtitle}</p>`:''}
@@ -432,7 +436,19 @@ async function loadBanners(){
   }catch(e){ console.warn('Banners failed',e); }
 }
 
+function bnToggleMute(banId) {
+  var vid = document.getElementById('bn-vid-' + banId);
+  var aud = document.getElementById('bn-aud-' + banId);
+  var btn = document.getElementById('bn-mute-btn-' + banId);
+  var nowMuted = vid ? vid.muted : (aud ? aud.muted : true);
+  if(vid) vid.muted = !nowMuted;
+  if(aud) aud.muted = !nowMuted;
+  if(btn) btn.textContent = nowMuted ? '[sound]' : '[mute]';
+}
+
 function heroGo(i){
+  // Pause all banner media on other slides
+  document.querySelectorAll('.hero-track video, .hero-track audio').forEach(function(m){ try{m.pause();}catch(e){} });
   heroIdx = i;
   const track = document.getElementById('heroTrack');
   if(track) track.style.transform = `translateX(-${i*100}%)`;
@@ -440,6 +456,22 @@ function heroGo(i){
     d.style.background = j===i ? '#fff' : 'rgba(255,255,255,.5)';
     d.style.transform  = j===i ? 'scale(1.3)' : 'scale(1)';
   });
+  // Play video/audio on current slide and set minimum 30s timer
+  const sliderBans = allBanners.filter(function(b){ return !b.displayMode||b.displayMode==='slider'; });
+  const curBan = sliderBans[i];
+  if(curBan && (curBan.bgVideo || curBan.bgAudio)) {
+    clearInterval(heroTimer);
+    var vid = document.getElementById('bn-vid-' + curBan.id);
+    var aud = document.getElementById('bn-aud-' + curBan.id);
+    if(vid){ vid.currentTime = 0; vid.play().catch(function(){}); }
+    if(aud){ aud.currentTime = 0; aud.play().catch(function(){}); }
+    // Advance after max(30s, video duration)
+    if(sliderBans.length > 1) {
+      var delay = 30000;
+      if(vid && vid.duration && !isNaN(vid.duration)) delay = Math.max(30000, Math.ceil(vid.duration) * 1000);
+      heroTimer = setTimeout(heroNext, delay);
+    }
+  }
 }
 function heroNext(){ if(allBanners.length>1) heroGo((heroIdx+1)%allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length); }
 function heroPrev(){ if(allBanners.length>1) heroGo((heroIdx-1+allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length)%allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length); }

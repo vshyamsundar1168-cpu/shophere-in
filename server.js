@@ -800,6 +800,21 @@ const server = http.createServer(async (req, res) => {
         // Use pasted image URL directly
         banner.bgImage = fields.bgImageUrl;
       }
+      // Handle banner video upload
+      const bv = files.find(f=>f.fieldName==='bannerVideo'&&f.data&&f.data.length>0);
+      if(bv) {
+        banner.bgVideo = saveFile(bv).url;
+      } else if(fields.bgVideo && fields.bgVideo.startsWith('http')) {
+        banner.bgVideo = fields.bgVideo;
+      }
+      // Handle banner audio upload
+      const ba = files.find(f=>f.fieldName==='bannerAudio'&&f.data&&f.data.length>0);
+      if(ba) {
+        banner.bgAudio = saveFile(ba).url;
+      } else if(fields.bgAudio && fields.bgAudio.startsWith('http')) {
+        banner.bgAudio = fields.bgAudio;
+      }
+      if(fields.videoMuted !== undefined) banner.videoMuted = fields.videoMuted !== 'false';
       const db = getDb();
       await db.collection('banners').insertOne(banner);
       const { _id, ...bannerOut } = banner;
