@@ -400,6 +400,9 @@ async function loadBanners(){
 
     const globalFit = (storeSettings&&storeSettings.bannerFit)||'contain';
 
+    // Sort: video banners first so they show immediately
+    sliderBans.sort(function(a,b){ return (b.bgVideo&&b.bgVideo.trim()&&b.bgVideo!=='NONE'?1:0)-(a.bgVideo&&a.bgVideo.trim()&&a.bgVideo!=='NONE'?1:0); });
+
     track.innerHTML = sliderBans.map((b,i)=>{
       const fit  = b.objectFit||globalFit;
       const hSz  = ({'xlarge':'3rem','large':'2.4rem','medium':'1.8rem','small':'1.4rem','none':'0'})[b.textSize||(storeSettings&&storeSettings.bannerTextSize)||'large']||'2.4rem';
@@ -464,14 +467,25 @@ function bnToggleMute(banId) {
 }
 
 function heroGo(i){
-  // Pause all banner media on other slides
-  document.querySelectorAll('.hero-track video, .hero-track audio').forEach(function(m){ try{m.pause();}catch(e){} });
   heroIdx = i;
   const track = document.getElementById('heroTrack');
   if(track) track.style.transform = `translateX(-${i*100}%)`;
   document.querySelectorAll('#heroDots button').forEach((d,j)=>{
     d.style.background = j===i ? '#fff' : 'rgba(255,255,255,.5)';
     d.style.transform  = j===i ? 'scale(1.3)' : 'scale(1)';
+  });
+  // Play current slide video, pause others
+  var slides = document.querySelectorAll('.hero-slide');
+  slides.forEach(function(slide, j){
+    var vid = slide.querySelector('video');
+    var aud = slide.querySelector('audio');
+    if(j === i){
+      if(vid){ vid.muted=true; vid.currentTime=0; vid.play().catch(function(){}); }
+      if(aud){ aud.muted=true; aud.currentTime=0; aud.play().catch(function(){}); }
+    } else {
+      if(vid){ try{vid.pause();}catch(e){} }
+      if(aud){ try{aud.pause();}catch(e){} }
+    }
   });
   // Play video/audio on current slide and set minimum 30s timer
   const sliderBans = allBanners.filter(function(b){ return !b.displayMode||b.displayMode==='slider'; });
