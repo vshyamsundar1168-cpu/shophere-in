@@ -435,6 +435,14 @@ async function loadBanners(){
 
     heroIdx = 0;
     if(sliderBans.length>1){ clearInterval(heroTimer); heroTimer=setInterval(heroNext,5000); }
+    // Ensure first slide videos play properly
+    setTimeout(function(){
+      sliderBans.forEach(function(b){
+        var vid = document.getElementById('bn-vid-' + b.id);
+        if(vid){ vid.muted = true; vid.volume = 0; try{vid.play();}catch(e){} }
+      });
+      heroGo(0);
+    }, 100);
   }catch(e){ console.warn('Banners failed',e); }
 }
 
@@ -465,7 +473,7 @@ function heroGo(i){
     clearInterval(heroTimer);
     var vid = document.getElementById('bn-vid-' + curBan.id);
     var aud = document.getElementById('bn-aud-' + curBan.id);
-    if(vid){ vid.currentTime = 0; vid.play().catch(function(){}); }
+    if(vid){ vid.muted = true; vid.volume = 0; vid.currentTime = 0; vid.play().catch(function(){}); }
     if(aud){ aud.currentTime = 0; aud.play().catch(function(){}); }
     // Advance after max(30s, video duration)
     if(sliderBans.length > 1) {
