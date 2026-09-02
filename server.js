@@ -237,6 +237,9 @@ async function uploadToCloudinary(fileData, mimeType, filename) {
       const boundary = '----CloudinaryBoundary' + crypto.randomUUID().replace(/-/g,'');
       const ext      = path.extname(filename).toLowerCase() || '.jpg';
       const chunks   = [];
+      // Determine resource type for Cloudinary (image vs video vs raw)
+      const isVideo = mimeType && (mimeType.startsWith('video/') || mimeType.startsWith('audio/'));
+      const resourceType = isVideo ? 'video' : 'image';
 
       chunks.push(Buffer.from(
         `--${boundary}\r\n` +
@@ -265,7 +268,7 @@ async function uploadToCloudinary(fileData, mimeType, filename) {
       const options = {
         hostname: 'api.cloudinary.com',
         port:     443,
-        path:     `/v1_1/${_cloudName}/image/upload`,
+        path:     `/v1_1/${_cloudName}/${resourceType}/upload`,
         method:   'POST',
         headers:  {
           'Content-Type':   `multipart/form-data; boundary=${boundary}`,
@@ -803,19 +806,21 @@ const server = http.createServer(async (req, res) => {
         // Use pasted image URL directly
         banner.bgImage = fields.bgImageUrl;
       }
-      // Handle banner video upload
+      // Handle banner video upload - upload to Cloudinary (supports video)
       const bv = files.find(f=>f.fieldName==='bannerVideo'&&f.data&&f.data.length>0);
       if(bv) {
-        banner.bgVideo = saveFile(bv).url;
-      } else if(fields.bgVideo && fields.bgVideo.startsWith('http')) {
-        banner.bgVideo = fields.bgVideo;
+        // Try Cloudinary first (supports video), fallback to local
+        const cloudVideoUrl = _cloudName ? await uploadToCloudinary(bv.data, bv.mimeType||'video/mp4', bv.filename) : null;
+        banner.bgVideo = cloudVideoUrl || saveFile(bv).url;
+      } else if(fields.bgVideo && fields.bgVideo.trim() && fields.bgVideo.trim() !== 'NONE') {
+        banner.bgVideo = fields.bgVideo.trim();
       }
       // Handle banner audio upload
       const ba = files.find(f=>f.fieldName==='bannerAudio'&&f.data&&f.data.length>0);
       if(ba) {
         banner.bgAudio = saveFile(ba).url;
-      } else if(fields.bgAudio && fields.bgAudio.startsWith('http')) {
-        banner.bgAudio = fields.bgAudio;
+      } else if(fields.bgAudio && fields.bgAudio.trim()) {
+        banner.bgAudio = fields.bgAudio.trim();
       }
       if(fields.videoMuted !== undefined) banner.videoMuted = fields.videoMuted !== 'false';
       const db = getDb();
