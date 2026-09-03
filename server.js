@@ -365,12 +365,13 @@ async function processMedia(files) {
     if (!kind) { errors.push(`Unsupported type ${f.mimeType} for ${f.filename}`); continue; }
     if (f.data.length > MAX[kind]) { errors.push(`${f.filename} exceeds ${MAX[kind]/1024/1024}MB limit`); continue; }
 
-    if (kind === 'image' && _cloudName) {
-      // Upload images to Cloudinary for permanent storage
+    if ((kind === 'image' || kind === 'video') && _cloudName) {
+      // Upload images AND videos to Cloudinary for permanent storage
       const cloudUrl = await uploadToCloudinary(f.data, f.mimeType, f.filename);
       if (cloudUrl) {
-        images.push({ url: cloudUrl, type: f.mimeType, name: f.filename });
-        console.log('[CLOUDINARY] uploaded:', cloudUrl);
+        if(kind==='image') images.push({ url: cloudUrl, type: f.mimeType, name: f.filename });
+        else videos.push({ url: cloudUrl, type: f.mimeType, name: f.filename });
+        console.log('[CLOUDINARY] uploaded ' + kind + ':', cloudUrl);
         continue;
       }
     }
