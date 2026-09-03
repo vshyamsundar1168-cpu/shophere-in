@@ -429,7 +429,7 @@ async function loadBanners(){
       else if(pos==='right')  overlayStyle += 'top:0;bottom:0;justify-content:center;align-items:flex-end;text-align:right;';
       else                    overlayStyle += 'top:0;bottom:0;justify-content:center;align-items:center;text-align:center;'; // center
 
-      return `<div class="hero-slide ${animClass}" style="${(hasBg||hasVid)?'background:#000':'background:'+gradBg};position:relative;overflow:hidden;">
+      return `<div class="hero-slide ${animClass}" style="position:relative;overflow:hidden;flex:0 0 100%;width:100%;height:100%;${(hasBg||hasVid)?'background:#111':'background:'+gradBg}">
         ${imgTag}
         ${unmuteBtn}
         ${showText?`<div style="${overlayStyle}z-index:1;">
