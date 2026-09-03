@@ -81,7 +81,7 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   min-height:120px;
   transition:height .3s;
 }
-/* Sliding track &mdash; all slides sit side by side */
+/* Sliding track -- all slides sit side by side */
 .hero-track{
   display:flex;
   height:100%;
@@ -93,6 +93,10 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   flex:0 0 100%;
   width:100%;
   height:100%;
+  position:relative;
+  overflow:hidden;
+  background:#000;
+}
   position:relative;
   overflow:hidden;
 }
@@ -107,6 +111,7 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   display:block;
 }
 /* Banner VIDEO -- fills slide, no crop */
+/* Banner VIDEO -- no crop, centered */
 .hero-slide video{
   position:absolute;
   top:0;
@@ -115,7 +120,8 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   height:100%;
   object-fit:contain;
   display:block;
-  z-index:1;
+  z-index:2;
+  background:#000;
 }
 /* Text overlay &mdash; sits at bottom of banner, NO background shade */
 .hero-slide .slide-overlay{

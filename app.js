@@ -415,7 +415,7 @@ async function loadBanners(){
       // Build media element - video takes priority over image
       const videoMuted = b.videoMuted !== false;
       const imgTag = hasVid
-        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:1;" ' + (videoMuted?'muted':'') + ' autoplay playsinline preload="auto"></video>'
+        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:2;background:#000;" ' + (videoMuted?'muted':'') + ' autoplay playsinline preload="auto"></video>'
         : hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};z-index:1;" loading="lazy" alt="">` : '';
       const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;bottom:20px;right:20px;z-index:100;background:rgba(249,115,22,0.92);color:#fff;border:none;border-radius:50px;padding:10px 20px;font-size:.95rem;cursor:pointer;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.4);animation:bn-pulse 2s ease infinite;letter-spacing:.5px;" title="Click to hear music">' + (videoMuted?'&#9654; Sound ON':'&#128264; Mute') + '</button>' : '';
       const showText = b.textSize !== 'none';
@@ -429,7 +429,7 @@ async function loadBanners(){
       else if(pos==='right')  overlayStyle += 'top:0;bottom:0;justify-content:center;align-items:flex-end;text-align:right;';
       else                    overlayStyle += 'top:0;bottom:0;justify-content:center;align-items:center;text-align:center;'; // center
 
-      return `<div class="hero-slide ${animClass}" style="position:relative;overflow:hidden;flex:0 0 100%;width:100%;height:100%;background:${hasVid?'transparent':(hasBg?'#000':gradBg)}">
+      return `<div class="hero-slide ${animClass}" style="position:relative;overflow:hidden;flex:0 0 100%;width:100%;height:100%;background:${hasBg||hasVid?'#000':gradBg}">
         ${imgTag}
         ${unmuteBtn}
         ${showText?`<div style="${overlayStyle}z-index:2;">

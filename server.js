@@ -988,6 +988,27 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { fixed, skipped, results: results.slice(0, 50) });
     }
 
+    // -- CLEAR BROKEN VIDEOS -- remove /uploads/ video URLs from products -----
+    if (p === '/api/clear-broken-videos' && m === 'POST') {
+      const db = getDb();
+      const all = await db.collection('products').find(
+        { 'videos.url': { $regex: '^/uploads/' } },
+        { projection: { id:1, name:1, videos:1, audios:1 } }
+      ).toArray();
+      let fixed = 0;
+      for (const prod of all) {
+        const goodVideos = (prod.videos||[]).filter(v => v.url && !v.url.startsWith('/uploads/'));
+        const goodAudios = (prod.audios||[]).filter(a => a.url && !a.url.startsWith('/uploads/'));
+        await db.collection('products').updateOne(
+          { _id: prod._id },
+          { $set: { videos: goodVideos, audios: goodAudios } }
+        );
+        fixed++;
+      }
+      console.log('[CLEAR-VIDEOS] cleared ' + fixed + ' products');
+      return sendJSON(res, 200, { fixed, message: 'Cleared broken video URLs from ' + fixed + ' products' });
+    }
+
     // -- REPAIR VIDEOS -- upload local /uploads/ videos to Cloudinary ---------
     if (p === '/api/repair-videos' && m === 'POST') {
       const db  = getDb();
