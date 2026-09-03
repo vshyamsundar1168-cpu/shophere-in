@@ -461,9 +461,11 @@ function bnToggleMute(banId) {
   var aud = document.getElementById('bn-aud-' + banId);
   var btn = document.getElementById('bn-mute-btn-' + banId);
   var nowMuted = vid ? vid.muted : (aud ? aud.muted : true);
-  if(vid) vid.muted = !nowMuted;
-  if(aud) aud.muted = !nowMuted;
-  if(btn) btn.textContent = nowMuted ? '[sound]' : '[mute]';
+  if(vid) { vid.muted = !nowMuted; try{ vid.play(); }catch(e){} }
+  if(aud) { aud.muted = !nowMuted; try{ aud.play(); }catch(e){} }
+  // nowMuted=true means was muted, now unmuting -> show Mute option
+  // nowMuted=false means was playing, now muting -> show Sound ON option
+  if(btn) btn.textContent = nowMuted ? '[Mute]' : '[Sound ON]';
 }
 
 function heroGo(i){
