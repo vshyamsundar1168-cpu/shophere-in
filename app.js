@@ -417,7 +417,7 @@ async function loadBanners(){
       const imgTag = hasVid
         ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:1;" ' + (videoMuted?'muted':'') + ' autoplay playsinline loop preload="auto"></video>'
         : hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};z-index:1;" loading="lazy" alt="">` : '';
-      const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;top:12px;right:12px;z-index:100;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:.8rem;cursor:pointer;font-weight:700;" title="Toggle sound">' + (videoMuted?'[Sound ON]':'[Mute]') + '</button>' : '';
+      const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;bottom:20px;right:20px;z-index:100;background:rgba(249,115,22,0.92);color:#fff;border:none;border-radius:50px;padding:10px 20px;font-size:.95rem;cursor:pointer;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.4);animation:bn-pulse 2s ease infinite;letter-spacing:.5px;" title="Click to hear music">' + (videoMuted?'&#9654; Sound ON':'&#128264; Mute') + '</button>' : '';
       const showText = b.textSize !== 'none';
 
       // Text position &mdash; actually move the overlay vertically
@@ -451,13 +451,29 @@ async function loadBanners(){
           v.muted = false;
           v.volume = 1;
           v.play().catch(function(){});
-          // Update button
           var btn = document.getElementById('bn-mute-btn-' + v.id.replace('bn-vid-',''));
-          if(btn) btn.textContent = '[Mute]';
+          if(btn) btn.innerHTML = '&#128264; Mute';
         }
       });
       document.removeEventListener('click', bnAutoUnmute);
     }, {once: true});
+
+    // Also try immediately - works for return visitors
+    setTimeout(function() {
+      var vids = document.querySelectorAll('.hero-slide video');
+      vids.forEach(function(v) {
+        v.muted = false;
+        v.volume = 1;
+        v.play().then(function() {
+          // Autoplay with sound worked
+          var btn = document.getElementById('bn-mute-btn-' + v.id.replace('bn-vid-',''));
+          if(btn) btn.innerHTML = '&#128264; Mute';
+        }).catch(function() {
+          // Browser blocked - keep muted, show unmute button
+          v.muted = true;
+        });
+      });
+    }, 500);
 
     heroIdx = 0;
     if(sliderBans.length>1){ clearInterval(heroTimer); heroTimer=setInterval(heroNext,5000); }
