@@ -415,7 +415,7 @@ async function loadBanners(){
       // Build media element - video takes priority over image
       const videoMuted = b.videoMuted !== false;
       const imgTag = hasVid
-        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:1;" ' + (videoMuted?'muted':'') + ' autoplay playsinline loop preload="auto"></video>'
+        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:1;" ' + (videoMuted?'muted':'') + ' autoplay playsinline preload="auto"></video>'
         : hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};z-index:1;" loading="lazy" alt="">` : '';
       const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;bottom:20px;right:20px;z-index:100;background:rgba(249,115,22,0.92);color:#fff;border:none;border-radius:50px;padding:10px 20px;font-size:.95rem;cursor:pointer;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.4);animation:bn-pulse 2s ease infinite;letter-spacing:.5px;" title="Click to hear music">' + (videoMuted?'&#9654; Sound ON':'&#128264; Mute') + '</button>' : '';
       const showText = b.textSize !== 'none';
@@ -476,7 +476,7 @@ async function loadBanners(){
     }, 500);
 
     heroIdx = 0;
-    if(sliderBans.length>1){ clearInterval(heroTimer); heroTimer=setInterval(heroNext,5000); }
+    if(sliderBans.length>1){ clearInterval(heroTimer); clearTimeout(heroTimer); }
     // Ensure first slide videos play properly
     setTimeout(function(){
       sliderBans.forEach(function(b){
@@ -547,23 +547,48 @@ function heroGo(i){
   // Play video/audio on current slide and set minimum 30s timer
   const sliderBans = allBanners.filter(function(b){ return !b.displayMode||b.displayMode==='slider'; });
   const curBan = sliderBans[i];
-  if(curBan && (curBan.bgVideo || curBan.bgAudio)) {
-    clearInterval(heroTimer);
-    var vid = document.getElementById('bn-vid-' + curBan.id);
-    var aud = document.getElementById('bn-aud-' + curBan.id);
+  clearInterval(heroTimer);
+  clearTimeout(heroTimer);
+
+  if(curBan && curBan.bgVideo) {
+    // Get the video element from current slide
+    var curSlide = slides[i];
+    var vid = curSlide ? curSlide.querySelector('video') : null;
     if(vid){
-      // Respect videoMuted setting
       if(curBan.videoMuted === true){ vid.muted = true; vid.volume = 0; }
       else { vid.muted = false; vid.volume = 1; }
-      vid.currentTime = 0; vid.play().catch(function(){});
+      vid.currentTime = 0;
+      vid.play().catch(function(){});
+
+      // Remove old ended listener
+      if(vid._heroEndedFn) vid.removeEventListener('ended', vid._heroEndedFn);
+
+      // When video ends, wait remaining time to reach 30s then advance
+      vid._heroEndedFn = function() {
+        if(sliderBans.length > 1) {
+          var elapsed = vid.duration || 0;
+          var remaining = Math.max(0, 30000 - elapsed * 1000);
+          heroTimer = setTimeout(heroNext, remaining);
+        }
+      };
+      vid.addEventListener('ended', vid._heroEndedFn);
+
+      // Safety timer: advance after max(video duration+2s, 30s) in case ended doesn't fire
+      var safetyDelay = 30000;
+      if(vid.duration && !isNaN(vid.duration) && vid.duration > 0) {
+        safetyDelay = Math.max(30000, Math.ceil(vid.duration + 2) * 1000);
+      }
+      vid.addEventListener('loadedmetadata', function onMeta(){
+        clearTimeout(heroTimer);
+        safetyDelay = Math.max(30000, Math.ceil(vid.duration + 2) * 1000);
+        if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, safetyDelay);
+        vid.removeEventListener('loadedmetadata', onMeta);
+      });
+      if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, safetyDelay);
     }
-    if(aud){ aud.currentTime = 0; aud.play().catch(function(){}); }
-    // Advance after max(30s, video duration)
-    if(sliderBans.length > 1) {
-      var delay = 30000;
-      if(vid && vid.duration && !isNaN(vid.duration)) delay = Math.max(30000, Math.ceil(vid.duration) * 1000);
-      heroTimer = setTimeout(heroNext, delay);
-    }
+  } else if(sliderBans.length > 1) {
+    // Image slide - advance after 5 seconds
+    heroTimer = setTimeout(heroNext, 5000);
   }
 }
 function heroNext(){ if(allBanners.length>1) heroGo((heroIdx+1)%allBanners.filter(b=>!b.displayMode||b.displayMode==='slider').length); }
