@@ -881,6 +881,7 @@ if(window.location.protocol==='file:'){
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="repairImages()" style="padding:9px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Repair Images</button>
+        <button onclick="repairVideos()" style="padding:9px 16px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Repair Videos</button>
         <button onclick="invSaveAll()" style="padding:9px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Save All Changes</button>
         <button onclick="loadInventory()" style="padding:9px 16px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer"> Refresh</button>
       </div>
@@ -1818,6 +1819,32 @@ async function repairImages() {
     alert('Error: ' + e.message);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = ' Repair Images'; }
+  }
+}
+
+async function repairVideos() {
+  if (!confirm('This will upload ALL product videos/audios from local storage to Cloudinary (permanent).\n\nThis may take several minutes for 38+ products.\n\nDo this NOW before the server restarts!\n\nContinue?')) return;
+
+  const btn = document.querySelector('button[onclick="repairVideos()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Repairing videos...'; }
+  toast('Uploading videos to Cloudinary... please wait, do not close this page');
+
+  try {
+    const res  = await fetch('/api/repair-videos', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Server error');
+
+    const msg = 'Video repair complete!\n' +
+      data.fixed + ' products updated\n' +
+      data.skipped + ' already OK or no videos';
+    alert(msg);
+    toast('Video repair complete - ' + data.fixed + ' products updated');
+    if (typeof loadProducts === 'function') loadProducts();
+  } catch(e) {
+    toast('Video repair error: ' + e.message);
+    alert('Error: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = ' Repair Videos'; }
   }
 }
 

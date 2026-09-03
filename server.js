@@ -988,6 +988,83 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { fixed, skipped, results: results.slice(0, 50) });
     }
 
+    // -- REPAIR VIDEOS -- upload local /uploads/ videos to Cloudinary ---------
+    if (p === '/api/repair-videos' && m === 'POST') {
+      const db  = getDb();
+      const all = await db.collection('products').find({}, { projection: { id:1, name:1, videos:1, audios:1 } }).toArray();
+      let fixed = 0, skipped = 0;
+      const results = [];
+
+      for (const prod of all) {
+        let changed = false;
+
+        // Fix videos
+        const newVideos = [];
+        for (const v of (prod.videos || [])) {
+          if (!v.url) continue;
+          if (v.url.includes('cloudinary.com')) { newVideos.push(v); continue; }
+          if (v.url.startsWith('/uploads/')) {
+            // Try to read local file and upload to Cloudinary
+            try {
+              const localPath = path.join(BASE_DIR, v.url);
+              if (fs.existsSync(localPath) && _cloudName) {
+                const fileData = fs.readFileSync(localPath);
+                const cloudUrl = await uploadToCloudinary(fileData, v.type || 'video/mp4', v.name || 'video.mp4');
+                if (cloudUrl && cloudUrl !== '/uploads/' + path.basename(localPath)) {
+                  newVideos.push({ ...v, url: cloudUrl });
+                  changed = true;
+                  console.log('[REPAIR-VIDEO] uploaded:', cloudUrl);
+                  continue;
+                }
+              }
+            } catch(e) { console.warn('[REPAIR-VIDEO] failed:', e.message); }
+            // Keep original if upload fails
+            newVideos.push(v);
+          } else {
+            newVideos.push(v);
+          }
+        }
+
+        // Fix audios
+        const newAudios = [];
+        for (const a of (prod.audios || [])) {
+          if (!a.url) continue;
+          if (a.url.includes('cloudinary.com')) { newAudios.push(a); continue; }
+          if (a.url.startsWith('/uploads/')) {
+            try {
+              const localPath = path.join(BASE_DIR, a.url);
+              if (fs.existsSync(localPath) && _cloudName) {
+                const fileData = fs.readFileSync(localPath);
+                const cloudUrl = await uploadToCloudinary(fileData, a.type || 'audio/mpeg', a.name || 'audio.mp3');
+                if (cloudUrl) {
+                  newAudios.push({ ...a, url: cloudUrl });
+                  changed = true;
+                  continue;
+                }
+              }
+            } catch(e) { console.warn('[REPAIR-AUDIO] failed:', e.message); }
+            newAudios.push(a);
+          } else {
+            newAudios.push(a);
+          }
+        }
+
+        if (changed) {
+          await db.collection('products').updateOne(
+            { _id: prod._id },
+            { $set: { videos: newVideos, audios: newAudios } }
+          );
+          fixed++;
+          results.push({ id: prod.id, name: (prod.name||'').substring(0,30), videos: newVideos.length, audios: newAudios.length });
+        } else {
+          skipped++;
+        }
+      }
+
+      console.log('[REPAIR-VIDEOS] done -- fixed:' + fixed + ' skipped:' + skipped);
+      return sendJSON(res, 200, { fixed, skipped, results: results.slice(0, 100) });
+    }
+
     // -- PUSH PRODUCT (from Chrome extension) ---------------------------------
     if (p === '/api/push-product' && m === 'POST') {
       const body = await readJSON(req);
