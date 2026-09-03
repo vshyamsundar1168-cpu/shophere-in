@@ -443,6 +443,22 @@ async function loadBanners(){
       `<button onclick="heroGo(${i})" style="width:10px;height:10px;border-radius:50%;background:${i===0?'#fff':'rgba(255,255,255,.5)'};border:none;cursor:pointer;padding:0;transition:all .3s"></button>`
     ).join('');
 
+    // Enable sound on first user interaction anywhere on page
+    document.addEventListener('click', function bnAutoUnmute() {
+      var vids = document.querySelectorAll('.hero-slide video');
+      vids.forEach(function(v) {
+        if(v.muted) {
+          v.muted = false;
+          v.volume = 1;
+          v.play().catch(function(){});
+          // Update button
+          var btn = document.getElementById('bn-mute-btn-' + v.id.replace('bn-vid-',''));
+          if(btn) btn.textContent = '[Mute]';
+        }
+      });
+      document.removeEventListener('click', bnAutoUnmute);
+    }, {once: true});
+
     heroIdx = 0;
     if(sliderBans.length>1){ clearInterval(heroTimer); heroTimer=setInterval(heroNext,5000); }
     // Ensure first slide videos play properly
@@ -457,14 +473,32 @@ async function loadBanners(){
 }
 
 function bnToggleMute(banId) {
-  var vid = document.getElementById('bn-vid-' + banId);
-  var aud = document.getElementById('bn-aud-' + banId);
+  // Find video by querySelector within the slide - more reliable than getElementById
+  var slides = document.querySelectorAll('.hero-slide');
+  var vid = null, aud = null;
+  slides.forEach(function(s) {
+    var v = s.querySelector('video');
+    if(v && v.id === 'bn-vid-' + banId) vid = v;
+    var a = s.querySelector('audio');
+    if(a && a.id === 'bn-aud-' + banId) aud = a;
+  });
+  // Also try direct getElementById as fallback
+  if(!vid) vid = document.getElementById('bn-vid-' + banId);
+  if(!aud) aud = document.getElementById('bn-aud-' + banId);
+  
   var btn = document.getElementById('bn-mute-btn-' + banId);
-  var nowMuted = vid ? vid.muted : (aud ? aud.muted : true);
-  if(vid) { vid.muted = !nowMuted; try{ vid.play(); }catch(e){} }
-  if(aud) { aud.muted = !nowMuted; try{ aud.play(); }catch(e){} }
-  // nowMuted=true means was muted, now unmuting -> show Mute option
-  // nowMuted=false means was playing, now muting -> show Sound ON option
+  var nowMuted = vid ? vid.muted : true;
+  
+  if(vid) {
+    vid.muted = !nowMuted;
+    vid.volume = nowMuted ? 1 : 0;
+    try { vid.play(); } catch(e) {}
+  }
+  if(aud) {
+    aud.muted = !nowMuted;
+    aud.volume = nowMuted ? 1 : 0;
+    try { aud.play(); } catch(e) {}
+  }
   if(btn) btn.textContent = nowMuted ? '[Mute]' : '[Sound ON]';
 }
 
