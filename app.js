@@ -415,9 +415,9 @@ async function loadBanners(){
       // Build media element - video takes priority over image
       const videoMuted = b.videoMuted !== false;
       const imgTag = hasVid
-        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" ' + (videoMuted?'muted':'') + ' autoplay playsinline loop preload="auto"></video>'
-        : hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};" loading="lazy" alt="">` : '';
-      const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;top:12px;right:12px;z-index:10;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:.8rem;cursor:pointer;" title="Toggle sound">' + (videoMuted?'[mute]':'[sound]') + '</button>' : '';
+        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:1;" ' + (videoMuted?'muted':'') + ' autoplay playsinline loop preload="auto"></video>'
+        : hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};z-index:1;" loading="lazy" alt="">` : '';
+      const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;top:12px;right:12px;z-index:100;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:.8rem;cursor:pointer;font-weight:700;" title="Toggle sound">' + (videoMuted?'[Sound ON]':'[Mute]') + '</button>' : '';
       const showText = b.textSize !== 'none';
 
       // Text position &mdash; actually move the overlay vertically
@@ -429,10 +429,10 @@ async function loadBanners(){
       else if(pos==='right')  overlayStyle += 'top:0;bottom:0;justify-content:center;align-items:flex-end;text-align:right;';
       else                    overlayStyle += 'top:0;bottom:0;justify-content:center;align-items:center;text-align:center;'; // center
 
-      return `<div class="hero-slide ${animClass}" style="position:relative;overflow:hidden;flex:0 0 100%;width:100%;height:100%;${(hasBg||hasVid)?'background:#111':'background:'+gradBg}">
+      return `<div class="hero-slide ${animClass}" style="position:relative;overflow:hidden;flex:0 0 100%;width:100%;height:100%;background:${hasVid?'transparent':(hasBg?'#000':gradBg)}">
         ${imgTag}
         ${unmuteBtn}
-        ${showText?`<div style="${overlayStyle}z-index:1;">
+        ${showText?`<div style="${overlayStyle}z-index:2;">
           <h1 style="font-size:clamp(.85rem,${hSz},${hSz});font-weight:800;color:${tClr};text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bottom:6px;line-height:1.2;font-family:'Poppins',sans-serif;">${b.headline||''}</h1>
           ${b.subtitle?`<p style="color:${tClr};opacity:.92;font-size:clamp(.7rem,.95rem,.95rem);text-shadow:0 1px 4px rgba(0,0,0,.4);margin:0;line-height:1.5;">${b.subtitle}</p>`:''}
         </div>`:''}
