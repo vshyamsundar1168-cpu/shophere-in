@@ -465,7 +465,12 @@ async function loadBanners(){
     setTimeout(function(){
       sliderBans.forEach(function(b){
         var vid = document.getElementById('bn-vid-' + b.id);
-        if(vid){ vid.muted = true; vid.volume = 0; try{vid.play();}catch(e){} }
+        if(vid){
+          // Respect videoMuted setting - false means play with sound
+          if(b.videoMuted === true){ vid.muted = true; vid.volume = 0; }
+          else { vid.muted = false; vid.volume = 1; }
+          try{vid.play();}catch(e){}
+        }
       });
       heroGo(0);
     }, 100);
@@ -530,7 +535,12 @@ function heroGo(i){
     clearInterval(heroTimer);
     var vid = document.getElementById('bn-vid-' + curBan.id);
     var aud = document.getElementById('bn-aud-' + curBan.id);
-    if(vid){ vid.muted = true; vid.volume = 0; vid.currentTime = 0; vid.play().catch(function(){}); }
+    if(vid){
+      // Respect videoMuted setting
+      if(curBan.videoMuted === true){ vid.muted = true; vid.volume = 0; }
+      else { vid.muted = false; vid.volume = 1; }
+      vid.currentTime = 0; vid.play().catch(function(){});
+    }
     if(aud){ aud.currentTime = 0; aud.play().catch(function(){}); }
     // Advance after max(30s, video duration)
     if(sliderBans.length > 1) {

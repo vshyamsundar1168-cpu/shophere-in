@@ -261,6 +261,15 @@ async function uploadToCloudinary(fileData, mimeType, filename) {
         `shophere\r\n`
       ));
 
+      // Preserve audio for video uploads
+      if(isVideo) {
+        chunks.push(Buffer.from(
+          `--${boundary}\r\n` +
+          `Content-Disposition: form-data; name="eager"\r\n\r\n` +
+          `vc_auto\r\n`
+        ));
+      }
+
       chunks.push(Buffer.from(`--${boundary}--\r\n`));
 
       const body    = Buffer.concat(chunks);
