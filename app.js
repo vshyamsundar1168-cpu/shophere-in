@@ -415,7 +415,7 @@ async function loadBanners(){
       // Build media element - video takes priority over image
       const videoMuted = b.videoMuted !== false;
       const imgTag = hasVid
-        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:2;background:#000;" ' + (videoMuted?'muted':'') + ' autoplay playsinline preload="auto"></video>'
+        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:2;background:#000;" muted autoplay playsinline preload="auto" webkit-playsinline x5-playsinline x5-video-player-type="h5" x5-video-player-fullscreen="false"></video>'
         : hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};z-index:1;" loading="lazy" alt="">` : '';
       const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;bottom:20px;right:20px;z-index:100;background:rgba(249,115,22,0.92);color:#fff;border:none;border-radius:50px;padding:10px 20px;font-size:.95rem;cursor:pointer;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.4);animation:bn-pulse 2s ease infinite;letter-spacing:.5px;" title="Click to hear music">' + (videoMuted?'&#9654; Sound ON':'&#128264; Mute') + '</button>' : '';
       const showText = b.textSize !== 'none';
@@ -463,15 +463,17 @@ async function loadBanners(){
 
     heroIdx = 0;
     if(sliderBans.length>1){ clearInterval(heroTimer); clearTimeout(heroTimer); }
-    // Ensure first slide videos play properly
+    // Ensure first slide videos play properly on mobile
     setTimeout(function(){
       sliderBans.forEach(function(b){
         var vid = document.getElementById('bn-vid-' + b.id);
         if(vid){
-          // Respect videoMuted setting - false means play with sound
-          if(b.videoMuted === true){ vid.muted = true; vid.volume = 0; }
-          else { vid.muted = false; vid.volume = 1; }
-          try{vid.play();}catch(e){}
+          vid.muted = true; // always start muted for autoplay compatibility
+          vid.volume = 0;
+          vid.setAttribute('muted', '');
+          vid.setAttribute('playsinline', '');
+          vid.setAttribute('webkit-playsinline', '');
+          try{ vid.play(); }catch(e){}
         }
       });
       heroGo(0);
@@ -550,7 +552,18 @@ function heroGo(i){
       vid.play().catch(function(){
         // Autoplay blocked - try muted
         vid.muted = true; vid.volume = 0;
-        vid.play().catch(function(){});
+        vid.play().catch(function(){
+          // Still blocked - show tap to play overlay
+          var overlay = document.createElement('div');
+          overlay.style.cssText = 'position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);cursor:pointer;';
+          overlay.innerHTML = '<div style="background:rgba(249,115,22,.9);color:#fff;padding:14px 28px;border-radius:50px;font-size:1.1rem;font-weight:700;">Tap to Play Video</div>';
+          overlay.onclick = function() {
+            vid.muted = false;
+            vid.play().catch(function(){ vid.muted=true; vid.play().catch(function(){}); });
+            overlay.remove();
+          };
+          if(curSlide) curSlide.appendChild(overlay);
+        });
       });
 
       // Remove old ended listener
