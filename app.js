@@ -444,36 +444,22 @@ async function loadBanners(){
     ).join('');
 
     // Enable sound on first user interaction anywhere on page
-    document.addEventListener('click', function bnAutoUnmute() {
+    // But only if click is NOT on the Sound ON button (button handles itself)
+    document.addEventListener('click', function bnAutoUnmute(e) {
+      // Skip if user clicked the Sound ON button - it handles itself
+      if(e.target && e.target.id && e.target.id.indexOf('bn-mute-btn') === 0) return;
       var vids = document.querySelectorAll('.hero-slide video');
       vids.forEach(function(v) {
         if(v.muted) {
           v.muted = false;
           v.volume = 1;
-          v.play().catch(function(){});
+          // Don't restart video - just unmute the currently playing video
           var btn = document.getElementById('bn-mute-btn-' + v.id.replace('bn-vid-',''));
-          if(btn) btn.innerHTML = '&#128264; Mute';
+          if(btn) btn.innerHTML = 'Mute';
         }
       });
       document.removeEventListener('click', bnAutoUnmute);
-    }, {once: true});
-
-    // Also try immediately - works for return visitors
-    setTimeout(function() {
-      var vids = document.querySelectorAll('.hero-slide video');
-      vids.forEach(function(v) {
-        v.muted = false;
-        v.volume = 1;
-        v.play().then(function() {
-          // Autoplay with sound worked
-          var btn = document.getElementById('bn-mute-btn-' + v.id.replace('bn-vid-',''));
-          if(btn) btn.innerHTML = '&#128264; Mute';
-        }).catch(function() {
-          // Browser blocked - keep muted, show unmute button
-          v.muted = true;
-        });
-      });
-    }, 500);
+    }, {once: false});
 
     heroIdx = 0;
     if(sliderBans.length>1){ clearInterval(heroTimer); clearTimeout(heroTimer); }
@@ -494,7 +480,6 @@ async function loadBanners(){
 }
 
 function bnToggleMute(banId) {
-  // Find video by querySelector within the slide - more reliable than getElementById
   var slides = document.querySelectorAll('.hero-slide');
   var vid = null, aud = null;
   slides.forEach(function(s) {
@@ -503,24 +488,22 @@ function bnToggleMute(banId) {
     var a = s.querySelector('audio');
     if(a && a.id === 'bn-aud-' + banId) aud = a;
   });
-  // Also try direct getElementById as fallback
   if(!vid) vid = document.getElementById('bn-vid-' + banId);
   if(!aud) aud = document.getElementById('bn-aud-' + banId);
-  
+
   var btn = document.getElementById('bn-mute-btn-' + banId);
   var nowMuted = vid ? vid.muted : true;
-  
+
   if(vid) {
     vid.muted = !nowMuted;
     vid.volume = nowMuted ? 1 : 0;
-    try { vid.play(); } catch(e) {}
+    // DO NOT call vid.play() - it would restart the video and reset the 30s timer
   }
   if(aud) {
     aud.muted = !nowMuted;
     aud.volume = nowMuted ? 1 : 0;
-    try { aud.play(); } catch(e) {}
   }
-  if(btn) btn.textContent = nowMuted ? '[Mute]' : '[Sound ON]';
+  if(btn) btn.textContent = nowMuted ? 'Mute' : 'Sound ON';
 }
 
 function heroGo(i){
