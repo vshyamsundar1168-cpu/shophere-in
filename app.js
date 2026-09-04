@@ -533,58 +533,81 @@ function heroGo(i){
   });
   // Play current slide video, pause others
   var slides = document.querySelectorAll('.hero-slide');
+  const sliderBans = allBanners.filter(function(b){ return !b.displayMode||b.displayMode==='slider'; });
+  const curBan = sliderBans[i];
+  var isCurBanVideo = curBan && curBan.bgVideo && curBan.bgVideo.trim() && curBan.bgVideo !== 'NONE';
+
   slides.forEach(function(slide, j){
     var vid = slide.querySelector('video');
     var aud = slide.querySelector('audio');
     if(j === i){
-      if(vid){ vid.muted=true; vid.currentTime=0; vid.play().catch(function(){}); }
-      if(aud){ aud.muted=true; aud.currentTime=0; aud.play().catch(function(){}); }
+      // Don't mute here - let the curBan section handle muting for video slides
+      if(!isCurBanVideo){
+        if(vid){ vid.currentTime=0; vid.play().catch(function(){}); }
+        if(aud){ aud.currentTime=0; aud.play().catch(function(){}); }
+      }
     } else {
       if(vid){ try{vid.pause();}catch(e){} }
       if(aud){ try{aud.pause();}catch(e){} }
     }
   });
-  // Play video/audio on current slide and set minimum 30s timer
-  const sliderBans = allBanners.filter(function(b){ return !b.displayMode||b.displayMode==='slider'; });
-  const curBan = sliderBans[i];
+
+  // Set timer and play video
   clearInterval(heroTimer);
   clearTimeout(heroTimer);
 
-  if(curBan && curBan.bgVideo) {
-    // Get the video element from current slide
+  if(isCurBanVideo) {
     var curSlide = slides[i];
     var vid = curSlide ? curSlide.querySelector('video') : null;
     if(vid){
+      // Set mute based on banner setting
       if(curBan.videoMuted === true){ vid.muted = true; vid.volume = 0; }
       else { vid.muted = false; vid.volume = 1; }
       vid.currentTime = 0;
-      vid.play().catch(function(){});
+      vid.play().catch(function(){
+        // Autoplay blocked - try muted
+        vid.muted = true; vid.volume = 0;
+        vid.play().catch(function(){});
+      });
 
       // Remove old ended listener
       if(vid._heroEndedFn) vid.removeEventListener('ended', vid._heroEndedFn);
 
-      // When video ends, wait remaining time to reach 30s then advance
+      // When video ends naturally, wait remaining time to 30s then advance
       vid._heroEndedFn = function() {
         if(sliderBans.length > 1) {
           var elapsed = vid.duration || 0;
           var remaining = Math.max(0, 30000 - elapsed * 1000);
-          heroTimer = setTimeout(heroNext, remaining);
+          if(remaining > 100) {
+            heroTimer = setTimeout(heroNext, remaining);
+          } else {
+            heroNext();
+          }
         }
       };
       vid.addEventListener('ended', vid._heroEndedFn);
 
-      // Safety timer: advance after max(video duration+2s, 30s) in case ended doesn't fire
-      var safetyDelay = 30000;
-      if(vid.duration && !isNaN(vid.duration) && vid.duration > 0) {
-        safetyDelay = Math.max(30000, Math.ceil(vid.duration + 2) * 1000);
-      }
-      vid.addEventListener('loadedmetadata', function onMeta(){
+      // Safety timer: use video duration if known, else 30s
+      function setVideoTimer() {
         clearTimeout(heroTimer);
-        safetyDelay = Math.max(30000, Math.ceil(vid.duration + 2) * 1000);
-        if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, safetyDelay);
-        vid.removeEventListener('loadedmetadata', onMeta);
-      });
-      if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, safetyDelay);
+        var dur = (vid.duration && !isNaN(vid.duration) && vid.duration > 0) ? vid.duration : 30;
+        var delay = Math.max(30, dur) * 1000; // minimum 30 seconds
+        if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, delay);
+      }
+
+      if(vid.readyState >= 1 && vid.duration && !isNaN(vid.duration)) {
+        setVideoTimer();
+      } else {
+        vid.addEventListener('loadedmetadata', function onMeta(){
+          setVideoTimer();
+          vid.removeEventListener('loadedmetadata', onMeta);
+        });
+        // Fallback if metadata never loads
+        if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, 30000);
+      }
+    } else {
+      // Video element not found - treat as image slide
+      if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, 30000);
     }
   } else if(sliderBans.length > 1) {
     // Image slide - advance after 5 seconds
