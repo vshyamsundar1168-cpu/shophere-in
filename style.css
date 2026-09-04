@@ -75,20 +75,20 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
 .hero-slider{
   position:relative;
   width:100%;
-  height:520px;
+  height:420px;
   overflow:hidden;
   background:#1e293b;
   min-height:120px;
   transition:height .3s;
 }
-/* Sliding track -- all slides sit side by side */
+/* Sliding track */
 .hero-track{
   display:flex;
   height:100%;
   transition:transform .5s cubic-bezier(.4,0,.2,1);
   will-change:transform;
 }
-/* Each slide takes full width of container */
+/* Each slide */
 .hero-slide{
   flex:0 0 100%;
   width:100%;
@@ -96,20 +96,16 @@ header{background:var(--sec);position:sticky;top:0;z-index:200;box-shadow:0 2px 
   position:relative;
   overflow:hidden;
 }
-  position:relative;
-  overflow:hidden;
-}
-/* Banner image -- fits fully without crop */
+/* Banner image -- object-fit:contain shows full image, no crop */
 .hero-slide img.banner-img{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
-  object-fit:contain;
-  object-position:center;
+  object-fit:cover;
+  object-position:center top;
   display:block;
   z-index:1;
-  background:#000;
 }
 /* Banner VIDEO */
 .hero-slide video{
