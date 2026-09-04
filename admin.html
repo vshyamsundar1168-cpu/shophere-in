@@ -2075,6 +2075,43 @@ async function saveProdCf(prodId, key, value) {
   }
 }
 
+async function deleteProductVideo(productId, videoIdx) {
+  if (!confirm('Delete this video?')) return;
+  const p = allProds.find(x => x.id === productId);
+  if (!p) return;
+  const newVideos = (p.videos || []).filter((_, i) => i !== videoIdx);
+  try {
+    await fetch('/api/products/' + productId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ videos: newVideos })
+    });
+    toast('Video deleted');
+    // Refresh edit modal
+    closeEdit();
+    await loadProducts();
+    openEdit(productId);
+  } catch(e) { toast('x Delete failed: ' + e.message); }
+}
+
+async function deleteProductAudio(productId, audioIdx) {
+  if (!confirm('Delete this audio?')) return;
+  const p = allProds.find(x => x.id === productId);
+  if (!p) return;
+  const newAudios = (p.audios || []).filter((_, i) => i !== audioIdx);
+  try {
+    await fetch('/api/products/' + productId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ audios: newAudios })
+    });
+    toast('Audio deleted');
+    closeEdit();
+    await loadProducts();
+    openEdit(productId);
+  } catch(e) { toast('x Delete failed: ' + e.message); }
+}
+
 async function deleteProduct(id) {
   if (!confirm('Delete this product?')) return;
   try {
@@ -2237,6 +2274,22 @@ async function openEdit(id) {
   const currentImgs = p.images && p.images.length
     ? `<div class="form-group"><label>Current Images</label><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">${p.images.map(img => `<img src="${img.url}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:2px solid var(--b)" alt="">`).join('')}</div></div>` : '';
 
+  // Current videos with delete buttons
+  const currentVids = p.videos && p.videos.length
+    ? `<div class="form-group"><label>Current Videos</label><div style="margin-top:6px">${p.videos.map((v,idx) => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:#f8fafc;border-radius:8px;padding:8px;">
+        <video src="${v.url}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;background:#000;" controls></video>
+        <div style="flex:1;font-size:.75rem;color:var(--m);word-break:break-all;">${v.name||'Video '+(idx+1)}</div>
+        <button onclick="deleteProductVideo(${p.id},${idx})" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer;white-space:nowrap;">Delete</button>
+      </div>`).join('')}</div></div>` : '';
+
+  // Current audios with delete buttons
+  const currentAuds = p.audios && p.audios.length
+    ? `<div class="form-group"><label>Current Audio Files</label><div style="margin-top:6px">${p.audios.map((a,idx) => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:#f8fafc;border-radius:8px;padding:8px;">
+        <audio src="${a.url}" controls style="flex:1;height:36px;"></audio>
+        <div style="font-size:.75rem;color:var(--m);">${a.name||'Audio '+(idx+1)}</div>
+        <button onclick="deleteProductAudio(${p.id},${idx})" style="padding:6px 12px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer;white-space:nowrap;">Delete</button>
+      </div>`).join('')}</div></div>` : '';
+
   // Build custom column fields for edit modal
   const cf = p.customFields || {};
   const allCols = window.allCustomCols || [];
@@ -2285,6 +2338,8 @@ async function openEdit(id) {
     </div>
     <div class="form-group"><label><input type="checkbox" id="ep_feat"${p.featured ? ' checked' : ''}> Featured</label></div>
     ${currentImgs}
+    ${currentVids}
+    ${currentAuds}
     <div class="form-group"><label>Add More Images</label>
       <input type="file" id="ep_images" multiple accept="image/*" onchange="previewImages(this,'ep_imgPrev')">
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px" id="ep_imgPrev"></div>

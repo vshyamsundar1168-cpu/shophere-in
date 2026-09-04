@@ -418,6 +418,10 @@ async function loadBanners(){
         ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:2;background:#000;" muted autoplay playsinline preload="auto" webkit-playsinline x5-playsinline x5-video-player-type="h5" x5-video-player-fullscreen="false"></video>'
         : hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};z-index:1;" loading="lazy" alt="">` : '';
       const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;bottom:20px;right:20px;z-index:100;background:rgba(249,115,22,0.92);color:#fff;border:none;border-radius:50px;padding:10px 20px;font-size:.95rem;cursor:pointer;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.4);animation:bn-pulse 2s ease infinite;letter-spacing:.5px;" title="Click to hear music">' + (videoMuted?'&#9654; Sound ON':'&#128264; Mute') + '</button>' : '';
+      const zoomBtns = hasVid ? '<div style="position:absolute;top:12px;left:12px;z-index:100;display:flex;gap:6px;">' +
+        '<button onclick="event.stopPropagation();bnZoom(' + b.id + ',\'cover\')" title="Zoom In" style="background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:6px;width:32px;height:32px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>' +
+        '<button onclick="event.stopPropagation();bnZoom(' + b.id + ',\'contain\')" title="Zoom Out / Fit" style="background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:6px;width:32px;height:32px;font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">Fit</button>' +
+        '</div>' : '';
       const showText = b.textSize !== 'none';
 
       // Text position &mdash; actually move the overlay vertically
@@ -432,6 +436,7 @@ async function loadBanners(){
       return `<div class="hero-slide ${animClass}" style="position:relative;overflow:hidden;flex:0 0 100%;width:100%;height:100%;background:${hasBg||hasVid?'#000':gradBg}">
         ${imgTag}
         ${unmuteBtn}
+        ${zoomBtns}
         ${showText?`<div style="${overlayStyle}z-index:2;">
           <h1 style="font-size:clamp(.85rem,${hSz},${hSz});font-weight:800;color:${tClr};text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bottom:6px;line-height:1.2;font-family:'Poppins',sans-serif;">${b.headline||''}</h1>
           ${b.subtitle?`<p style="color:${tClr};opacity:.92;font-size:clamp(.7rem,.95rem,.95rem);text-shadow:0 1px 4px rgba(0,0,0,.4);margin:0;line-height:1.5;">${b.subtitle}</p>`:''}
@@ -479,6 +484,16 @@ async function loadBanners(){
       heroGo(0);
     }, 100);
   }catch(e){ console.warn('Banners failed',e); }
+}
+
+function bnZoom(banId, fit) {
+  var slides = document.querySelectorAll('.hero-slide');
+  slides.forEach(function(s) {
+    var v = s.querySelector('video');
+    if(v && v.id === 'bn-vid-' + banId) {
+      v.style.objectFit = fit;
+    }
+  });
 }
 
 function bnToggleMute(banId) {
@@ -820,8 +835,11 @@ async function openProduct(id){
       : '';
     thumbs = `<div style="margin-top:8px"><div style="display:flex;gap:8px;flex-wrap:wrap">${visibleHtml}</div>${hiddenHtml}</div>`;
   }
-  const videos=p.videos&&p.videos.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px"> Videos</h4>${p.videos.map(v=>`<video src="${v.url}" controls style="width:100%;border-radius:8px;margin-bottom:6px;max-height:200px"></video>`).join('')}</div>`:'';
-  const audios=p.audios&&p.audios.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px"> Audio</h4>${p.audios.map(a=>`<div style="margin-bottom:8px"><div style="font-size:.73rem;color:var(--m);margin-bottom:3px">${a.name}</div><audio src="${a.url}" controls style="width:100%"></audio></div>`).join('')}</div>`:'';
+  // Only show videos with valid Cloudinary URLs (not broken /uploads/ paths)
+  const validVideos = (p.videos||[]).filter(v=>v.url && v.url.includes('cloudinary.com'));
+  const validAudios = (p.audios||[]).filter(a=>a.url && a.url.includes('cloudinary.com'));
+  const videos=validVideos.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">Videos</h4>${validVideos.map(v=>`<video src="${v.url}" controls playsinline style="width:100%;border-radius:8px;margin-bottom:6px;max-height:200px"></video>`).join('')}</div>`:'';
+  const audios=validAudios.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">Audio</h4>${validAudios.map(a=>`<div style="margin-bottom:8px"><div style="font-size:.73rem;color:var(--m);margin-bottom:3px">${a.name}</div><audio src="${a.url}" controls style="width:100%"></audio></div>`).join('')}</div>`:'';
   let revs=[]; try{revs=await fetch(`/api/reviews/${id}`).then(r=>r.json());}catch(e){}
   const revList=revs.length?revs.map(r=>`<div style="border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:8px"><div style="display:flex;justify-content:space-between"><strong style="font-size:.83rem">${r.name}</strong><span style="font-size:.72rem;color:var(--m)">${new Date(r.date).toLocaleDateString('en-IN')}</span></div><div style="color:#f59e0b;font-size:.82rem">${'&#9733;'.repeat(r.rating)}${'&#9734;'.repeat(5-r.rating)}</div><p style="font-size:.82rem;margin-top:4px;color:var(--t)">${r.text}</p></div>`).join(''):'<p style="color:var(--m);font-size:.84rem">No reviews yet.</p>';
   document.getElementById('pmBody').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
