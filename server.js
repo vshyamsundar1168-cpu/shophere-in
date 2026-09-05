@@ -610,6 +610,19 @@ const server = http.createServer(async (req, res) => {
         } else {
           finalImages = [...(prev.images||[]),...media.images];
         }
+        // If videos/audios arrays passed directly in JSON body (delete), use as-is
+        let finalVideos;
+        if (!ct.includes('multipart') && Array.isArray(fields.videos)) {
+          finalVideos = fields.videos; // full replacement (supports delete)
+        } else {
+          finalVideos = [...(prev.videos||[]),...media.videos];
+        }
+        let finalAudios;
+        if (!ct.includes('multipart') && Array.isArray(fields.audios)) {
+          finalAudios = fields.audios; // full replacement (supports delete)
+        } else {
+          finalAudios = [...(prev.audios||[]),...media.audios];
+        }
         const updated={
         name:fields.name||prev.name, brand:fields.brand||prev.brand,
         category:fields.category||prev.category,
@@ -620,8 +633,8 @@ const server = http.createServer(async (req, res) => {
         badge:fields.badge!==undefined?fields.badge:prev.badge,
         featured:fields.featured!==undefined?(fields.featured==='true'):prev.featured,
         images: finalImages,
-        videos:[...(prev.videos||[]),...media.videos],
-        audios:[...(prev.audios||[]),...media.audios],
+        videos: finalVideos,
+        audios: finalAudios,
         customFields: mergedCustomFields,
       };
       const result = await db.collection('products').findOneAndUpdate(
