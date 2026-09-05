@@ -836,8 +836,8 @@ async function openProduct(id){
     thumbs = `<div style="margin-top:8px"><div style="display:flex;gap:8px;flex-wrap:wrap">${visibleHtml}</div>${hiddenHtml}</div>`;
   }
   // Only show videos with valid Cloudinary URLs (not broken /uploads/ paths)
-  const validVideos = (p.videos||[]).filter(v=>v.url && v.url.includes('cloudinary.com'));
-  const validAudios = (p.audios||[]).filter(a=>a.url && a.url.includes('cloudinary.com'));
+  const validVideos = (p.videos||[]).filter(v=>v.url && v.url.trim() !== '');
+  const validAudios = (p.audios||[]).filter(a=>a.url && a.url.trim() !== '');
   const videos=validVideos.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">Videos</h4>${validVideos.map(v=>`<video src="${v.url}" controls playsinline style="width:100%;border-radius:8px;margin-bottom:6px;max-height:200px"></video>`).join('')}</div>`:'';
   const audios=validAudios.length?`<div style="margin-top:12px"><h4 style="font-size:.8rem;font-weight:700;color:var(--m);margin-bottom:6px">Audio</h4>${validAudios.map(a=>`<div style="margin-bottom:8px"><div style="font-size:.73rem;color:var(--m);margin-bottom:3px">${a.name}</div><audio src="${a.url}" controls style="width:100%"></audio></div>`).join('')}</div>`:'';
   let revs=[]; try{revs=await fetch(`/api/reviews/${id}`).then(r=>r.json());}catch(e){}
