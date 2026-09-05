@@ -415,12 +415,13 @@ async function loadBanners(){
       // Build media element - video takes priority over image
       const videoMuted = b.videoMuted !== false;
       const imgTag = hasVid
-        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:2;background:#000;" muted autoplay playsinline preload="auto" webkit-playsinline x5-playsinline x5-video-player-type="h5" x5-video-player-fullscreen="false"></video>'
+        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:2;background:#000;" muted autoplay playsinline preload="auto" webkit-playsinline></video>'
         : hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};z-index:1;" loading="lazy" alt="">` : '';
-      const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;bottom:20px;right:20px;z-index:100;background:rgba(249,115,22,0.92);color:#fff;border:none;border-radius:50px;padding:10px 20px;font-size:.95rem;cursor:pointer;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.4);animation:bn-pulse 2s ease infinite;letter-spacing:.5px;" title="Click to hear music">' + (videoMuted?'&#9654; Sound ON':'&#128264; Mute') + '</button>' : '';
-      const zoomBtns = hasVid ? '<div style="position:absolute;top:12px;left:12px;z-index:100;display:flex;gap:6px;">' +
-        '<button onclick="event.stopPropagation();bnZoom(' + b.id + ',\'cover\')" title="Zoom In" style="background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:6px;width:32px;height:32px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>' +
-        '<button onclick="event.stopPropagation();bnZoom(' + b.id + ',\'contain\')" title="Zoom Out / Fit" style="background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:6px;width:32px;height:32px;font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">Fit</button>' +
+      const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;bottom:16px;right:16px;z-index:200;background:rgba(249,115,22,.92);color:#fff;border:none;border-radius:50px;padding:8px 18px;font-size:.9rem;cursor:pointer;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.4);">' + '&#9654; Sound ON' + '</button>' : '';
+      const zoomBtns = hasVid ? '<div style="position:absolute;top:10px;left:10px;z-index:200;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.6);border-radius:8px;padding:4px 8px;">' +
+        '<button onclick="event.stopPropagation();bnZoomStep(' + b.id + ',-10)" style="background:none;color:#fff;border:none;font-size:1.1rem;cursor:pointer;padding:2px 6px;line-height:1;">-</button>' +
+        '<span id="bn-zoom-' + b.id + '" style="color:#fff;font-size:.75rem;min-width:30px;text-align:center;">100%</span>' +
+        '<button onclick="event.stopPropagation();bnZoomStep(' + b.id + ',10)" style="background:none;color:#fff;border:none;font-size:1.1rem;cursor:pointer;padding:2px 6px;line-height:1;">+</button>' +
         '</div>' : '';
       const showText = b.textSize !== 'none';
 
@@ -449,41 +450,50 @@ async function loadBanners(){
     ).join('');
 
     // Enable sound on first user interaction anywhere on page
-    // But only if click is NOT on the Sound ON button (button handles itself)
-    document.addEventListener('click', function bnAutoUnmute(e) {
-      // Skip if user clicked the Sound ON button - it handles itself
+    var _bnUnmuteAdded = false;
+    function bnAutoUnmute(e) {
       if(e.target && e.target.id && e.target.id.indexOf('bn-mute-btn') === 0) return;
-      var vids = document.querySelectorAll('.hero-slide video');
-      vids.forEach(function(v) {
-        if(v.muted) {
-          v.muted = false;
-          v.volume = 1;
-          // Don't restart video - just unmute the currently playing video
-          var btn = document.getElementById('bn-mute-btn-' + v.id.replace('bn-vid-',''));
-          if(btn) btn.innerHTML = 'Mute';
-        }
+      if(e.target && e.target.textContent === 'Tap to Play Video') return;
+      document.querySelectorAll('.hero-slide video').forEach(function(v) {
+        if(v.paused) { v.muted=true; try{v.play();}catch(ex){} }
       });
       document.removeEventListener('click', bnAutoUnmute);
-    }, {once: false});
+      document.removeEventListener('touchend', bnAutoUnmute);
+    }
+    document.addEventListener('click', bnAutoUnmute, {once: true});
+    document.addEventListener('touchend', bnAutoUnmute, {once: true});
 
     heroIdx = 0;
     if(sliderBans.length>1){ clearInterval(heroTimer); clearTimeout(heroTimer); }
-    // Ensure first slide videos play properly on mobile
+    // Start first slide
     setTimeout(function(){
-      sliderBans.forEach(function(b){
-        var vid = document.getElementById('bn-vid-' + b.id);
-        if(vid){
-          vid.muted = true; // always start muted for autoplay compatibility
-          vid.volume = 0;
-          vid.setAttribute('muted', '');
-          vid.setAttribute('playsinline', '');
-          vid.setAttribute('webkit-playsinline', '');
-          try{ vid.play(); }catch(e){}
-        }
-      });
       heroGo(0);
-    }, 100);
+    }, 300);
   }catch(e){ console.warn('Banners failed',e); }
+}
+
+// Store zoom levels per banner
+var _bnZoomLevels = {};
+
+function bnZoomStep(banId, step) {
+  if(!_bnZoomLevels[banId]) _bnZoomLevels[banId] = 100;
+  _bnZoomLevels[banId] = Math.max(50, Math.min(200, _bnZoomLevels[banId] + step));
+  var pct = _bnZoomLevels[banId];
+  var slides = document.querySelectorAll('.hero-slide');
+  slides.forEach(function(s) {
+    var v = s.querySelector('video');
+    if(v && v.id === 'bn-vid-' + banId) {
+      if(pct <= 100) {
+        v.style.objectFit = 'contain';
+        v.style.transform = 'scale(' + (pct/100) + ')';
+      } else {
+        v.style.objectFit = 'cover';
+        v.style.transform = 'scale(' + (pct/100) + ')';
+      }
+    }
+  });
+  var label = document.getElementById('bn-zoom-' + banId);
+  if(label) label.textContent = pct + '%';
 }
 
 function bnZoom(banId, fit) {
@@ -564,22 +574,15 @@ function heroGo(i){
       if(curBan.videoMuted === true){ vid.muted = true; vid.volume = 0; }
       else { vid.muted = false; vid.volume = 1; }
       vid.currentTime = 0;
-      vid.play().catch(function(){
-        // Autoplay blocked - try muted
-        vid.muted = true; vid.volume = 0;
-        vid.play().catch(function(){
-          // Still blocked - show tap to play overlay
-          var overlay = document.createElement('div');
-          overlay.style.cssText = 'position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);cursor:pointer;';
-          overlay.innerHTML = '<div style="background:rgba(249,115,22,.9);color:#fff;padding:14px 28px;border-radius:50px;font-size:1.1rem;font-weight:700;">Tap to Play Video</div>';
-          overlay.onclick = function() {
-            vid.muted = false;
-            vid.play().catch(function(){ vid.muted=true; vid.play().catch(function(){}); });
-            overlay.remove();
-          };
-          if(curSlide) curSlide.appendChild(overlay);
+      vid.muted = true;
+      vid.volume = 0;
+      var playPromise = vid.play();
+      if(playPromise !== undefined) {
+        playPromise.catch(function() {
+          // Autoplay blocked - video stays paused, user sees Sound ON button
+          console.log('Banner video autoplay blocked on slide', i);
         });
-      });
+      }
 
       // Remove old ended listener
       if(vid._heroEndedFn) vid.removeEventListener('ended', vid._heroEndedFn);
