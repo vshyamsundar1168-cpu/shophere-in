@@ -570,57 +570,23 @@ function heroGo(i){
     var curSlide = slides[i];
     var vid = curSlide ? curSlide.querySelector('video') : null;
     if(vid){
-      // Set mute based on banner setting
-      if(curBan.videoMuted === true){ vid.muted = true; vid.volume = 0; }
-      else { vid.muted = false; vid.volume = 1; }
-      vid.currentTime = 0;
       vid.muted = true;
       vid.volume = 0;
-      var playPromise = vid.play();
-      if(playPromise !== undefined) {
-        playPromise.catch(function() {
-          // Autoplay blocked - video stays paused, user sees Sound ON button
-          console.log('Banner video autoplay blocked on slide', i);
-        });
-      }
+      vid.currentTime = 0;
+      vid.play().catch(function(){});
 
-      // Remove old ended listener
+      // Remove old ended listener to avoid duplicates
       if(vid._heroEndedFn) vid.removeEventListener('ended', vid._heroEndedFn);
 
-      // When video ends naturally, wait remaining time to 30s then advance
-      vid._heroEndedFn = function() {
-        if(sliderBans.length > 1) {
-          var elapsed = vid.duration || 0;
-          var remaining = Math.max(0, 30000 - elapsed * 1000);
-          if(remaining > 100) {
-            heroTimer = setTimeout(heroNext, remaining);
-          } else {
-            heroNext();
-          }
-        }
-      };
-      vid.addEventListener('ended', vid._heroEndedFn);
-
-      // Safety timer: use video duration if known, else 30s
-      function setVideoTimer() {
-        clearTimeout(heroTimer);
-        var dur = (vid.duration && !isNaN(vid.duration) && vid.duration > 0) ? vid.duration : 30;
-        var delay = Math.max(30, dur) * 1000; // minimum 30 seconds
-        if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, delay);
-      }
-
-      if(vid.readyState >= 1 && vid.duration && !isNaN(vid.duration)) {
-        setVideoTimer();
-      } else {
-        vid.addEventListener('loadedmetadata', function onMeta(){
-          setVideoTimer();
-          vid.removeEventListener('loadedmetadata', onMeta);
-        });
-        // Fallback if metadata never loads
-        if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, 30000);
+      // Simple: advance 30 seconds after video starts playing
+      // Use a single clean timer - always 30 seconds minimum
+      if(sliderBans.length > 1) {
+        heroTimer = setTimeout(function() {
+          heroNext();
+        }, 30000);
       }
     } else {
-      // Video element not found - treat as image slide
+      // Video element not found
       if(sliderBans.length > 1) heroTimer = setTimeout(heroNext, 30000);
     }
   } else if(sliderBans.length > 1) {
