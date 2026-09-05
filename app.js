@@ -403,6 +403,10 @@ async function loadBanners(){
     // Sort: video banners first so they show immediately
     sliderBans.sort(function(a,b){ return (b.bgVideo&&b.bgVideo.trim()&&b.bgVideo!=='NONE'?1:0)-(a.bgVideo&&a.bgVideo.trim()&&a.bgVideo!=='NONE'?1:0); });
 
+    // Save sorted order back to allBanners so heroGo uses same order
+    const otherBans = allBanners.filter(function(b){ return b.displayMode==='grid'; });
+    allBanners = sliderBans.concat(otherBans);
+
     track.innerHTML = sliderBans.map((b,i)=>{
       const fit  = b.objectFit||globalFit;
       const hSz  = ({'xlarge':'3rem','large':'2.4rem','medium':'1.8rem','small':'1.4rem','none':'0'})[b.textSize||(storeSettings&&storeSettings.bannerTextSize)||'large']||'2.4rem';
