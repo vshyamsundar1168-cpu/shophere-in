@@ -1001,6 +1001,36 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { fixed, skipped, results: results.slice(0, 50) });
     }
 
+    // -- MIGRATE BANNER VIDEOS to Cloudinary ------------------------------------
+    if (p === '/api/migrate-banner-videos' && m === 'POST') {
+      const db = getDb();
+      const bans = await db.collection('banners').find({ bgVideo: { $regex: '^/uploads/' } }).toArray();
+      let fixed = 0;
+      const results = [];
+      for (const ban of bans) {
+        try {
+          const localPath = path.join(BASE_DIR, ban.bgVideo);
+          if (!fs.existsSync(localPath)) {
+            results.push({ id: ban.id, status: 'file_missing', url: ban.bgVideo });
+            continue;
+          }
+          const fileData = fs.readFileSync(localPath);
+          const cloudUrl = await uploadToCloudinary(fileData, 'video/mp4', path.basename(localPath));
+          if (cloudUrl) {
+            await db.collection('banners').updateOne({ _id: ban._id }, { $set: { bgVideo: cloudUrl } });
+            fixed++;
+            results.push({ id: ban.id, status: 'migrated', url: cloudUrl });
+            console.log('[MIGRATE-BANNER] migrated banner', ban.id, '->', cloudUrl);
+          } else {
+            results.push({ id: ban.id, status: 'cloudinary_failed', url: ban.bgVideo });
+          }
+        } catch(e) {
+          results.push({ id: ban.id, status: 'error: ' + e.message });
+        }
+      }
+      return sendJSON(res, 200, { total: bans.length, fixed, results });
+    }
+
     // -- CLEAR BROKEN VIDEOS -- remove /uploads/ video URLs from products -----
     if (p === '/api/clear-broken-videos' && m === 'POST') {
       const db = getDb();
