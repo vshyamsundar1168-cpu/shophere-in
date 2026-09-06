@@ -230,16 +230,21 @@ async function loadCloudinaryConfig() {
 }
 
 async function uploadToCloudinary(fileData, mimeType, filename) {
-  if (!_cloudName) return null; // Cloudinary not configured -- fall back to local
+  if (!_cloudName) return null;
+
+  const isVideo = mimeType && (mimeType.startsWith('video/') || mimeType.startsWith('audio/'));
+  const resourceType = isVideo ? 'video' : 'image';
+
+  // Use signed upload for videos (bypasses preset format restrictions)
+  // Use unsigned upload for images (faster, no secret needed)
+  const apiKey    = process.env.CLOUDINARY_API_KEY    || '';
+  const apiSecret = process.env.CLOUDINARY_API_SECRET || '';
 
   return new Promise((resolve) => {
     try {
       const boundary = '----CloudinaryBoundary' + crypto.randomUUID().replace(/-/g,'');
-      const ext      = path.extname(filename).toLowerCase() || '.jpg';
+      const ext      = path.extname(filename).toLowerCase() || (isVideo ? '.mp4' : '.jpg');
       const chunks   = [];
-      // Determine resource type for Cloudinary (image vs video vs raw)
-      const isVideo = mimeType && (mimeType.startsWith('video/') || mimeType.startsWith('audio/'));
-      const resourceType = isVideo ? 'video' : 'image';
 
       chunks.push(Buffer.from(
         `--${boundary}\r\n` +
@@ -249,25 +254,21 @@ async function uploadToCloudinary(fileData, mimeType, filename) {
       chunks.push(fileData);
       chunks.push(Buffer.from('\r\n'));
 
-      chunks.push(Buffer.from(
-        `--${boundary}\r\n` +
-        `Content-Disposition: form-data; name="upload_preset"\r\n\r\n` +
-        `${_uploadPreset}\r\n`
-      ));
+      if (isVideo && apiKey && apiSecret) {
+        // Signed upload for videos -- bypasses all preset restrictions
+        const timestamp = Math.floor(Date.now() / 1000).toString();
+        const folder    = 'shophere';
+        const sigStr    = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+        const signature = crypto.createHash('sha1').update(sigStr).digest('hex');
 
-      chunks.push(Buffer.from(
-        `--${boundary}\r\n` +
-        `Content-Disposition: form-data; name="folder"\r\n\r\n` +
-        `shophere\r\n`
-      ));
-
-      // Preserve audio for video uploads
-      if(isVideo) {
-        chunks.push(Buffer.from(
-          `--${boundary}\r\n` +
-          `Content-Disposition: form-data; name="eager"\r\n\r\n` +
-          `vc_auto\r\n`
-        ));
+        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="api_key"\r\n\r\n${apiKey}\r\n`));
+        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="timestamp"\r\n\r\n${timestamp}\r\n`));
+        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="signature"\r\n\r\n${signature}\r\n`));
+        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="folder"\r\n\r\nshophere\r\n`));
+      } else {
+        // Unsigned upload for images using preset
+        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="upload_preset"\r\n\r\n${_uploadPreset}\r\n`));
+        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="folder"\r\n\r\nshophere\r\n`));
       }
 
       chunks.push(Buffer.from(`--${boundary}--\r\n`));
