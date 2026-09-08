@@ -419,7 +419,7 @@ async function loadBanners(){
       // Build media element - video takes priority over image
       const videoMuted = b.videoMuted !== false;
       const imgTag = hasVid
-        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;z-index:2;background:#000;" muted autoplay playsinline preload="auto" webkit-playsinline></video>'
+        ? '<video id="bn-vid-' + b.id + '" src="' + b.bgVideo + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;z-index:2;background:#000;" muted autoplay playsinline preload="auto" webkit-playsinline></video>'
         : hasBg ? `<img class="banner-img" src="${b.bgImage}" style="object-fit:${fit};z-index:1;" loading="lazy" alt="">` : '';
       const unmuteBtn = hasVid ? '<button onclick="event.stopPropagation();bnToggleMute(' + b.id + ')" id="bn-mute-btn-' + b.id + '" style="position:absolute;bottom:16px;right:16px;z-index:200;background:rgba(249,115,22,.92);color:#fff;border:none;border-radius:50px;padding:8px 18px;font-size:.9rem;cursor:pointer;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.4);">' + '&#9654; Sound ON' + '</button>' : '';
       const zoomBtns = hasVid ? '<div style="position:absolute;top:10px;left:10px;z-index:200;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.6);border-radius:8px;padding:4px 8px;">' +
@@ -487,13 +487,8 @@ function bnZoomStep(banId, step) {
   slides.forEach(function(s) {
     var v = s.querySelector('video');
     if(v && v.id === 'bn-vid-' + banId) {
-      if(pct <= 100) {
-        v.style.objectFit = 'contain';
-        v.style.transform = 'scale(' + (pct/100) + ')';
-      } else {
-        v.style.objectFit = 'cover';
-        v.style.transform = 'scale(' + (pct/100) + ')';
-      }
+      v.style.objectFit = pct >= 100 ? 'cover' : 'contain';
+      v.style.transform = 'scale(' + (pct/100) + ')';
     }
   });
   var label = document.getElementById('bn-zoom-' + banId);

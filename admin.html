@@ -2844,7 +2844,9 @@ async function loadBanners() {
     const animLabels = {'':'None','fade-in':' Fade In','slide-up':' Slide Up','slide-left':' Slide Left','slide-right':' Slide Right','zoom-in':' Zoom In','pulse':' Pulse','bounce':' Bounce'};
     document.getElementById('bannerList').innerHTML = allBanners.length
       ? allBanners.map(b => {
-          const img = b.bgImage ? `<img src="${b.bgImage}" style="width:100%;height:90px;object-fit:${b.objectFit||'contain'};border-radius:6px;display:block" alt="">` : `<div style="height:90px;background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'};border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">${b.headline||''}</div>`;
+          const img = b.bgVideo && b.bgVideo.trim() && b.bgVideo !== 'NONE'
+            ? `<video src="${b.bgVideo}" style="width:100%;height:90px;object-fit:cover;border-radius:6px;display:block" muted playsinline preload="metadata"></video>`
+            : b.bgImage ? `<img src="${b.bgImage}" style="width:100%;height:90px;object-fit:${b.objectFit||'contain'};border-radius:6px;display:block" alt="">` : `<div style="height:90px;background:${b.bgGradient||'linear-gradient(135deg,#1e293b,#f97316)'};border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">${b.headline||''}</div>`;
           const modeLabel = b.displayMode==='grid' ? ` Grid ${b.widthPct||100}%` : ' Slider';
           return `<div style="background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden;display:flex;gap:0">
             <div style="width:160px;flex-shrink:0;padding:8px;border-right:1px solid var(--b)">${img}</div>
