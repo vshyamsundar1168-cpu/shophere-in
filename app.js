@@ -829,7 +829,7 @@ async function openProduct(id){
         ${disc?`<span style="text-decoration:line-through;color:var(--m)">&#8377;${(p.originalPrice||0).toLocaleString('en-IN')}</span><span style="color:var(--g);font-weight:700">${disc}% off</span>`:''}
       </div>
       <div style="margin-bottom:12px">${out?'<span style="color:var(--rd);font-weight:700">Out of Stock</span>':`<span style="color:var(--g);font-weight:700">[OK] In Stock (${p.stock} available)</span>`}</div>
-      ${p.description?`<p style="font-size:.84rem;color:var(--m);margin-bottom:14px;line-height:1.6">${p.description}</p>`:''}
+      ${p.description?`<ul style="font-size:.84rem;color:var(--m);margin-bottom:14px;line-height:1.8;padding-left:18px;list-style:disc">${p.description.split(/\r?\n/).filter(l=>l.trim()).map(l=>'<li style="margin-bottom:3px">'+l.trim()+'</li>').join('')}</ul>`:''}
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
         <button class="btn btn-primary btn-sm" ${out?'disabled style="opacity:.5"':''} onclick="addToCart(${p.id});closeOverlay('productModal')">Add to Cart</button>
         <button class="btn btn-sec btn-sm" ${out?'disabled style="opacity:.5"':''} onclick="buyNow(${p.id});closeOverlay('productModal')">Buy Now</button>
