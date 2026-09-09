@@ -363,20 +363,27 @@ async function processMedia(files) {
   for (const f of files) {
     if (!f.filename || !f.data || f.data.length === 0) continue;
     const kind = mimeKind(f.mimeType);
-    if (!kind) { errors.push(`Unsupported type ${f.mimeType} for ${f.filename}`); continue; }
-    if (f.data.length > MAX[kind]) { errors.push(`${f.filename} exceeds ${MAX[kind]/1024/1024}MB limit`); continue; }
+    if (!kind) { errors.push('Unsupported type ' + f.mimeType + ' for ' + f.filename); continue; }
+    if (f.data.length > MAX[kind]) { errors.push(f.filename + ' exceeds ' + MAX[kind]/1024/1024 + 'MB limit'); continue; }
 
-    if ((kind === 'image' || kind === 'video') && _cloudName) {
-      // Upload images AND videos to Cloudinary for permanent storage
+    // Always try Cloudinary first for ALL file types
+    if (_cloudName) {
       const cloudUrl = await uploadToCloudinary(f.data, f.mimeType, f.filename);
       if (cloudUrl) {
-        if(kind==='image') images.push({ url: cloudUrl, type: f.mimeType, name: f.filename });
-        else videos.push({ url: cloudUrl, type: f.mimeType, name: f.filename });
+        const entry = { url: cloudUrl, type: f.mimeType, name: f.filename };
+        if(kind==='image') images.push(entry);
+        else if(kind==='video') videos.push(entry);
+        else audios.push(entry);
         console.log('[CLOUDINARY] uploaded ' + kind + ':', cloudUrl);
+        continue;
+      } else {
+        console.warn('[CLOUDINARY] upload failed for ' + f.filename + ' - NOT saving locally to prevent data loss on restart');
+        errors.push('Upload failed for ' + f.filename + ' - please try again');
         continue;
       }
     }
-    // Fallback: save locally (videos, audio, or if Cloudinary not configured)
+    // Only use local storage if Cloudinary is completely not configured (no cloud name)
+    console.warn('[LOCAL] Cloudinary not configured - saving locally (WILL BE LOST on restart):', f.filename);
     const s = saveFile(f);
     if (kind==='image') images.push(s);
     else if (kind==='video') videos.push(s);
@@ -825,7 +832,12 @@ const server = http.createServer(async (req, res) => {
       const bg=files.find(f=>f.fieldName==='bgImage'&&f.data&&f.data.length>0);
       if(bg) {
         const cloudUrl = _cloudName ? await uploadToCloudinary(bg.data, bg.mimeType, bg.filename) : null;
-        banner.bgImage = cloudUrl || saveFile(bg).url;
+        if(cloudUrl) {
+          banner.bgImage = cloudUrl;
+        } else {
+          // Don't save locally - it will disappear on restart
+          console.warn('[BANNER] Image upload to Cloudinary failed - not saving');
+        }
       } else if(fields.bgImageUrl && fields.bgImageUrl.startsWith('http')) {
         // Use pasted image URL directly
         banner.bgImage = fields.bgImageUrl;
@@ -833,9 +845,13 @@ const server = http.createServer(async (req, res) => {
       // Handle banner video upload - upload to Cloudinary (supports video)
       const bv = files.find(f=>f.fieldName==='bannerVideo'&&f.data&&f.data.length>0);
       if(bv) {
-        // Try Cloudinary first (supports video), fallback to local
         const cloudVideoUrl = _cloudName ? await uploadToCloudinary(bv.data, bv.mimeType||'video/mp4', bv.filename) : null;
-        banner.bgVideo = cloudVideoUrl || saveFile(bv).url;
+        if(cloudVideoUrl) {
+          banner.bgVideo = cloudVideoUrl;
+          console.log('[BANNER] Video uploaded to Cloudinary:', cloudVideoUrl);
+        } else {
+          console.warn('[BANNER] Video upload to Cloudinary failed - not saving locally');
+        }
       } else if(fields.bgVideo && fields.bgVideo.trim() && fields.bgVideo.trim() !== 'NONE') {
         banner.bgVideo = fields.bgVideo.trim();
       }
