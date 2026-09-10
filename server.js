@@ -254,8 +254,8 @@ async function uploadToCloudinary(fileData, mimeType, filename) {
       chunks.push(fileData);
       chunks.push(Buffer.from('\r\n'));
 
-      if (isVideo && apiKey && apiSecret) {
-        // Signed upload for videos -- bypasses all preset restrictions
+      if (apiKey && apiSecret) {
+        // Signed upload for ALL files -- bypasses preset restrictions completely
         const timestamp = Math.floor(Date.now() / 1000).toString();
         const folder    = 'shophere';
         const sigStr    = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
@@ -266,7 +266,7 @@ async function uploadToCloudinary(fileData, mimeType, filename) {
         chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="signature"\r\n\r\n${signature}\r\n`));
         chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="folder"\r\n\r\nshophere\r\n`));
       } else {
-        // Unsigned upload for images using preset
+        // Fallback: unsigned upload using preset (only if no API secret configured)
         chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="upload_preset"\r\n\r\n${_uploadPreset}\r\n`));
         chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="folder"\r\n\r\nshophere\r\n`));
       }
@@ -488,7 +488,7 @@ const server = http.createServer(async (req, res) => {
 
     // -- VERSION CHECK ---------------------------------------------------------
     if (p === '/api/version') {
-      return sendJSON(res, 200, { version: '48a7256-cloudinary-permanent', deployed: new Date().toISOString() });
+      return sendJSON(res, 200, { version: 'signed-upload-all-files', deployed: new Date().toISOString() });
     }
 
     // -- AUTH ------------------------------------------------------------------
