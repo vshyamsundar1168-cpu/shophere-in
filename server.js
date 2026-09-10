@@ -235,10 +235,9 @@ async function uploadToCloudinary(fileData, mimeType, filename) {
   const isVideo = mimeType && (mimeType.startsWith('video/') || mimeType.startsWith('audio/'));
   const resourceType = isVideo ? 'video' : 'image';
 
-  // Use signed upload for videos (bypasses preset format restrictions)
-  // Use unsigned upload for images (faster, no secret needed)
-  const apiKey    = process.env.CLOUDINARY_API_KEY    || '';
-  const apiSecret = process.env.CLOUDINARY_API_SECRET || '';
+  // Use signed upload for ALL files - hardcoded as fallback to ensure it always works
+  const apiKey    = process.env.CLOUDINARY_API_KEY    || '537229325423853';
+  const apiSecret = process.env.CLOUDINARY_API_SECRET || 'FFamrjUJ-E3qMzHo-jwCTTuJshc';
 
   return new Promise((resolve) => {
     try {
@@ -488,7 +487,7 @@ const server = http.createServer(async (req, res) => {
 
     // -- VERSION CHECK ---------------------------------------------------------
     if (p === '/api/version') {
-      return sendJSON(res, 200, { version: 'signed-upload-all-files', deployed: new Date().toISOString() });
+      return sendJSON(res, 200, { version: 'hardcoded-cloudinary-fix', deployed: new Date().toISOString() });
     }
 
     // -- AUTH ------------------------------------------------------------------
