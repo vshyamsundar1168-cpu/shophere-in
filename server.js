@@ -488,7 +488,7 @@ const server = http.createServer(async (req, res) => {
 
     // -- VERSION CHECK ---------------------------------------------------------
     if (p === '/api/version') {
-      return sendJSON(res, 200, { version: '738eeff', deployed: new Date().toISOString() });
+      return sendJSON(res, 200, { version: '48a7256-cloudinary-permanent', deployed: new Date().toISOString() });
     }
 
     // -- AUTH ------------------------------------------------------------------
