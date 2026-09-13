@@ -848,6 +848,49 @@ let _revStar=5;
 function setRevStar(n){_revStar=n;[1,2,3,4,5].forEach(i=>{const b=document.getElementById('rstar'+i);if(b)b.style.color=i<=n?'#f59e0b':'#d1d5db';});}
 function mgShow(url,el){const img=document.getElementById('mgMainImg');if(img){img.src=url;img.onclick=()=>openLightbox(url);}document.querySelectorAll('.mg-thumb').forEach(x=>{x.style.borderColor='var(--b)';});el.style.borderColor='var(--p)';}
 
+// -- Watch Duration Tracking --------------------------------------------------
+(function(){
+  function getSessionId(){
+    let s=localStorage.getItem('sh_wsid');
+    if(!s){s=Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem('sh_wsid',s);}
+    return s;
+  }
+  function sendWatch(data){
+    fetch('/api/watch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),keepalive:true}).catch(()=>{});
+  }
+  const _orig = openProduct;
+  window.openProduct = async function(id){
+    await _orig(id);
+    setTimeout(()=>{
+      const p = allProducts.find(x=>x.id===id);
+      document.querySelectorAll('#pmBody video').forEach(vid=>{
+        if(vid._wt) return;
+        vid._wt = true;
+        let _start=null, _total=0;
+        vid.addEventListener('play', ()=>{ _start=Date.now(); });
+        function flush(){
+          if(_start!==null){_total+=(Date.now()-_start)/1000;_start=null;}
+          if(_total<1) return;
+          sendWatch({
+            productId:   id,
+            productName: p?p.name:'',
+            durationSeconds: Math.round(_total),
+            type: 'video_watch',
+            userId:    currentUser?currentUser.id||currentUser.username||null:null,
+            userName:  currentUser?currentUser.name||currentUser.username||null:null,
+            userEmail: currentUser?currentUser.email||currentUser.username||null:null,
+            userPhone: currentUser?currentUser.phone||null:null,
+            sessionId: getSessionId()
+          });
+        }
+        vid.addEventListener('pause', flush);
+        vid.addEventListener('ended', flush);
+        window.addEventListener('pagehide', flush, {once:true});
+      });
+    }, 400);
+  };
+})();
+
 function mgToggleMore(btn){
   const extra = document.getElementById('mgExtraThumb');
   if(!extra) return;

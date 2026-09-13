@@ -1569,6 +1569,79 @@ const server = http.createServer(async (req, res) => {
         devices, browsers, daily:dailyAgg, recentVisitors });
     }
 
+    // -- POST /api/watch -- save video watch duration -------------------------
+    if(p==='/api/watch' && m==='POST'){
+      try{
+        const body = await new Promise((resolve)=>{
+          const chunks=[];
+          req.on('data',c=>chunks.push(c));
+          req.on('end',()=>resolve(Buffer.concat(chunks).toString()));
+          req.on('error',()=>resolve(''));
+        });
+        const d = JSON.parse(body||'{}');
+        if(!d.productId || !d.durationSeconds) return sendJSON(res,200,{ok:true});
+        const db = getDb();
+        await db.collection('watch_events').insertOne({
+          productId:   String(d.productId),
+          productName: String(d.productName||''),
+          durationSeconds: Math.round(Number(d.durationSeconds)||0),
+          userId:   d.userId   || null,
+          userName: d.userName || null,
+          userEmail:d.userEmail|| null,
+          userPhone:d.userPhone|| null,
+          sessionId:d.sessionId|| null,
+          type:     d.type || 'video_watch',
+          ts:       new Date().toISOString(),
+          ua:       (req.headers['user-agent']||'').substring(0,120)
+        });
+        return sendJSON(res,200,{ok:true});
+      }catch(e){ return sendJSON(res,200,{ok:true}); }
+    }
+
+    // -- GET /api/watch-stats -- watch duration stats for admin ---------------
+    if(p==='/api/watch-stats' && m==='GET'){
+      try{
+        const db = getDb();
+        const range = sp.get('range')||'365';
+        const since = new Date(Date.now() - parseInt(range)*24*60*60*1000).toISOString();
+
+        // Per-product totals
+        const byProduct = await db.collection('watch_events').aggregate([
+          {$match:{ts:{$gte:since}}},
+          {$group:{
+            _id:'$productId',
+            productName:{$last:'$productName'},
+            totalSec:{$sum:'$durationSeconds'},
+            views:{$sum:1}
+          }},
+          {$sort:{totalSec:-1}},
+          {$limit:20}
+        ]).toArray();
+
+        // Per-customer totals (logged-in only)
+        const byCustomer = await db.collection('watch_events').aggregate([
+          {$match:{ts:{$gte:since}, userId:{$ne:null}}},
+          {$group:{
+            _id:'$userId',
+            userName:{$last:'$userName'},
+            userEmail:{$last:'$userEmail'},
+            userPhone:{$last:'$userPhone'},
+            totalSec:{$sum:'$durationSeconds'},
+            views:{$sum:1}
+          }},
+          {$sort:{totalSec:-1}},
+          {$limit:50}
+        ]).toArray();
+
+        // Recent 50 events
+        const recent = await db.collection('watch_events')
+          .find({},{projection:{_id:0}})
+          .sort({ts:-1}).limit(50).toArray();
+
+        return sendJSON(res,200,{byProduct, byCustomer, recent});
+      }catch(e){ return sendJSON(res,500,{error:e.message}); }
+    }
+
     // -- UPLOADED FILES --------------------------------------------------------
     if(p.startsWith('/uploads/')){
       const fn=decodeURIComponent(p.slice(9));

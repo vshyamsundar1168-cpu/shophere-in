@@ -1485,6 +1485,32 @@ if(window.location.protocol==='file:'){
       <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">Recent Visitors (Last 50)</h4>
       <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Time</th><th>Country</th><th>City</th><th>Device</th><th>OS</th><th>Browser</th><th>Timezone</th><th>IP</th><th>From</th></tr></thead><tbody id="an-visitors"><tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">Click Refresh to load</td></tr></tbody></table></div>
     </div>
+
+    <!-- WATCH DURATION SECTION -->
+    <div style="margin-top:20px">
+      <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">⏱️ Video Watch Duration</h3>
+      <p style="font-size:.8rem;color:var(--m);margin-bottom:16px">How long customers watch product videos — includes their contact details.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px" id="wd-cards">
+        <div class="stat-card"><div class="stat-icon">🎬</div><div><div class="stat-val" id="wd-total-views">—</div><div class="stat-lbl">Total Video Views</div></div></div>
+        <div class="stat-card"><div class="stat-icon">⏱️</div><div><div class="stat-val" id="wd-total-time">—</div><div class="stat-lbl">Total Watch Time</div></div></div>
+        <div class="stat-card"><div class="stat-icon">👥</div><div><div class="stat-val" id="wd-customers">—</div><div class="stat-lbl">Identified Customers</div></div></div>
+      </div>
+
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:16px">
+        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">👥 Customer Watch Details (with Contact Info)</h4>
+        <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Customer</th><th>📧 Email</th><th>📞 Phone</th><th>🎬 Views</th><th>⏱️ Total Watch</th><th>Last Watched</th></tr></thead><tbody id="wd-customers-body"><tr><td colspan="6" style="text-align:center;color:var(--m);padding:20px">Click Refresh above to load</td></tr></tbody></table></div>
+      </div>
+
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:16px">
+        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">📦 Most Watched Products</h4>
+        <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>#</th><th>Product</th><th>🎬 Views</th><th>⏱️ Total Watch Time</th></tr></thead><tbody id="wd-products-body"><tr><td colspan="4" style="text-align:center;color:var(--m);padding:20px">Click Refresh above to load</td></tr></tbody></table></div>
+      </div>
+
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px">
+        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:12px">🕐 Recent Watch Events</h4>
+        <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Time</th><th>Who</th><th>📧 Email</th><th>📞 Phone</th><th>Product</th><th>Duration</th></tr></thead><tbody id="wd-recent-body"><tr><td colspan="6" style="text-align:center;color:var(--m);padding:20px">Click Refresh above to load</td></tr></tbody></table></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -5174,6 +5200,65 @@ async function loadAnalytics() {
           }).join('')
         : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">No visitors yet &mdash; data records after first store visit.</td></tr>';
     }
+
+    // -- Load watch duration stats -------------------------------------------
+    try {
+      const wr = await fetch('/api/watch-stats?range='+range);
+      if(wr.ok){
+        const wd = await wr.json();
+        function fmtSec(s){s=Math.round(s||0);if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m '+(s%60)+'s';return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m';}
+        const totalViews = (wd.byProduct||[]).reduce((a,x)=>a+x.views,0);
+        const totalSec   = (wd.byProduct||[]).reduce((a,x)=>a+x.totalSec,0);
+        const el_tv=document.getElementById('wd-total-views'), el_tt=document.getElementById('wd-total-time'), el_cu=document.getElementById('wd-customers');
+        if(el_tv) el_tv.textContent = totalViews;
+        if(el_tt) el_tt.textContent = fmtSec(totalSec);
+        if(el_cu) el_cu.textContent = (wd.byCustomer||[]).length;
+
+        // Customer table
+        const custBody = document.getElementById('wd-customers-body');
+        if(custBody){
+          custBody.innerHTML = (wd.byCustomer||[]).length
+            ? (wd.byCustomer).map(c=>`<tr>
+                <td><strong>${c.userName||'—'}</strong></td>
+                <td>${c.userEmail?`<a href="mailto:${c.userEmail}" style="color:var(--p);font-weight:700;text-decoration:none">${c.userEmail}</a>`:'<span style="color:var(--m)">Guest</span>'}</td>
+                <td>${c.userPhone?`<a href="tel:${c.userPhone}" style="text-decoration:none;font-weight:600">${c.userPhone}</a>`:'—'}</td>
+                <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:20px;font-weight:700;font-size:.78rem">${c.views}</span></td>
+                <td><strong style="color:var(--p)">${fmtSec(c.totalSec)}</strong></td>
+                <td style="font-size:.74rem;color:var(--m)">${(wd.recent||[]).find(r=>r.userId===c._id)?new Date((wd.recent).find(r=>r.userId===c._id).ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}</td>
+              </tr>`).join('')
+            : '<tr><td colspan="6" style="text-align:center;color:var(--m);padding:20px">No logged-in customer data yet. Customers must be signed in when they watch a video.</td></tr>';
+        }
+
+        // Products table
+        const prodBody = document.getElementById('wd-products-body');
+        if(prodBody){
+          prodBody.innerHTML = (wd.byProduct||[]).length
+            ? (wd.byProduct).map((p,i)=>`<tr>
+                <td style="color:var(--m);font-weight:700">${i+1}</td>
+                <td><strong>${p.productName||p._id}</strong></td>
+                <td>${p.views}</td>
+                <td><strong style="color:var(--p)">${fmtSec(p.totalSec)}</strong></td>
+              </tr>`).join('')
+            : '<tr><td colspan="4" style="text-align:center;color:var(--m);padding:20px">No video watch data yet.</td></tr>';
+        }
+
+        // Recent events table
+        const recBody = document.getElementById('wd-recent-body');
+        if(recBody){
+          recBody.innerHTML = (wd.recent||[]).length
+            ? (wd.recent).map(e=>`<tr>
+                <td style="font-size:.74rem;white-space:nowrap">${new Date(e.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+                <td>${e.userName?`<strong>${e.userName}</strong>`:'<span style="color:var(--m)">Guest</span>'}</td>
+                <td>${e.userEmail?`<a href="mailto:${e.userEmail}" style="color:var(--p);text-decoration:none;font-weight:600">${e.userEmail}</a>`:'—'}</td>
+                <td>${e.userPhone?`<a href="tel:${e.userPhone}" style="text-decoration:none">${e.userPhone}</a>`:'—'}</td>
+                <td style="font-size:.8rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.productName||e.productId}</td>
+                <td><strong style="color:var(--p)">${fmtSec(e.durationSeconds)}</strong></td>
+              </tr>`).join('')
+            : '<tr><td colspan="6" style="text-align:center;color:var(--m);padding:20px">No watch events yet.</td></tr>';
+        }
+      }
+    }catch(we){}
+
   } catch(e) {
     toast('x Analytics error: ' + e.message);
   }
