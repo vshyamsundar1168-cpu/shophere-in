@@ -683,7 +683,7 @@ function renderHomeGrids(){
 
 function getFiltered(){
   let list=[...allProducts];
-  if(currentCat&&currentCat!=='all') list=list.filter(p=>p.category===currentCat);
+  if(currentCat&&currentCat!=='all') list=list.filter(p=>p.category&&p.category.trim().toLowerCase()===currentCat.trim().toLowerCase());
   if(currentBadge) list=list.filter(p=>p.badge===currentBadge);
   if(currentQ){
     const q=currentQ;
@@ -765,7 +765,8 @@ function goHome(){showHome();currentCat='all';currentBadge='';currentQ='';page=1
 // #13 category links working
 function filterCat(cat){
   currentCat=cat;currentBadge='';currentQ='';page=1;
-  document.getElementById('sectionTitle').textContent=cat==='all'?'All Products':cat;
+  const displayName = cat==='all'?'All Products':cat.replace(/\s*\/\s*/g,'/');
+  document.getElementById('sectionTitle').textContent=displayName;
   showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});
 }
 function filterBadge(b){currentBadge=b;currentCat='all';currentQ='';page=1;document.getElementById('sectionTitle').textContent=b==='deal'?"Today's Deals":b==='new'?'New Arrivals':'Hot Picks';showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});}
@@ -773,7 +774,7 @@ function setSortAndFilter(v){currentSort=v;page=1;renderProducts();}
 function applyFilters(){currentMin=parseFloat(document.getElementById('minPrice').value)||0;currentMax=parseFloat(document.getElementById('maxPrice').value)||Infinity;page=1;renderProducts();}
 function setRating(r){currentRating=r;document.querySelectorAll('.star-btn').forEach((b,i)=>b.classList.toggle('active',i<r));page=1;renderProducts();}
 function clearFilters(){currentMin=0;currentMax=Infinity;currentRating=0;currentSort='';document.getElementById('minPrice').value='';document.getElementById('maxPrice').value='';document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('active'));page=1;renderProducts();}
-function catCkChange(el){currentCat=el.value;page=1;renderProducts();}
+function catCkChange(el){currentCat=el.value;const displayName=el.value==='all'?'All Products':el.value.replace(/\s*\/\s*/g,'/');document.getElementById('sectionTitle').textContent=displayName;page=1;renderProducts();}
 function setActive(el){document.querySelectorAll('.nav-inner a').forEach(a=>a.classList.remove('active'));el.classList.add('active');}
 
 // -- Product Detail ------------------------------------------------------------
