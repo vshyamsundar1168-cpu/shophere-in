@@ -799,7 +799,7 @@ const server = http.createServer(async (req, res) => {
     // -- BANNERS ---------------------------------------------------------------
     if(p==='/api/banners' && m==='GET') {
       const db = getDb();
-      const list = await db.collection('banners').find({}, { projection: { _id: 0 } }).toArray();
+      const list = await db.collection('banners').find({}, { projection: { _id: 0 } }).sort({ id: -1 }).toArray();
       return sendJSON(res,200,list);
     }
     if(p==='/api/banners' && m==='POST'){
