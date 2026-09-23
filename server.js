@@ -391,59 +391,78 @@ async function processMedia(files) {
   return { images, videos, audios, errors };
 }
 
-// -- SMS Alert (Fast2SMS) -------------------------------------------------------
-// Sends order alert to owner mobiles when a new order arrives
+// -- Order Alert (ntfy.sh push + Fast2SMS fallback) ---------------------------
+// ntfy.sh: free push notifications, no account/API key needed
+// Install "ntfy" app on your phone (Android/iOS), subscribe to: shophere-orders-9866
 async function sendOrderSmsAlert(order) {
-  const apiKey = process.env.FAST2SMS_API_KEY;
-  if (!apiKey) return; // skip if not configured
+  const items = (order.items || []).slice(0, 3).map(i =>
+    (i.name || '').substring(0, 25) + ' x' + (i.qty || 1)
+  ).join(', ');
 
-  const phones = '9866966904,7093217367';
-  const items = (order.items || []).map(i => i.name + ' x' + (i.qty||1)).join(', ');
-  const msg = 'New Order ' + order.id + '! Customer: ' + (order.name||'Unknown') +
-    ', Total: Rs.' + (order.total||0) + ', Items: ' + items +
-    ', Pay: ' + (order.payment||'COD').toUpperCase() +
-    ' - ShopHere.in';
+  const shortMsg =
+    '🛒 New Order ' + (order.id || '') + '\n' +
+    '👤 ' + (order.name || 'Unknown') + '  📞 ' + (order.phone || '-') + '\n' +
+    '💰 Rs.' + (order.total || 0) + '  💳 ' + (order.payment || 'COD').toUpperCase() + '\n' +
+    '📦 ' + items +
+    (order.city ? '\n📍 ' + order.city : '') +
+    '\nshophere.in';
 
-  const postData = JSON.stringify({
-    route: 'q',
-    numbers: phones,
-    message: msg,
-    language: 'english',
-    flash: 0
-  });
-
-  return new Promise((resolve) => {
+  // ── 1. ntfy.sh push notification (free, no account) ──────────────────────
+  const ntfyPromise = new Promise((resolve) => {
     try {
       const https = require('https');
-      const req = https.request({
-        hostname: 'www.fast2sms.com',
-        path: '/dev/bulkV2',
+      const body  = Buffer.from(shortMsg, 'utf8');
+      const r = https.request({
+        hostname: 'ntfy.sh',
+        path: '/shophere-orders-9866',       // unique channel for your store
         method: 'POST',
         headers: {
-          'authorization': apiKey,
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
+          'Content-Type':   'text/plain',
+          'Content-Length': body.length,
+          'Title':          'New Order on ShopHere.in',
+          'Priority':       'high',
+          'Tags':           'shopping_cart,money_with_wings'
         }
-      }, (res) => {
-        let d = '';
-        res.on('data', c => d += c);
-        res.on('end', () => {
-          console.log('[SMS] Alert sent for order ' + order.id + ':', d.substring(0, 100));
-          resolve();
-        });
-      });
-      req.on('error', (e) => {
-        console.warn('[SMS] Alert failed:', e.message);
-        resolve();
-      });
-      req.write(postData);
-      req.end();
+      }, (res) => { res.resume(); resolve(); });
+      r.on('error', () => resolve());
+      r.write(body);
+      r.end();
+      console.log('[ALERT] ntfy.sh push sent for order ' + order.id);
     } catch(e) {
-      console.warn('[SMS] Alert error:', e.message);
+      console.warn('[ALERT] ntfy error:', e.message);
       resolve();
     }
   });
+
+  // ── 2. Fast2SMS SMS (runs if FAST2SMS_API_KEY is set in env) ─────────────
+  const smsPromise = new Promise((resolve) => {
+    try {
+      const apiKey = process.env.FAST2SMS_API_KEY;
+      if (!apiKey) return resolve();
+      const https = require('https');
+      const smsText =
+        'New Order ' + (order.id||'') +
+        ' Customer:' + (order.name||'Unknown') +
+        ' Rs.' + (order.total||0) +
+        ' ' + (order.payment||'COD').toUpperCase() +
+        ' Items:' + (order.items||[]).slice(0,2).map(i=>i.name.substring(0,15)+' x'+(i.qty||1)).join(',') +
+        ' -ShopHere.in';
+      const postData = JSON.stringify({
+        route:'q', numbers:'9866966904,7093217367',
+        message: smsText, language:'english', flash:0
+      });
+      const req = https.request({
+        hostname:'www.fast2sms.com', path:'/dev/bulkV2', method:'POST',
+        headers:{'authorization':apiKey,'Content-Type':'application/json','Content-Length':Buffer.byteLength(postData)}
+      }, (res) => { let d=''; res.on('data',c=>d+=c); res.on('end',()=>{ console.log('[SMS]',d.substring(0,80)); resolve(); }); });
+      req.on('error', (e) => { console.warn('[SMS] failed:',e.message); resolve(); });
+      req.write(postData); req.end();
+    } catch(e) { console.warn('[SMS] error:',e.message); resolve(); }
+  });
+
+  await Promise.all([ntfyPromise, smsPromise]);
 }
+
 
 // -- HTTP helpers --------------------------------------------------------------
 function sendJSON(res, code, data) {
