@@ -7,7 +7,7 @@ let myOrders=JSON.parse(localStorage.getItem('sh_orders')||'[]');
 let currentCat='all', currentBadge='', currentSort='newest', currentQ='', currentMin=0, currentMax=Infinity, currentRating=0;
 let page=1; const PAGE=12;
 let heroIdx=0, heroTimer=null;
-let selectedPayment='cod';
+let selectedPayment='upi';
 const CAT_ICONS={'Electronics':'[Mobile]','Fashion':'[Fashion]','Kitchen':'[Kitchen]','Sports':'[Sports]','Beauty':'[Beauty]','Books':'[Books]','Toys':'[Toys]','Home':'[Home]','Kids':'[Kids]','Women':'[Women]','Men':'[Men]','default':'[Shop]'};
 const CAT_COLORS={'Electronics':['#dbeafe','#1d4ed8'],'Fashion':['#fce7f3','#be185d'],'Kitchen':['#fef3c7','#d97706'],'Sports':['#dcfce7','#16a34a'],'Beauty':['#fdf4ff','#9333ea'],'Books':['#fff7ed','#ea580c'],'Toys':['#fef9c3','#ca8a04'],'Home':['#f0fdf4','#15803d'],'Kids':['#ffe4e6','#e11d48'],'Women':['#fdf2f8','#db2777'],'Men':['#eff6ff','#2563eb'],'default':['#f8fafc','#475569']};
 
@@ -980,11 +980,13 @@ function startCheckout(){
     const el=document.getElementById(id); if(el) el.textContent='';
   });
   const pd=document.getElementById('payDetail'); if(pd) pd.innerHTML='';
-  // Reset payment to COD
-  selectedPayment='cod';
+  // Reset payment to UPI (COD removed)
+  selectedPayment='upi';
   const radios=document.querySelectorAll('input[name="pay"]');
-  radios.forEach(r=>r.checked=r.value==='cod');
+  radios.forEach(r=>r.checked=r.value==='upi');
   document.querySelectorAll('#coP3 label').forEach(l=>l.style.borderColor='var(--b)');
+  const upiLabel=document.querySelector('#coP3 label input[value="upi"]')?.closest('label');
+  if(upiLabel) upiLabel.style.borderColor='var(--p)';
   // Render current cart items only
   document.getElementById('coCartItems').innerHTML=cart.map(i=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--b)">
@@ -1040,17 +1042,6 @@ async function placeOrder(){
     pin:document.getElementById('co_pin').value,
     payment:selectedPayment
   };
-
-  // COD &mdash; place directly without Razorpay
-  if(selectedPayment === 'cod'){
-    try{
-      const res=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      const order=await res.json();
-      if(!res.ok) throw new Error(order.error||'Failed');
-      _confirmOrder(order,'COD');
-    }catch(e){toast('Order failed: '+e.message);}
-    return;
-  }
 
   // RAZORPAY &mdash; for UPI, Card, NetBanking, Wallet
   try{
