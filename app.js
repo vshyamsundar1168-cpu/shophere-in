@@ -679,6 +679,132 @@ function renderHomeGrids(){
   fill(featuredShow,'featuredGrid','featuredSection');
   fill(deals,'dealsGrid','dealsSection');
   fill(newShow,'newGrid','newSection');
+  renderAmzCatBoxes();
+}
+
+// ── Amazon-style category boxes (single authoritative definition) ──────────
+// Customizable via Admin → Store Settings → "Category Boxes" section.
+// Settings are stored in storeSettings.catBoxSettings (JSON array).
+// Each entry: { label, cat, filter:'cat'|'badge', emoji, visible, order }
+function renderAmzCatBoxes(){
+  const wrap      = document.getElementById('amzCatBoxesWrap');
+  const container = document.getElementById('amzCatBoxes');
+  if(!wrap || !container || !allProducts.length) return;
+
+  // ── 1. Build base emoji map for well-known categories ─────────────────────
+  const EMOJI_MAP = {
+    'sarees':'🥻','dresses':'👗','women':'👩','men':'👔','kids':'🧒',
+    'fashion':'👠','home':'🏠','office':'🏠','electronics':'📱',
+    'electricals':'💡','vehicle':'🚗','kitchen':'🍳','sports':'⚽',
+    'beauty':'💄','books':'📚','toys':'🧸','deal':'🔥','new':'✨',
+    'mobiles':'📱','clothing':'👕','ethnic':'🥻','jewellery':'💍',
+    'footwear':'👟','accessories':'👜','furniture':'🛋️','grocery':'🛒',
+  };
+  function guessEmoji(str){
+    const s = (str||'').toLowerCase();
+    for(const [k,v] of Object.entries(EMOJI_MAP)){
+      if(s.includes(k)) return v;
+    }
+    return '🛍️';
+  }
+
+  // ── 2. Get saved admin settings or build from actual DB categories ─────────
+  let defs = [];
+  let usingSaved = false;
+
+  try {
+    const saved = storeSettings && storeSettings.catBoxSettings;
+    if(saved){
+      const parsed = typeof saved === 'string' ? JSON.parse(saved) : saved;
+      if(Array.isArray(parsed) && parsed.length){
+        defs = parsed;
+        usingSaved = true;
+      }
+    }
+  } catch(e){}
+
+  if(!usingSaved){
+    // Auto-build from actual product categories in DB — always works
+    const dbCats = [...new Set(allProducts.map(p=>(p.category||'').trim()).filter(Boolean))];
+    defs = dbCats.map(c => ({
+      label: c, cat: c, filter: 'cat', emoji: guessEmoji(c), visible: true
+    }));
+    // Add deal/new badge boxes if products exist
+    if(allProducts.some(p=>p.badge==='deal'))
+      defs.push({ label:"Today's Deals", cat:'deal', filter:'badge', emoji:'🔥', visible:true });
+    if(allProducts.some(p=>p.badge==='new'))
+      defs.push({ label:'New Arrivals',  cat:'new',  filter:'badge', emoji:'✨', visible:true });
+  } else {
+    // Even with saved settings, auto-append any DB categories NOT in the saved list
+    const knownCats = new Set(defs.map(d => d.cat.trim().toLowerCase()));
+    const dbCats = [...new Set(allProducts.map(p=>(p.category||'').trim()).filter(Boolean))];
+    dbCats.forEach(c => {
+      if(!knownCats.has(c.trim().toLowerCase())){
+        defs.push({ label:c, cat:c, filter:'cat', emoji:guessEmoji(c), visible:true });
+      }
+    });
+  }
+
+  // ── 3. Filter to visible only ───────────────────────────────────────────────
+  const activeDefs = defs.filter(d => d.visible !== false);
+  if(!activeDefs.length){ wrap.style.display='none'; return; }
+
+  // ── 4. Render each box ─────────────────────────────────────────────────────
+  let boxesHTML = '';
+  let visibleCount = 0;
+
+  activeDefs.forEach(def => {
+    let items;
+    if(def.filter === 'badge'){
+      items = allProducts.filter(p => p.badge === def.cat).slice(0,4);
+    } else {
+      items = allProducts.filter(p =>
+        p.category && p.category.trim().toLowerCase() === def.cat.trim().toLowerCase()
+      ).slice(0,4);
+    }
+    if(!items.length) return; // truly no products for this category — skip
+
+    visibleCount++;
+    const safeLabel = (def.label||def.cat).replace(/'/g,"&#39;");
+    const clickFn   = def.filter === 'badge'
+      ? `filterBadge('${def.cat.replace(/'/g,"\\'")}');window.scrollTo({top:0,behavior:'smooth'})`
+      : `filterCat('${def.cat.replace(/'/g,"\\'")}');window.scrollTo({top:0,behavior:'smooth'})`;
+
+    // 4 image tiles — show real image if available, else emoji placeholder
+    const tiles = [0,1,2,3].map(i => {
+      const p = items[i];
+      if(p){
+        const imgUrl = (p.images && p.images[0] && p.images[0].url) || '';
+        const name   = (p.name||'').replace(/'/g,"&#39;");
+        if(imgUrl){
+          return `<div class="amz-box-item">
+            <img src="${imgUrl}" alt="${name}" loading="lazy"
+              onerror="this.parentElement.innerHTML='<div class=amz-box-item-emoji>${def.emoji}</div>'">
+            <div class="amz-box-item-label">${name}</div>
+          </div>`;
+        }
+        // No image — show emoji + product name label
+        return `<div class="amz-box-item" style="background:#f8fafc">
+          <div class="amz-box-item-emoji">${def.emoji}</div>
+          <div class="amz-box-item-label" style="background:rgba(0,0,0,.45)">${name}</div>
+        </div>`;
+      }
+      return `<div class="amz-box-item"><div class="amz-box-item-emoji">${def.emoji}</div></div>`;
+    }).join('');
+
+    boxesHTML += `
+    <div class="amz-box" onclick="${clickFn}">
+      <div class="amz-box-header">
+        <div class="amz-box-title">${safeLabel}</div>
+        <div class="amz-box-arrow">&#8250;</div>
+      </div>
+      <div class="amz-box-grid">${tiles}</div>
+      <div class="amz-box-footer">See all &rsaquo;</div>
+    </div>`;
+  });
+
+  container.innerHTML = boxesHTML;
+  wrap.style.display = visibleCount > 0 ? 'block' : 'none';
 }
 
 function getFiltered(){

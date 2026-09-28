@@ -613,6 +613,51 @@ if(window.location.protocol==='file:'){
           </div>
         </div>
         <button class="btn btn-primary" style="margin-top:8px" onclick="saveSettings()"> Save All Settings</button>
+
+        <hr style="margin:24px 0;border-color:var(--b)">
+
+        <!-- ══════════════════════════════════════════════════
+             CATEGORY BOXES  (Amazon-style home page folders)
+             ══════════════════════════════════════════════════ -->
+        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:6px">🗂️ Home Page — Category Boxes</h4>
+        <p style="font-size:.78rem;color:#64748b;margin-bottom:16px">
+          These are the Amazon-style folder boxes shown on your home page under the banner.
+          Toggle visibility, rename labels, change emojis, and drag to reorder. Click
+          <strong>Save Category Boxes</strong> to apply.
+        </p>
+
+        <!-- Add custom box row -->
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:120px">
+            <label style="font-size:.75rem;color:#64748b;font-weight:600;display:block;margin-bottom:4px">Label</label>
+            <input id="cb_newLabel" placeholder="e.g. Ethnic Wear" style="width:100%;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.83rem">
+          </div>
+          <div style="flex:1;min-width:120px">
+            <label style="font-size:.75rem;color:#64748b;font-weight:600;display:block;margin-bottom:4px">Category / Badge key</label>
+            <input id="cb_newCat" placeholder="e.g. Ethnic Wear" style="width:100%;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.83rem">
+          </div>
+          <div style="width:60px">
+            <label style="font-size:.75rem;color:#64748b;font-weight:600;display:block;margin-bottom:4px">Emoji</label>
+            <input id="cb_newEmoji" placeholder="🛍️" maxlength="4" style="width:100%;padding:7px 6px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:1rem;text-align:center">
+          </div>
+          <div style="width:90px">
+            <label style="font-size:.75rem;color:#64748b;font-weight:600;display:block;margin-bottom:4px">Type</label>
+            <select id="cb_newFilter" style="width:100%;padding:7px 6px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:.8rem">
+              <option value="cat">Category</option>
+              <option value="badge">Badge</option>
+            </select>
+          </div>
+          <button onclick="cbAddRow()" style="padding:8px 16px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;height:34px">+ Add</button>
+        </div>
+
+        <!-- Rows list -->
+        <div id="cb_list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"></div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <button onclick="cbSave()" style="padding:9px 22px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer"> Save Category Boxes</button>
+          <button onclick="cbReset()" style="padding:9px 16px;background:#f1f5f9;color:#374151;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">↺ Reset to Defaults</button>
+          <span id="cb_status" style="font-size:.78rem;color:#16a34a;font-weight:600;display:none"> Saved!</span>
+        </div>
       </div>
     </div>
   </div>
@@ -3205,6 +3250,8 @@ async function loadSettings() {
     if (s.prodPriceSize)  { const el=document.getElementById('st_prodPriceSize');  if(el) el.value=s.prodPriceSize; }
     if (s.logo) { const img = document.getElementById('st_logoPrev'); img.src = s.logo; img.style.display = 'block'; }
     vcLoadFromSettings(s);
+    // Load Category Boxes settings
+    cbLoad(s.catBoxSettings);
   } catch (e) {
     toast('x Error loading settings: ' + e.message);
   }
@@ -3281,6 +3328,8 @@ async function saveSettings() {
   fd.append('prodPriceSize',   g('st_prodPriceSize')  || '17');
   // Visual Customizer fields
   vcCollectFields(fd);
+  // Category Boxes
+  fd.append('catBoxSettings', JSON.stringify(cbRows));
   const adminUser = document.getElementById('st_adminuser').value.trim();
   const adminPass = document.getElementById('st_adminpass').value.trim();
   if (adminUser) fd.append('adminUsername', adminUser);
@@ -4009,6 +4058,101 @@ async function pbUploadVideo(input) {
 }
 async function pbUploadAudio(input) {
   toast(' For audio, upload via Products then copy the /uploads/... URL here');
+}
+
+// -- Category Boxes Manager ---------------------------------------------------
+const CB_DEFAULTS = [
+  { label:'Sarees',              cat:'Sarees',              filter:'cat',   emoji:'🥻', visible:true },
+  { label:'Dresses & Kurtis',    cat:'Dresses',             filter:'cat',   emoji:'👗', visible:true },
+  { label:"Women's Fashion",     cat:'Women',               filter:'cat',   emoji:'👩', visible:true },
+  { label:"Men's Collection",    cat:'Men',                 filter:'cat',   emoji:'👔', visible:true },
+  { label:"Kids' Wear",          cat:'Kids',                filter:'cat',   emoji:'🧒', visible:true },
+  { label:'Fashion',             cat:'Fashion',             filter:'cat',   emoji:'👠', visible:true },
+  { label:"Today's Deals",       cat:'deal',                filter:'badge', emoji:'🔥', visible:true },
+  { label:'New Arrivals',        cat:'new',                 filter:'badge', emoji:'✨', visible:true },
+  { label:'Home & Office',       cat:'Home / Office',       filter:'cat',   emoji:'🏠', visible:true },
+  { label:'Electronics',         cat:'Electronics',         filter:'cat',   emoji:'📱', visible:true },
+  { label:'Electricals',         cat:'Electricals',         filter:'cat',   emoji:'💡', visible:true },
+  { label:'Vehicle Accessories', cat:'Vehicle Accessories', filter:'cat',   emoji:'🚗', visible:true },
+];
+
+let cbRows = [];
+
+function cbLoad(saved) {
+  try {
+    const parsed = saved ? (typeof saved === 'string' ? JSON.parse(saved) : saved) : null;
+    cbRows = (Array.isArray(parsed) && parsed.length) ? parsed : JSON.parse(JSON.stringify(CB_DEFAULTS));
+  } catch(e) {
+    cbRows = JSON.parse(JSON.stringify(CB_DEFAULTS));
+  }
+  cbRender();
+}
+
+function cbRender() {
+  const list = document.getElementById('cb_list');
+  if (!list) return;
+  list.innerHTML = cbRows.map((row, i) => `
+    <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 10px;flex-wrap:wrap">
+      <span style="cursor:grab;color:#94a3b8;font-size:1.1rem;flex-shrink:0" title="Drag to reorder">⠿</span>
+      <input value="${(row.emoji||'').replace(/"/g,'&quot;')}" maxlength="4"
+        onchange="cbRows[${i}].emoji=this.value"
+        style="width:42px;text-align:center;font-size:1rem;border:1px solid #e2e8f0;border-radius:6px;padding:4px">
+      <input value="${(row.label||'').replace(/"/g,'&quot;')}" placeholder="Label"
+        onchange="cbRows[${i}].label=this.value"
+        style="flex:1;min-width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:5px 8px;font-size:.82rem">
+      <input value="${(row.cat||'').replace(/"/g,'&quot;')}" placeholder="Category / Badge key"
+        onchange="cbRows[${i}].cat=this.value"
+        style="flex:1;min-width:100px;border:1px solid #e2e8f0;border-radius:6px;padding:5px 8px;font-size:.82rem">
+      <select onchange="cbRows[${i}].filter=this.value"
+        style="border:1px solid #e2e8f0;border-radius:6px;padding:5px 6px;font-size:.78rem">
+        <option value="cat"   ${row.filter==='cat'  ?'selected':''}>Category</option>
+        <option value="badge" ${row.filter==='badge'?'selected':''}>Badge</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap">
+        <input type="checkbox" ${row.visible!==false?'checked':''} onchange="cbRows[${i}].visible=this.checked"> Show
+      </label>
+      <button onclick="cbRows.splice(${i},1);cbRender()"
+        style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 10px;font-size:.8rem;cursor:pointer;font-weight:700">✕</button>
+    </div>`).join('');
+}
+
+function cbAddRow() {
+  const label  = (document.getElementById('cb_newLabel').value  || '').trim();
+  const cat    = (document.getElementById('cb_newCat').value    || '').trim();
+  const emoji  = (document.getElementById('cb_newEmoji').value  || '🛍️').trim();
+  const filter = document.getElementById('cb_newFilter').value  || 'cat';
+  if (!label || !cat) { toast('Please enter both a label and a category key'); return; }
+  cbRows.push({ label, cat, filter, emoji, visible: true });
+  cbRender();
+  document.getElementById('cb_newLabel').value  = '';
+  document.getElementById('cb_newCat').value    = '';
+  document.getElementById('cb_newEmoji').value  = '';
+}
+
+async function cbSave() {
+  const btn = document.querySelector('button[onclick="cbSave()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  try {
+    const fd = new FormData();
+    fd.append('catBoxSettings', JSON.stringify(cbRows));
+    const res  = await fetch('/api/settings', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    toast('✅ Category Boxes saved!');
+    const st = document.getElementById('cb_status');
+    if (st) { st.style.display = 'inline'; setTimeout(() => st.style.display = 'none', 2500); }
+  } catch(e) {
+    toast('❌ Save failed: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Save Category Boxes'; }
+  }
+}
+
+function cbReset() {
+  if (!confirm('Reset to default category boxes? Your custom changes will be lost.')) return;
+  cbRows = JSON.parse(JSON.stringify(CB_DEFAULTS));
+  cbRender();
+  toast('Reset to defaults — click Save to apply');
 }
 
 // -- Visual Customizer --------------------------------------------------------
