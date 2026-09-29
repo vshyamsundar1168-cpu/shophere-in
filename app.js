@@ -602,6 +602,10 @@ async function loadProducts(){
     const res=await fetch('/api/products?limit=500').then(r=>r.json());
     allProducts=res.products||res;
     renderHomeGrids();
+    // Check if URL has a category hash and navigate to it after products load
+    const _h=decodeURIComponent(window.location.hash||'');
+    const _m=_h.match(/^#\/category\/(.+)$/);
+    if(_m) _doFilterCat(_m[1]);
   }catch(e){console.warn('Products failed',e.message);}
 }
 
@@ -901,17 +905,18 @@ function _doFilterCat(cat){
   if(pg) pg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--m)"><div style="font-size:2rem">⏳</div><p>Loading '+displayName+'...</p></div>';
   showProducts();renderProducts();
 }
-window.addEventListener('hashchange',function(){
+window.addEventListener('hashchange',function(e){
+  e.preventDefault&&e.preventDefault();
   const h=decodeURIComponent(window.location.hash||'');
   const m=h.match(/^#\/category\/(.+)$/);
-  if(m){ setTimeout(()=>_doFilterCat(m[1]),100); }
+  if(m){ _doFilterCat(m[1]); }
 });
 window.addEventListener('load',function(){
   setTimeout(function(){
     const h=decodeURIComponent(window.location.hash||'');
     const m=h.match(/^#\/category\/(.+)$/);
     if(m) _doFilterCat(m[1]);
-  },800);
+  },1000);
 });
 function filterBadge(b){currentBadge=b;currentCat='all';currentQ='';page=1;document.getElementById('sectionTitle').textContent=b==='deal'?"Today's Deals":b==='new'?'New Arrivals':'Hot Picks';showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});}
 function setSortAndFilter(v){currentSort=v;page=1;renderProducts();}
