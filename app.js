@@ -904,13 +904,14 @@ function _doFilterCat(cat){
 window.addEventListener('hashchange',function(){
   const h=decodeURIComponent(window.location.hash||'');
   const m=h.match(/^#\/category\/(.+)$/);
-  if(m) _doFilterCat(m[1]);
-  else if(h===''||h==='#/') goHome();
+  if(m){ setTimeout(()=>_doFilterCat(m[1]),100); }
 });
 window.addEventListener('load',function(){
-  const h=decodeURIComponent(window.location.hash||'');
-  const m=h.match(/^#\/category\/(.+)$/);
-  if(m) setTimeout(()=>_doFilterCat(m[1]),500);
+  setTimeout(function(){
+    const h=decodeURIComponent(window.location.hash||'');
+    const m=h.match(/^#\/category\/(.+)$/);
+    if(m) _doFilterCat(m[1]);
+  },800);
 });
 function filterBadge(b){currentBadge=b;currentCat='all';currentQ='';page=1;document.getElementById('sectionTitle').textContent=b==='deal'?"Today's Deals":b==='new'?'New Arrivals':'Hot Picks';showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});}
 function setSortAndFilter(v){currentSort=v;page=1;renderProducts();}
