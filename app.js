@@ -890,6 +890,9 @@ function showHome(){document.getElementById('homeSections').style.display='block
 function goHome(){showHome();currentCat='all';currentBadge='';currentQ='';page=1;closeSearch();}
 // #13 category links working
 function filterCat(cat){
+  window.location.hash = '/category/' + encodeURIComponent(cat);
+}
+function _doFilterCat(cat){
   window.scrollTo({top:0,behavior:'instant'});
   currentCat=cat;currentBadge='';currentQ='';page=1;
   const displayName = cat==='all'?'All Products':cat.replace(/\s*\/\s*/g,'/');
@@ -898,7 +901,17 @@ function filterCat(cat){
   if(pg) pg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--m)"><div style="font-size:2rem">⏳</div><p>Loading '+displayName+'...</p></div>';
   showProducts();renderProducts();
 }
-
+window.addEventListener('hashchange',function(){
+  const h=decodeURIComponent(window.location.hash||'');
+  const m=h.match(/^#\/category\/(.+)$/);
+  if(m) _doFilterCat(m[1]);
+  else if(h===''||h==='#/') goHome();
+});
+window.addEventListener('load',function(){
+  const h=decodeURIComponent(window.location.hash||'');
+  const m=h.match(/^#\/category\/(.+)$/);
+  if(m) setTimeout(()=>_doFilterCat(m[1]),500);
+});
 function filterBadge(b){currentBadge=b;currentCat='all';currentQ='';page=1;document.getElementById('sectionTitle').textContent=b==='deal'?"Today's Deals":b==='new'?'New Arrivals':'Hot Picks';showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});}
 function setSortAndFilter(v){currentSort=v;page=1;renderProducts();}
 function applyFilters(){currentMin=parseFloat(document.getElementById('minPrice').value)||0;currentMax=parseFloat(document.getElementById('maxPrice').value)||Infinity;page=1;renderProducts();}
