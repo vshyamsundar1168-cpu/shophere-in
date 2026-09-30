@@ -905,18 +905,10 @@ function _doFilterCat(cat){
   if(pg) pg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--m)"><div style="font-size:2rem">⏳</div><p>Loading '+displayName+'...</p></div>';
   showProducts();renderProducts();
 }
-window.addEventListener('hashchange',function(e){
-  e.preventDefault&&e.preventDefault();
+window.addEventListener('hashchange',function(){
   const h=decodeURIComponent(window.location.hash||'');
   const m=h.match(/^#\/category\/(.+)$/);
   if(m){ _doFilterCat(m[1]); }
-});
-window.addEventListener('load',function(){
-  setTimeout(function(){
-    const h=decodeURIComponent(window.location.hash||'');
-    const m=h.match(/^#\/category\/(.+)$/);
-    if(m) _doFilterCat(m[1]);
-  },1000);
 });
 function filterBadge(b){currentBadge=b;currentCat='all';currentQ='';page=1;document.getElementById('sectionTitle').textContent=b==='deal'?"Today's Deals":b==='new'?'New Arrivals':'Hot Picks';showProducts();renderProducts();window.scrollTo({top:0,behavior:'smooth'});}
 function setSortAndFilter(v){currentSort=v;page=1;renderProducts();}
