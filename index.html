@@ -150,6 +150,9 @@
   </div>
 </div>
 
+<!-- ═══ HOME-ONLY CONTENT (hidden when browsing a category) ═══ -->
+<div id="homeOnlyContent">
+
 <!-- --- HERO BANNER SLIDER -------------------------------------------------- -->
 <div class="hero-slider" id="heroSlider">
   <div class="hero-track" id="heroTrack"></div>
@@ -218,6 +221,9 @@
   <!-- Page Builder blocks: HOME zone (bottom) -->
   <div id="pb-zone-home-bottom" class="pb-zone"></div>
 </div>
+<!-- end #homeSections -->
+</div>
+<!-- end #homeOnlyContent -->
 
 <!-- --- PRODUCTS SECTION --------------------------------------------------- -->
 <div class="container" id="productsSection" style="display:none">
@@ -748,8 +754,14 @@ window.addEventListener('load', function() {
   setTimeout(function() {
     try {
       if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
-        document.getElementById('homeSections').style.display = 'block';
-        if (typeof renderHomeGrids === 'function') renderHomeGrids();
+        const hoc=document.getElementById('homeOnlyContent');
+        const h=decodeURIComponent(window.location.hash||'');
+        const isCat=h.match(/^#\/category\/(.+)$/);
+        if(!isCat){
+          if(hoc) hoc.style.display='';
+          document.getElementById('homeSections').style.display = 'block';
+          if (typeof renderHomeGrids === 'function') renderHomeGrids();
+        }
       }
     } catch(e) {}
   }, 3000);

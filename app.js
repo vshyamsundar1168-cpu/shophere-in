@@ -889,8 +889,18 @@ function setSortSelect(){
   if(sel) sel.value = currentSort||'';
 }
 function goPage(p2){page=p2;renderProducts();window.scrollTo({top:document.getElementById('productsSection').offsetTop-80,behavior:'smooth'});}
-function showProducts(){document.getElementById('homeSections').style.display='none';document.getElementById('productsSection').style.display='block';}
-function showHome(){document.getElementById('homeSections').style.display='block';document.getElementById('productsSection').style.display='none';}
+function showProducts(){
+  const hoc=document.getElementById('homeOnlyContent');
+  if(hoc) hoc.style.display='none';
+  document.getElementById('homeSections').style.display='none';
+  document.getElementById('productsSection').style.display='block';
+}
+function showHome(){
+  const hoc=document.getElementById('homeOnlyContent');
+  if(hoc) hoc.style.display='';
+  document.getElementById('homeSections').style.display='block';
+  document.getElementById('productsSection').style.display='none';
+}
 function goHome(){showHome();currentCat='all';currentBadge='';currentQ='';page=1;closeSearch();}
 // #13 category links working
 function filterCat(cat){
