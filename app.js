@@ -90,6 +90,7 @@ function doLogin(){
         currentUser={name:u,username:u};
         localStorage.setItem('sh_user',JSON.stringify(currentUser));
         closeLogin(); updateAuthUI(); toast(`Welcome back, ${u}! `);
+        sendUserAlert('login', u, u);
       } else {
         // Try local user store
         const users=JSON.parse(localStorage.getItem('sh_users')||'[]');
@@ -97,15 +98,17 @@ function doLogin(){
         if(!found){showLoginErr('Invalid username or password');return;}
         currentUser=found; localStorage.setItem('sh_user',JSON.stringify(found));
         closeLogin(); updateAuthUI(); toast(`Welcome back, ${found.name||found.username}! `);
+        sendUserAlert('login', found.name||found.username, u);
       }
     })
     .catch(()=>{
-      // Offline fallback &mdash; check local users
+      // Offline fallback — check local users
       const users=JSON.parse(localStorage.getItem('sh_users')||'[]');
       const found=users.find(x=>x.username===u&&x.password===p);
       if(!found){showLoginErr('Invalid username or password');return;}
       currentUser=found; localStorage.setItem('sh_user',JSON.stringify(found));
       closeLogin(); updateAuthUI(); toast(`Welcome back, ${found.name||found.username}! `);
+      sendUserAlert('login', found.name||found.username, u);
     });
 }
 function doRegister(){
@@ -118,9 +121,21 @@ function doRegister(){
   users.push(newUser); localStorage.setItem('sh_users',JSON.stringify(users));
   currentUser=newUser; localStorage.setItem('sh_user',JSON.stringify(newUser));
   closeLogin(); updateAuthUI(); toast(`Account created! Welcome, ${name} [+]`);
+  sendUserAlert('register', name, u);
 }
 function showLoginErr(m){const el=document.getElementById('loginErr');el.textContent=m;el.style.display='block';}
 function showRegErr(m){const el=document.getElementById('regErr');el.textContent=m;el.style.display='block';}
+
+// -- User Activity Alert (ntfy.sh push to your phone) ----------------------
+function sendUserAlert(type, name, username){
+  try{
+    const msg = type==='register'
+      ? '🆕 New Registration!\n👤 Name: '+name+'\n📱 Contact: '+username+'\nshophere.in'
+      : '🔑 User Login\n👤 Name: '+(name||username)+'\n📱 Contact: '+username+'\nshophere.in';
+    const blob = new Blob([msg], {type:'text/plain'});
+    navigator.sendBeacon('https://ntfy.sh/shophere-orders-9866', blob);
+  }catch(e){}
+}
 function logout(){
   currentUser=null;
   localStorage.removeItem('sh_user');
