@@ -1684,8 +1684,8 @@ async function loadPageBlocks(){
       // s.width controls the wrap width (e.g. 50% = 2 per row, 33% = 3 per row)
       const wrapW = s.width || '100%';
       const isPercent = wrapW.includes('%');
-      // If width is a percentage &mdash; use it as flex-basis so blocks sit side by side
-      // If width is px &mdash; use max-width so it doesn't overflow
+      // If width is a percentage — use it as flex-basis so blocks sit side by side
+      // If width is px — use max-width so it doesn't overflow
       if(isPercent){
         wrap.style.flex = `0 0 calc(${wrapW} - 8px)`;
         wrap.style.maxWidth = `calc(${wrapW} - 8px)`;
@@ -1694,6 +1694,20 @@ async function loadPageBlocks(){
         wrap.style.minWidth = '0';
         wrap.style.maxWidth = '100%';
         wrap.style.width = '100%';
+      }
+
+      // Block alignment — center, right, or left (default)
+      const blockAlign = s.blockAlign || '';
+      if(blockAlign === 'center'){
+        wrap.style.marginLeft  = 'auto';
+        wrap.style.marginRight = 'auto';
+        wrap.style.flex = `0 0 calc(${wrapW} - 8px)`;
+      } else if(blockAlign === 'right'){
+        wrap.style.marginLeft  = 'auto';
+        wrap.style.marginRight = '0';
+        wrap.style.flex = `0 0 calc(${wrapW} - 8px)`;
+      } else if(s.margin) {
+        wrap.style.margin = s.margin;
       }
 
       // -- Block title + caption shown on store --------------------------------

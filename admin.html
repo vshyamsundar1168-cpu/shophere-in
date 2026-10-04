@@ -834,7 +834,15 @@ if(window.location.protocol==='file:'){
               </select>
             </div>
             <div class="form-group" style="margin:0"><label>Custom Width</label><input id="pb_width" placeholder="100% or 300px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
-            <div class="form-group" style="margin:0"><label>Height</label><input id="pb_minHeight" placeholder="auto or 200px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
+            <div class="form-group" style="margin:0">
+              <label>📌 Block Alignment</label>
+              <select id="pb_blockAlign" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
+                <option value="">⬅️ Left (default)</option>
+                <option value="center">⬛ Center</option>
+                <option value="right">➡️ Right</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0"><label>Margin (outside spacing)</label><input id="pb_margin" placeholder="0 auto or 10px 20px" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none"></div>
             <div class="form-group" style="margin:0">
               <label>Image Fit / Zoom</label>
               <select id="pb_objectFit" style="width:100%;padding:8px 10px;border:1.5px solid var(--b);border-radius:7px;font-size:.82rem;outline:none">
@@ -3575,7 +3583,8 @@ function pbOpenAdd() {
       'pb_width':'','pb_minHeight':'','pb_padding':'','pb_margin':'','pb_radius':'',
       'pb_borderWidth':'','pb_borderStyle':'','pb_shadow':'','pb_opacity':'',
       'pb_bgImage':'','pb_bgSize':'','pb_animation':'','pb_position':'',
-      'pb_posTop':'','pb_posRight':'','pb_zIndex':'','pb_objectFit':'contain'
+      'pb_posTop':'','pb_posRight':'','pb_zIndex':'','pb_objectFit':'contain',
+      'pb_blockAlign':''
     };
     Object.entries(styleFields).forEach(([id, val]) => {
       const el = document.getElementById(id);
@@ -3665,6 +3674,8 @@ function pbOpenEdit(id) {
       sv('pb_minHeight',   s.minHeight);
       sv('pb_padding',     s.padding);
       sv('pb_margin',      s.margin);
+      const baEl = document.getElementById('pb_blockAlign');
+      if(baEl) baEl.value = s.blockAlign || '';
       sv('pb_radius',      s.borderRadius);
       sv('pb_borderWidth', s.borderWidth);
       sv('pb_borderStyle', s.borderStyle);
@@ -3782,6 +3793,7 @@ async function pbSaveBlock() {
     top:             addPx(gv('pb_posTop')),
     right:           addPx(gv('pb_posRight')),
     zIndex:          gv('pb_zIndex'),
+    blockAlign:      gv('pb_blockAlign'),
   };
   // Remove empty keys
   Object.keys(style).forEach(k => { if (!style[k]) delete style[k]; });

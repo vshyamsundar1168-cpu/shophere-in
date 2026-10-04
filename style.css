@@ -438,6 +438,11 @@ footer{background:var(--sec);color:#94a3b8;margin-top:60px}
   position:relative;
   overflow:visible;
 }
+/* When block has a custom width set, let it shrink to that size */
+.pb-block-wrap[style*="flex:0"],
+.pb-block-wrap[style*="flex: 0"]{
+  flex-grow:0 !important;
+}
 /* Image zoom &mdash; wrapper scales on hover, no overflow clip */
 .pb-img-zoom{
   display:inline-block;
