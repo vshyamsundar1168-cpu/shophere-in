@@ -277,11 +277,14 @@ async function loadCategories(){
       return a.localeCompare(b); // alphabetical for same group
     });
 
-    // Nav bar &mdash; append dynamic DB categories AFTER the fixed hardcoded items in index.html
+    // Nav bar — rebuild dynamic DB categories every time this runs
     // Fixed items: Home, All Products, Women, Men, Kids, Fashion, Deals, Home/Office, Electricals, Electronics, Vehicle Accessories
     const fixedCats = ['all','women','man','men','kids','fashion','deal','home','home/office','electricals','electronics','vehicle'];
     const nav = document.getElementById('mainNav');
     if(nav){
+      // Remove previously injected dynamic links so we don't duplicate
+      nav.querySelectorAll('a[data-dynamic-cat]').forEach(a=>a.remove());
+
       // Only add categories not already shown as fixed nav items
       const extraCats = sortedCats.filter(c=>{
         const cl = c.toLowerCase();
@@ -291,6 +294,7 @@ async function loadCategories(){
         extraCats.forEach(c=>{
           const a = document.createElement('a');
           a.textContent = c;
+          a.setAttribute('data-dynamic-cat', c);
           a.onclick = ()=>{ filterCat(c); setActive(a); };
           nav.appendChild(a);
         });
