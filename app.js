@@ -277,28 +277,20 @@ async function loadCategories(){
       return a.localeCompare(b); // alphabetical for same group
     });
 
-    // Nav bar — rebuild dynamic DB categories every time this runs
-    // Fixed items: Home, All Products, Women, Men, Kids, Fashion, Deals, Home/Office, Electricals, Electronics, Vehicle Accessories
-    const fixedCats = ['all','women','man','men','kids','fashion','deal','home','home/office','electricals','electronics','vehicle'];
+    // Nav bar — rebuild ALL DB categories every time this runs
+    // Only Home, All Products, Deals are hardcoded — everything else comes from DB
     const nav = document.getElementById('mainNav');
     if(nav){
       // Remove previously injected dynamic links so we don't duplicate
       nav.querySelectorAll('a[data-dynamic-cat]').forEach(a=>a.remove());
-
-      // Only add categories not already shown as fixed nav items
-      const extraCats = sortedCats.filter(c=>{
-        const cl = c.toLowerCase();
-        return !fixedCats.some(f => cl.includes(f) || f.includes(cl));
+      // Add every category from the database
+      sortedCats.forEach(c=>{
+        const a = document.createElement('a');
+        a.textContent = c;
+        a.setAttribute('data-dynamic-cat', c);
+        a.onclick = ()=>{ filterCat(c); setActive(a); };
+        nav.appendChild(a);
       });
-      if(extraCats.length){
-        extraCats.forEach(c=>{
-          const a = document.createElement('a');
-          a.textContent = c;
-          a.setAttribute('data-dynamic-cat', c);
-          a.onclick = ()=>{ filterCat(c); setActive(a); };
-          nav.appendChild(a);
-        });
-      }
     }
 
     // Category strip below hero &mdash; same sorted order
