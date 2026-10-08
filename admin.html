@@ -106,6 +106,7 @@ if(window.location.protocol==='file:'){
     <div class="sb-item" onclick="showTab('products',this)"> Products</div>
     <div class="sb-item" onclick="showTab('addProduct',this)"> Add Product</div>
     <div class="sb-item" onclick="showTab('orders',this)"> Orders</div>
+    <div class="sb-item" onclick="showTab('customers',this)">👥 Customers</div>
     <div class="sb-item" onclick="showTab('reviews',this)">&#9733; Reviews</div>
     <div class="sb-item" onclick="showTab('banners',this)"> Banners</div>
     <div class="sb-item" onclick="showTab('categories',this)"> Categories</div>
@@ -242,6 +243,42 @@ if(window.location.protocol==='file:'){
           <tbody id="ordersBody"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS TAB -->
+  <div id="tab-customers" class="tab">
+    <div class="sec">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h3 style="font-size:.95rem;font-weight:700;margin-bottom:4px">👥 Registered Customers</h3>
+          <p style="font-size:.8rem;color:var(--m)">All customers who registered on your store — with contact details.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="custSearch" placeholder="🔍 Search name or contact..." oninput="filterCustomers()" style="padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-size:.84rem;outline:none;width:240px">
+          <button onclick="loadCustomers()" style="padding:8px 16px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">Refresh</button>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden">
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>📧 Email / Phone</th>
+                <th>📅 Registered</th>
+                <th>📍 IP Address</th>
+                <th>📱 Device</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody">
+              <tr><td colspan="6" style="text-align:center;color:var(--m);padding:32px">Click Refresh to load customers</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="custCount" style="font-size:.8rem;color:var(--m);margin-top:10px"></div>
     </div>
   </div>
 
@@ -1800,6 +1837,7 @@ function showTab(name, el) {
   if (name === 'import')      initImportTab();
   if (name === 'extension')   {}
   if (name === 'analytics')   loadAnalytics();
+  if (name === 'customers')   loadCustomers();
 }
 
 // -- Global categories store ---------------------------------------------------
@@ -5159,6 +5197,55 @@ async function reGeoVisits(){
     toast('Fixed ' + d.fixed + ' of ' + d.total + ' unknown visits. Click Refresh to see.');
     if(d.fixed > 0) setTimeout(loadAnalytics, 1000);
   }catch(e){ toast('Error: '+e.message); }
+}
+
+// -- Customers -----------------------------------------------------------------
+let _allCustomers = [];
+
+async function loadCustomers() {
+  const tbody = document.getElementById('customersTableBody');
+  const countEl = document.getElementById('custCount');
+  if(tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--m)">⏳ Loading...</td></tr>';
+  try {
+    const res = await fetch('/api/customers');
+    const d   = await res.json();
+    _allCustomers = d.customers || [];
+    renderCustomersTable(_allCustomers);
+    if(countEl) countEl.textContent = _allCustomers.length + ' registered customer' + (_allCustomers.length!==1?'s':'');
+  } catch(e) {
+    if(tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--rd)">Error loading customers: '+e.message+'</td></tr>';
+  }
+}
+
+function filterCustomers() {
+  const q = (document.getElementById('custSearch')?.value || '').toLowerCase();
+  const filtered = q ? _allCustomers.filter(c =>
+    (c.name||'').toLowerCase().includes(q) ||
+    (c.username||'').toLowerCase().includes(q)
+  ) : _allCustomers;
+  renderCustomersTable(filtered);
+}
+
+function renderCustomersTable(list) {
+  const tbody = document.getElementById('customersTableBody');
+  if(!tbody) return;
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--m)">No customers registered yet. Customers who register on your store will appear here.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map((c,i) => {
+    const date = c.registeredAt ? new Date(c.registeredAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    const ua   = c.ua || '';
+    const device = ua.toLowerCase().includes('mobile') || ua.toLowerCase().includes('android') || ua.toLowerCase().includes('iphone') ? '📱 Mobile' : ua ? '💻 Desktop' : '—';
+    return `<tr>
+      <td style="color:var(--m);font-weight:600">${i+1}</td>
+      <td><strong>${c.name||'—'}</strong></td>
+      <td style="color:var(--p);font-weight:600">${c.username||'—'}</td>
+      <td style="font-size:.78rem;color:var(--m)">${date}</td>
+      <td style="font-size:.74rem;font-family:monospace;color:var(--m)">${c.ip||'—'}</td>
+      <td style="font-size:.78rem">${device}</td>
+    </tr>`;
+  }).join('');
 }
 
 let _anMap = null; // keep map instance to avoid re-init

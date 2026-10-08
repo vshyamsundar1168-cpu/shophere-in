@@ -122,6 +122,10 @@ function doRegister(){
   currentUser=newUser; localStorage.setItem('sh_user',JSON.stringify(newUser));
   closeLogin(); updateAuthUI(); toast(`Account created! Welcome, ${name} [+]`);
   sendUserAlert('register', name, u);
+  // Save to server so admin can see all registered customers
+  fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name,username:u,registeredAt:new Date().toISOString()})
+  }).catch(()=>{});
 }
 function showLoginErr(m){const el=document.getElementById('loginErr');el.textContent=m;el.style.display='block';}
 function showRegErr(m){const el=document.getElementById('regErr');el.textContent=m;el.style.display='block';}
