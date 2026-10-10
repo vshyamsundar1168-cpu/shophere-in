@@ -1669,11 +1669,11 @@ if (false && host && host.endsWith('.onrender.com')) {
           {$limit:20}
         ]).toArray();
 
-        // Per-customer totals (logged-in only)
+        // Per-customer totals — group by userEmail (most reliable identifier)
         const byCustomer = await db.collection('watch_events').aggregate([
-          {$match:{ts:{$gte:since}, userId:{$ne:null}}},
+          {$match:{ts:{$gte:since}, userEmail:{$ne:null}}},
           {$group:{
-            _id:'$userId',
+            _id:'$userEmail',
             userName:{$last:'$userName'},
             userEmail:{$last:'$userEmail'},
             userPhone:{$last:'$userPhone'},

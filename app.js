@@ -136,8 +136,17 @@ function sendUserAlert(type, name, username){
     const msg = type==='register'
       ? '🆕 New Registration!\n👤 Name: '+name+'\n📱 Contact: '+username+'\nshophere.in'
       : '🔑 User Login\n👤 Name: '+(name||username)+'\n📱 Contact: '+username+'\nshophere.in';
-    const blob = new Blob([msg], {type:'text/plain'});
-    navigator.sendBeacon('https://ntfy.sh/shophere-orders-9866', blob);
+    // Use fetch (not sendBeacon) for reliable delivery
+    fetch('https://ntfy.sh/shophere-orders-9866', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+        'Title': type==='register' ? 'New Customer Registration' : 'Customer Login',
+        'Priority': 'high',
+        'Tags': type==='register' ? 'new,bust_in_silhouette' : 'key,bust_in_silhouette'
+      },
+      body: msg
+    }).catch(()=>{});
   }catch(e){}
 }
 function logout(){
@@ -1043,10 +1052,10 @@ function mgShow(url,el){const img=document.getElementById('mgMainImg');if(img){i
             productName: p?p.name:'',
             durationSeconds: Math.round(_total),
             type: 'video_watch',
-            userId:    currentUser?currentUser.id||currentUser.username||null:null,
-            userName:  currentUser?currentUser.name||currentUser.username||null:null,
-            userEmail: currentUser?currentUser.email||currentUser.username||null:null,
-            userPhone: currentUser?currentUser.phone||null:null,
+            userId:    currentUser ? (currentUser.username || currentUser.id || null) : null,
+            userName:  currentUser ? (currentUser.name || currentUser.username || null) : null,
+            userEmail: currentUser ? (currentUser.email || currentUser.username || null) : null,
+            userPhone: currentUser ? (currentUser.phone || null) : null,
             sessionId: getSessionId()
           });
         }
