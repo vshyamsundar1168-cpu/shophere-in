@@ -415,9 +415,8 @@ async function sendOrderSmsAlert(order) {
 
   // ── 1. Telegram (primary — instant delivery) ─────────────────────────────
   const telegramPromises = (() => {
-    const token   = process.env.TELEGRAM_BOT_TOKEN;
-    const chatIds = (process.env.TELEGRAM_CHAT_ID || '').split(',').map(s => s.trim()).filter(Boolean);
-    if (!token || !chatIds.length) return [Promise.resolve()];
+    const token   = process.env.TELEGRAM_BOT_TOKEN || '8710426686:AAG28Zuk8Y_ii0f3sqclIhIFeq78n9INH08';
+    const chatIds = (process.env.TELEGRAM_CHAT_ID || '7739718937').split(',').map(s => s.trim()).filter(Boolean);
     return chatIds.map(chatId => new Promise((resolve) => {
       try {
         const postData = JSON.stringify({ chat_id: chatId, text: shortMsg, parse_mode: 'Markdown' });

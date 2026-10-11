@@ -130,20 +130,27 @@ function doRegister(){
 function showLoginErr(m){const el=document.getElementById('loginErr');el.textContent=m;el.style.display='block';}
 function showRegErr(m){const el=document.getElementById('regErr');el.textContent=m;el.style.display='block';}
 
-// -- User Activity Alert (ntfy.sh push to your phone) ----------------------
+// -- User Activity Alert (ntfy.sh + Telegram) --------------------------------
 function sendUserAlert(type, name, username){
   try{
     const msg = type==='register'
       ? '🆕 New Registration!\n👤 Name: '+name+'\n📱 Contact: '+username+'\nshophere.in'
       : '🔑 User Login\n👤 Name: '+(name||username)+'\n📱 Contact: '+username+'\nshophere.in';
-    // Use fetch (not sendBeacon) for reliable delivery
+
+    // Telegram (primary — instant)
+    fetch('https://api.telegram.org/bot8710426686:AAG28Zuk8Y_ii0f3sqclIhIFeq78n9INH08/sendMessage', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ chat_id:'7739718937', text: msg })
+    }).catch(()=>{});
+
+    // ntfy (backup)
     fetch('https://ntfy.sh/shophere-orders-9866', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain',
-        'Title': type==='register' ? 'New Customer Registration' : 'Customer Login',
-        'Priority': 'high',
-        'Tags': type==='register' ? 'new,bust_in_silhouette' : 'key,bust_in_silhouette'
+      method:'POST',
+      headers:{
+        'Content-Type':'text/plain',
+        'Title': type==='register' ? 'New Registration - ShopHere.in' : 'Customer Login - ShopHere.in',
+        'Priority':'high',
+        'Tags': type==='register' ? 'new,bust_in_silhouette' : 'key'
       },
       body: msg
     }).catch(()=>{});
