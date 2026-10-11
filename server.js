@@ -391,89 +391,81 @@ async function processMedia(files) {
   return { images, videos, audios, errors };
 }
 
-// -- Order Alert (ntfy.sh push + WhatsApp via CallMeBot) ----------------------
-// ntfy.sh: free push notifications — install "ntfy" app, subscribe: shophere-orders-9866
-// CallMeBot: free WhatsApp alerts to your numbers (no account needed)
+// -- Order Alert (Telegram + ntfy.sh) ----------------------------------------
+// PRIMARY: Telegram Bot — instant, free, works on any phone
+//   Setup: create bot via @BotFather → get token + chat_id → add to Render env
+//   TELEGRAM_BOT_TOKEN = your bot token
+//   TELEGRAM_CHAT_ID   = your personal chat id (can be comma-separated for 2 numbers)
+// BACKUP: ntfy.sh push — install "ntfy" app, subscribe to: shophere-orders-9866
 async function sendOrderSmsAlert(order) {
   const items = (order.items || []).slice(0, 3).map(i =>
     (i.name || '').substring(0, 25) + ' x' + (i.qty || 1)
   ).join(', ');
 
   const shortMsg =
-    '🛒 New Order ' + (order.id || '') + '\n' +
+    '🛒 *New Order ' + (order.id || '') + '*\n' +
     '👤 ' + (order.name || 'Unknown') + '  📞 ' + (order.phone || '-') + '\n' +
-    '💰 Rs.' + (order.total || 0) + '  💳 ' + (order.payment || 'COD').toUpperCase() + '\n' +
+    '💰 Rs.' + (order.total || 0) + '  💳 ' + (order.payment || 'UPI').toUpperCase() + '\n' +
     '📦 ' + items +
     (order.city ? '\n📍 ' + order.city : '') +
-    '\nshophere.in';
+    '\n🌐 shophere.in';
 
+  const plainMsg = shortMsg.replace(/\*/g, '');
   const https = require('https');
 
-  // ── 1. ntfy.sh push notification (phone app) ─────────────────────────────
+  // ── 1. Telegram (primary — instant delivery) ─────────────────────────────
+  const telegramPromises = (() => {
+    const token   = process.env.TELEGRAM_BOT_TOKEN;
+    const chatIds = (process.env.TELEGRAM_CHAT_ID || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (!token || !chatIds.length) return [Promise.resolve()];
+    return chatIds.map(chatId => new Promise((resolve) => {
+      try {
+        const postData = JSON.stringify({ chat_id: chatId, text: shortMsg, parse_mode: 'Markdown' });
+        const req = https.request({
+          hostname: 'api.telegram.org',
+          path: '/bot' + token + '/sendMessage',
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(postData) }
+        }, (res) => {
+          let d = ''; res.on('data', c => d += c);
+          res.on('end', () => { console.log('[TG] sent to ' + chatId + ':', d.substring(0, 60)); resolve(); });
+        });
+        req.on('error', (e) => { console.warn('[TG] failed:', e.message); resolve(); });
+        req.write(postData); req.end();
+      } catch(e) { console.warn('[TG] error:', e.message); resolve(); }
+    }));
+  })();
+
+  // ── 2. ntfy.sh push notification (backup) ────────────────────────────────
   const ntfyPromise = new Promise((resolve) => {
     try {
-      const body = Buffer.from(shortMsg, 'utf8');
-      const r = https.request({
+      const body = Buffer.from(plainMsg, 'utf8');
+      const req = https.request({
         hostname: 'ntfy.sh',
         path: '/shophere-orders-9866',
         method: 'POST',
         headers: {
           'Content-Type':   'text/plain',
           'Content-Length': body.length,
-          'Title':          'New Order on ShopHere.in',
+          'Title':          'New Order - ShopHere.in',
           'Priority':       'high',
-          'Tags':           'shopping_cart,money_with_wings'
+          'Tags':           'shopping_cart'
         }
       }, (res) => { res.resume(); resolve(); });
-      r.on('error', () => resolve());
-      r.write(body); r.end();
+      req.on('error', () => resolve());
+      req.write(body); req.end();
       console.log('[ALERT] ntfy.sh push sent for order ' + order.id);
     } catch(e) { console.warn('[ALERT] ntfy error:', e.message); resolve(); }
   });
-
-  // ── 2. WhatsApp via CallMeBot (free, no API key needed) ───────────────────
-  // One-time setup per number: send "I allow callmebot to send me messages"
-  // to +34 644 597 088 on WhatsApp, then you get an apikey back.
-  // Set CALLMEBOT_KEY1 (for 9866966904) and CALLMEBOT_KEY2 (for 7093217367) in Render env.
-  const waMsg = encodeURIComponent(shortMsg);
-  const waNumbers = [
-    { phone: '919866966904', key: process.env.CALLMEBOT_KEY1 },
-    { phone: '917093217367', key: process.env.CALLMEBOT_KEY2 },
-  ];
-
-  const waPromises = waNumbers.map(({ phone, key }) => new Promise((resolve) => {
-    if (!key) return resolve(); // skip if key not configured
-    try {
-      const url = `/whatsapp?phone=${phone}&text=${waMsg}&apikey=${key}`;
-      const r = https.request({
-        hostname: 'api.callmebot.com',
-        path: url,
-        method: 'GET'
-      }, (res) => {
-        let d = ''; res.on('data', c => d += c);
-        res.on('end', () => { console.log('[WA] ' + phone + ':', d.substring(0, 80)); resolve(); });
-      });
-      r.on('error', (e) => { console.warn('[WA] failed ' + phone + ':', e.message); resolve(); });
-      r.end();
-    } catch(e) { console.warn('[WA] error:', e.message); resolve(); }
-  }));
 
   // ── 3. Fast2SMS SMS (if FAST2SMS_API_KEY is set in env) ───────────────────
   const smsPromise = new Promise((resolve) => {
     try {
       const apiKey = process.env.FAST2SMS_API_KEY;
       if (!apiKey) return resolve();
-      const smsText =
-        'New Order ' + (order.id||'') +
-        ' Customer:' + (order.name||'Unknown') +
-        ' Rs.' + (order.total||0) +
-        ' ' + (order.payment||'COD').toUpperCase() +
-        ' Items:' + (order.items||[]).slice(0,2).map(i=>i.name.substring(0,15)+' x'+(i.qty||1)).join(',') +
-        ' -ShopHere.in';
-      const postData = JSON.stringify({
-        route:'q', numbers:'9866966904,7093217367',
-        message: smsText, language:'english', flash:0
-      });
+      const smsText = 'New Order ' + (order.id||'') + ' Customer:' + (order.name||'Unknown') +
+        ' Rs.' + (order.total||0) + ' Items:' + items + ' -ShopHere.in';
+      const postData = JSON.stringify({ route:'q', numbers:'9866966904,7093217367', message: smsText, language:'english', flash:0 });
       const req = https.request({
         hostname:'www.fast2sms.com', path:'/dev/bulkV2', method:'POST',
         headers:{'authorization':apiKey,'Content-Type':'application/json','Content-Length':Buffer.byteLength(postData)}
@@ -481,6 +473,10 @@ async function sendOrderSmsAlert(order) {
       req.on('error', (e) => { console.warn('[SMS] failed:',e.message); resolve(); });
       req.write(postData); req.end();
     } catch(e) { console.warn('[SMS] error:',e.message); resolve(); }
+  });
+
+  await Promise.all([...telegramPromises, ntfyPromise, smsPromise]);
+}
   });
 
   await Promise.all([ntfyPromise, ...waPromises, smsPromise]);
