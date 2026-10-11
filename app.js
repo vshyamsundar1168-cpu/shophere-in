@@ -1031,9 +1031,95 @@ function mgShow(url,el){const img=document.getElementById('mgMainImg');if(img){i
     if(!s){s=Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem('sh_wsid',s);}
     return s;
   }
+
+  // Get visitor info (logged in OR collected via popup)
+  function getVisitorInfo(){
+    if(currentUser) return {
+      userId:    currentUser.username || currentUser.id || null,
+      userName:  currentUser.name     || currentUser.username || null,
+      userEmail: currentUser.email    || currentUser.username || null,
+      userPhone: currentUser.phone    || null
+    };
+    // Check if visitor gave info via popup
+    const saved = localStorage.getItem('sh_visitor_info');
+    if(saved){ try{ return JSON.parse(saved); }catch(e){} }
+    return { userId:null, userName:null, userEmail:null, userPhone:null };
+  }
+
   function sendWatch(data){
     fetch('/api/watch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),keepalive:true}).catch(()=>{});
   }
+
+  // Show a small popup to collect visitor info before they watch
+  function askVisitorInfo(onDone){
+    // Already have info — skip popup
+    if(currentUser || localStorage.getItem('sh_visitor_info')){
+      onDone(); return;
+    }
+    // Already showed popup this session — skip
+    if(sessionStorage.getItem('sh_asked')){
+      onDone(); return;
+    }
+    sessionStorage.setItem('sh_asked','1');
+
+    // Create popup
+    const overlay = document.createElement('div');
+    overlay.id = 'visitorPopup';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center">
+        <div style="font-size:2rem;margin-bottom:8px">🎬</div>
+        <h3 style="font-size:1rem;font-weight:800;margin-bottom:6px;color:#1e293b">Watch this video</h3>
+        <p style="font-size:.82rem;color:#64748b;margin-bottom:18px">Enter your details to continue watching</p>
+        <input id="vp_name" placeholder="Your Name *" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.88rem;margin-bottom:10px;outline:none;box-sizing:border-box">
+        <input id="vp_contact" placeholder="Phone or Email *" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.88rem;margin-bottom:14px;outline:none;box-sizing:border-box">
+        <div style="display:flex;gap:10px">
+          <button onclick="skipVisitorPopup()" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;font-size:.84rem;color:#64748b">Skip</button>
+          <button onclick="submitVisitorPopup()" style="flex:2;padding:10px;border:none;border-radius:8px;background:#f97316;color:#fff;cursor:pointer;font-size:.88rem;font-weight:700">Watch Now ▶</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    window._visitorPopupDone = onDone;
+
+    // Auto-focus name field
+    setTimeout(()=>{ const el=document.getElementById('vp_name'); if(el) el.focus(); }, 100);
+  }
+
+  window.submitVisitorPopup = function(){
+    const name    = (document.getElementById('vp_name')?.value || '').trim();
+    const contact = (document.getElementById('vp_contact')?.value || '').trim();
+    if(!name || !contact){ 
+      const el = document.getElementById('vp_contact');
+      if(el){ el.style.borderColor='#ef4444'; el.placeholder='Required!'; }
+      return;
+    }
+    const isPhone = /^\d{7,}$/.test(contact.replace(/[\s\-\+]/g,''));
+    const info = {
+      userId:    contact,
+      userName:  name,
+      userEmail: isPhone ? null : contact,
+      userPhone: isPhone ? contact : null
+    };
+    localStorage.setItem('sh_visitor_info', JSON.stringify(info));
+    // Save to server
+    fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name, username:contact, registeredAt:new Date().toISOString()})
+    }).catch(()=>{});
+    // Send alert
+    sendUserAlert('register', name, contact);
+    // Close popup
+    const pop = document.getElementById('visitorPopup');
+    if(pop) pop.remove();
+    if(window._visitorPopupDone) window._visitorPopupDone();
+  };
+
+  window.skipVisitorPopup = function(){
+    const pop = document.getElementById('visitorPopup');
+    if(pop) pop.remove();
+    if(window._visitorPopupDone) window._visitorPopupDone();
+  };
+
   const _orig = openProduct;
   window.openProduct = async function(id){
     await _orig(id);
@@ -1043,19 +1129,31 @@ function mgShow(url,el){const img=document.getElementById('mgMainImg');if(img){i
         if(vid._wt) return;
         vid._wt = true;
         let _start=null, _total=0;
-        vid.addEventListener('play', ()=>{ _start=Date.now(); });
+        let _askedThisVideo = false;
+
+        vid.addEventListener('play', ()=>{
+          if(!_askedThisVideo){
+            _askedThisVideo = true;
+            // Pause video while asking for info
+            vid.pause();
+            askVisitorInfo(()=>{
+              vid.play().catch(()=>{});
+              _start = Date.now();
+            });
+          } else {
+            _start = Date.now();
+          }
+        });
         function flush(){
           if(_start!==null){_total+=(Date.now()-_start)/1000;_start=null;}
           if(_total<1) return;
+          const info = getVisitorInfo();
           sendWatch({
             productId:   id,
             productName: p?p.name:'',
             durationSeconds: Math.round(_total),
             type: 'video_watch',
-            userId:    currentUser ? (currentUser.username || currentUser.id || null) : null,
-            userName:  currentUser ? (currentUser.name || currentUser.username || null) : null,
-            userEmail: currentUser ? (currentUser.email || currentUser.username || null) : null,
-            userPhone: currentUser ? (currentUser.phone || null) : null,
+            ...info,
             sessionId: getSessionId()
           });
         }
