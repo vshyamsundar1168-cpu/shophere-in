@@ -476,10 +476,6 @@ async function sendOrderSmsAlert(order) {
 
   await Promise.all([...telegramPromises, ntfyPromise, smsPromise]);
 }
-  });
-
-  await Promise.all([ntfyPromise, ...waPromises, smsPromise]);
-}
 
 
 // -- HTTP helpers --------------------------------------------------------------
