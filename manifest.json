@@ -1,13 +1,21 @@
 {
-  "name": "ShopHere.in",
-  "short_name": "ShopHere",
-  "description": "India's trusted online shopping destination",
+  "name": "ShopHere.in - Online Shopping",
+  "short_name": "ShopHere.in",
+  "description": "India's trusted online shopping destination. Shop sarees, fashion, electronics and more.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#1e293b",
   "theme_color": "#f97316",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "lang": "en-IN",
   "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
@@ -21,5 +29,17 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["shopping", "lifestyle"]
+  "categories": ["shopping", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "All Products",
+      "url": "/?cat=all",
+      "description": "Browse all products"
+    },
+    {
+      "name": "My Orders",
+      "url": "/",
+      "description": "Track your orders"
+    }
+  ]
 }
