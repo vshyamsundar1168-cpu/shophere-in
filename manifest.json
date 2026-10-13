@@ -1,39 +1,25 @@
 {
   "name": "ShopHere.in - Online Shopping",
   "short_name": "ShopHere.in",
-  "description": "India's trusted online shopping destination. Shop sarees, fashion, electronics and more.",
+  "description": "India's trusted online shopping destination.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#f97316",
   "orientation": "portrait-primary",
-  "lang": "en-IN",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "https://res.cloudinary.com/wzaxevft/image/upload/w_192,h_192,c_pad,b_white/v1785111180/shophere/joey60ohubebxytyqip7.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "https://res.cloudinary.com/wzaxevft/image/upload/w_512,h_512,c_pad,b_white/v1785111180/shophere/joey60ohubebxytyqip7.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
-    }
-  ],
-  "categories": ["shopping", "lifestyle"],
-  "shortcuts": [
-    {
-      "name": "All Products",
-      "url": "/?cat=all",
-      "description": "Browse all products"
-    },
-    {
-      "name": "My Orders",
-      "url": "/",
-      "description": "Track your orders"
     }
   ]
 }
