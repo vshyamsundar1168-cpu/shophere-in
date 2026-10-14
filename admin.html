@@ -5509,49 +5509,88 @@ async function loadAnalytics() {
     // -- Load registered customers list into analytics -----------------------
     try {
       const cr = await fetch('/api/customers');
+      const wr2 = await fetch('/api/watch-stats?range=365');
       if(cr.ok){
         const cd = await cr.json();
+        const wd2 = wr2.ok ? await wr2.json() : {};
         const customers = cd.customers || [];
+        const watchByEmail = {};
+        // Build a lookup: email → watch stats
+        (wd2.byCustomer || []).forEach(w => {
+          if(w.userEmail) watchByEmail[w.userEmail.toLowerCase()] = w;
+          if(w._id)       watchByEmail[w._id.toLowerCase()]       = w;
+        });
+
         // Update customer count stat card
         const el_cu = document.getElementById('wd-customers');
         if(el_cu) el_cu.textContent = customers.length;
-        // Inject a registered customers table into the analytics section
+
+        // Inject/update registered customers table in analytics section
         let regTableEl = document.getElementById('an-reg-customers');
         if(!regTableEl){
           regTableEl = document.createElement('div');
           regTableEl.id = 'an-reg-customers';
           regTableEl.style.cssText = 'margin-top:20px';
-          // Insert before the video watch duration section
-          const wdSection = document.querySelector('#tab-analytics .sec > div[style*="margin-top:20px"]');
           const analyticsSection = document.querySelector('#tab-analytics .sec');
           if(analyticsSection) analyticsSection.appendChild(regTableEl);
         }
+
+        function fmtS(s){s=Math.round(s||0);if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m '+(s%60)+'s';return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m';}
+
         regTableEl.innerHTML = `
-          <h3 style="font-size:.9rem;font-weight:700;margin-bottom:12px;color:#1e293b">👥 Registered Customers (${customers.length})</h3>
+          <h3 style="font-size:.9rem;font-weight:700;margin-bottom:12px;color:#1e293b">
+            👥 Registered Customers (${customers.length})
+          </h3>
           <div style="background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden">
             <div style="overflow-x:auto">
               <table class="data-table">
-                <thead><tr><th>#</th><th>Name</th><th>📧 Email / Phone</th><th>📅 Registered</th><th>🕐 Last Login</th><th>🔢 Logins</th><th>Device</th></tr></thead>
-                <tbody>${customers.length ? customers.map((c,i)=>{
-                  const reg  = c.registeredAt ? new Date(c.registeredAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-                  const last = c.lastLogin    ? new Date(c.lastLogin).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-                  const ua   = (c.ua||'').toLowerCase();
-                  const dev  = ua.includes('mobile')||ua.includes('android')||ua.includes('iphone') ? '📱' : ua ? '💻' : '—';
-                  return `<tr>
-                    <td style="color:var(--m)">${i+1}</td>
-                    <td><strong>${c.name||'—'}</strong></td>
-                    <td style="color:var(--p);font-weight:600">${c.username||'—'}</td>
-                    <td style="font-size:.76rem;color:var(--m)">${reg}</td>
-                    <td style="font-size:.76rem;color:var(--g);font-weight:600">${last}</td>
-                    <td style="text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:1px 7px;border-radius:20px;font-size:.74rem;font-weight:700">${c.loginCount||1}</span></td>
-                    <td style="font-size:.8rem">${dev}</td>
-                  </tr>`;
-                }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--m);padding:20px">No registered customers yet</td></tr>'}</tbody>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>📧 Email / Phone</th>
+                    <th>📅 Registered</th>
+                    <th>🕐 Last Login</th>
+                    <th>🔢 Logins</th>
+                    <th>🎬 Videos</th>
+                    <th>⏱️ Watch Time</th>
+                    <th>📱 Device</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${customers.length ? customers.map((c,i) => {
+                    const reg  = c.registeredAt ? new Date(c.registeredAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+                    const last = c.lastLogin    ? new Date(c.lastLogin).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+                    const ua   = (c.ua||'').toLowerCase();
+                    const dev  = ua.includes('mobile')||ua.includes('android')||ua.includes('iphone') ? '📱 Mobile' : ua ? '💻 Desktop' : '—';
+                    const logins = c.loginCount || 1;
+                    // Match watch stats by username/email
+                    const ws = watchByEmail[(c.username||'').toLowerCase()] || watchByEmail[(c.name||'').toLowerCase()] || null;
+                    const videoViews = ws ? ws.views : 0;
+                    const watchTime  = ws ? fmtS(ws.totalSec) : '—';
+                    const watchColor = ws ? 'color:var(--p);font-weight:700' : 'color:var(--m)';
+                    return `<tr>
+                      <td style="color:var(--m)">${i+1}</td>
+                      <td><strong>${c.name||'—'}</strong></td>
+                      <td style="color:var(--p);font-weight:600">${c.username||'—'}</td>
+                      <td style="font-size:.76rem;color:var(--m)">${reg}</td>
+                      <td style="font-size:.76rem;color:var(--g);font-weight:600">${last}</td>
+                      <td style="text-align:center">
+                        <span style="background:#eff6ff;color:#3b82f6;padding:1px 7px;border-radius:20px;font-size:.74rem;font-weight:700">${logins}</span>
+                      </td>
+                      <td style="text-align:center">
+                        ${videoViews > 0 ? `<span style="background:#f0fdf4;color:#16a34a;padding:1px 7px;border-radius:20px;font-size:.74rem;font-weight:700">${videoViews}</span>` : '<span style="color:var(--m);font-size:.74rem">—</span>'}
+                      </td>
+                      <td style="font-size:.8rem;${watchColor}">${watchTime}</td>
+                      <td style="font-size:.8rem">${dev}</td>
+                    </tr>`;
+                  }).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:20px">No registered customers yet</td></tr>'}
+                </tbody>
               </table>
             </div>
           </div>`;
       }
-    } catch(we2) {}
+    } catch(we2) { console.warn('Reg customers error:', we2); }
 
   } catch(e) {
     toast('x Analytics error: ' + e.message);
