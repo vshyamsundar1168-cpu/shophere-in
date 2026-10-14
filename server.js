@@ -534,9 +534,31 @@ if (false && host && host.endsWith('.onrender.com')) {
       return sendJSON(res, 200, { success: false, isAdmin: false, message: 'Invalid credentials' });
     }
 
-    // -- CUSTOMER REGISTER -----------------------------------------------------
-    if (p === '/api/register' && m === 'POST') {
+    // -- CUSTOMER LOGIN TRACKING -----------------------------------------------
+    if (p === '/api/customer-login' && m === 'POST') {
       try {
+        const body = await readJSON(req);
+        if (!body.username) return sendJSON(res, 200, { ok: true });
+        const db = getDb();
+        const now = new Date().toISOString();
+        const ip  = (req.headers['x-forwarded-for']||'').split(',')[0].trim() || req.socket?.remoteAddress || '';
+        const ua  = (req.headers['user-agent']||'').substring(0, 150);
+        // Upsert: update lastLogin, increment loginCount; insert if new
+        await db.collection('customers').updateOne(
+          { username: body.username },
+          {
+            $set:  { name: body.name || body.username, lastLogin: now, ip, ua },
+            $inc:  { loginCount: 1 },
+            $setOnInsert: { username: body.username, registeredAt: now }
+          },
+          { upsert: true }
+        );
+        return sendJSON(res, 200, { ok: true });
+      } catch(e) { return sendJSON(res, 200, { ok: true }); }
+    }
+
+    // -- CUSTOMER REGISTER -----------------------------------------------------
+    if (p === '/api/register' && m === 'POST') {      try {
         const body = await readJSON(req);
         if (!body.name || !body.username) return sendJSON(res, 400, { error: 'Name and username required' });
         const db = getDb();

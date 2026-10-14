@@ -91,6 +91,7 @@ function doLogin(){
         localStorage.setItem('sh_user',JSON.stringify(currentUser));
         closeLogin(); updateAuthUI(); toast(`Welcome back, ${u}! `);
         sendUserAlert('login', u, u);
+        fetch('/api/customer-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:u,username:u})}).catch(()=>{});
       } else {
         // Try local user store
         const users=JSON.parse(localStorage.getItem('sh_users')||'[]');
@@ -99,6 +100,7 @@ function doLogin(){
         currentUser=found; localStorage.setItem('sh_user',JSON.stringify(found));
         closeLogin(); updateAuthUI(); toast(`Welcome back, ${found.name||found.username}! `);
         sendUserAlert('login', found.name||found.username, u);
+        fetch('/api/customer-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:found.name||found.username,username:u})}).catch(()=>{});
       }
     })
     .catch(()=>{
@@ -109,6 +111,7 @@ function doLogin(){
       currentUser=found; localStorage.setItem('sh_user',JSON.stringify(found));
       closeLogin(); updateAuthUI(); toast(`Welcome back, ${found.name||found.username}! `);
       sendUserAlert('login', found.name||found.username, u);
+      fetch('/api/customer-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:found.name||found.username,username:u})}).catch(()=>{});
     });
 }
 function doRegister(){
