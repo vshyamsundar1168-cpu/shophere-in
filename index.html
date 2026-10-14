@@ -230,9 +230,25 @@
 
 <!-- --- PRODUCTS SECTION --------------------------------------------------- -->
 <div class="container" id="productsSection" style="display:none">
+  <!-- Mobile filter toggle button (only visible on mobile) -->
+  <div class="mobile-filter-bar" id="mobileFilterBar">
+    <button class="mobile-filter-btn" onclick="toggleMobileFilters()">
+      ☰ Filters
+    </button>
+    <span id="resultCount" class="result-count-inline"></span>
+  </div>
+
+  <!-- Mobile filter overlay backdrop -->
+  <div class="mobile-filter-overlay" id="mobileFilterOverlay" onclick="closeMobileFilters()"></div>
+
   <div class="shop-layout">
-    <div class="sidebar-filters">
-      <h4> Filters</h4>
+    <div class="sidebar-filters" id="sidebarFilters">
+      <!-- Mobile close button -->
+      <div class="mobile-filter-header">
+        <span> Filters</span>
+        <button onclick="closeMobileFilters()" class="mobile-filter-close">✕</button>
+      </div>
+      <h4 class="desktop-filter-title"> Filters</h4>
       <div class="filter-section">
         <h5>Category</h5>
         <div id="filterCats"></div>
@@ -253,7 +269,7 @@
           <button class="star-btn" onclick="setRating(4)">4&#9733;</button>
         </div>
       </div>
-      <button class="btn btn-sec btn-sm" style="width:100%;margin-top:8px" onclick="clearFilters()">Clear Filters</button>
+      <button class="btn btn-sec btn-sm" style="width:100%;margin-top:8px" onclick="clearFilters();closeMobileFilters()">Clear Filters</button>
     </div>
     <div class="shop-main">
       <div class="sec-hdr">

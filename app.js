@@ -871,7 +871,14 @@ function renderProducts(){
   const list = getFiltered();
   const pg   = document.getElementById('productsGrid');
   const rc   = document.getElementById('resultCount');
+  const rcMobile = document.getElementById('resultCount');
   if(rc) rc.textContent = `${list.length} product${list.length!==1?'s':''}`;
+  // Also update mobile bar count
+  const mobileBar = document.getElementById('mobileFilterBar');
+  if(mobileBar){
+    const span = mobileBar.querySelector('.result-count-inline');
+    if(span) span.textContent = `${list.length} product${list.length!==1?'s':''}`;
+  }
 
   if(!list.length){
     pg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--m)"><div style="font-size:3rem">[Search]</div><p>No products found</p></div>';
@@ -957,6 +964,23 @@ function applyFilters(){currentMin=parseFloat(document.getElementById('minPrice'
 function setRating(r){currentRating=r;document.querySelectorAll('.star-btn').forEach((b,i)=>b.classList.toggle('active',i<r));page=1;renderProducts();}
 function clearFilters(){currentMin=0;currentMax=Infinity;currentRating=0;currentSort='';document.getElementById('minPrice').value='';document.getElementById('maxPrice').value='';document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('active'));page=1;renderProducts();}
 function catCkChange(el){currentCat=el.value;const displayName=el.value==='all'?'All Products':el.value.replace(/\s*\/\s*/g,'/');document.getElementById('sectionTitle').textContent=displayName;page=1;renderProducts();}
+
+// -- Mobile filter drawer --------------------------------------------------
+function toggleMobileFilters(){
+  const sf = document.getElementById('sidebarFilters');
+  const ov = document.getElementById('mobileFilterOverlay');
+  if(!sf) return;
+  const open = sf.classList.toggle('mobile-open');
+  if(ov) ov.classList.toggle('active', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeMobileFilters(){
+  const sf = document.getElementById('sidebarFilters');
+  const ov = document.getElementById('mobileFilterOverlay');
+  if(sf) sf.classList.remove('mobile-open');
+  if(ov) ov.classList.remove('active');
+  document.body.style.overflow = '';
+}
 function setActive(el){document.querySelectorAll('.nav-inner a').forEach(a=>a.classList.remove('active'));el.classList.add('active');}
 
 // -- Product Detail ------------------------------------------------------------
