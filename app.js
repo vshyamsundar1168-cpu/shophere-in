@@ -1031,7 +1031,22 @@ async function openProduct(id){
         ${disc?`<span style="text-decoration:line-through;color:var(--m)">&#8377;${(p.originalPrice||0).toLocaleString('en-IN')}</span><span style="color:var(--g);font-weight:700">${disc}% off</span>`:''}
       </div>
       <div style="margin-bottom:12px">${out?'<span style="color:var(--rd);font-weight:700">Out of Stock</span>':`<span style="color:var(--g);font-weight:700">[OK] In Stock (${p.stock} available)</span>`}</div>
-      ${p.description?`<ul style="font-size:.84rem;color:var(--m);margin-bottom:14px;line-height:1.8;padding-left:18px;list-style:disc">${p.description.split(/\r?\n/).filter(l=>l.trim()).map(l=>'<li style="margin-bottom:3px">'+l.trim()+'</li>').join('')}</ul>`:''}
+      ${p.description?`<ul style="font-size:.84rem;color:var(--m);margin-bottom:14px;line-height:1.8;padding-left:18px;list-style:disc">${(()=>{
+        const desc = p.description;
+        // Split on newlines first
+        let lines = desc.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
+        // If only 1 line (no newlines), try splitting on dot patterns like ". Key:"
+        if(lines.length <= 1){
+          lines = desc.split(/\s*\.\s+(?=[A-Z0-9])|\s*\.\s*(?=[A-Z][a-z]+\s*:)/)
+            .map(l=>l.replace(/^\./,'').trim())
+            .filter(l=>l.length>2);
+        }
+        // If still 1 line, split on " . " or ". ."
+        if(lines.length <= 1){
+          lines = desc.split(/[.]\s+[.]|[.]\s{2,}/).map(l=>l.replace(/^\./,'').trim()).filter(l=>l.length>2);
+        }
+        return lines.map(l=>'<li style="margin-bottom:4px">'+l.replace(/\.$/,'').trim()+'</li>').join('');
+      })()}</ul>`:''}
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
         <button class="btn btn-primary btn-sm" ${out?'disabled style="opacity:.5"':''} onclick="addToCart(${p.id});closeOverlay('productModal')">Add to Cart</button>
         <button class="btn btn-sec btn-sm" ${out?'disabled style="opacity:.5"':''} onclick="buyNow(${p.id});closeOverlay('productModal')">Buy Now</button>
