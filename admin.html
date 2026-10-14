@@ -5506,6 +5506,53 @@ async function loadAnalytics() {
       }
     }catch(we){}
 
+    // -- Load registered customers list into analytics -----------------------
+    try {
+      const cr = await fetch('/api/customers');
+      if(cr.ok){
+        const cd = await cr.json();
+        const customers = cd.customers || [];
+        // Update customer count stat card
+        const el_cu = document.getElementById('wd-customers');
+        if(el_cu) el_cu.textContent = customers.length;
+        // Inject a registered customers table into the analytics section
+        let regTableEl = document.getElementById('an-reg-customers');
+        if(!regTableEl){
+          regTableEl = document.createElement('div');
+          regTableEl.id = 'an-reg-customers';
+          regTableEl.style.cssText = 'margin-top:20px';
+          // Insert before the video watch duration section
+          const wdSection = document.querySelector('#tab-analytics .sec > div[style*="margin-top:20px"]');
+          const analyticsSection = document.querySelector('#tab-analytics .sec');
+          if(analyticsSection) analyticsSection.appendChild(regTableEl);
+        }
+        regTableEl.innerHTML = `
+          <h3 style="font-size:.9rem;font-weight:700;margin-bottom:12px;color:#1e293b">👥 Registered Customers (${customers.length})</h3>
+          <div style="background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden">
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead><tr><th>#</th><th>Name</th><th>📧 Email / Phone</th><th>📅 Registered</th><th>🕐 Last Login</th><th>🔢 Logins</th><th>Device</th></tr></thead>
+                <tbody>${customers.length ? customers.map((c,i)=>{
+                  const reg  = c.registeredAt ? new Date(c.registeredAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+                  const last = c.lastLogin    ? new Date(c.lastLogin).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+                  const ua   = (c.ua||'').toLowerCase();
+                  const dev  = ua.includes('mobile')||ua.includes('android')||ua.includes('iphone') ? '📱' : ua ? '💻' : '—';
+                  return `<tr>
+                    <td style="color:var(--m)">${i+1}</td>
+                    <td><strong>${c.name||'—'}</strong></td>
+                    <td style="color:var(--p);font-weight:600">${c.username||'—'}</td>
+                    <td style="font-size:.76rem;color:var(--m)">${reg}</td>
+                    <td style="font-size:.76rem;color:var(--g);font-weight:600">${last}</td>
+                    <td style="text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:1px 7px;border-radius:20px;font-size:.74rem;font-weight:700">${c.loginCount||1}</span></td>
+                    <td style="font-size:.8rem">${dev}</td>
+                  </tr>`;
+                }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--m);padding:20px">No registered customers yet</td></tr>'}</tbody>
+              </table>
+            </div>
+          </div>`;
+      }
+    } catch(we2) {}
+
   } catch(e) {
     toast('x Analytics error: ' + e.message);
   }
