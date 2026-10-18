@@ -821,7 +821,8 @@ if (false && host && host.endsWith('.onrender.com')) {
         req2.end();
       });
       if (cfResult.message && !cfResult.payment_session_id) {
-        return sendJSON(res, 400, { error: cfResult.message || 'Cashfree order creation failed' });
+        console.error('[CASHFREE] Error:', JSON.stringify(cfResult));
+        return sendJSON(res, 400, { error: cfResult.message || 'Cashfree order creation failed', details: cfResult });
       }
       return sendJSON(res, 200, {
         orderId:          cfResult.order_id || orderId,
