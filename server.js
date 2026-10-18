@@ -763,10 +763,20 @@ if (false && host && host.endsWith('.onrender.com')) {
     // -- CASHFREE PAYMENT GATEWAY --------------------------------------------
     const CF_APP_ID  = process.env.CASHFREE_APP_ID  || '';
     const CF_SECRET  = process.env.CASHFREE_SECRET_KEY || '';
-    const CF_ENV     = process.env.CASHFREE_ENV || 'production'; // 'sandbox' or 'production'
+    const CF_ENV     = process.env.CASHFREE_ENV || 'production';
     const CF_BASE    = CF_ENV === 'sandbox'
       ? 'sandbox.cashfree.com'
       : 'api.cashfree.com';
+
+    // Debug: check if keys are loaded (remove after testing)
+    if (p==='/api/cashfree/check' && m==='GET') {
+      return sendJSON(res, 200, {
+        appIdSet: CF_APP_ID ? `${CF_APP_ID.substring(0,6)}...` : 'NOT SET',
+        secretSet: CF_SECRET ? 'SET' : 'NOT SET',
+        env: CF_ENV,
+        base: CF_BASE
+      });
+    }
 
     // Create Cashfree order
     if (p==='/api/cashfree/order' && m==='POST') {
@@ -776,7 +786,7 @@ if (false && host && host.endsWith('.onrender.com')) {
       const https = require('https');
       const payload = JSON.stringify({
         order_id:        orderId,
-        order_amount:    amount,
+        order_amount:    parseFloat(amount),
         order_currency:  'INR',
         customer_details: {
           customer_id:    body.customerId || ('cust_' + Date.now()),
