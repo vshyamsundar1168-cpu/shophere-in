@@ -760,27 +760,47 @@ if (false && host && host.endsWith('.onrender.com')) {
       return sendJSON(res,200,result);
     }
 
-    // -- RAZORPAY -------------------------------------------------------------
-    const RAZORPAY_KEY_ID     = process.env.RAZORPAY_KEY_ID     || '';
-    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
+    // -- CASHFREE PAYMENT GATEWAY --------------------------------------------
+    const CF_APP_ID  = process.env.CASHFREE_APP_ID  || '';
+    const CF_SECRET  = process.env.CASHFREE_SECRET_KEY || '';
+    const CF_ENV     = process.env.CASHFREE_ENV || 'production'; // 'sandbox' or 'production'
+    const CF_BASE    = CF_ENV === 'sandbox'
+      ? 'sandbox.cashfree.com'
+      : 'api.cashfree.com';
 
-    // Create Razorpay order
-    if (p==='/api/razorpay/order' && m==='POST') {
+    // Create Cashfree order
+    if (p==='/api/cashfree/order' && m==='POST') {
       const body = await readJSON(req);
-      const amountPaise = Math.round((body.amount||0) * 100); // convert Rs. to paise
-      const authStr = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
-      const payload = JSON.stringify({
-        amount: amountPaise, currency: 'INR',
-        receipt: 'rcpt_' + Date.now(),
-        notes: { storeName: 'ShopHere.in' }
-      });
-      // Call Razorpay API using built-in https
+      const amount = Number(body.amount||0).toFixed(2);
+      const orderId = 'CF_' + Date.now();
       const https = require('https');
-      const rzpResult = await new Promise((resolve, reject) => {
+      const payload = JSON.stringify({
+        order_id:        orderId,
+        order_amount:    amount,
+        order_currency:  'INR',
+        customer_details: {
+          customer_id:    body.customerId || ('cust_' + Date.now()),
+          customer_name:  body.customerName  || 'Customer',
+          customer_email: body.customerEmail || 'customer@shophere.in',
+          customer_phone: body.customerPhone || '9999999999'
+        },
+        order_meta: {
+          return_url: `https://shophere.in/?order_id=${orderId}&order_token={order_token}`
+        }
+      });
+      const cfResult = await new Promise((resolve, reject) => {
         const req2 = https.request({
-          hostname: 'api.razorpay.com', port: 443, method: 'POST',
-          path: '/v1/orders',
-          headers: { 'Content-Type':'application/json', 'Authorization':'Basic '+authStr, 'Content-Length':Buffer.byteLength(payload) }
+          hostname: CF_BASE,
+          port: 443,
+          method: 'POST',
+          path: '/pg/orders',
+          headers: {
+            'Content-Type':  'application/json',
+            'x-api-version': '2023-08-01',
+            'x-client-id':   CF_APP_ID,
+            'x-client-secret': CF_SECRET,
+            'Content-Length': Buffer.byteLength(payload)
+          }
         }, (res2) => {
           let data = '';
           res2.on('data', c => data += c);
@@ -790,20 +810,47 @@ if (false && host && host.endsWith('.onrender.com')) {
         req2.write(payload);
         req2.end();
       });
-      if (rzpResult.error) return sendJSON(res, 400, { error: rzpResult.error.description || 'Razorpay error' });
-      return sendJSON(res, 200, { orderId: rzpResult.id, amount: amountPaise, currency: 'INR', keyId: RAZORPAY_KEY_ID });
+      if (cfResult.message && !cfResult.payment_session_id) {
+        return sendJSON(res, 400, { error: cfResult.message || 'Cashfree order creation failed' });
+      }
+      return sendJSON(res, 200, {
+        orderId:          cfResult.order_id || orderId,
+        paymentSessionId: cfResult.payment_session_id,
+        appId:            CF_APP_ID,
+        env:              CF_ENV
+      });
     }
 
-    // Verify Razorpay payment signature
-    if (p==='/api/razorpay/verify' && m==='POST') {
+    // Verify Cashfree payment
+    if (p==='/api/cashfree/verify' && m==='POST') {
       const body = await readJSON(req);
-      const crypto = require('crypto');
-      const text = body.razorpay_order_id + '|' + body.razorpay_payment_id;
-      const expectedSig = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET).update(text).digest('hex');
-      if (expectedSig !== body.razorpay_signature) {
-        return sendJSON(res, 400, { success: false, error: 'Payment verification failed' });
+      const https = require('https');
+      const cfOrderId = body.orderId;
+      // Fetch order status from Cashfree
+      const cfResult = await new Promise((resolve, reject) => {
+        const req2 = https.request({
+          hostname: CF_BASE,
+          port: 443,
+          method: 'GET',
+          path: `/pg/orders/${cfOrderId}`,
+          headers: {
+            'x-api-version': '2023-08-01',
+            'x-client-id':   CF_APP_ID,
+            'x-client-secret': CF_SECRET
+          }
+        }, (res2) => {
+          let data = '';
+          res2.on('data', c => data += c);
+          res2.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { reject(e); } });
+        });
+        req2.on('error', reject);
+        req2.end();
+      });
+      const status = cfResult.order_status;
+      if (status === 'PAID') {
+        return sendJSON(res, 200, { success: true, paymentId: cfResult.cf_order_id || cfOrderId, status });
       }
-      return sendJSON(res, 200, { success: true, paymentId: body.razorpay_payment_id });
+      return sendJSON(res, 400, { success: false, error: 'Payment not completed. Status: ' + status });
     }
 
     // -- ORDERS ----------------------------------------------------------------

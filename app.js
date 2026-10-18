@@ -1365,62 +1365,77 @@ async function placeOrder(){
     payment:selectedPayment
   };
 
-  // RAZORPAY &mdash; for UPI, Card, NetBanking, Wallet
+  // CASHFREE — for UPI, Card, NetBanking, Wallet
   try{
-    // Step 1: Create Razorpay order on server
-    const rzpRes=await fetch('/api/razorpay/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:total})});
-    const rzpData=await rzpRes.json();
-    if(!rzpRes.ok) throw new Error(rzpData.error||'Razorpay order creation failed');
+    // Step 1: Create Cashfree order on server
+    const cfRes = await fetch('/api/cashfree/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount:        total,
+        customerName:  payload.name,
+        customerEmail: payload.email || 'customer@shophere.in',
+        customerPhone: payload.phone,
+        customerId:    'cust_' + Date.now()
+      })
+    });
+    const cfData = await cfRes.json();
+    if(!cfRes.ok) throw new Error(cfData.error || 'Cashfree order creation failed');
 
-    // Step 2: Open Razorpay checkout
-    const options = {
-      key: rzpData.keyId,
-      amount: rzpData.amount,
-      currency: 'INR',
-      name: storeSettings.storeName || 'ShopHere.in',
-      description: `Order &mdash; ${cart.length} item(s)`,
-      order_id: rzpData.orderId,
-      prefill:{
-        name: payload.name,
-        email: payload.email || '',
-        contact: payload.phone
-      },
-      theme: { color: getComputedStyle(document.documentElement).getPropertyValue('--p').trim() || '#f97316' },
-      handler: async function(response){
-        // Step 3: Verify payment on server
-        try{
-          const verRes=await fetch('/api/razorpay/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(response)});
-          const verData=await verRes.json();
-          if(!verData.success) throw new Error('Payment verification failed');
-          // Step 4: Place order in DB with Razorpay payment ID
-          payload.payment = selectedPayment;
-          payload.razorpayPaymentId = verData.paymentId;
-          payload.razorpayOrderId = rzpData.orderId;
-          const orderRes=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-          const order=await orderRes.json();
-          if(!orderRes.ok) throw new Error(order.error||'Failed');
-          _confirmOrder(order,'Razorpay | '+selectedPayment.toUpperCase());
-        }catch(e){toast('Payment verified but order failed: '+e.message);}
-      },
-      modal:{
-        ondismiss: function(){ toast('Payment cancelled'); }
-      }
-    };
-
-    // Load Razorpay script if not already loaded
-    if(!window.Razorpay){
-      await new Promise((resolve,reject)=>{
-        const s=document.createElement('script');
-        s.src='https://checkout.razorpay.com/v1/checkout.js';
-        s.onload=resolve; s.onerror=reject;
+    // Step 2: Load Cashfree JS SDK and open checkout
+    if(!window.Cashfree){
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = cfData.env === 'sandbox'
+          ? 'https://sdk.cashfree.com/js/v3/cashfree.js'
+          : 'https://sdk.cashfree.com/js/v3/cashfree.js';
+        s.onload = resolve; s.onerror = reject;
         document.head.appendChild(s);
       });
     }
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+
+    const cashfree = window.Cashfree({ mode: cfData.env === 'sandbox' ? 'sandbox' : 'production' });
+
+    // Step 3: Open Cashfree Checkout
+    const checkoutOptions = {
+      paymentSessionId: cfData.paymentSessionId,
+      returnUrl: window.location.origin + '/?order_id=' + cfData.orderId,
+      onSuccess: async function(data){
+        // Step 4: Verify payment on server
+        try{
+          const verRes = await fetch('/api/cashfree/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: cfData.orderId })
+          });
+          const verData = await verRes.json();
+          if(!verData.success) throw new Error(verData.error || 'Payment verification failed');
+          // Step 5: Place order in DB
+          payload.payment      = selectedPayment;
+          payload.cashfreePaymentId = verData.paymentId;
+          payload.cashfreeOrderId   = cfData.orderId;
+          const orderRes = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const order = await orderRes.json();
+          if(!orderRes.ok) throw new Error(order.error || 'Order failed');
+          _confirmOrder(order, 'Cashfree | ' + selectedPayment.toUpperCase());
+        }catch(e){ toast('Payment verified but order failed: ' + e.message); }
+      },
+      onFailure: function(data){
+        toast('Payment failed: ' + (data.order?.errorText || 'Please try again'));
+      },
+      onError: function(error){
+        toast('Payment error: ' + (error.message || 'Unknown error'));
+      }
+    };
+
+    cashfree.checkout(checkoutOptions);
 
   }catch(e){
-    toast('Payment error: '+e.message);
+    toast('Payment error: ' + e.message);
     console.error(e);
   }
 }
