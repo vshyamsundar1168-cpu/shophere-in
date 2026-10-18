@@ -856,7 +856,10 @@ if (false && host && host.endsWith('.onrender.com')) {
       });
       if (cfResult.message && !cfResult.payment_session_id) {
         console.error('[CASHFREE] Error:', JSON.stringify(cfResult));
-        return sendJSON(res, 400, { error: cfResult.message || 'Cashfree order creation failed', details: cfResult });
+        const errMsg = cfResult.type === 'authentication_error'
+          ? 'Payment gateway not yet activated. Please contact support.'
+          : (cfResult.message || 'Cashfree order creation failed');
+        return sendJSON(res, 400, { error: errMsg, details: cfResult });
       }
       return sendJSON(res, 200, {
         orderId:          cfResult.order_id || orderId,
