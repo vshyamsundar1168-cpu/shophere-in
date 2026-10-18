@@ -768,7 +768,7 @@ if (false && host && host.endsWith('.onrender.com')) {
       ? 'sandbox.cashfree.com'
       : 'api.cashfree.com';
 
-    // Debug: check if keys are loaded (remove after testing)
+    // Debug: check if keys are loaded
     if (p==='/api/cashfree/check' && m==='GET') {
       return sendJSON(res, 200, {
         appIdSet: CF_APP_ID ? `${CF_APP_ID.substring(0,6)}...` : 'NOT SET',
@@ -776,6 +776,40 @@ if (false && host && host.endsWith('.onrender.com')) {
         env: CF_ENV,
         base: CF_BASE
       });
+    }
+
+    // Test: make a real Cashfree API call and return raw response
+    if (p==='/api/cashfree/test' && m==='GET') {
+      const https = require('https');
+      const testPayload = JSON.stringify({
+        order_id: 'TEST_' + Date.now(),
+        order_amount: 1.00,
+        order_currency: 'INR',
+        customer_details: {
+          customer_id: 'test_cust_001',
+          customer_name: 'Test Customer',
+          customer_email: 'test@shophere.in',
+          customer_phone: '9999999999'
+        }
+      });
+      const rawResult = await new Promise((resolve) => {
+        const req2 = https.request({
+          hostname: CF_BASE, port: 443, method: 'POST', path: '/pg/orders',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-version': '2023-08-01',
+            'x-client-id': CF_APP_ID,
+            'x-client-secret': CF_SECRET,
+            'Content-Length': Buffer.byteLength(testPayload)
+          }
+        }, (res2) => {
+          let d = ''; res2.on('data', c => d += c);
+          res2.on('end', () => resolve({ status: res2.statusCode, body: d }));
+        });
+        req2.on('error', e => resolve({ error: e.message }));
+        req2.write(testPayload); req2.end();
+      });
+      return sendJSON(res, 200, rawResult);
     }
 
     // Create Cashfree order
