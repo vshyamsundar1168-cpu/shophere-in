@@ -1914,20 +1914,45 @@ function adminLogout() {
 }
 
 async function migrateCloudinary() {
-  if (!confirm('This will migrate ALL product photos from the old Cloudinary account to the new one.\n\nThis may take 10-30 minutes for hundreds of products.\n\nThe page will show progress. Do NOT close the tab.\n\nContinue?')) return;
+  if (!confirm('This will migrate ALL product photos from the old Cloudinary account to the new one.\n\nMigration runs in background — you can monitor progress.\n\nContinue?')) return;
 
   const btn = document.querySelector('button[onclick="migrateCloudinary()"]');
-  if (btn) { btn.textContent = '⏳ Migrating... Please wait'; btn.disabled = true; }
-  toast('Migration started — this will take several minutes. Do not close the tab.');
+  if (btn) { btn.textContent = '⏳ Starting...'; btn.disabled = true; }
 
   try {
-    const res  = await fetch('/api/migrate-cloudinary', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    // Start migration
+    const res = await fetch('/api/migrate-cloudinary', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
     const data = await res.json();
-    if (btn) { btn.textContent = `✅ Done! ${data.fixed} fixed`; btn.disabled = false; }
-    toast(`✅ Migration complete! Fixed: ${data.fixed} products, Skipped: ${data.skipped}, Errors: ${data.errors}`);
-    if (data.fixed > 0) {
-      setTimeout(() => { loadInventory(); renderProducts && renderProducts(); }, 1000);
+
+    if (!data.started) {
+      toast('x Migration failed to start: ' + (data.error || 'Unknown error'));
+      if (btn) { btn.textContent = '☁️ Migrate Old Photos'; btn.disabled = false; }
+      return;
     }
+
+    toast('Migration started in background! Checking progress...');
+
+    // Poll for progress every 10 seconds
+    const pollInterval = setInterval(async () => {
+      try {
+        const sr = await fetch('/api/migrate-status');
+        const st = await sr.json();
+        const pct = st.total > 0 ? Math.round(((st.fixed + st.skipped) / st.total) * 100) : 0;
+        if (btn) btn.textContent = `⏳ ${pct}% — Fixed: ${st.fixed || 0}`;
+
+        if (st.status === 'done') {
+          clearInterval(pollInterval);
+          if (btn) { btn.textContent = `✅ Done! ${st.fixed} photos migrated`; btn.disabled = false; }
+          toast(`✅ Migration complete! Fixed: ${st.fixed} products, Skipped: ${st.skipped}, Errors: ${st.errors}`);
+          loadInventory();
+        } else if (st.status === 'error') {
+          clearInterval(pollInterval);
+          if (btn) { btn.textContent = '☁️ Migrate Old Photos'; btn.disabled = false; }
+          toast('x Migration error: ' + st.error);
+        }
+      } catch(e) {}
+    }, 8000);
+
   } catch(e) {
     if (btn) { btn.textContent = '☁️ Migrate Old Photos'; btn.disabled = false; }
     toast('x Migration error: ' + e.message);

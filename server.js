@@ -1152,77 +1152,98 @@ if (false && host && host.endsWith('.onrender.com')) {
     }
 
     // -- MIGRATE OLD CLOUDINARY IMAGES (wzaxevft → cwkwp9e) --------------------
-    // Downloads each old image via Cloudinary Admin API and re-uploads to new account
     if (p === '/api/migrate-cloudinary' && m === 'POST') {
+      // Start migration in background, return immediately to avoid timeout
       const db = getDb();
-      const all = await db.collection('products').find({}, { projection: { id:1, name:1, images:1, videos:1 } }).toArray();
-      const https = require('https');
-      let fixed = 0, skipped = 0, errors = 0;
-      const results = [];
+      const jobId = 'mig_' + Date.now();
 
-      // New Cloudinary credentials
-      const NEW_CLOUD  = _cloudName;       // cwkwp9e
-      const NEW_PRESET = _uploadPreset;    // rbhddokp
+      // Initialize status
+      await db.collection('migration_status').updateOne(
+        { jobId },
+        { $set: { jobId, status: 'running', fixed: 0, skipped: 0, errors: 0, total: 0, startedAt: new Date().toISOString() } },
+        { upsert: true }
+      );
 
-      async function uploadUrlToNewCloud(sourceUrl, resourceType = 'image') {
-        // Use Cloudinary's upload-by-URL feature (no download needed)
-        const formData = `file=${encodeURIComponent(sourceUrl)}&upload_preset=${NEW_PRESET}&resource_type=${resourceType}`;
-        return new Promise((resolve, reject) => {
-          const req = https.request({
-            hostname: 'api.cloudinary.com',
-            path: `/v1_1/${NEW_CLOUD}/${resourceType}/upload`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(formData) }
-          }, (res2) => {
-            let d = ''; res2.on('data', c => d += c);
-            res2.on('end', () => {
-              try { const r = JSON.parse(d); resolve(r.secure_url || null); }
-              catch(e) { reject(e); }
+      // Run migration in background (don't await)
+      (async () => {
+        const https = require('https');
+        const NEW_CLOUD  = _cloudName;
+        const NEW_PRESET = _uploadPreset;
+
+        async function uploadUrlToNewCloud(sourceUrl, resourceType = 'image') {
+          const formData = `file=${encodeURIComponent(sourceUrl)}&upload_preset=${NEW_PRESET}&resource_type=${resourceType}`;
+          return new Promise((resolve) => {
+            const req = https.request({
+              hostname: 'api.cloudinary.com',
+              path: `/v1_1/${NEW_CLOUD}/${resourceType}/upload`,
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(formData) }
+            }, (res2) => {
+              let d = ''; res2.on('data', c => d += c);
+              res2.on('end', () => {
+                try { const r = JSON.parse(d); resolve(r.secure_url || null); }
+                catch(e) { resolve(null); }
+              });
             });
+            req.on('error', () => resolve(null));
+            req.write(formData); req.end();
           });
-          req.on('error', reject);
-          req.write(formData); req.end();
-        });
-      }
+        }
 
-      for (const prod of all) {
-        const oldImages = (prod.images||[]).filter(img => img.url && img.url.includes('wzaxevft'));
-        const oldVideos = (prod.videos||[]).filter(v => v.url && v.url.includes('wzaxevft'));
-        if (!oldImages.length && !oldVideos.length) { skipped++; continue; }
+        let fixed = 0, skipped = 0, errors = 0;
+        const all = await db.collection('products').find({}, { projection: { id:1, name:1, images:1, videos:1 } }).toArray();
+        await db.collection('migration_status').updateOne({ jobId }, { $set: { total: all.length } });
 
-        let changed = false;
-        const newImages = [...(prod.images||[])];
-        const newVideos = [...(prod.videos||[])];
+        for (const prod of all) {
+          const hasOld = (prod.images||[]).some(img => img.url && img.url.includes('wzaxevft')) ||
+                         (prod.videos||[]).some(v  => v.url  && v.url.includes('wzaxevft'));
+          if (!hasOld) { skipped++; continue; }
 
-        for (let i = 0; i < newImages.length; i++) {
-          if (!newImages[i].url || !newImages[i].url.includes('wzaxevft')) continue;
-          try {
+          const newImages = [...(prod.images||[])];
+          const newVideos = [...(prod.videos||[])];
+          let changed = false;
+
+          for (let i = 0; i < newImages.length; i++) {
+            if (!newImages[i].url || !newImages[i].url.includes('wzaxevft')) continue;
             const newUrl = await uploadUrlToNewCloud(newImages[i].url, 'image');
             if (newUrl) { newImages[i] = { ...newImages[i], url: newUrl }; changed = true; }
-          } catch(e) { errors++; console.warn('[MIGRATE] img error:', e.message); }
-          await new Promise(r => setTimeout(r, 200)); // rate limit
-        }
+            else errors++;
+            await new Promise(r => setTimeout(r, 300));
+          }
 
-        for (let i = 0; i < newVideos.length; i++) {
-          if (!newVideos[i].url || !newVideos[i].url.includes('wzaxevft')) continue;
-          try {
+          for (let i = 0; i < newVideos.length; i++) {
+            if (!newVideos[i].url || !newVideos[i].url.includes('wzaxevft')) continue;
             const newUrl = await uploadUrlToNewCloud(newVideos[i].url, 'video');
             if (newUrl) { newVideos[i] = { ...newVideos[i], url: newUrl }; changed = true; }
-          } catch(e) { errors++; console.warn('[MIGRATE] vid error:', e.message); }
-          await new Promise(r => setTimeout(r, 500)); // videos need more time
-        }
+            else errors++;
+            await new Promise(r => setTimeout(r, 600));
+          }
 
-        if (changed) {
-          await db.collection('products').updateOne({ _id: prod._id }, { $set: { images: newImages, videos: newVideos } });
-          fixed++;
-          results.push({ id: prod.id, name: prod.name });
-          console.log(`[MIGRATE] fixed product ${prod.id}: ${prod.name}`);
-        } else {
-          skipped++;
-        }
-      }
+          if (changed) {
+            await db.collection('products').updateOne({ _id: prod._id }, { $set: { images: newImages, videos: newVideos } });
+            fixed++;
+          } else { skipped++; }
 
-      return sendJSON(res, 200, { fixed, skipped, errors, results: results.slice(0, 100) });
+          // Update progress every 5 products
+          if ((fixed + skipped) % 5 === 0) {
+            await db.collection('migration_status').updateOne({ jobId }, { $set: { fixed, skipped, errors } });
+          }
+        }
+        await db.collection('migration_status').updateOne({ jobId }, { $set: { status: 'done', fixed, skipped, errors, finishedAt: new Date().toISOString() } });
+        console.log(`[MIGRATE] done: fixed=${fixed} skipped=${skipped} errors=${errors}`);
+      })().catch(e => {
+        db.collection('migration_status').updateOne({ jobId }, { $set: { status: 'error', error: e.message } });
+      });
+
+      // Return immediately with job ID
+      return sendJSON(res, 200, { started: true, jobId, message: 'Migration running in background. Check /api/migrate-status for progress.' });
+    }
+
+    // -- GET MIGRATION STATUS --------------------------------------------------
+    if (p === '/api/migrate-status' && m === 'GET') {
+      const db = getDb();
+      const status = await db.collection('migration_status').findOne({}, { sort: { startedAt: -1 }, projection: { _id: 0 } });
+      return sendJSON(res, 200, status || { status: 'none' });
     }
 
     // -- REPAIR IMAGES -- re-mirror broken URLs through Cloudinary ----------------
