@@ -211,8 +211,8 @@ function parseMultipart(req) {
 // Set CLOUDINARY_CLOUD_NAME + CLOUDINARY_UPLOAD_PRESET in Render env vars.
 // Free tier: 25GB storage, 25GB bandwidth/month -- plenty for a store.
 
-const CLOUDINARY_CLOUD_NAME   = process.env.CLOUDINARY_CLOUD_NAME   || '';
-const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'shophere_uploads';
+const CLOUDINARY_CLOUD_NAME   = process.env.CLOUDINARY_CLOUD_NAME   || 'rbhddokp';
+const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'rbhddokp';
 
 // Live config -- updated from DB settings at startup and on settings save
 let _cloudName   = CLOUDINARY_CLOUD_NAME;
