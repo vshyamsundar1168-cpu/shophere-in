@@ -211,7 +211,7 @@ function parseMultipart(req) {
 // Set CLOUDINARY_CLOUD_NAME + CLOUDINARY_UPLOAD_PRESET in Render env vars.
 // Free tier: 25GB storage, 25GB bandwidth/month -- plenty for a store.
 
-const CLOUDINARY_CLOUD_NAME   = process.env.CLOUDINARY_CLOUD_NAME   || 'rbhddokp';
+const CLOUDINARY_CLOUD_NAME   = process.env.CLOUDINARY_CLOUD_NAME   || 'cwkwp9e';
 const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'rbhddokp';
 
 // Live config -- updated from DB settings at startup and on settings save
@@ -1149,6 +1149,80 @@ if (false && host && host.endsWith('.onrender.com')) {
       const { ObjectId } = require('mongodb');
       try { await db.collection('discounts').deleteOne({ _id: new ObjectId(discid[1]) }); return sendJSON(res, 200, { deleted:true }); }
       catch(e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+
+    // -- MIGRATE OLD CLOUDINARY IMAGES (wzaxevft → cwkwp9e) --------------------
+    // Downloads each old image via Cloudinary Admin API and re-uploads to new account
+    if (p === '/api/migrate-cloudinary' && m === 'POST') {
+      const db = getDb();
+      const all = await db.collection('products').find({}, { projection: { id:1, name:1, images:1, videos:1 } }).toArray();
+      const https = require('https');
+      let fixed = 0, skipped = 0, errors = 0;
+      const results = [];
+
+      // New Cloudinary credentials
+      const NEW_CLOUD  = _cloudName;       // cwkwp9e
+      const NEW_PRESET = _uploadPreset;    // rbhddokp
+
+      async function uploadUrlToNewCloud(sourceUrl, resourceType = 'image') {
+        // Use Cloudinary's upload-by-URL feature (no download needed)
+        const formData = `file=${encodeURIComponent(sourceUrl)}&upload_preset=${NEW_PRESET}&resource_type=${resourceType}`;
+        return new Promise((resolve, reject) => {
+          const req = https.request({
+            hostname: 'api.cloudinary.com',
+            path: `/v1_1/${NEW_CLOUD}/${resourceType}/upload`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(formData) }
+          }, (res2) => {
+            let d = ''; res2.on('data', c => d += c);
+            res2.on('end', () => {
+              try { const r = JSON.parse(d); resolve(r.secure_url || null); }
+              catch(e) { reject(e); }
+            });
+          });
+          req.on('error', reject);
+          req.write(formData); req.end();
+        });
+      }
+
+      for (const prod of all) {
+        const oldImages = (prod.images||[]).filter(img => img.url && img.url.includes('wzaxevft'));
+        const oldVideos = (prod.videos||[]).filter(v => v.url && v.url.includes('wzaxevft'));
+        if (!oldImages.length && !oldVideos.length) { skipped++; continue; }
+
+        let changed = false;
+        const newImages = [...(prod.images||[])];
+        const newVideos = [...(prod.videos||[])];
+
+        for (let i = 0; i < newImages.length; i++) {
+          if (!newImages[i].url || !newImages[i].url.includes('wzaxevft')) continue;
+          try {
+            const newUrl = await uploadUrlToNewCloud(newImages[i].url, 'image');
+            if (newUrl) { newImages[i] = { ...newImages[i], url: newUrl }; changed = true; }
+          } catch(e) { errors++; console.warn('[MIGRATE] img error:', e.message); }
+          await new Promise(r => setTimeout(r, 200)); // rate limit
+        }
+
+        for (let i = 0; i < newVideos.length; i++) {
+          if (!newVideos[i].url || !newVideos[i].url.includes('wzaxevft')) continue;
+          try {
+            const newUrl = await uploadUrlToNewCloud(newVideos[i].url, 'video');
+            if (newUrl) { newVideos[i] = { ...newVideos[i], url: newUrl }; changed = true; }
+          } catch(e) { errors++; console.warn('[MIGRATE] vid error:', e.message); }
+          await new Promise(r => setTimeout(r, 500)); // videos need more time
+        }
+
+        if (changed) {
+          await db.collection('products').updateOne({ _id: prod._id }, { $set: { images: newImages, videos: newVideos } });
+          fixed++;
+          results.push({ id: prod.id, name: prod.name });
+          console.log(`[MIGRATE] fixed product ${prod.id}: ${prod.name}`);
+        } else {
+          skipped++;
+        }
+      }
+
+      return sendJSON(res, 200, { fixed, skipped, errors, results: results.slice(0, 100) });
     }
 
     // -- REPAIR IMAGES -- re-mirror broken URLs through Cloudinary ----------------

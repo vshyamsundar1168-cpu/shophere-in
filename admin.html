@@ -973,6 +973,7 @@ if(window.location.protocol==='file:'){
       <div style="display:flex;gap:8px">
         <button onclick="repairImages()" style="padding:9px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Repair Images</button>
         <button onclick="repairVideos()" style="padding:9px 16px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Repair Videos</button>
+        <button onclick="migrateCloudinary()" style="padding:9px 16px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">☁️ Migrate Old Photos</button>
         <button onclick="invSaveAll()" style="padding:9px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Save All Changes</button>
         <button onclick="loadInventory()" style="padding:9px 16px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer"> Refresh</button>
       </div>
@@ -1910,6 +1911,27 @@ function adminLogout() {
   localStorage.removeItem('sh_admin_mode');
   sessionStorage.clear();
   window.location.href = '/';
+}
+
+async function migrateCloudinary() {
+  if (!confirm('This will migrate ALL product photos from the old Cloudinary account to the new one.\n\nThis may take 10-30 minutes for hundreds of products.\n\nThe page will show progress. Do NOT close the tab.\n\nContinue?')) return;
+
+  const btn = document.querySelector('button[onclick="migrateCloudinary()"]');
+  if (btn) { btn.textContent = '⏳ Migrating... Please wait'; btn.disabled = true; }
+  toast('Migration started — this will take several minutes. Do not close the tab.');
+
+  try {
+    const res  = await fetch('/api/migrate-cloudinary', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    const data = await res.json();
+    if (btn) { btn.textContent = `✅ Done! ${data.fixed} fixed`; btn.disabled = false; }
+    toast(`✅ Migration complete! Fixed: ${data.fixed} products, Skipped: ${data.skipped}, Errors: ${data.errors}`);
+    if (data.fixed > 0) {
+      setTimeout(() => { loadInventory(); renderProducts && renderProducts(); }, 1000);
+    }
+  } catch(e) {
+    if (btn) { btn.textContent = '☁️ Migrate Old Photos'; btn.disabled = false; }
+    toast('x Migration error: ' + e.message);
+  }
 }
 
 async function repairImages() {
