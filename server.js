@@ -416,16 +416,16 @@ async function processMedia(files) {
     if (!kind) { errors.push('Unsupported type ' + f.mimeType + ' for ' + f.filename); continue; }
     if (f.data.length > MAX[kind]) { errors.push(f.filename + ' exceeds ' + MAX[kind]/1024/1024 + 'MB limit'); continue; }
 
-    // Upload to GitHub (permanent free storage)
-    const ghUrl = await uploadToGitHub(f.data, f.mimeType, f.filename);
-    if (ghUrl) {
-      const entry = { url: ghUrl, type: f.mimeType, name: f.filename };
+    // Upload to Backblaze B2 (permanent scalable storage)
+    const b2Url = await uploadToB2(f.data, f.mimeType, f.filename);
+    if (b2Url) {
+      const entry = { url: b2Url, type: f.mimeType, name: f.filename };
       if (kind==='image') images.push(entry);
       else if (kind==='video') videos.push(entry);
       else audios.push(entry);
-      console.log('[GITHUB] uploaded ' + kind + ':', ghUrl);
+      console.log('[B2] uploaded ' + kind + ':', b2Url);
     } else {
-      console.warn('[GITHUB] upload failed for ' + f.filename);
+      console.warn('[B2] upload failed for ' + f.filename);
       errors.push('Upload failed for ' + f.filename + ' - please try again');
     }
   }
