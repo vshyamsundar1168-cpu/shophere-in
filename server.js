@@ -1719,7 +1719,7 @@ if (false && host && host.endsWith('.onrender.com')) {
       const imgFile = files.find(f => f.fieldName === 'image' && f.data && f.data.length > 0);
       if (!imgFile) return sendJSON(res, 400, { error: 'No image provided' });
       let url = '';
-      const cloudUrl = await uploadToGitHub(imgFile.data, imgFile.mimeType, imgFile.filename);
+      const cloudUrl = await uploadToB2(imgFile.data, imgFile.mimeType, imgFile.filename);
       url = cloudUrl || saveFile(imgFile).url;
       return sendJSON(res, 200, { url });
     }
