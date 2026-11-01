@@ -207,82 +207,47 @@ function parseMultipart(req) {
 }
 
 // -- Cloudinary ----------------------------------------------------------------
-// Uses Cloudinary's unsigned upload API -- no SDK needed, pure HTTPS POST.
-// Set CLOUDINARY_CLOUD_NAME + CLOUDINARY_UPLOAD_PRESET in Render env vars.
-// Free tier: 25GB storage, 25GB bandwidth/month -- plenty for a store.
+// -- GitHub Storage (permanent free storage, replaces Cloudinary forever) ------
+// Files stored at: https://github.com/vshyamsundar1168-cpu/shophere-media
+// Served via jsDelivr CDN: https://cdn.jsdelivr.net/gh/vshyamsundar1168-cpu/shophere-media@main/uploads/FILENAME
+// Set GITHUB_TOKEN in Render env vars.
 
-const CLOUDINARY_CLOUD_NAME   = process.env.CLOUDINARY_CLOUD_NAME   || 'cwkwp9e';
-const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'rbhddokp';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_REPO  = 'vshyamsundar1168-cpu/shophere-media';
+const GITHUB_BRANCH = 'main';
 
-// Live config -- updated from DB settings at startup and on settings save
-let _cloudName   = CLOUDINARY_CLOUD_NAME;
-let _uploadPreset = CLOUDINARY_UPLOAD_PRESET;
-
+// No-op kept so any old calls to loadCloudinaryConfig() don't crash
 async function loadCloudinaryConfig() {
-  try {
-    const db = getDb();
-    const s  = await db.collection('settings').findOne({}, { projection: { cloudName:1, uploadPreset:1 } }) || {};
-    if (s.cloudName)   _cloudName    = s.cloudName;
-    if (s.uploadPreset) _uploadPreset = s.uploadPreset;
-    if (_cloudName) console.log('[CLOUDINARY] configured -- cloud:', _cloudName, 'preset:', _uploadPreset);
-    else console.log('[CLOUDINARY] not configured -- images saved locally');
-  } catch(e) {}
+  console.log('[GITHUB-STORAGE] configured -- repo:', GITHUB_REPO);
 }
 
-async function uploadToCloudinary(fileData, mimeType, filename) {
-  if (!_cloudName) return null;
-
-  const isVideo = mimeType && (mimeType.startsWith('video/') || mimeType.startsWith('audio/'));
-  const resourceType = isVideo ? 'video' : 'image';
-
-  // Use signed upload for ALL files - hardcoded as fallback to ensure it always works
-  const apiKey    = process.env.CLOUDINARY_API_KEY    || '537229325423853';
-  const apiSecret = process.env.CLOUDINARY_API_SECRET || 'FFamrjUJ-E3qMzHo-jwCTTuJshc';
+async function uploadToGitHub(fileData, mimeType, filename) {
+  const https = require('https');
+  const ext   = path.extname(filename).toLowerCase() || '.jpg';
+  const name  = Date.now() + '_' + crypto.randomBytes(4).toString('hex') + ext;
+  const ghPath = `uploads/${name}`;
+  const content = fileData.toString('base64');
 
   return new Promise((resolve) => {
     try {
-      const boundary = '----CloudinaryBoundary' + crypto.randomUUID().replace(/-/g,'');
-      const ext      = path.extname(filename).toLowerCase() || (isVideo ? '.mp4' : '.jpg');
-      const chunks   = [];
+      const body = JSON.stringify({
+        message: `Upload ${name}`,
+        content: content,
+        branch: GITHUB_BRANCH
+      });
 
-      chunks.push(Buffer.from(
-        `--${boundary}\r\n` +
-        `Content-Disposition: form-data; name="file"; filename="upload${ext}"\r\n` +
-        `Content-Type: ${mimeType}\r\n\r\n`
-      ));
-      chunks.push(fileData);
-      chunks.push(Buffer.from('\r\n'));
-
-      if (apiKey && apiSecret) {
-        // Signed upload for ALL files -- bypasses preset restrictions completely
-        const timestamp = Math.floor(Date.now() / 1000).toString();
-        const folder    = 'shophere';
-        const sigStr    = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
-        const signature = crypto.createHash('sha1').update(sigStr).digest('hex');
-
-        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="api_key"\r\n\r\n${apiKey}\r\n`));
-        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="timestamp"\r\n\r\n${timestamp}\r\n`));
-        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="signature"\r\n\r\n${signature}\r\n`));
-        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="folder"\r\n\r\nshophere\r\n`));
-      } else {
-        // Fallback: unsigned upload using preset (only if no API secret configured)
-        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="upload_preset"\r\n\r\n${_uploadPreset}\r\n`));
-        chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="folder"\r\n\r\nshophere\r\n`));
-      }
-
-      chunks.push(Buffer.from(`--${boundary}--\r\n`));
-
-      const body    = Buffer.concat(chunks);
-      const https   = require('https');
       const options = {
-        hostname: 'api.cloudinary.com',
-        port:     443,
-        path:     `/v1_1/${_cloudName}/${resourceType}/upload`,
-        method:   'POST',
-        headers:  {
-          'Content-Type':   `multipart/form-data; boundary=${boundary}`,
-          'Content-Length': body.length,
-        },
+        hostname: 'api.github.com',
+        port: 443,
+        path: `/repos/${GITHUB_REPO}/contents/${ghPath}`,
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'shophere-in',
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body)
+        }
       };
 
       const req = https.request(options, (res) => {
@@ -291,26 +256,39 @@ async function uploadToCloudinary(fileData, mimeType, filename) {
         res.on('end', () => {
           try {
             const json = JSON.parse(data);
-            if (json.secure_url) resolve(json.secure_url);
-            else { console.error('[CLOUDINARY] upload failed:', json.error); resolve(null); }
+            if (res.statusCode === 201 && json.content) {
+              // Use jsDelivr CDN for fast delivery worldwide
+              const cdnUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_REPO}@${GITHUB_BRANCH}/${ghPath}`;
+              console.log('[GITHUB] uploaded:', cdnUrl);
+              resolve(cdnUrl);
+            } else {
+              console.error('[GITHUB] upload failed status:', res.statusCode, json.message || '');
+              resolve(null);
+            }
           } catch(e) { resolve(null); }
         });
       });
-      req.on('error', (e) => { console.error('[CLOUDINARY] request error:', e.message); resolve(null); });
+
+      req.on('error', (e) => { console.error('[GITHUB] request error:', e.message); resolve(null); });
       req.write(body);
       req.end();
     } catch(e) {
-      console.error('[CLOUDINARY] unexpected error:', e.message);
+      console.error('[GITHUB] unexpected error:', e.message);
       resolve(null);
     }
   });
 }
 
-// Fetch a supplier image URL and re-upload to Cloudinary
-// Solves hotlink blocking from supplier sites
+// Keep the old function name working -- now uploads to GitHub
+async function uploadToCloudinary(fileData, mimeType, filename) {
+  return uploadToGitHub(fileData, mimeType, filename);
+}
+
+// Fetch a supplier image URL and re-upload to GitHub
 async function mirrorImageToCloudinary(imageUrl) {
-  if (!_cloudName || !imageUrl || !imageUrl.startsWith('http')) return imageUrl;
-  if (imageUrl.includes('cloudinary.com')) return imageUrl; // already on Cloudinary
+  if (!imageUrl || !imageUrl.startsWith('http')) return imageUrl;
+  // Already on GitHub/jsDelivr -- no need to re-upload
+  if (imageUrl.includes('githubusercontent.com') || imageUrl.includes('jsdelivr.net')) return imageUrl;
 
   return new Promise((resolve) => {
     try {
@@ -329,8 +307,8 @@ async function mirrorImageToCloudinary(imageUrl) {
           const data     = Buffer.concat(chunks);
           const mimeType = (res.headers['content-type'] || 'image/jpeg').split(';')[0].trim();
           const ext      = mimeType.includes('png') ? '.png' : mimeType.includes('gif') ? '.gif' : mimeType.includes('webp') ? '.webp' : '.jpg';
-          const cloudUrl = await uploadToCloudinary(data, mimeType, 'supplier' + ext);
-          resolve(cloudUrl || imageUrl);
+          const ghUrl = await uploadToGitHub(data, mimeType, 'supplier' + ext);
+          resolve(ghUrl || imageUrl);
         });
         res.on('error', () => resolve(imageUrl));
       });
@@ -365,28 +343,18 @@ async function processMedia(files) {
     if (!kind) { errors.push('Unsupported type ' + f.mimeType + ' for ' + f.filename); continue; }
     if (f.data.length > MAX[kind]) { errors.push(f.filename + ' exceeds ' + MAX[kind]/1024/1024 + 'MB limit'); continue; }
 
-    // Always try Cloudinary first for ALL file types
-    if (_cloudName) {
-      const cloudUrl = await uploadToCloudinary(f.data, f.mimeType, f.filename);
-      if (cloudUrl) {
-        const entry = { url: cloudUrl, type: f.mimeType, name: f.filename };
-        if(kind==='image') images.push(entry);
-        else if(kind==='video') videos.push(entry);
-        else audios.push(entry);
-        console.log('[CLOUDINARY] uploaded ' + kind + ':', cloudUrl);
-        continue;
-      } else {
-        console.warn('[CLOUDINARY] upload failed for ' + f.filename + ' - NOT saving locally to prevent data loss on restart');
-        errors.push('Upload failed for ' + f.filename + ' - please try again');
-        continue;
-      }
+    // Upload to GitHub (permanent free storage)
+    const ghUrl = await uploadToGitHub(f.data, f.mimeType, f.filename);
+    if (ghUrl) {
+      const entry = { url: ghUrl, type: f.mimeType, name: f.filename };
+      if (kind==='image') images.push(entry);
+      else if (kind==='video') videos.push(entry);
+      else audios.push(entry);
+      console.log('[GITHUB] uploaded ' + kind + ':', ghUrl);
+    } else {
+      console.warn('[GITHUB] upload failed for ' + f.filename);
+      errors.push('Upload failed for ' + f.filename + ' - please try again');
     }
-    // Only use local storage if Cloudinary is completely not configured (no cloud name)
-    console.warn('[LOCAL] Cloudinary not configured - saving locally (WILL BE LOST on restart):', f.filename);
-    const s = saveFile(f);
-    if (kind==='image') images.push(s);
-    else if (kind==='video') videos.push(s);
-    else audios.push(s);
   }
   return { images, videos, audios, errors };
 }
@@ -609,7 +577,7 @@ if (false && host && host.endsWith('.onrender.com')) {
       KEYS.forEach(k => { if (fields[k] !== undefined) $set[k] = fields[k]; });
       const logo = files.find(f => f.fieldName==='logo' && f.data && f.data.length>0);
       if (logo) {
-        const cloudUrl = _cloudName ? await uploadToCloudinary(logo.data, logo.mimeType, logo.filename) : null;
+        const cloudUrl = await uploadToGitHub(logo.data, logo.mimeType, logo.filename);
         $set.logo = cloudUrl || saveFile(logo).url;
       }
       const db = getDb();
@@ -1012,7 +980,7 @@ if (false && host && host.endsWith('.onrender.com')) {
       };
       const bg=files.find(f=>f.fieldName==='bgImage'&&f.data&&f.data.length>0);
       if(bg) {
-        const cloudUrl = _cloudName ? await uploadToCloudinary(bg.data, bg.mimeType, bg.filename) : null;
+        const cloudUrl = await uploadToGitHub(bg.data, bg.mimeType, bg.filename);
         if(cloudUrl) {
           banner.bgImage = cloudUrl;
         } else {
@@ -1023,15 +991,15 @@ if (false && host && host.endsWith('.onrender.com')) {
         // Use pasted image URL directly
         banner.bgImage = fields.bgImageUrl;
       }
-      // Handle banner video upload - upload to Cloudinary (supports video)
+      // Handle banner video upload - upload to GitHub (supports video)
       const bv = files.find(f=>f.fieldName==='bannerVideo'&&f.data&&f.data.length>0);
       if(bv) {
-        const cloudVideoUrl = _cloudName ? await uploadToCloudinary(bv.data, bv.mimeType||'video/mp4', bv.filename) : null;
+        const cloudVideoUrl = await uploadToGitHub(bv.data, bv.mimeType||'video/mp4', bv.filename);
         if(cloudVideoUrl) {
           banner.bgVideo = cloudVideoUrl;
-          console.log('[BANNER] Video uploaded to Cloudinary:', cloudVideoUrl);
+          console.log('[BANNER] Video uploaded to GitHub:', cloudVideoUrl);
         } else {
-          console.warn('[BANNER] Video upload to Cloudinary failed - not saving locally');
+          console.warn('[BANNER] Video upload to GitHub failed - not saving locally');
         }
       } else if(fields.bgVideo && fields.bgVideo.trim() && fields.bgVideo.trim() !== 'NONE') {
         banner.bgVideo = fields.bgVideo.trim();
@@ -1166,27 +1134,29 @@ if (false && host && host.endsWith('.onrender.com')) {
 
       // Run migration in background (don't await)
       (async () => {
-        const https = require('https');
-        const NEW_CLOUD  = _cloudName;
-        const NEW_PRESET = _uploadPreset;
-
-        async function uploadUrlToNewCloud(sourceUrl, resourceType = 'image') {
-          const formData = `file=${encodeURIComponent(sourceUrl)}&upload_preset=${NEW_PRESET}&resource_type=${resourceType}`;
+        // Downloads old Cloudinary image and re-uploads to GitHub
+        async function uploadUrlToGitHub(sourceUrl) {
           return new Promise((resolve) => {
-            const req = https.request({
-              hostname: 'api.cloudinary.com',
-              path: `/v1_1/${NEW_CLOUD}/${resourceType}/upload`,
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(formData) }
-            }, (res2) => {
-              let d = ''; res2.on('data', c => d += c);
-              res2.on('end', () => {
-                try { const r = JSON.parse(d); resolve(r.secure_url || null); }
-                catch(e) { resolve(null); }
+            try {
+              const https = require('https');
+              const http2 = require('http');
+              const client = sourceUrl.startsWith('https') ? https : http2;
+              const req = client.get(sourceUrl, { headers: { 'User-Agent': 'shophere-migrate' }, timeout: 20000 }, (res2) => {
+                if (res2.statusCode !== 200) { resolve(null); return; }
+                const chunks = [];
+                res2.on('data', c => chunks.push(c));
+                res2.on('end', async () => {
+                  const data = Buffer.concat(chunks);
+                  const mime = (res2.headers['content-type'] || 'image/jpeg').split(';')[0].trim();
+                  const ext  = mime.includes('png') ? '.png' : mime.includes('gif') ? '.gif' : mime.includes('webp') ? '.webp' : mime.includes('video') ? '.mp4' : '.jpg';
+                  const url  = await uploadToGitHub(data, mime, 'migrated' + ext);
+                  resolve(url);
+                });
+                res2.on('error', () => resolve(null));
               });
-            });
-            req.on('error', () => resolve(null));
-            req.write(formData); req.end();
+              req.on('error', () => resolve(null));
+              req.on('timeout', () => { req.destroy(); resolve(null); });
+            } catch(e) { resolve(null); }
           });
         }
 
@@ -1205,7 +1175,7 @@ if (false && host && host.endsWith('.onrender.com')) {
 
           for (let i = 0; i < newImages.length; i++) {
             if (!newImages[i].url || !newImages[i].url.includes('wzaxevft')) continue;
-            const newUrl = await uploadUrlToNewCloud(newImages[i].url, 'image');
+            const newUrl = await uploadUrlToGitHub(newImages[i].url);
             if (newUrl) { newImages[i] = { ...newImages[i], url: newUrl }; changed = true; }
             else errors++;
             await new Promise(r => setTimeout(r, 300));
@@ -1213,7 +1183,7 @@ if (false && host && host.endsWith('.onrender.com')) {
 
           for (let i = 0; i < newVideos.length; i++) {
             if (!newVideos[i].url || !newVideos[i].url.includes('wzaxevft')) continue;
-            const newUrl = await uploadUrlToNewCloud(newVideos[i].url, 'video');
+            const newUrl = await uploadUrlToGitHub(newVideos[i].url);
             if (newUrl) { newVideos[i] = { ...newVideos[i], url: newUrl }; changed = true; }
             else errors++;
             await new Promise(r => setTimeout(r, 600));
@@ -1361,13 +1331,13 @@ if (false && host && host.endsWith('.onrender.com')) {
           if (!v.url) continue;
           if (v.url.includes('cloudinary.com')) { newVideos.push(v); continue; }
           if (v.url.startsWith('/uploads/')) {
-            // Try to read local file and upload to Cloudinary
+            // Try to read local file and upload to GitHub
             try {
               const localPath = path.join(BASE_DIR, v.url);
-              if (fs.existsSync(localPath) && _cloudName) {
+              if (fs.existsSync(localPath)) {
                 const fileData = fs.readFileSync(localPath);
-                const cloudUrl = await uploadToCloudinary(fileData, v.type || 'video/mp4', v.name || 'video.mp4');
-                if (cloudUrl && cloudUrl !== '/uploads/' + path.basename(localPath)) {
+                const cloudUrl = await uploadToGitHub(fileData, v.type || 'video/mp4', v.name || 'video.mp4');
+                if (cloudUrl) {
                   newVideos.push({ ...v, url: cloudUrl });
                   changed = true;
                   console.log('[REPAIR-VIDEO] uploaded:', cloudUrl);
@@ -1390,9 +1360,9 @@ if (false && host && host.endsWith('.onrender.com')) {
           if (a.url.startsWith('/uploads/')) {
             try {
               const localPath = path.join(BASE_DIR, a.url);
-              if (fs.existsSync(localPath) && _cloudName) {
+              if (fs.existsSync(localPath)) {
                 const fileData = fs.readFileSync(localPath);
-                const cloudUrl = await uploadToCloudinary(fileData, a.type || 'audio/mpeg', a.name || 'audio.mp3');
+                const cloudUrl = await uploadToGitHub(fileData, a.type || 'audio/mpeg', a.name || 'audio.mp3');
                 if (cloudUrl) {
                   newAudios.push({ ...a, url: cloudUrl });
                   changed = true;
@@ -1662,11 +1632,8 @@ if (false && host && host.endsWith('.onrender.com')) {
       const imgFile = files.find(f => f.fieldName === 'image' && f.data && f.data.length > 0);
       if (!imgFile) return sendJSON(res, 400, { error: 'No image provided' });
       let url = '';
-      if (_cloudName) {
-        const cloudUrl = await uploadToCloudinary(imgFile.data, imgFile.mimeType, imgFile.filename);
-        url = cloudUrl || saveFile(imgFile).url;
-      } else {
-        url = saveFile(imgFile).url;
+      const cloudUrl = await uploadToGitHub(imgFile.data, imgFile.mimeType, imgFile.filename);
+      url = cloudUrl || saveFile(imgFile).url;
       }
       return sendJSON(res, 200, { url });
     }
