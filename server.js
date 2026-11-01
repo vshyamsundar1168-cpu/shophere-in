@@ -294,11 +294,14 @@ async function uploadToB2(fileData, mimeType, filename) {
     const name = Date.now() + '_' + crypto.randomBytes(4).toString('hex') + ext;
 
     const auth = await getB2Auth();
+    // Reset upload URL cache each time to avoid stale tokens
+    auth.uploadUrl = null; auth.uploadToken = null;
     await getB2UploadUrl(auth);
 
     const sha1 = crypto.createHash('sha1').update(fileData).digest('hex');
-    const uploadHost = new URL(auth.uploadUrl).hostname;
-    const uploadPath = new URL(auth.uploadUrl).pathname;
+    const parsedUploadUrl = new URL(auth.uploadUrl);
+    const uploadHost = parsedUploadUrl.hostname;
+    const uploadPath = parsedUploadUrl.pathname + (parsedUploadUrl.search || '');
 
     return new Promise((resolve) => {
       const https = require('https');
@@ -1190,6 +1193,17 @@ if (false && host && host.endsWith('.onrender.com')) {
       const { ObjectId } = require('mongodb');
       try { await db.collection('discounts').deleteOne({ _id: new ObjectId(discid[1]) }); return sendJSON(res, 200, { deleted:true }); }
       catch(e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+
+    // -- TEST B2 UPLOAD -------------------------------------------------------
+    if (p === '/api/test-b2' && m === 'GET') {
+      try {
+        const testData = Buffer.from('B2 test from shophere.in ' + Date.now());
+        const url = await uploadToB2(testData, 'text/plain', 'test.txt');
+        return sendJSON(res, 200, { ok: !!url, url: url || null });
+      } catch(e) {
+        return sendJSON(res, 500, { ok: false, error: e.message });
+      }
     }
 
     // -- MIGRATE OLD CLOUDINARY IMAGES (wzaxevft → cwkwp9e) --------------------
