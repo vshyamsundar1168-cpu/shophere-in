@@ -1229,6 +1229,33 @@ if (false && host && host.endsWith('.onrender.com')) {
       }
     }
 
+    // -- DELETE ALL BROKEN IMAGES (old Cloudinary) --------------------------------
+    // POST /api/clear-broken-images -- removes all broken cloudinary image URLs
+    if (p === '/api/clear-broken-images' && m === 'POST') {
+      const db = getDb();
+      const all = await db.collection('products').find({}, { projection: { _id:1, id:1, images:1, videos:1 } }).toArray();
+      let fixed = 0;
+      for (const prod of all) {
+        const cleanImages = (prod.images||[]).filter(img =>
+          img.url && !img.url.includes('cloudinary.com') && !img.url.includes('res.cloudinary')
+        );
+        const cleanVideos = (prod.videos||[]).filter(v =>
+          v.url && !v.url.includes('cloudinary.com') && !v.url.includes('res.cloudinary')
+        );
+        const imgChanged = cleanImages.length !== (prod.images||[]).length;
+        const vidChanged = cleanVideos.length !== (prod.videos||[]).length;
+        if (imgChanged || vidChanged) {
+          await db.collection('products').updateOne(
+            { _id: prod._id },
+            { $set: { images: cleanImages, videos: cleanVideos } }
+          );
+          fixed++;
+        }
+      }
+      console.log(`[CLEAR-BROKEN] removed broken images from ${fixed} products`);
+      return sendJSON(res, 200, { ok: true, fixed, total: all.length });
+    }
+
     // -- TEST B2 UPLOAD -------------------------------------------------------
     if (p === '/api/test-b2' && m === 'GET') {
       try {

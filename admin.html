@@ -974,6 +974,7 @@ if(window.location.protocol==='file:'){
         <button onclick="repairImages()" style="padding:9px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Repair Images</button>
         <button onclick="repairVideos()" style="padding:9px 16px;background:#f97316;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Repair Videos</button>
         <button onclick="migrateCloudinary()" style="padding:9px 16px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">☁️ Migrate Old Photos</button>
+        <button onclick="clearAllBrokenImages()" style="padding:9px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">🗑️ Delete All Broken Images</button>
         <button onclick="invSaveAll()" style="padding:9px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer"> Save All Changes</button>
         <button onclick="loadInventory()" style="padding:9px 16px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer"> Refresh</button>
       </div>
@@ -1956,6 +1957,26 @@ async function migrateCloudinary() {
   } catch(e) {
     if (btn) { btn.textContent = '☁️ Migrate Old Photos'; btn.disabled = false; }
     toast('x Migration error: ' + e.message);
+  }
+}
+
+async function clearAllBrokenImages() {
+  if (!confirm('This will permanently delete ALL broken Cloudinary images from all 400+ products.\n\nThis cannot be undone. New images you upload will work fine.\n\nContinue?')) return;
+  const btn = document.querySelector('button[onclick="clearAllBrokenImages()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Deleting...'; }
+  try {
+    const r = await fetch('/api/clear-broken-images', { method: 'POST' });
+    const j = await r.json();
+    if (j.ok) {
+      toast(`✅ Done! Removed broken images from ${j.fixed} products (out of ${j.total} total)`);
+      loadInventory();
+    } else {
+      toast('❌ Error: ' + (j.error || 'Unknown error'));
+    }
+  } catch(e) {
+    toast('❌ Failed: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🗑️ Delete All Broken Images'; }
   }
 }
 
