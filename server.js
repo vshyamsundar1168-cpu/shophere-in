@@ -207,108 +207,181 @@ function parseMultipart(req) {
 }
 
 // -- Cloudinary ----------------------------------------------------------------
-// -- GitHub Storage (permanent free storage, replaces Cloudinary forever) ------
-// Files stored at: https://github.com/vshyamsundar1168-cpu/shophere-media
-// Served via jsDelivr CDN: https://cdn.jsdelivr.net/gh/vshyamsundar1168-cpu/shophere-media@main/uploads/FILENAME
-// Set GITHUB_TOKEN in Render env vars.
+// -- Backblaze B2 Storage (permanent, scales forever, ~free for your store) ---
+// Bucket: shophere-media (private) -- served via signed download URLs
+// Set B2_KEY_ID, B2_APP_KEY in Render env vars.
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const GITHUB_REPO  = 'vshyamsundar1168-cpu/shophere-media';
-const GITHUB_BRANCH = 'main';
+const B2_KEY_ID  = process.env.B2_KEY_ID  || '0053f30ddafb31b0000000002';
+const B2_APP_KEY = process.env.B2_APP_KEY  || 'K005qB+W0bPjU9e3ZY2lvj8NGlFrTso';
+const B2_BUCKET_ID   = process.env.B2_BUCKET_ID   || 'f3cfd370fd9d9a7fab13011b';
+const B2_BUCKET_NAME = process.env.B2_BUCKET_NAME || 'shophere-media';
 
-// No-op kept so any old calls to loadCloudinaryConfig() don't crash
-async function loadCloudinaryConfig() {
-  console.log('[GITHUB-STORAGE] configured -- repo:', GITHUB_REPO);
+// Cached auth token -- refreshed automatically on expiry
+let _b2Auth = null;
+
+async function getB2Auth() {
+  if (_b2Auth && _b2Auth.expiresAt > Date.now()) return _b2Auth;
+  const https = require('https');
+  return new Promise((resolve, reject) => {
+    const auth = Buffer.from(B2_KEY_ID + ':' + B2_APP_KEY).toString('base64');
+    const req = https.request({
+      hostname: 'api.backblazeb2.com',
+      path: '/b2api/v2/b2_authorize_account',
+      method: 'GET',
+      headers: { 'Authorization': 'Basic ' + auth }
+    }, (res) => {
+      let b = ''; res.on('data', d => b += d);
+      res.on('end', () => {
+        try {
+          const j = JSON.parse(b);
+          if (j.authorizationToken) {
+            _b2Auth = {
+              token: j.authorizationToken,
+              apiUrl: j.apiUrl,
+              downloadUrl: j.downloadUrl,
+              uploadUrl: null, uploadToken: null,
+              expiresAt: Date.now() + 23 * 60 * 60 * 1000 // 23 hours
+            };
+            console.log('[B2] authorized -- apiUrl:', j.apiUrl);
+            resolve(_b2Auth);
+          } else {
+            reject(new Error('B2 auth failed: ' + b));
+          }
+        } catch(e) { reject(e); }
+      });
+    });
+    req.on('error', reject);
+    req.end();
+  });
 }
 
-async function uploadToGitHub(fileData, mimeType, filename) {
+async function getB2UploadUrl(auth) {
+  if (auth.uploadUrl && auth.uploadToken) return auth;
   const https = require('https');
-  const ext   = path.extname(filename).toLowerCase() || '.jpg';
-  const name  = Date.now() + '_' + crypto.randomBytes(4).toString('hex') + ext;
-  const ghPath = `uploads/${name}`;
-  const content = fileData.toString('base64');
-
-  return new Promise((resolve) => {
-    try {
-      const body = JSON.stringify({
-        message: `Upload ${name}`,
-        content: content,
-        branch: GITHUB_BRANCH
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({ bucketId: B2_BUCKET_ID });
+    const apiHost = new URL(auth.apiUrl).hostname;
+    const req = https.request({
+      hostname: apiHost,
+      path: '/b2api/v2/b2_get_upload_url',
+      method: 'POST',
+      headers: {
+        'Authorization': auth.token,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    }, (res) => {
+      let b = ''; res.on('data', d => b += d);
+      res.on('end', () => {
+        try {
+          const j = JSON.parse(b);
+          if (j.uploadUrl) {
+            auth.uploadUrl = j.uploadUrl;
+            auth.uploadToken = j.authorizationToken;
+            resolve(auth);
+          } else { reject(new Error('getUploadUrl failed: ' + b)); }
+        } catch(e) { reject(e); }
       });
+    });
+    req.on('error', reject);
+    req.write(body); req.end();
+  });
+}
 
-      const options = {
-        hostname: 'api.github.com',
-        port: 443,
-        path: `/repos/${GITHUB_REPO}/contents/${ghPath}`,
-        method: 'PUT',
+async function uploadToB2(fileData, mimeType, filename) {
+  try {
+    const ext  = path.extname(filename).toLowerCase() || '.jpg';
+    const name = Date.now() + '_' + crypto.randomBytes(4).toString('hex') + ext;
+
+    const auth = await getB2Auth();
+    await getB2UploadUrl(auth);
+
+    const sha1 = crypto.createHash('sha1').update(fileData).digest('hex');
+    const uploadHost = new URL(auth.uploadUrl).hostname;
+    const uploadPath = new URL(auth.uploadUrl).pathname;
+
+    return new Promise((resolve) => {
+      const https = require('https');
+      const req = https.request({
+        hostname: uploadHost,
+        path: uploadPath,
+        method: 'POST',
         headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'shophere-in',
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(body)
+          'Authorization': auth.uploadToken,
+          'X-Bz-File-Name': encodeURIComponent('uploads/' + name),
+          'Content-Type': mimeType || 'application/octet-stream',
+          'Content-Length': fileData.length,
+          'X-Bz-Content-Sha1': sha1
         }
-      };
-
-      const req = https.request(options, (res) => {
-        let data = '';
-        res.on('data', c => data += c);
+      }, (res) => {
+        let b = ''; res.on('data', d => b += d);
         res.on('end', () => {
           try {
-            const json = JSON.parse(data);
-            if (res.statusCode === 201 && json.content) {
-              // Use jsDelivr CDN for fast delivery worldwide
-              const cdnUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_REPO}@${GITHUB_BRANCH}/${ghPath}`;
-              console.log('[GITHUB] uploaded:', cdnUrl);
-              resolve(cdnUrl);
+            const j = JSON.parse(b);
+            if (j.fileId) {
+              // Generate a friendly download URL
+              const dlUrl = `${auth.downloadUrl}/file/${B2_BUCKET_NAME}/uploads/${name}`;
+              console.log('[B2] uploaded:', dlUrl);
+              resolve(dlUrl);
             } else {
-              console.error('[GITHUB] upload failed status:', res.statusCode, json.message || '');
+              console.error('[B2] upload failed:', j.message || b);
+              // Reset upload URL on error so next call gets a fresh one
+              auth.uploadUrl = null; auth.uploadToken = null;
               resolve(null);
             }
           } catch(e) { resolve(null); }
         });
       });
-
-      req.on('error', (e) => { console.error('[GITHUB] request error:', e.message); resolve(null); });
-      req.write(body);
-      req.end();
-    } catch(e) {
-      console.error('[GITHUB] unexpected error:', e.message);
-      resolve(null);
-    }
-  });
+      req.on('error', (e) => {
+        console.error('[B2] request error:', e.message);
+        auth.uploadUrl = null; auth.uploadToken = null;
+        resolve(null);
+      });
+      req.write(fileData); req.end();
+    });
+  } catch(e) {
+    console.error('[B2] unexpected error:', e.message);
+    return null;
+  }
 }
 
-// Keep the old function name working -- now uploads to GitHub
+// No-op kept so any old calls don't crash
+async function loadCloudinaryConfig() {
+  console.log('[B2-STORAGE] configured -- bucket:', B2_BUCKET_NAME);
+}
+
+// Unified upload function -- all media goes to Backblaze B2
+async function uploadToGitHub(fileData, mimeType, filename) {
+  return uploadToB2(fileData, mimeType, filename);
+}
+
 async function uploadToCloudinary(fileData, mimeType, filename) {
-  return uploadToGitHub(fileData, mimeType, filename);
+  return uploadToB2(fileData, mimeType, filename);
 }
 
-// Fetch a supplier image URL and re-upload to GitHub
+// Fetch a supplier image URL and re-upload to B2
 async function mirrorImageToCloudinary(imageUrl) {
   if (!imageUrl || !imageUrl.startsWith('http')) return imageUrl;
-  // Already on GitHub/jsDelivr -- no need to re-upload
-  if (imageUrl.includes('githubusercontent.com') || imageUrl.includes('jsdelivr.net')) return imageUrl;
+  if (imageUrl.includes('backblazeb2.com')) return imageUrl;
 
   return new Promise((resolve) => {
     try {
       const https  = require('https');
       const http2  = require('http');
       const client = imageUrl.startsWith('https') ? https : http2;
-
       const req = client.get(imageUrl, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Referer': new URL(imageUrl).origin },
+        headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': new URL(imageUrl).origin },
         timeout: 15000
       }, (res) => {
         if (res.statusCode !== 200) { resolve(imageUrl); return; }
         const chunks = [];
         res.on('data', c => chunks.push(c));
         res.on('end', async () => {
-          const data     = Buffer.concat(chunks);
-          const mimeType = (res.headers['content-type'] || 'image/jpeg').split(';')[0].trim();
-          const ext      = mimeType.includes('png') ? '.png' : mimeType.includes('gif') ? '.gif' : mimeType.includes('webp') ? '.webp' : '.jpg';
-          const ghUrl = await uploadToGitHub(data, mimeType, 'supplier' + ext);
-          resolve(ghUrl || imageUrl);
+          const data = Buffer.concat(chunks);
+          const mt   = (res.headers['content-type'] || 'image/jpeg').split(';')[0].trim();
+          const ext  = mt.includes('png') ? '.png' : mt.includes('gif') ? '.gif' : mt.includes('webp') ? '.webp' : '.jpg';
+          const b2Url = await uploadToB2(data, mt, 'supplier' + ext);
+          resolve(b2Url || imageUrl);
         });
         res.on('error', () => resolve(imageUrl));
       });
