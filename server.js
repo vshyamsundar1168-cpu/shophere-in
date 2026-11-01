@@ -322,10 +322,11 @@ async function uploadToB2(fileData, mimeType, filename) {
           try {
             const j = JSON.parse(b);
             if (j.fileId) {
-              // Generate a friendly download URL
-              const dlUrl = `${auth.downloadUrl}/file/${B2_BUCKET_NAME}/uploads/${name}`;
-              console.log('[B2] uploaded:', dlUrl);
-              resolve(dlUrl);
+              // Generate a signed download URL valid for 7 days (604800 seconds)
+              // Served via /api/b2img/ proxy so private bucket works for customers
+              const signedUrl = `/api/b2img/uploads/${name}`;
+              console.log('[B2] uploaded:', name, '→', signedUrl);
+              resolve(signedUrl);
             } else {
               console.error('[B2] upload failed:', j.message || b);
               // Reset upload URL on error so next call gets a fresh one
@@ -1193,6 +1194,39 @@ if (false && host && host.endsWith('.onrender.com')) {
       const { ObjectId } = require('mongodb');
       try { await db.collection('discounts').deleteOne({ _id: new ObjectId(discid[1]) }); return sendJSON(res, 200, { deleted:true }); }
       catch(e) { return sendJSON(res, 400, { error: e.message }); }
+    }
+
+    // -- B2 IMAGE PROXY -- serves private B2 images to customers ----------------
+    // GET /api/b2img/uploads/filename.jpg
+    if (p.startsWith('/api/b2img/') && m === 'GET') {
+      try {
+        const filePath = p.replace('/api/b2img/', '');
+        const auth = await getB2Auth();
+        const dlHost = new URL(auth.downloadUrl).hostname;
+        const https2 = require('https');
+        const b2req = https2.get({
+          hostname: dlHost,
+          path: `/file/${B2_BUCKET_NAME}/${filePath}`,
+          headers: { 'Authorization': auth.token }
+        }, (b2res) => {
+          if (b2res.statusCode === 200) {
+            const ct = b2res.headers['content-type'] || 'image/jpeg';
+            res.writeHead(200, {
+              'Content-Type': ct,
+              'Cache-Control': 'public, max-age=86400',
+              'Access-Control-Allow-Origin': '*'
+            });
+            b2res.pipe(res);
+          } else {
+            res.writeHead(b2res.statusCode); res.end();
+          }
+        });
+        b2req.on('error', () => { res.writeHead(500); res.end(); });
+        return;
+      } catch(e) {
+        res.writeHead(500); res.end();
+        return;
+      }
     }
 
     // -- TEST B2 UPLOAD -------------------------------------------------------
