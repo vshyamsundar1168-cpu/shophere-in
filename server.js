@@ -1634,7 +1634,6 @@ if (false && host && host.endsWith('.onrender.com')) {
       let url = '';
       const cloudUrl = await uploadToGitHub(imgFile.data, imgFile.mimeType, imgFile.filename);
       url = cloudUrl || saveFile(imgFile).url;
-      }
       return sendJSON(res, 200, { url });
     }
 
